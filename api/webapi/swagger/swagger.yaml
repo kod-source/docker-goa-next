@@ -1,0 +1,45 @@
+consumes:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+host: localhost:3000
+info:
+  description: A teaser for goa
+  title: The docker_goa API
+  version: ""
+paths:
+  /add/{left}/{right}:
+    get:
+      description: add returns the sum of the left and right parameters in the response
+        body
+      operationId: operands#add
+      parameters:
+      - description: Left operand
+        in: path
+        name: left
+        required: true
+        type: integer
+      - description: Right operand
+        in: path
+        name: right
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+      summary: add operands
+      tags:
+      - operands
+produces:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+schemes:
+- http
+swagger: "2.0"
