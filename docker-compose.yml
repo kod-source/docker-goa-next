@@ -11,8 +11,6 @@ services:
       - ./api:/go/src/app
     ports:
       - 3000:3000
-    extra_hosts:
-      - localhost:172.18.0.1
   client:
     build:
       context: ./docker/client/
