@@ -27,12 +27,24 @@ import (
 )
 
 type (
+	// LoginAuthCommand is the command line data structure for the login action of auth
+	LoginAuthCommand struct {
+		Payload     string
+		ContentType string
+		PrettyPrint bool
+	}
+
 	// AddOperandsCommand is the command line data structure for the add action of operands
 	AddOperandsCommand struct {
 		// Left operand
 		Left int
 		// Right operand
 		Right       int
+		PrettyPrint bool
+	}
+
+	// GetCurrentUserUsersCommand is the command line data structure for the get_current_user action of users
+	GetCurrentUserUsersCommand struct {
 		PrettyPrint bool
 	}
 )
@@ -52,6 +64,42 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	}
 	tmp1.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp1.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "get-current-user",
+		Short: `ログインしているユーザーの情報を取得する`,
+	}
+	tmp2 := new(GetCurrentUserUsersCommand)
+	sub = &cobra.Command{
+		Use:   `users ["/current_user"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
+	}
+	tmp2.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp2.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "login",
+		Short: `jwtでのログイン処理`,
+	}
+	tmp3 := new(LoginAuthCommand)
+	sub = &cobra.Command{
+		Use:   `auth ["/login"]`,
+		Short: ``,
+		Long: `
+
+Payload example:
+
+{
+   "email": "sample@goa-sample.test.com",
+   "password": "test1234"
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
+	}
+	tmp3.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 }
@@ -209,6 +257,39 @@ func boolArray(ins []string) ([]bool, error) {
 	return vals, nil
 }
 
+// Run makes the HTTP request corresponding to the LoginAuthCommand command.
+func (cmd *LoginAuthCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/login"
+	}
+	var payload client.LoginAuthPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.LoginAuth(ctx, path, &payload, cmd.ContentType)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *LoginAuthCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+}
+
 // Run makes the HTTP request corresponding to the AddOperandsCommand command.
 func (cmd *AddOperandsCommand) Run(c *client.Client, args []string) error {
 	var path string
@@ -235,4 +316,28 @@ func (cmd *AddOperandsCommand) RegisterFlags(cc *cobra.Command, c *client.Client
 	cc.Flags().IntVar(&cmd.Left, "left", left, `Left operand`)
 	var right int
 	cc.Flags().IntVar(&cmd.Right, "right", right, `Right operand`)
+}
+
+// Run makes the HTTP request corresponding to the GetCurrentUserUsersCommand command.
+func (cmd *GetCurrentUserUsersCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/current_user"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.GetCurrentUserUsers(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *GetCurrentUserUsersCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 }

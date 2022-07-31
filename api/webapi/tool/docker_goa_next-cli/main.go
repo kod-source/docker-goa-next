@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/kod-source/docker-goa-next/webapi/client"
 	"github.com/kod-source/docker-goa-next/webapi/tool/cli"
 	goaclient "github.com/shogo82148/goa-v1/client"
 	"github.com/spf13/cobra"
-	"net/http"
-	"os"
-	"time"
 )
 
 func main() {

@@ -31,6 +31,54 @@ func initService(service *goa.Service) {
 	service.Decoder.Register(goa.NewJSONDecoder, "*/*")
 }
 
+// AuthController is the controller interface for the Auth actions.
+type AuthController interface {
+	goa.Muxer
+	Login(*LoginAuthContext) error
+}
+
+// MountAuthController "mounts" a Auth resource controller on the given service.
+func MountAuthController(service *goa.Service, ctrl AuthController) {
+	initService(service)
+	var h goa.Handler
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewLoginAuthContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*LoginAuthPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Login(rctx)
+	}
+	service.Mux.Handle("POST", "/login", ctrl.MuxHandler("login", h, unmarshalLoginAuthPayload))
+	service.LogInfo("mount", "ctrl", "Auth", "action", "Login", "route", "POST /login")
+}
+
+// unmarshalLoginAuthPayload unmarshals the request body into the context request data Payload field.
+func unmarshalLoginAuthPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &loginAuthPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
 // OperandsController is the controller interface for the Operands actions.
 type OperandsController interface {
 	goa.Muxer
@@ -56,4 +104,32 @@ func MountOperandsController(service *goa.Service, ctrl OperandsController) {
 	}
 	service.Mux.Handle("GET", "/add/:left/:right", ctrl.MuxHandler("add", h, nil))
 	service.LogInfo("mount", "ctrl", "Operands", "action", "Add", "route", "GET /add/:left/:right")
+}
+
+// UsersController is the controller interface for the Users actions.
+type UsersController interface {
+	goa.Muxer
+	GetCurrentUser(*GetCurrentUserUsersContext) error
+}
+
+// MountUsersController "mounts" a Users resource controller on the given service.
+func MountUsersController(service *goa.Service, ctrl UsersController) {
+	initService(service)
+	var h goa.Handler
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetCurrentUserUsersContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetCurrentUser(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	service.Mux.Handle("GET", "/current_user", ctrl.MuxHandler("get_current_user", h, nil))
+	service.LogInfo("mount", "ctrl", "Users", "action", "GetCurrentUser", "route", "GET /current_user", "security", "jwt")
 }
