@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/kod-source/docker-goa-next/client"
-	"github.com/kod-source/docker-goa-next/tool/cli"
+	"github.com/kod-source/docker-goa-next/webapi/client"
+	"github.com/kod-source/docker-goa-next/webapi/tool/cli"
 	goaclient "github.com/shogo82148/goa-v1/client"
 	"github.com/spf13/cobra"
 	"net/http"
