@@ -1,0 +1,4 @@
+tmp/
+webapi/
+/webapi/swagger/swagger.json
+
