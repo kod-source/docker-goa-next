@@ -17,6 +17,97 @@ import (
 	"strconv"
 )
 
+// LoginAuthContext provides the auth login action context.
+type LoginAuthContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *LoginAuthPayload
+}
+
+// NewLoginAuthContext parses the incoming request URL and body, performs validations and creates the
+// context used by the auth controller login action.
+func NewLoginAuthContext(ctx context.Context, r *http.Request, service *goa.Service) (*LoginAuthContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := LoginAuthContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// loginAuthPayload is the auth login action payload.
+type loginAuthPayload struct {
+	// name of string
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
+	// detail of sample
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *loginAuthPayload) Validate() (err error) {
+	if payload.Email == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "email"))
+	}
+	if payload.Password == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "password"))
+	}
+	return
+}
+
+// Publicize creates LoginAuthPayload from loginAuthPayload
+func (payload *loginAuthPayload) Publicize() *LoginAuthPayload {
+	var pub LoginAuthPayload
+	if payload.Email != nil {
+		pub.Email = *payload.Email
+	}
+	if payload.Password != nil {
+		pub.Password = *payload.Password
+	}
+	return &pub
+}
+
+// LoginAuthPayload is the auth login action payload.
+type LoginAuthPayload struct {
+	// name of string
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
+	// detail of sample
+	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *LoginAuthPayload) Validate() (err error) {
+
+	return
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *LoginAuthContext) OK(r *Token) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.token+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *LoginAuthContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *LoginAuthContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *LoginAuthContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // AddOperandsContext provides the operands add action context.
 type AddOperandsContext struct {
 	context.Context
@@ -64,4 +155,43 @@ func (ctx *AddOperandsContext) OK(resp []byte) error {
 	ctx.ResponseData.WriteHeader(200)
 	_, err := ctx.ResponseData.Write(resp)
 	return err
+}
+
+// GetCurrentUserUsersContext provides the users get_current_user action context.
+type GetCurrentUserUsersContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewGetCurrentUserUsersContext parses the incoming request URL and body, performs validations and creates the
+// context used by the users controller get_current_user action.
+func NewGetCurrentUserUsersContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetCurrentUserUsersContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetCurrentUserUsersContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetCurrentUserUsersContext) OK(r *User) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.user+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *GetCurrentUserUsersContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetCurrentUserUsersContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
 }

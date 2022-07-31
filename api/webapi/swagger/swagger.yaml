@@ -3,6 +3,75 @@ consumes:
 - application/xml
 - application/gob
 - application/x-gob
+definitions:
+  LoginAuthPayload:
+    example:
+      email: sample@goa-sample.test.com
+      password: test1234
+    properties:
+      email:
+        description: name of string
+        example: sample@goa-sample.test.com
+        type: string
+      password:
+        description: detail of sample
+        example: test1234
+        type: string
+    required:
+    - email
+    - password
+    title: LoginAuthPayload
+    type: object
+  Token:
+    description: token (default view)
+    example:
+      token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+      user:
+        email: test@exmaple.com
+        id: 1
+        name: 佐藤　太郎
+        password: pas
+    properties:
+      token:
+        description: token value
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        type: string
+      user:
+        $ref: '#/definitions/User'
+    required:
+    - token
+    - user
+    title: 'Mediatype identifier: application/vnd.token+json; view=default'
+    type: object
+  User:
+    description: user (default view)
+    example:
+      email: test@exmaple.com
+      id: 1
+      name: 佐藤　太郎
+      password: pas
+    properties:
+      email:
+        description: email
+        example: test@exmaple.com
+        type: string
+      id:
+        description: id
+        example: 1
+        format: int64
+        type: integer
+      name:
+        description: name
+        example: 佐藤　太郎
+        type: string
+      password:
+        description: password
+        example: pas
+        type: string
+    required:
+    - id
+    title: 'Mediatype identifier: application/vnd.user+json; view=default'
+    type: object
 host: localhost:3000
 info:
   description: A teaser for goa
@@ -35,11 +104,83 @@ paths:
       summary: add operands
       tags:
       - operands
+  /current_user:
+    get:
+      description: |-
+        ログインしているユーザーの情報を取得する
+
+        Required security scopes:
+          * `api:access`
+      operationId: users#get_current_user
+      produces:
+      - application/vnd.user+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: get_current_user users
+      tags:
+      - users
+  /login:
+    post:
+      description: jwtでのログイン処理
+      operationId: auth#login
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/LoginAuthPayload'
+      produces:
+      - application/vnd.token+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Token'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      summary: login auth
+      tags:
+      - auth
 produces:
 - application/json
 - application/xml
 - application/gob
 - application/x-gob
+responses:
+  BadRequest:
+    description: Bad Request
+  InternalServerError:
+    description: Internal Server Error
+  NotFound:
+    description: Not Found
 schemes:
 - http
+securityDefinitions:
+  jwt:
+    description: |2-
+
+
+      **Security Scopes**:
+        * `api:access`: API access
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -9,3 +9,51 @@
 // --version=v1.5.13
 
 package app
+
+import (
+	goa "github.com/shogo82148/goa-v1"
+)
+
+// token (default view)
+//
+// Identifier: application/vnd.token+json; view=default
+type Token struct {
+	// token value
+	Token string `form:"token" json:"token" yaml:"token" xml:"token"`
+	// user value
+	User *User `form:"user" json:"user" yaml:"user" xml:"user"`
+}
+
+// Validate validates the Token media type instance.
+func (mt *Token) Validate() (err error) {
+
+	if mt.User == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "user"))
+	}
+	if mt.User != nil {
+		if err2 := mt.User.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// user (default view)
+//
+// Identifier: application/vnd.user+json; view=default
+type User struct {
+	// email
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
+	// id
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// name
+	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
+	// password
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
+}
+
+// Validate validates the User media type instance.
+func (mt *User) Validate() (err error) {
+
+	return
+}

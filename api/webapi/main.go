@@ -18,9 +18,15 @@ func main() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
+	app.UseJWTMiddleware(service, newAuthMiddleware())
+
 	// Mount "operands" controller
 	c := NewOperandsController(service)
 	app.MountOperandsController(service, c)
+	a := NewAuthController(service)
+	app.MountAuthController(service, a)
+	u := NewUsersController(service)
+	app.MountUsersController(service, u)
 
 	// Start service
 	if err := service.ListenAndServe(":3000"); err != nil {

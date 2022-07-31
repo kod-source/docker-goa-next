@@ -9,3 +9,66 @@
 // --version=v1.5.13
 
 package client
+
+import (
+	goa "github.com/shogo82148/goa-v1"
+	"net/http"
+)
+
+// token (default view)
+//
+// Identifier: application/vnd.token+json; view=default
+type Token struct {
+	// token value
+	Token string `form:"token" json:"token" yaml:"token" xml:"token"`
+	// user value
+	User *User `form:"user" json:"user" yaml:"user" xml:"user"`
+}
+
+// Validate validates the Token media type instance.
+func (mt *Token) Validate() (err error) {
+
+	if mt.User == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "user"))
+	}
+	if mt.User != nil {
+		if err2 := mt.User.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// DecodeToken decodes the Token instance encoded in resp body.
+func (c *Client) DecodeToken(resp *http.Response) (*Token, error) {
+	var decoded Token
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// user (default view)
+//
+// Identifier: application/vnd.user+json; view=default
+type User struct {
+	// email
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
+	// id
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// name
+	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
+	// password
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
+}
+
+// Validate validates the User media type instance.
+func (mt *User) Validate() (err error) {
+
+	return
+}
+
+// DecodeUser decodes the User instance encoded in resp body.
+func (c *Client) DecodeUser(resp *http.Response) (*User, error) {
+	var decoded User
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
