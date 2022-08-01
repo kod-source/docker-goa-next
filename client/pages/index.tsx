@@ -1,9 +1,15 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import Image from 'next/image';
+import { useContext } from 'react';
 import styles from '../styles/Home.module.css';
+import { AppContext } from './_app';
 
 const Home: NextPage = () => {
+  const { user } = useContext(AppContext);
+
+  if (!user) {
+    return <p>Loading</p>;
+  }
   return (
     <div className={styles.container}>
       <Head>
@@ -13,6 +19,11 @@ const Home: NextPage = () => {
       </Head>
       <div className='text-center text-red-700'>
         <h1>トップページ</h1>
+        <div>
+          <p>ID:{user.id}</p>
+          <p>ユーザー名:{user.name}</p>
+          <p>Email:{user.email}</p>
+        </div>
       </div>
     </div>
   );
