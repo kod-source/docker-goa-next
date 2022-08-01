@@ -3,6 +3,10 @@
 package main
 
 import (
+	"log"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/kod-source/docker-goa-next/app/schema"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
@@ -21,8 +25,13 @@ func main() {
 
 	app.UseJWTMiddleware(service, newAuthMiddleware())
 
+	db, err := schema.NewDB()
+	if err != nil {
+		log.Panic(err)
+	}
+	defer db.Close()
 	// Mount "operands" controller
-	uu := usecase.NewUserUseCase()
+	uu := usecase.NewUserUseCase(db)
 	c := NewOperandsController(service)
 	app.MountOperandsController(service, c)
 	a := NewAuthController(service, uu)
