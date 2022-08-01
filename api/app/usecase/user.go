@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"time"
 
@@ -15,10 +16,14 @@ type UserUseCase interface {
 	CreateJWTToken(ctx context.Context, id int, name string) (*string, error)
 }
 
-type userUseCase struct{}
+type userUseCase struct {
+	db *sql.DB
+}
 
-func NewUserUseCase() UserUseCase {
-	return userUseCase{}
+func NewUserUseCase(db *sql.DB) UserUseCase {
+	return userUseCase{
+		db: db,
+	}
 }
 
 func (u userUseCase) GetUser(ctx context.Context, id int) (*model.User, error) {

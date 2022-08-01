@@ -3,11 +3,10 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
-	"os"
+	"log"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/kod-source/docker-goa-next/app/schema"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
@@ -17,11 +16,6 @@ import (
 func main() {
 	// Create service
 	service := goa.New("docker_goa_next")
-	fmt.Println("実行")
-	_, err := sql.Open(os.Getenv("DRIVER"), os.Getenv("DSN"))
-	if err != nil {
-		fmt.Println(err)
-	}
 
 	// Mount middleware
 	service.Use(middleware.RequestID())
@@ -31,8 +25,13 @@ func main() {
 
 	app.UseJWTMiddleware(service, newAuthMiddleware())
 
+	db, err := schema.NewDB()
+	if err != nil {
+		log.Panic(err)
+	}
+	defer db.Close()
 	// Mount "operands" controller
-	uu := usecase.NewUserUseCase()
+	uu := usecase.NewUserUseCase(db)
 	c := NewOperandsController(service)
 	app.MountOperandsController(service, c)
 	a := NewAuthController(service, uu)
