@@ -8,4 +8,4 @@ design:
 
 # go mod tidyの実行
 tidy:
-	docker-compsoe run api go mod tidy
+	docker-compose run api go mod tidy
