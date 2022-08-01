@@ -10,6 +10,11 @@ var _ = API("docker_goa_next", func() {
 	Description("A teaser for goa")
 	Host("localhost:3000")
 	Scheme("http")
+
+	Origin("/.*localhost.*/", func() {
+		Headers("Authorization, Content-Type")
+		Methods("GET", "POST", "PUT", "DELETE")
+	})
 })
 
 var _ = Resource("operands", func() {
@@ -22,5 +27,4 @@ var _ = Resource("operands", func() {
 		})
 		Response(OK, "text/plain")
 	})
-
 })
