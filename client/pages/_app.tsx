@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import { User } from '../lib/model/user';
+import 'tailwindcss/tailwind.css';
 
 export const AppContext = React.createContext(
   {} as {
