@@ -15,23 +15,23 @@ import (
 // AuthController implements the auth resource.
 type AuthController struct {
 	*goa.Controller
-	usecase.UserUseCase
+	uu usecase.UserUseCase
 }
 
 // NewAuthController creates a auth controller.
-func NewAuthController(service *goa.Service) *AuthController {
-	return &AuthController{Controller: service.NewController("AuthController"), UserUseCase: usecase.NewUserUseCase()}
+func NewAuthController(service *goa.Service, uu usecase.UserUseCase) *AuthController {
+	return &AuthController{Controller: service.NewController("AuthController"), uu: uu}
 }
 
 // Login runs the login action.
 func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 	email := ctx.Payload.Email
 	password := ctx.Payload.Password
-	user, err := c.GetUserByEmail(ctx, email, password)
+	user, err := c.uu.GetUserByEmail(ctx, email, password)
 	if err != nil {
 		return ctx.InternalServerError()
 	}
-	token, err := c.CreateJWTToken(ctx, user.ID, user.Name)
+	token, err := c.uu.CreateJWTToken(ctx, user.ID, user.Name)
 	if err != nil {
 		return ctx.InternalServerError()
 	}

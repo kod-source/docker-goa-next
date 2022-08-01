@@ -9,18 +9,18 @@ import (
 // UsersController implements the users resource.
 type UsersController struct {
 	*goa.Controller
-	usecase.UserUseCase
+	uu usecase.UserUseCase
 }
 
 // NewUsersController creates a users controller.
-func NewUsersController(service *goa.Service) *UsersController {
-	return &UsersController{Controller: service.NewController("UsersController"), UserUseCase: usecase.NewUserUseCase()}
+func NewUsersController(service *goa.Service, uu usecase.UserUseCase) *UsersController {
+	return &UsersController{Controller: service.NewController("UsersController"), uu: uu}
 }
 
 // GetCurrentUser runs the get_current_user action.
 func (c *UsersController) GetCurrentUser(ctx *app.GetCurrentUserUsersContext) error {
 	id := getUserIDCode(ctx)
-	user, err := c.GetUser(ctx, id)
+	user, err := c.uu.GetUser(ctx, id)
 	if err != nil {
 		return ctx.NotFound()
 	}
