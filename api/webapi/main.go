@@ -3,6 +3,7 @@
 package main
 
 import (
+	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
 	"github.com/shogo82148/goa-v1/middleware"
@@ -21,11 +22,12 @@ func main() {
 	app.UseJWTMiddleware(service, newAuthMiddleware())
 
 	// Mount "operands" controller
+	uu := usecase.NewUserUseCase()
 	c := NewOperandsController(service)
 	app.MountOperandsController(service, c)
-	a := NewAuthController(service)
+	a := NewAuthController(service, uu)
 	app.MountAuthController(service, a)
-	u := NewUsersController(service)
+	u := NewUsersController(service, uu)
 	app.MountUsersController(service, u)
 
 	// Start service
