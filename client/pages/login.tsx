@@ -15,7 +15,7 @@ import { useContext, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { AppContext } from './_app';
-import { User } from '../lib/models/user';
+import { User } from '../lib/model/user';
 
 function Copyright(props: any) {
   return (

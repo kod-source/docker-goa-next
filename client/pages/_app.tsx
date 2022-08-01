@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { User } from '../lib/models/user';
+import { User } from '../lib/model/user';
 
 export const AppContext = React.createContext(
   {} as {
