@@ -49,7 +49,6 @@ const Login: NextPage = () => {
         email: email,
         password: password,
       });
-      console.log(res.data)
       const token: string = res.data.token;
       localStorage.setItem('token', token);
       const user: User = res.data.user;
