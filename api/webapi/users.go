@@ -25,10 +25,11 @@ func (c *UsersController) GetCurrentUser(ctx *app.GetCurrentUserUsersContext) er
 		return ctx.NotFound()
 	}
 	res := &app.User{
-		ID:       user.ID,
-		Email:    &user.Email,
-		Name:     &user.Name,
-		Password: &user.Password,
+		ID:        user.ID,
+		Email:     &user.Email,
+		Name:      &user.Name,
+		Password:  &user.Password,
+		CreatedAt: &user.CreatedAt,
 	}
 	return ctx.OK(res)
 }

@@ -20,9 +20,9 @@ import (
 
 // LoginAuthPayload is the auth login action payload.
 type LoginAuthPayload struct {
-	// name of string
+	// メール
 	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
-	// detail of sample
+	// パスワード
 	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
 }
 

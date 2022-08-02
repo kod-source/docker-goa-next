@@ -16,10 +16,10 @@ var _ = Resource("auth", func() {
 		Routing(POST("login"))
 		Description("jwtでのログイン処理")
 		Payload(func() {
-			Attribute("email", String, "name of string", func() {
+			Attribute("email", String, "メール", func() {
 				Example("sample@goa-sample.test.com")
 			})
-			Attribute("password", String, "detail of sample", func() {
+			Attribute("password", String, "パスワード", func() {
 				Example("test1234")
 			})
 			Required("email", "password")
