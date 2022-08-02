@@ -12,6 +12,7 @@ package app
 
 import (
 	goa "github.com/shogo82148/goa-v1"
+	"time"
 )
 
 // token (default view)
@@ -42,13 +43,15 @@ func (mt *Token) Validate() (err error) {
 //
 // Identifier: application/vnd.user+json; view=default
 type User struct {
-	// email
+	// 作成日
+	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
+	// メール
 	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
-	// id
+	// ID
 	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
-	// name
+	// 名前
 	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
-	// password
+	// パスワード
 	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
 }
 

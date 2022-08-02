@@ -10,11 +10,11 @@ definitions:
       password: test1234
     properties:
       email:
-        description: name of string
+        description: メール
         example: sample@goa-sample.test.com
         type: string
       password:
-        description: detail of sample
+        description: パスワード
         example: test1234
         type: string
     required:
@@ -27,6 +27,7 @@ definitions:
     example:
       token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
       user:
+        created_at: "2019-01-31T00:00:00+09:00"
         email: test@exmaple.com
         id: 1
         name: 佐藤　太郎
@@ -46,26 +47,32 @@ definitions:
   User:
     description: user (default view)
     example:
+      created_at: "2019-01-31T00:00:00+09:00"
       email: test@exmaple.com
       id: 1
       name: 佐藤　太郎
       password: pas
     properties:
+      created_at:
+        description: 作成日
+        example: "2019-01-31T00:00:00+09:00"
+        format: date-time
+        type: string
       email:
-        description: email
+        description: メール
         example: test@exmaple.com
         type: string
       id:
-        description: id
+        description: ID
         example: 1
         format: int64
         type: integer
       name:
-        description: name
+        description: 名前
         example: 佐藤　太郎
         type: string
       password:
-        description: password
+        description: パスワード
         example: pas
         type: string
     required:

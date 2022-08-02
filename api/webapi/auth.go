@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -29,6 +30,9 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 	password := ctx.Payload.Password
 	user, err := c.uu.GetUserByEmail(ctx, email, password)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return ctx.NotFound()
+		}
 		return ctx.InternalServerError()
 	}
 	token, err := c.uu.CreateJWTToken(ctx, user.ID, user.Name)
@@ -36,10 +40,11 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 		return ctx.InternalServerError()
 	}
 	res := &app.Token{User: &app.User{
-		ID:       user.ID,
-		Email:    &user.Email,
-		Name:     &user.Name,
-		Password: &user.Password,
+		ID:        user.ID,
+		Email:     &user.Email,
+		Name:      &user.Name,
+		Password:  &user.Password,
+		CreatedAt: &user.CreatedAt,
 	}, Token: *token}
 	return ctx.OK(res)
 }

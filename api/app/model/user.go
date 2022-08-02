@@ -1,15 +1,11 @@
 package model
 
-type User struct {
-	ID       int
-	Name     string
-	Email    string
-	Password string
-}
+import "time"
 
-var MockUser = User{
-	ID:       1,
-	Name:     "佐藤　太郎",
-	Email:    "test@exmaple.com",
-	Password: "Test-1234",
+type User struct {
+	ID        int       `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	CreatedAt time.Time `json:"created_at"`
 }

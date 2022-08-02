@@ -39,9 +39,9 @@ func NewLoginAuthContext(ctx context.Context, r *http.Request, service *goa.Serv
 
 // loginAuthPayload is the auth login action payload.
 type loginAuthPayload struct {
-	// name of string
+	// メール
 	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
-	// detail of sample
+	// パスワード
 	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
 }
 
@@ -70,9 +70,9 @@ func (payload *loginAuthPayload) Publicize() *LoginAuthPayload {
 
 // LoginAuthPayload is the auth login action payload.
 type LoginAuthPayload struct {
-	// name of string
+	// メール
 	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
-	// detail of sample
+	// パスワード
 	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
 }
 
