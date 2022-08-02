@@ -1,21 +1,23 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import Link from '@mui/material/Link';
-import Paper from '@mui/material/Paper';
-import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useContext, useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { AppContext } from './_app';
 import { User } from '../lib/model/user';
+import {
+  Grid,
+  Typography,
+  Box,
+  Paper,
+  Link,
+  TextField,
+  CssBaseline,
+  Button,
+  Avatar,
+} from '@mui/material';
 
 function Copyright(props: any) {
   return (
@@ -51,8 +53,15 @@ const Login: NextPage = () => {
       });
       const token: string = res.data.token;
       localStorage.setItem('token', token);
-      const user: User = res.data.user;
-      setUser(user);
+      setUser(
+        new User(
+          res.data.user.id,
+          res.data.user.name,
+          res.data.user.email,
+          res.data.user.password,
+          new Date(res.data.user.created_at)
+        )
+      );
       router.push('/');
     } catch (e) {
       if (e instanceof Error) {
@@ -105,9 +114,9 @@ const Login: NextPage = () => {
                 alignItems: 'center',
               }}
             >
-              <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                <LockOutlinedIcon />
-              </Avatar>
+              {/* <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                <PersonOutlineIcon />
+              </Avatar> */}
               <Typography component='h1' variant='h5'>
                 Sign in
               </Typography>
