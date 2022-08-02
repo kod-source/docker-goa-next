@@ -5,10 +5,3 @@ CREATE TABLE IF NOT EXISTS `user` (
     `password` VARCHAR(64) NOT NULL,
     `created_at` DATETIME NOT NULL
 );
-
--- INSERT INTO `user` (name, email, password, created_at) VALUES (
---     "佐藤　太郎",
---     "test@exmaple.com",
---     "Test-1234",
---     "2019-03-28 01:23:45"
--- );

@@ -9,10 +9,3 @@ type User struct {
 	Password  string    `json:"password"`
 	CreatedAt time.Time `json:"created_at"`
 }
-
-var MockUser = User{
-	ID:       1,
-	Name:     "佐藤　太郎",
-	Email:    "test@exmaple.com",
-	Password: "Test-1234",
-}
