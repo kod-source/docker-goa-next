@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
@@ -22,7 +24,10 @@ func (c *UsersController) GetCurrentUser(ctx *app.GetCurrentUserUsersContext) er
 	id := getUserIDCode(ctx)
 	user, err := c.uu.GetUser(ctx, id)
 	if err != nil {
-		return ctx.NotFound()
+		if err == sql.ErrNoRows {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
 	}
 	res := &app.User{
 		ID:        user.ID,
