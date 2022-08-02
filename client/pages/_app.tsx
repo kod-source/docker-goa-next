@@ -34,7 +34,13 @@ function MyApp({ Component, pageProps }: AppProps) {
         },
       });
       setUser(
-        new User(res.data.id, res.data.name, res.data.email, res.data.password)
+        new User(
+          res.data.id,
+          res.data.name,
+          res.data.email,
+          res.data.password,
+          new Date(res.data.created_at)
+        )
       );
     } catch {
       if (isFirst) {
