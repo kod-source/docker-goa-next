@@ -34,6 +34,13 @@ type (
 		PrettyPrint bool
 	}
 
+	// SignUpAuthCommand is the command line data structure for the sign_up action of auth
+	SignUpAuthCommand struct {
+		Payload     string
+		ContentType string
+		PrettyPrint bool
+	}
+
 	// AddOperandsCommand is the command line data structure for the add action of operands
 	AddOperandsCommand struct {
 		// Left operand
@@ -100,6 +107,29 @@ Payload example:
 	}
 	tmp3.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "sign-up",
+		Short: `サインアップ`,
+	}
+	tmp4 := new(SignUpAuthCommand)
+	sub = &cobra.Command{
+		Use:   `auth ["/sign_up"]`,
+		Short: ``,
+		Long: `
+
+Payload example:
+
+{
+   "email": "sample@goa-sample.test.com",
+   "name": "田中　太郎",
+   "password": "test1234"
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+	}
+	tmp4.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 }
@@ -286,6 +316,39 @@ func (cmd *LoginAuthCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *LoginAuthCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+}
+
+// Run makes the HTTP request corresponding to the SignUpAuthCommand command.
+func (cmd *SignUpAuthCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/sign_up"
+	}
+	var payload client.SignUpAuthPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.SignUpAuth(ctx, path, &payload, cmd.ContentType)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *SignUpAuthCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }

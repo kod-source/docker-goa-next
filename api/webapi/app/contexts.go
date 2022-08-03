@@ -108,6 +108,101 @@ func (ctx *LoginAuthContext) InternalServerError() error {
 	return nil
 }
 
+// SignUpAuthContext provides the auth sign_up action context.
+type SignUpAuthContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *SignUpAuthPayload
+}
+
+// NewSignUpAuthContext parses the incoming request URL and body, performs validations and creates the
+// context used by the auth controller sign_up action.
+func NewSignUpAuthContext(ctx context.Context, r *http.Request, service *goa.Service) (*SignUpAuthContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := SignUpAuthContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// signUpAuthPayload is the auth sign_up action payload.
+type signUpAuthPayload struct {
+	// メール
+	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
+	// 名前
+	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
+	// パスワード
+	Password *string `form:"password,omitempty" json:"password,omitempty" yaml:"password,omitempty" xml:"password,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *signUpAuthPayload) Validate() (err error) {
+	if payload.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "name"))
+	}
+	if payload.Email == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "email"))
+	}
+	if payload.Password == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "password"))
+	}
+	return
+}
+
+// Publicize creates SignUpAuthPayload from signUpAuthPayload
+func (payload *signUpAuthPayload) Publicize() *SignUpAuthPayload {
+	var pub SignUpAuthPayload
+	if payload.Email != nil {
+		pub.Email = *payload.Email
+	}
+	if payload.Name != nil {
+		pub.Name = *payload.Name
+	}
+	if payload.Password != nil {
+		pub.Password = *payload.Password
+	}
+	return &pub
+}
+
+// SignUpAuthPayload is the auth sign_up action payload.
+type SignUpAuthPayload struct {
+	// メール
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
+	// 名前
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// パスワード
+	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *SignUpAuthPayload) Validate() (err error) {
+
+	return
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *SignUpAuthContext) Created(r *Token) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.token+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *SignUpAuthContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *SignUpAuthContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // AddOperandsContext provides the operands add action context.
 type AddOperandsContext struct {
 	context.Context

@@ -22,6 +22,30 @@ definitions:
     - password
     title: LoginAuthPayload
     type: object
+  SignUpAuthPayload:
+    example:
+      email: sample@goa-sample.test.com
+      name: 田中　太郎
+      password: test1234
+    properties:
+      email:
+        description: メール
+        example: sample@goa-sample.test.com
+        type: string
+      name:
+        description: 名前
+        example: 田中　太郎
+        type: string
+      password:
+        description: パスワード
+        example: test1234
+        type: string
+    required:
+    - name
+    - email
+    - password
+    title: SignUpAuthPayload
+    type: object
   Token:
     description: token (default view)
     example:
@@ -164,6 +188,32 @@ paths:
       schemes:
       - http
       summary: login auth
+      tags:
+      - auth
+  /sign_up:
+    post:
+      description: サインアップ
+      operationId: auth#sign_up
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/SignUpAuthPayload'
+      produces:
+      - application/vnd.token+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Token'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      summary: sign_up auth
       tags:
       - auth
 produces:

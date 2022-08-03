@@ -67,3 +67,55 @@ func (c *Client) NewLoginAuthRequest(ctx context.Context, path string, payload *
 	}
 	return req, nil
 }
+
+// SignUpAuthPayload is the auth sign_up action payload.
+type SignUpAuthPayload struct {
+	// メール
+	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
+	// 名前
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// パスワード
+	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
+}
+
+// SignUpAuthPath computes a request path to the sign_up action of auth.
+func SignUpAuthPath() string {
+	return fmt.Sprintf("/sign_up")
+}
+
+// サインアップ
+func (c *Client) SignUpAuth(ctx context.Context, path string, payload *SignUpAuthPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewSignUpAuthRequest(ctx, path, payload, contentType)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewSignUpAuthRequest create the request corresponding to the sign_up action endpoint of the auth resource.
+func (c *Client) NewSignUpAuthRequest(ctx context.Context, path string, payload *SignUpAuthPayload, contentType string) (*http.Request, error) {
+	var body bytes.Buffer
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequestWithContext(ctx, "POST", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	if contentType == "*/*" {
+		header.Set("Content-Type", "application/json")
+	} else {
+		header.Set("Content-Type", contentType)
+	}
+	return req, nil
+}

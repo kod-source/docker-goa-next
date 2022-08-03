@@ -49,6 +49,27 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 	return ctx.OK(res)
 }
 
+func (c *AuthController) SignUp(ctx *app.SignUpAuthContext) error {
+	user, err := c.uu.SignUp(ctx, ctx.Payload.Name, ctx.Payload.Email, ctx.Payload.Password)
+	if err != nil {
+		return ctx.BadRequest()
+	}
+	token, err := c.uu.CreateJWTToken(ctx, user.ID, user.Name)
+	if err != nil {
+		return ctx.InternalServerError()
+	}
+	return ctx.Created(&app.Token{
+		Token: *token,
+		User: &app.User{
+			CreatedAt: &user.CreatedAt,
+			Email:     &user.Email,
+			ID:        user.ID,
+			Name:      &user.Name,
+			Password:  &user.Password,
+		},
+	})
+}
+
 // newAuthMiddleware JWT 発行す（APIGatewayにおいて検証済）からユーザ情報を取り出して Context に紐付ける
 func newAuthMiddleware() goa.Middleware {
 	return func(nextHandler goa.Handler) goa.Handler {
