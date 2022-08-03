@@ -24,7 +24,9 @@ func NewUserInteractor(db *sql.DB) UserInteractor {
 
 func (u userInteractor) GetUser(ctx context.Context, id int) (*model.User, error) {
 	var user model.User
-	err := u.db.QueryRow("SELECT `id`, `name`, `email`, `password`, `created_at` FROM `user` WHERE `id` = ?", id).Scan(
+	err := u.db.QueryRow(
+		"SELECT `id`, `name`, `email`, `password`, `created_at` FROM `users` WHERE `id` = ?", id,
+	).Scan(
 		&user.ID,
 		&user.Name,
 		&user.Email,
@@ -40,7 +42,7 @@ func (u userInteractor) GetUser(ctx context.Context, id int) (*model.User, error
 func (u userInteractor) GetUserByEmail(ctx context.Context, email, password string) (*model.User, error) {
 	var user model.User
 	err := u.db.QueryRow(
-		"SELECT `id`, `name`, `email`, `password`, `created_at` FROM `user` WHERE `email` = ? AND `password` = ?",
+		"SELECT `id`, `name`, `email`, `password`, `created_at` FROM `users` WHERE `email` = ? AND `password` = ?",
 		email,
 		password,
 	).Scan(
