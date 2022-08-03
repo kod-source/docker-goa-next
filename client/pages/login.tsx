@@ -67,7 +67,7 @@ const Login: NextPage = () => {
     } catch (e) {
       if (isAxiosError(e)) {
         const myAxiosError = e.response?.data as MyAxiosError;
-        if (myAxiosError.message.length == 0) {
+        if (!myAxiosError.message) {
           return alert(e.message);
         }
         return alert(myAxiosError.message);
