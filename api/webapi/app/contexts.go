@@ -91,15 +91,19 @@ func (ctx *LoginAuthContext) OK(r *Token) error {
 }
 
 // BadRequest sends a HTTP response with status code 400.
-func (ctx *LoginAuthContext) BadRequest() error {
-	ctx.ResponseData.WriteHeader(400)
-	return nil
+func (ctx *LoginAuthContext) BadRequest(r *ServiceVerror) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.service.verror")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *LoginAuthContext) NotFound() error {
-	ctx.ResponseData.WriteHeader(404)
-	return nil
+func (ctx *LoginAuthContext) NotFound(r *ServiceVerror) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.service.verror")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.

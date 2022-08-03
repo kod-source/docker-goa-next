@@ -25,8 +25,8 @@ var _ = Resource("auth", func() {
 			Required("email", "password")
 		})
 		Response(OK, token)
-		Response(NotFound)
-		Response(BadRequest)
+		Response(NotFound, MyError)
+		Response(BadRequest, MyError)
 		Response(InternalServerError)
 	})
 	Action("sign_up", func() {

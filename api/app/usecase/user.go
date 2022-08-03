@@ -5,6 +5,7 @@ import (
 
 	"github.com/kod-source/docker-goa-next/app/interactor"
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -35,11 +36,11 @@ func (u userUseCase) GetUser(ctx context.Context, id int) (*model.User, error) {
 
 func (u userUseCase) GetUserByEmail(ctx context.Context, email, password string) (*model.User, error) {
 	user, err := u.ui.GetUserByEmail(ctx, email)
-	if err = compareHashAndPassword(user.Password, password); err != nil {
-		return nil, err
-	}
 	if err != nil {
 		return nil, err
+	}
+	if err = compareHashAndPassword(user.Password, password); err != nil {
+		return nil, myerrors.PasswordWorngError
 	}
 
 	return user, nil
