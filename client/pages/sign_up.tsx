@@ -1,12 +1,7 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useContext, useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/router';
-import { AppContext } from './_app';
-import { User } from '../lib/model/user';
 import {
   Grid,
   Typography,
@@ -16,8 +11,11 @@ import {
   TextField,
   CssBaseline,
   Button,
-  Avatar,
 } from '@mui/material';
+import { FormEvent, useContext, useState } from 'react';
+import { useRouter } from 'next/router';
+import { AppContext } from './_app';
+import { User } from '../lib/model/user';
 
 function Copyright(props: any) {
   return (
@@ -37,17 +35,19 @@ function Copyright(props: any) {
   );
 }
 
-const Login: NextPage = () => {
-  const theme = createTheme();
+const SignUp: NextPage = () => {
   const { setUser } = useContext(AppContext);
+  const theme = createTheme();
   const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:3000/login', {
+      const res = await axios.post('http://localhost:3000/sign_up', {
+        name: name,
         email: email,
         password: password,
       });
@@ -69,6 +69,7 @@ const Login: NextPage = () => {
       }
     }
   };
+
   return (
     <div>
       <Head>
@@ -114,13 +115,21 @@ const Login: NextPage = () => {
                 alignItems: 'center',
               }}
             >
-              {/* <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                <PersonOutlineIcon />
-              </Avatar> */}
               <Typography component='h1' variant='h5'>
-                Sign in
+                Sign Up
               </Typography>
               <form onSubmit={onSubmit}>
+                <TextField
+                  margin='normal'
+                  required
+                  fullWidth
+                  label='氏名'
+                  name='name'
+                  autoComplete='name'
+                  autoFocus
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
                 <TextField
                   margin='normal'
                   required
@@ -128,7 +137,6 @@ const Login: NextPage = () => {
                   label='Email Address'
                   name='email'
                   autoComplete='email'
-                  autoFocus
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
@@ -150,10 +158,10 @@ const Login: NextPage = () => {
                   className='bg-blue-400'
                   sx={{ mt: 3, mb: 2 }}
                 >
-                  Sign In
+                  Sign Up
                 </Button>
-                <Button onClick={() => router.push('/sign_up')}>
-                  新規アカウント作成はこちら
+                <Button onClick={() => router.push('/login')}>
+                  ログインに戻る
                 </Button>
                 <Copyright sx={{ mt: 5 }} />
               </form>
@@ -165,4 +173,4 @@ const Login: NextPage = () => {
   );
 };
 
-export default Login;
+export default SignUp;
