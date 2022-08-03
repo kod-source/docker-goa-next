@@ -11,7 +11,6 @@
 package client
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"net/http"
@@ -42,63 +41,6 @@ func (c *Client) NewGetCurrentUserUsersRequest(ctx context.Context, path string)
 	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
 	if err != nil {
 		return nil, err
-	}
-	if c.JWTSigner != nil {
-		if err := c.JWTSigner.Sign(req); err != nil {
-			return nil, err
-		}
-	}
-	return req, nil
-}
-
-// SignUpUsersPayload is the users sign_up action payload.
-type SignUpUsersPayload struct {
-	// メール
-	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
-	// 名前
-	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
-	// パスワード
-	Password string `form:"password" json:"password" yaml:"password" xml:"password"`
-}
-
-// SignUpUsersPath computes a request path to the sign_up action of users.
-func SignUpUsersPath() string {
-	return fmt.Sprintf("/sign_up")
-}
-
-// サインアップ
-func (c *Client) SignUpUsers(ctx context.Context, path string, payload *SignUpUsersPayload, contentType string) (*http.Response, error) {
-	req, err := c.NewSignUpUsersRequest(ctx, path, payload, contentType)
-	if err != nil {
-		return nil, err
-	}
-	return c.Client.Do(ctx, req)
-}
-
-// NewSignUpUsersRequest create the request corresponding to the sign_up action endpoint of the users resource.
-func (c *Client) NewSignUpUsersRequest(ctx context.Context, path string, payload *SignUpUsersPayload, contentType string) (*http.Request, error) {
-	var body bytes.Buffer
-	if contentType == "" {
-		contentType = "*/*" // Use default encoder
-	}
-	err := c.Encoder.Encode(payload, &body, contentType)
-	if err != nil {
-		return nil, fmt.Errorf("failed to encode body: %s", err)
-	}
-	scheme := c.Scheme
-	if scheme == "" {
-		scheme = "http"
-	}
-	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	req, err := http.NewRequestWithContext(ctx, "POST", u.String(), &body)
-	if err != nil {
-		return nil, err
-	}
-	header := req.Header
-	if contentType == "*/*" {
-		header.Set("Content-Type", "application/json")
-	} else {
-		header.Set("Content-Type", contentType)
 	}
 	if c.JWTSigner != nil {
 		if err := c.JWTSigner.Sign(req); err != nil {

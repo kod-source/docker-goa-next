@@ -22,7 +22,7 @@ definitions:
     - password
     title: LoginAuthPayload
     type: object
-  SignUpUsersPayload:
+  SignUpAuthPayload:
     example:
       email: sample@goa-sample.test.com
       name: 田中　太郎
@@ -44,7 +44,7 @@ definitions:
     - name
     - email
     - password
-    title: SignUpUsersPayload
+    title: SignUpAuthPayload
     type: object
   Token:
     description: token (default view)
@@ -192,18 +192,14 @@ paths:
       - auth
   /sign_up:
     post:
-      description: |-
-        サインアップ
-
-        Required security scopes:
-          * `api:access`
-      operationId: users#sign_up
+      description: サインアップ
+      operationId: auth#sign_up
       parameters:
       - in: body
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/SignUpUsersPayload'
+          $ref: '#/definitions/SignUpAuthPayload'
       produces:
       - application/vnd.token+json
       responses:
@@ -217,12 +213,9 @@ paths:
           description: Internal Server Error
       schemes:
       - http
-      security:
-      - jwt:
-        - api:access
-      summary: sign_up users
+      summary: sign_up auth
       tags:
-      - users
+      - auth
 produces:
 - application/json
 - application/xml

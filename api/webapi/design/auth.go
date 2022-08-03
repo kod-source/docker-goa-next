@@ -29,6 +29,25 @@ var _ = Resource("auth", func() {
 		Response(BadRequest)
 		Response(InternalServerError)
 	})
+	Action("sign_up", func() {
+		Routing(POST("sign_up"))
+		Description("サインアップ")
+		Payload(func() {
+			Attribute("name", String, "名前", func() {
+				Example("田中　太郎")
+			})
+			Attribute("email", String, "メール", func() {
+				Example("sample@goa-sample.test.com")
+			})
+			Attribute("password", String, "パスワード", func() {
+				Example("test1234")
+			})
+			Required("name", "email", "password")
+		})
+		Response(Created, token)
+		Response(BadRequest)
+		Response(InternalServerError)
+	})
 })
 
 var token = MediaType("application/vnd.token+json", func() {

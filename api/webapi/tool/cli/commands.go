@@ -34,6 +34,13 @@ type (
 		PrettyPrint bool
 	}
 
+	// SignUpAuthCommand is the command line data structure for the sign_up action of auth
+	SignUpAuthCommand struct {
+		Payload     string
+		ContentType string
+		PrettyPrint bool
+	}
+
 	// AddOperandsCommand is the command line data structure for the add action of operands
 	AddOperandsCommand struct {
 		// Left operand
@@ -45,13 +52,6 @@ type (
 
 	// GetCurrentUserUsersCommand is the command line data structure for the get_current_user action of users
 	GetCurrentUserUsersCommand struct {
-		PrettyPrint bool
-	}
-
-	// SignUpUsersCommand is the command line data structure for the sign_up action of users
-	SignUpUsersCommand struct {
-		Payload     string
-		ContentType string
 		PrettyPrint bool
 	}
 )
@@ -113,9 +113,9 @@ Payload example:
 		Use:   "sign-up",
 		Short: `サインアップ`,
 	}
-	tmp4 := new(SignUpUsersCommand)
+	tmp4 := new(SignUpAuthCommand)
 	sub = &cobra.Command{
-		Use:   `users ["/sign_up"]`,
+		Use:   `auth ["/sign_up"]`,
 		Short: ``,
 		Long: `
 
@@ -320,6 +320,39 @@ func (cmd *LoginAuthCommand) RegisterFlags(cc *cobra.Command, c *client.Client) 
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }
 
+// Run makes the HTTP request corresponding to the SignUpAuthCommand command.
+func (cmd *SignUpAuthCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/sign_up"
+	}
+	var payload client.SignUpAuthPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.SignUpAuth(ctx, path, &payload, cmd.ContentType)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *SignUpAuthCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+}
+
 // Run makes the HTTP request corresponding to the AddOperandsCommand command.
 func (cmd *AddOperandsCommand) Run(c *client.Client, args []string) error {
 	var path string
@@ -370,37 +403,4 @@ func (cmd *GetCurrentUserUsersCommand) Run(c *client.Client, args []string) erro
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *GetCurrentUserUsersCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-}
-
-// Run makes the HTTP request corresponding to the SignUpUsersCommand command.
-func (cmd *SignUpUsersCommand) Run(c *client.Client, args []string) error {
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/sign_up"
-	}
-	var payload client.SignUpUsersPayload
-	if cmd.Payload != "" {
-		err := json.Unmarshal([]byte(cmd.Payload), &payload)
-		if err != nil {
-			return fmt.Errorf("failed to deserialize payload: %s", err)
-		}
-	}
-	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
-	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.SignUpUsers(ctx, path, &payload, cmd.ContentType)
-	if err != nil {
-		goa.LogError(ctx, "failed", "err", err)
-		return err
-	}
-
-	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
-	return nil
-}
-
-// RegisterFlags registers the command flags with the command line.
-func (cmd *SignUpUsersCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
-	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }

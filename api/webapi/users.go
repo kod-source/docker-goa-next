@@ -38,24 +38,3 @@ func (c *UsersController) GetCurrentUser(ctx *app.GetCurrentUserUsersContext) er
 	}
 	return ctx.OK(res)
 }
-
-func (c *UsersController) SignUp(ctx *app.SignUpUsersContext) error {
-	user, err := c.uu.SignUp(ctx, ctx.Payload.Name, ctx.Payload.Email, ctx.Payload.Password)
-	if err != nil {
-		return ctx.BadRequest()
-	}
-	token, err := c.uu.CreateJWTToken(ctx, user.ID, user.Name)
-	if err != nil {
-		return ctx.InternalServerError()
-	}
-	return ctx.Created(&app.Token{
-		Token: *token,
-		User: &app.User{
-			CreatedAt: &user.CreatedAt,
-			Email:     &user.Email,
-			ID:        user.ID,
-			Name:      &user.Name,
-			Password:  &user.Password,
-		},
-	})
-}
