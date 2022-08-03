@@ -16,6 +16,33 @@ import (
 	"time"
 )
 
+// my error (default view)
+//
+// Identifier: application/vnd.service.verror; view=default
+type ServiceVerror struct {
+	// Code
+	Code int `form:"code" json:"code" yaml:"code" xml:"code"`
+	// Details
+	Details interface{} `form:"details,omitempty" json:"details,omitempty" yaml:"details,omitempty" xml:"details,omitempty"`
+	// エラーメッセージ
+	Message string `form:"message" json:"message" yaml:"message" xml:"message"`
+	// Status
+	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
+}
+
+// Validate validates the ServiceVerror media type instance.
+func (mt *ServiceVerror) Validate() (err error) {
+
+	return
+}
+
+// DecodeServiceVerror decodes the ServiceVerror instance encoded in resp body.
+func (c *Client) DecodeServiceVerror(resp *http.Response) (*ServiceVerror, error) {
+	var decoded ServiceVerror
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // token (default view)
 //
 // Identifier: application/vnd.token+json; view=default

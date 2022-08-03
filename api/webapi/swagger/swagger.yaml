@@ -22,6 +22,36 @@ definitions:
     - password
     title: LoginAuthPayload
     type: object
+  ServiceVerror:
+    description: my error (default view)
+    example:
+      code: 404
+      details: true
+      message: record not found
+      status: unauthenticated
+    properties:
+      code:
+        description: Code
+        example: 404
+        format: int64
+        type: integer
+      details:
+        description: Details
+        example: true
+      message:
+        description: エラーメッセージ
+        example: record not found
+        type: string
+      status:
+        description: Status
+        example: unauthenticated
+        type: string
+    required:
+    - code
+    - status
+    - message
+    title: 'Mediatype identifier: application/vnd.service.verror; view=default'
+    type: object
   SignUpAuthPayload:
     example:
       email: sample@goa-sample.test.com
@@ -173,6 +203,7 @@ paths:
         schema:
           $ref: '#/definitions/LoginAuthPayload'
       produces:
+      - application/vnd.service.verror
       - application/vnd.token+json
       responses:
         "200":
@@ -181,8 +212,12 @@ paths:
             $ref: '#/definitions/Token'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/ServiceVerror'
         "404":
           description: Not Found
+          schema:
+            $ref: '#/definitions/ServiceVerror'
         "500":
           description: Internal Server Error
       schemes:

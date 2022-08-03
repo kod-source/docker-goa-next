@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
@@ -31,7 +33,19 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 	user, err := c.uu.GetUserByEmail(ctx, email, password)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return ctx.NotFound()
+			return ctx.NotFound(&app.ServiceVerror{
+				Code:    404,
+				Message: "メールアドレスが間違っています。\n再度ご確認ください。",
+				Status:  "404 Not Found",
+			})
+		}
+		if errors.Is(err, myerrors.PasswordWorngError) {
+			return ctx.BadRequest(&app.ServiceVerror{
+				Code:    400,
+				Details: myerrors.PasswordWorngError,
+				Message: "パスワードが間違っています。",
+				Status:  myerrors.PasswordWorngError.Error(),
+			})
 		}
 		return ctx.InternalServerError()
 	}

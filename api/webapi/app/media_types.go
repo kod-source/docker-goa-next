@@ -15,6 +15,26 @@ import (
 	"time"
 )
 
+// my error (default view)
+//
+// Identifier: application/vnd.service.verror; view=default
+type ServiceVerror struct {
+	// Code
+	Code int `form:"code" json:"code" yaml:"code" xml:"code"`
+	// Details
+	Details interface{} `form:"details,omitempty" json:"details,omitempty" yaml:"details,omitempty" xml:"details,omitempty"`
+	// エラーメッセージ
+	Message string `form:"message" json:"message" yaml:"message" xml:"message"`
+	// Status
+	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
+}
+
+// Validate validates the ServiceVerror media type instance.
+func (mt *ServiceVerror) Validate() (err error) {
+
+	return
+}
+
 // token (default view)
 //
 // Identifier: application/vnd.token+json; view=default
