@@ -18,6 +18,25 @@ var _ = Resource("users", func() {
 		Response(NotFound)
 		Response(InternalServerError)
 	})
+	Action("sign_up", func() {
+		Routing(POST("sign_up"))
+		Description("サインアップ")
+		Payload(func() {
+			Attribute("name", String, "名前", func() {
+				Example("田中　太郎")
+			})
+			Attribute("email", String, "メール", func() {
+				Example("sample@goa-sample.test.com")
+			})
+			Attribute("password", String, "パスワード", func() {
+				Example("test1234")
+			})
+			Required("name", "email", "password")
+		})
+		Response(Created, token)
+		Response(BadRequest)
+		Response(InternalServerError)
+	})
 })
 
 var user = MediaType("application/vnd.user+json", func() {
