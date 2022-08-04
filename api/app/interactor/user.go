@@ -11,7 +11,7 @@ import (
 type UserInteractor interface {
 	GetUser(ctx context.Context, id int) (*model.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
-	CreateUser(ctx context.Context, name, email, password string, avatar *string) (*int, error)
+	CreateUser(ctx context.Context, name, email, password string, avatar *string) (*model.User, error)
 }
 
 type userInteractor struct {
@@ -62,22 +62,30 @@ func (u userInteractor) GetUserByEmail(ctx context.Context, email string) (*mode
 	return &user, nil
 }
 
-func (u userInteractor) CreateUser(ctx context.Context, name, email, passowrd string, avatar *string) (*int, error) {
-	ins, err := u.db.Prepare(
+func (u userInteractor) CreateUser(ctx context.Context, name, email, passowrd string, avatar *string) (*model.User, error) {
+	tx, err := u.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	ins, err := tx.Prepare(
 		"INSERT INTO users(`name`,`email`,`password`,`created_at`, `avatar`) VALUES(?,?,?,?,?)",
 	)
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	res, err := ins.Exec(name, email, passowrd, time.Now(), avatar)
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
 	lastId, err := res.LastInsertId()
+	user, err := u.GetUser(ctx, int(lastId))
 	if err != nil {
+		tx.Rollback()
 		return nil, err
 	}
-	id := int(lastId)
+	tx.Commit()
 
-	return &id, nil
+	return user, nil
 }

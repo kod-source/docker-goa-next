@@ -56,11 +56,7 @@ func (u userUseCase) SignUp(ctx context.Context, name, email, password string, a
 	if err != nil {
 		return nil, err
 	}
-	id, err := u.ui.CreateUser(ctx, name, email, p, avatar)
-	if err != nil {
-		return nil, err
-	}
-	user, err := u.ui.GetUser(ctx, *id)
+	user, err := u.ui.CreateUser(ctx, name, email, p, avatar)
 	if err != nil {
 		return nil, err
 	}
