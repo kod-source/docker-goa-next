@@ -357,17 +357,18 @@ func LoginAuthOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl a
 }
 
 // SignUpAuthBadRequest runs the method SignUp of the given controller with the given parameters and payload.
-// It returns the response writer so it's possible to inspect the response headers.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func SignUpAuthBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.AuthController, payload *app.SignUpAuthPayload) http.ResponseWriter {
+func SignUpAuthBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.AuthController, payload *app.SignUpAuthPayload) (http.ResponseWriter, *app.ServiceVerror) {
 	t.Helper()
 
 	// Setup service
 	var (
 		logBuf strings.Builder
+		resp   interface{}
 
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
 	)
 	if service == nil {
 		service = goatest.Service(&logBuf, respSetter)
@@ -387,7 +388,7 @@ func SignUpAuthBadRequest(t testing.TB, ctx context.Context, service *goa.Servic
 			panic(err) // bug
 		}
 		t.Errorf("unexpected payload validation error: %+v", e)
-		return nil
+		return nil, nil
 	}
 
 	// Setup request context
@@ -410,7 +411,7 @@ func SignUpAuthBadRequest(t testing.TB, ctx context.Context, service *goa.Servic
 			panic("invalid test data " + _err.Error()) // bug
 		}
 		t.Errorf("unexpected parameter validation error: %+v", _e)
-		return nil
+		return nil, nil
 	}
 	signUpCtx.Payload = payload
 
@@ -424,9 +425,21 @@ func SignUpAuthBadRequest(t testing.TB, ctx context.Context, service *goa.Servic
 	if rw.Code != 400 {
 		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
 	}
+	var mt *app.ServiceVerror
+	if resp != nil {
+		var __ok bool
+		mt, __ok = resp.(*app.ServiceVerror)
+		if !__ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.ServiceVerror", resp, resp)
+		}
+		_err = mt.Validate()
+		if _err != nil {
+			t.Errorf("invalid response media type: %s", _err)
+		}
+	}
 
 	// Return results
-	return rw
+	return rw, mt
 }
 
 // SignUpAuthCreated runs the method SignUp of the given controller with the given parameters and payload.

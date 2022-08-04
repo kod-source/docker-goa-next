@@ -203,9 +203,11 @@ func (ctx *SignUpAuthContext) Created(r *Token) error {
 }
 
 // BadRequest sends a HTTP response with status code 400.
-func (ctx *SignUpAuthContext) BadRequest() error {
-	ctx.ResponseData.WriteHeader(400)
-	return nil
+func (ctx *SignUpAuthContext) BadRequest(r *ServiceVerror) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.service.verror")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
 }
 
 // InternalServerError sends a HTTP response with status code 500.

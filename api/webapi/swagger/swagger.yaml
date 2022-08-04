@@ -247,6 +247,7 @@ paths:
         schema:
           $ref: '#/definitions/SignUpAuthPayload'
       produces:
+      - application/vnd.service.verror
       - application/vnd.token+json
       responses:
         "201":
@@ -255,6 +256,8 @@ paths:
             $ref: '#/definitions/Token'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/ServiceVerror'
         "500":
           description: Internal Server Error
       schemes:
@@ -268,8 +271,6 @@ produces:
 - application/gob
 - application/x-gob
 responses:
-  BadRequest:
-    description: Bad Request
   InternalServerError:
     description: Internal Server Error
   NotFound:

@@ -48,7 +48,7 @@ var _ = Resource("auth", func() {
 			Required("name", "email", "password")
 		})
 		Response(Created, token)
-		Response(BadRequest)
+		Response(BadRequest, MyError)
 		Response(InternalServerError)
 	})
 })

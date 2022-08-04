@@ -67,7 +67,14 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 func (c *AuthController) SignUp(ctx *app.SignUpAuthContext) error {
 	user, err := c.uu.SignUp(ctx, ctx.Payload.Name, ctx.Payload.Email, ctx.Payload.Password, ctx.Payload.Avatar)
 	if err != nil {
-		return ctx.BadRequest()
+		if number := myerrors.GetMySQLErrorNumber(err); number == myerrors.MySQLErrorDuplicate.Number {
+			return ctx.BadRequest(&app.ServiceVerror{
+				Code:    400,
+				Message: "そのメールアドレスは既に使用されています",
+				Status:  "your email address is already in use",
+			})
+		}
+		return ctx.InternalServerError()
 	}
 	token, err := c.uu.CreateJWTToken(ctx, user.ID, user.Name)
 	if err != nil {
