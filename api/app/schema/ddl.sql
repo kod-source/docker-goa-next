@@ -7,3 +7,14 @@ CREATE TABLE IF NOT EXISTS `users` (
     `avatar` TEXT,
     UNIQUE (`email`)
 );
+
+
+CREATE TABLE IF NOT EXISTS `posts` (
+    `id` MEDIUMINT NOT NULL AUTO_INCREMENT,
+    `user_id` INT NOT NULL,
+    `title` VARCHAR(50) NOT NULL DEFAULT "",
+    `img` TEXT,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
+    PRIMARY KEY (id)
+);

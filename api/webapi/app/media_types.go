@@ -15,6 +15,30 @@ import (
 	"time"
 )
 
+// 投稿 (default view)
+//
+// Identifier: application/vnd.post_json; view=default
+type PostJSON struct {
+	// 作成日
+	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
+	// ID
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// プロフィール画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// タイトル
+	Title string `form:"title" json:"title" yaml:"title" xml:"title"`
+	// 更新日
+	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
+	// ユーザーID
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+}
+
+// Validate validates the PostJSON media type instance.
+func (mt *PostJSON) Validate() (err error) {
+
+	return
+}
+
 // my error (default view)
 //
 // Identifier: application/vnd.service.verror; view=default

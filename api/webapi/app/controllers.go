@@ -203,6 +203,83 @@ func handleOperandsOrigin(h goa.Handler) goa.Handler {
 	}
 }
 
+// PostsController is the controller interface for the Posts actions.
+type PostsController interface {
+	goa.Muxer
+	CreatePost(*CreatePostPostsContext) error
+}
+
+// MountPostsController "mounts" a Posts resource controller on the given service.
+func MountPostsController(service *goa.Service, ctrl PostsController) {
+	initService(service)
+	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/posts", ctrl.MuxHandler("preflight", handlePostsOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewCreatePostPostsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*CreatePostPostsPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.CreatePost(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handlePostsOrigin(h)
+	service.Mux.Handle("POST", "/posts", ctrl.MuxHandler("create_post", h, unmarshalCreatePostPostsPayload))
+	service.LogInfo("mount", "ctrl", "Posts", "action", "CreatePost", "route", "POST /posts", "security", "jwt")
+}
+
+// handlePostsOrigin applies the CORS response headers corresponding to the origin.
+func handlePostsOrigin(h goa.Handler) goa.Handler {
+	spec0 := regexp.MustCompile(".*localhost.*")
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOriginRegexp(origin, spec0) {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Vary", "Origin")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+				rw.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
+}
+
+// unmarshalCreatePostPostsPayload unmarshals the request body into the context request data Payload field.
+func unmarshalCreatePostPostsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &createPostPostsPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
 // UsersController is the controller interface for the Users actions.
 type UsersController interface {
 	goa.Muxer

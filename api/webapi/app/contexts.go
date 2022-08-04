@@ -265,6 +265,84 @@ func (ctx *AddOperandsContext) OK(resp []byte) error {
 	return err
 }
 
+// CreatePostPostsContext provides the posts create_post action context.
+type CreatePostPostsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *CreatePostPostsPayload
+}
+
+// NewCreatePostPostsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the posts controller create_post action.
+func NewCreatePostPostsContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreatePostPostsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreatePostPostsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// createPostPostsPayload is the posts create_post action payload.
+type createPostPostsPayload struct {
+	// プロフィール画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// タイトル
+	Title *string `form:"title,omitempty" json:"title,omitempty" yaml:"title,omitempty" xml:"title,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *createPostPostsPayload) Validate() (err error) {
+	if payload.Title == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "title"))
+	}
+	return
+}
+
+// Publicize creates CreatePostPostsPayload from createPostPostsPayload
+func (payload *createPostPostsPayload) Publicize() *CreatePostPostsPayload {
+	var pub CreatePostPostsPayload
+	if payload.Img != nil {
+		pub.Img = payload.Img
+	}
+	if payload.Title != nil {
+		pub.Title = *payload.Title
+	}
+	return &pub
+}
+
+// CreatePostPostsPayload is the posts create_post action payload.
+type CreatePostPostsPayload struct {
+	// プロフィール画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// タイトル
+	Title string `form:"title" json:"title" yaml:"title" xml:"title"`
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *CreatePostPostsContext) Created(r *PostJSON) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.post_json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreatePostPostsContext) BadRequest(r *ServiceVerror) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.service.verror")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *CreatePostPostsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // GetCurrentUserUsersContext provides the users get_current_user action context.
 type GetCurrentUserUsersContext struct {
 	context.Context

@@ -35,7 +35,6 @@ var user = MediaType("application/vnd.user+json", func() {
 		Example("pas")
 	})
 	Attribute("created_at", DateTime, "作成日", func() {
-		loc, _ := time.LoadLocation("Asia/Tokyo")
 		Example(time.Date(2019, 01, 31, 0, 0, 0, 0, loc).Format(time.RFC3339))
 	})
 	Attribute("avatar", String, "プロフィール画像パス", func() {
