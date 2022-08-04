@@ -20,7 +20,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   let isFirst = true;
 
   const fetchData = async () => {
-    if (path === '/login') {
+    if (path === '/login' || path === '/sign_up') {
       return;
     }
     const token = localStorage.getItem('token');
@@ -39,7 +39,8 @@ function MyApp({ Component, pageProps }: AppProps) {
           res.data.name,
           res.data.email,
           res.data.password,
-          new Date(res.data.created_at)
+          new Date(res.data.created_at),
+          res.data.avatar
         )
       );
     } catch {

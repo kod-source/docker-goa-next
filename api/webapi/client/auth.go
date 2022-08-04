@@ -70,6 +70,8 @@ func (c *Client) NewLoginAuthRequest(ctx context.Context, path string, payload *
 
 // SignUpAuthPayload is the auth sign_up action payload.
 type SignUpAuthPayload struct {
+	// プロフィール画像のパス
+	Avatar *string `form:"avatar,omitempty" json:"avatar,omitempty" yaml:"avatar,omitempty" xml:"avatar,omitempty"`
 	// メール
 	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
 	// 名前

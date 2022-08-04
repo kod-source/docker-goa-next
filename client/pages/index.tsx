@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { useContext } from 'react';
 import styles from '../styles/Home.module.css';
 import { AppContext } from './_app';
+import Avatar from '@mui/material/Avatar';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -32,6 +33,12 @@ const Home: NextPage = () => {
       <div className='text-center text-red-700'>
         <h1>トjップページ</h1>
         <div>
+          <Avatar
+            sx={{ width: 100, height: 100 }}
+            className="m-auto my-3"
+            alt='My Profile Image'
+            src={user.avatar ? user.avatar : '/avatar.png'}
+          />
           <p>ID : {user.id}</p>
           <p>ユーザー名 : {user.name}</p>
           <p>メールアドレス : {user.email}</p>

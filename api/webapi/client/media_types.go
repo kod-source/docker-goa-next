@@ -78,6 +78,8 @@ func (c *Client) DecodeToken(resp *http.Response) (*Token, error) {
 //
 // Identifier: application/vnd.user+json; view=default
 type User struct {
+	// プロフィール画像パス
+	Avatar *string `form:"avatar,omitempty" json:"avatar,omitempty" yaml:"avatar,omitempty" xml:"avatar,omitempty"`
 	// 作成日
 	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
 	// メール

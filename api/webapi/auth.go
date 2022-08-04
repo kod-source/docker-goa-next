@@ -59,12 +59,13 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 		Name:      &user.Name,
 		Password:  &user.Password,
 		CreatedAt: &user.CreatedAt,
+		Avatar:    user.Avatar,
 	}, Token: *token}
 	return ctx.OK(res)
 }
 
 func (c *AuthController) SignUp(ctx *app.SignUpAuthContext) error {
-	user, err := c.uu.SignUp(ctx, ctx.Payload.Name, ctx.Payload.Email, ctx.Payload.Password)
+	user, err := c.uu.SignUp(ctx, ctx.Payload.Name, ctx.Payload.Email, ctx.Payload.Password, ctx.Payload.Avatar)
 	if err != nil {
 		return ctx.BadRequest()
 	}
@@ -80,6 +81,7 @@ func (c *AuthController) SignUp(ctx *app.SignUpAuthContext) error {
 			ID:        user.ID,
 			Name:      &user.Name,
 			Password:  &user.Password,
+			Avatar:    user.Avatar,
 		},
 	})
 }
