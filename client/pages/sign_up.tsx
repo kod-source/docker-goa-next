@@ -18,6 +18,7 @@ import { useRouter } from 'next/router';
 import { AppContext } from './_app';
 import { User } from '../lib/model/user';
 import Avatar from '@mui/material/Avatar';
+import { isAxiosError, MyAxiosError } from '../lib/axios';
 
 function Copyright(props: any) {
   return (
@@ -69,8 +70,12 @@ const SignUp: NextPage = () => {
       );
       router.push('/');
     } catch (e) {
-      if (e instanceof Error) {
-        alert(e.message);
+      if (isAxiosError(e)) {
+        const myAxiosError = e.response?.data as MyAxiosError;
+        if (!myAxiosError.message) {
+          return alert(e.message);
+        }
+        return alert(myAxiosError.message);
       }
     }
   };
