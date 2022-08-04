@@ -35,6 +35,7 @@ func (c *UsersController) GetCurrentUser(ctx *app.GetCurrentUserUsersContext) er
 		Name:      &user.Name,
 		Password:  &user.Password,
 		CreatedAt: &user.CreatedAt,
+		Avatar:    user.Avatar,
 	}
 	return ctx.OK(res)
 }

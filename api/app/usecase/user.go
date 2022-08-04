@@ -13,7 +13,7 @@ type UserUseCase interface {
 	GetUser(ctx context.Context, id int) (*model.User, error)
 	GetUserByEmail(ctx context.Context, email, password string) (*model.User, error)
 	CreateJWTToken(ctx context.Context, id int, name string) (*string, error)
-	SignUp(ctx context.Context, name, email, password string) (*model.User, error)
+	SignUp(ctx context.Context, name, email, password string, avatar *string) (*model.User, error)
 }
 
 type userUseCase struct {
@@ -51,12 +51,12 @@ func (u userUseCase) CreateJWTToken(ctx context.Context, id int, name string) (*
 	return token, nil
 }
 
-func (u userUseCase) SignUp(ctx context.Context, name, email, password string) (*model.User, error) {
+func (u userUseCase) SignUp(ctx context.Context, name, email, password string, avatar *string) (*model.User, error) {
 	p, err := passwordEncrypt(password)
 	if err != nil {
 		return nil, err
 	}
-	id, err := u.ui.CreateUser(ctx, name, email, p)
+	id, err := u.ui.CreateUser(ctx, name, email, p, avatar)
 	if err != nil {
 		return nil, err
 	}

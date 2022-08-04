@@ -134,6 +134,8 @@ func NewSignUpAuthContext(ctx context.Context, r *http.Request, service *goa.Ser
 
 // signUpAuthPayload is the auth sign_up action payload.
 type signUpAuthPayload struct {
+	// プロフィール画像のパス
+	Avatar *string `form:"avatar,omitempty" json:"avatar,omitempty" yaml:"avatar,omitempty" xml:"avatar,omitempty"`
 	// メール
 	Email *string `form:"email,omitempty" json:"email,omitempty" yaml:"email,omitempty" xml:"email,omitempty"`
 	// 名前
@@ -159,6 +161,9 @@ func (payload *signUpAuthPayload) Validate() (err error) {
 // Publicize creates SignUpAuthPayload from signUpAuthPayload
 func (payload *signUpAuthPayload) Publicize() *SignUpAuthPayload {
 	var pub SignUpAuthPayload
+	if payload.Avatar != nil {
+		pub.Avatar = payload.Avatar
+	}
 	if payload.Email != nil {
 		pub.Email = *payload.Email
 	}
@@ -173,6 +178,8 @@ func (payload *signUpAuthPayload) Publicize() *SignUpAuthPayload {
 
 // SignUpAuthPayload is the auth sign_up action payload.
 type SignUpAuthPayload struct {
+	// プロフィール画像のパス
+	Avatar *string `form:"avatar,omitempty" json:"avatar,omitempty" yaml:"avatar,omitempty" xml:"avatar,omitempty"`
 	// メール
 	Email string `form:"email" json:"email" yaml:"email" xml:"email"`
 	// 名前

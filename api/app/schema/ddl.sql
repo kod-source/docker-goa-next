@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS `users` (
     `email` VARCHAR(50) NOT NULL,
     `password` VARCHAR(64) NOT NULL,
     `created_at` DATETIME NOT NULL,
+    `avatar` TEXT,
     UNIQUE (`email`)
 );
