@@ -47,8 +47,6 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 				Status:  myerrors.PasswordWorngError.Error(),
 			})
 		}
-		fmt.Println("エラーです")
-		fmt.Println(err)
 		return ctx.InternalServerError()
 	}
 	token, err := c.uu.CreateJWTToken(ctx, user.ID, user.Name)
