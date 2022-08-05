@@ -207,6 +207,7 @@ func handleOperandsOrigin(h goa.Handler) goa.Handler {
 type PostsController interface {
 	goa.Muxer
 	CreatePost(*CreatePostPostsContext) error
+	Index(*IndexPostsContext) error
 }
 
 // MountPostsController "mounts" a Posts resource controller on the given service.
@@ -237,6 +238,23 @@ func MountPostsController(service *goa.Service, ctrl PostsController) {
 	h = handlePostsOrigin(h)
 	service.Mux.Handle("POST", "/posts", ctrl.MuxHandler("create_post", h, unmarshalCreatePostPostsPayload))
 	service.LogInfo("mount", "ctrl", "Posts", "action", "CreatePost", "route", "POST /posts", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewIndexPostsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Index(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handlePostsOrigin(h)
+	service.Mux.Handle("GET", "/posts", ctrl.MuxHandler("index", h, nil))
+	service.LogInfo("mount", "ctrl", "Posts", "action", "Index", "route", "GET /posts", "security", "jwt")
 }
 
 // handlePostsOrigin applies the CORS response headers corresponding to the origin.

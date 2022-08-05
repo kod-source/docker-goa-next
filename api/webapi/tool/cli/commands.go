@@ -57,6 +57,11 @@ type (
 		PrettyPrint bool
 	}
 
+	// IndexPostsCommand is the command line data structure for the index action of posts
+	IndexPostsCommand struct {
+		PrettyPrint bool
+	}
+
 	// GetCurrentUserUsersCommand is the command line data structure for the get_current_user action of users
 	GetCurrentUserUsersCommand struct {
 		PrettyPrint bool
@@ -117,10 +122,24 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "index",
+		Short: `全部の登録を取得する`,
+	}
+	tmp4 := new(IndexPostsCommand)
+	sub = &cobra.Command{
+		Use:   `posts ["/posts"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+	}
+	tmp4.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "login",
 		Short: `jwtでのログイン処理`,
 	}
-	tmp4 := new(LoginAuthCommand)
+	tmp5 := new(LoginAuthCommand)
 	sub = &cobra.Command{
 		Use:   `auth ["/login"]`,
 		Short: ``,
@@ -132,17 +151,17 @@ Payload example:
    "email": "sample@goa-sample.test.com",
    "password": "test1234"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
-	tmp4.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp5.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "sign-up",
 		Short: `サインアップ`,
 	}
-	tmp5 := new(SignUpAuthCommand)
+	tmp6 := new(SignUpAuthCommand)
 	sub = &cobra.Command{
 		Use:   `auth ["/sign_up"]`,
 		Short: ``,
@@ -156,10 +175,10 @@ Payload example:
    "name": "田中　太郎",
    "password": "test1234"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
-	tmp5.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp6.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 }
@@ -442,6 +461,30 @@ func (cmd *CreatePostPostsCommand) Run(c *client.Client, args []string) error {
 func (cmd *CreatePostPostsCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+}
+
+// Run makes the HTTP request corresponding to the IndexPostsCommand command.
+func (cmd *IndexPostsCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/posts"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.IndexPosts(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *IndexPostsCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 }
 
 // Run makes the HTTP request corresponding to the GetCurrentUserUsersCommand command.

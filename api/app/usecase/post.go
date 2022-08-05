@@ -10,6 +10,7 @@ import (
 
 type PostUseCase interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.Post, error)
+	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 }
 
 type postUseCase struct {
@@ -29,4 +30,13 @@ func (p postUseCase) CreatePost(ctx context.Context, userID int, title string, i
 		return nil, err
 	}
 	return post, nil
+}
+
+func (p postUseCase) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {
+	indexPosts, err := p.pi.ShowAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return indexPosts, nil
 }
