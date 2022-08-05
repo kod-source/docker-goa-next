@@ -31,7 +31,7 @@ var _ = Resource("posts", func() {
 	Action("index", func() {
 		Routing(GET("posts"))
 		Description("全部の登録を取得する")
-		Response(OK, index_post)
+		Response(OK, CollectionOf(index_post))
 		Response(NotFound)
 		Response(InternalServerError)
 	})

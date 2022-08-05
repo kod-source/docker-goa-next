@@ -43,6 +43,23 @@ func (mt *IndexPostJSON) Validate() (err error) {
 	return
 }
 
+// Index_post_jsonCollection is the media type for an array of Index_post_json (default view)
+//
+// Identifier: application/vnd.index_post_json; type=collection; view=default
+type IndexPostJSONCollection []*IndexPostJSON
+
+// Validate validates the IndexPostJSONCollection media type instance.
+func (mt IndexPostJSONCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
 // 投稿 (default view)
 //
 // Identifier: application/vnd.post_json; view=default

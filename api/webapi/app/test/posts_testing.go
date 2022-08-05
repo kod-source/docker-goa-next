@@ -363,7 +363,7 @@ func IndexPostsNotFound(t testing.TB, ctx context.Context, service *goa.Service,
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func IndexPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController) (http.ResponseWriter, *app.IndexPostJSON) {
+func IndexPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController) (http.ResponseWriter, app.IndexPostJSONCollection) {
 	t.Helper()
 
 	// Setup service
@@ -416,12 +416,12 @@ func IndexPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl 
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt *app.IndexPostJSON
+	var mt app.IndexPostJSONCollection
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.IndexPostJSON)
+		mt, _ok = resp.(app.IndexPostJSONCollection)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.IndexPostJSON", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.IndexPostJSONCollection", resp, resp)
 		}
 		err = mt.Validate()
 		if err != nil {

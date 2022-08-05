@@ -363,9 +363,12 @@ func NewIndexPostsContext(ctx context.Context, r *http.Request, service *goa.Ser
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *IndexPostsContext) OK(r *IndexPostJSON) error {
+func (ctx *IndexPostsContext) OK(r IndexPostJSONCollection) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.index_post_json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.index_post_json; type=collection")
+	}
+	if r == nil {
+		r = IndexPostJSONCollection{}
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }

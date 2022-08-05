@@ -51,6 +51,30 @@ func (c *Client) DecodeIndexPostJSON(resp *http.Response) (*IndexPostJSON, error
 	return &decoded, err
 }
 
+// Index_post_jsonCollection is the media type for an array of Index_post_json (default view)
+//
+// Identifier: application/vnd.index_post_json; type=collection; view=default
+type IndexPostJSONCollection []*IndexPostJSON
+
+// Validate validates the IndexPostJSONCollection media type instance.
+func (mt IndexPostJSONCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// DecodeIndexPostJSONCollection decodes the IndexPostJSONCollection instance encoded in resp body.
+func (c *Client) DecodeIndexPostJSONCollection(resp *http.Response) (IndexPostJSONCollection, error) {
+	var decoded IndexPostJSONCollection
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return decoded, err
+}
+
 // 投稿 (default view)
 //
 // Identifier: application/vnd.post_json; view=default
