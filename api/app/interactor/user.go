@@ -79,8 +79,11 @@ func (u userInteractor) CreateUser(ctx context.Context, name, email, passowrd st
 		tx.Rollback()
 		return nil, err
 	}
-	lastId, err := res.LastInsertId()
-	user, err := u.GetUser(ctx, int(lastId))
+	lastID, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+	user, err := u.GetUser(ctx, int(lastID))
 	if err != nil {
 		tx.Rollback()
 		return nil, err

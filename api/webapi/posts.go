@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
 )
@@ -8,19 +9,28 @@ import (
 // PostsController implements the posts resource.
 type PostsController struct {
 	*goa.Controller
+	pu usecase.PostUseCase
 }
 
 // NewPostsController creates a posts controller.
-func NewPostsController(service *goa.Service) *PostsController {
-	return &PostsController{Controller: service.NewController("PostsController")}
+func NewPostsController(service *goa.Service, pu usecase.PostUseCase) *PostsController {
+	return &PostsController{Controller: service.NewController("PostsController"), pu: pu}
 }
 
 // CreatePost runs the create_post action.
 func (c *PostsController) CreatePost(ctx *app.CreatePostPostsContext) error {
-	// PostsController_CreatePost: start_implement
+	userID := getUserIDCode(ctx)
+	post, err := c.pu.CreatePost(ctx, userID, ctx.Payload.Title, ctx.Payload.Img)
+	if err != nil {
+		return ctx.InternalServerError()
+	}
 
-	// Put your logic here
-
-	return nil
-	// PostsController_CreatePost: end_implement
+	return ctx.Created(&app.PostJSON{
+		ID:        post.ID,
+		UserID:    post.UserID,
+		Title:     post.Title,
+		Img:       post.Img,
+		CreatedAt: &post.CreatedAt,
+		UpdatedAt: &post.UpdatedAt,
+	})
 }

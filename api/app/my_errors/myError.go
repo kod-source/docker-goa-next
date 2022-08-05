@@ -8,6 +8,7 @@ import (
 
 // PasswordWorngError パスワードが間違っているときのエラー
 var PasswordWorngError = errors.New("Password is wronging")
+var EmptyStringError = errors.New("Title is empty string")
 
 var MySQLErrorDuplicate = &mysql.MySQLError{Number: 1062, Message: "duplicate entry"}
 

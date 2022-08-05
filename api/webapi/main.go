@@ -33,12 +33,15 @@ func main() {
 	defer db.Close()
 	// Mount "operands" controller
 	uu := usecase.NewUserUseCase(interactor.NewUserInteractor(db), interactor.NewJWTInteractor())
+	pu := usecase.NewPostUseCase(interactor.NewPostInteractor(db))
 	c := NewOperandsController(service)
 	app.MountOperandsController(service, c)
 	a := NewAuthController(service, uu)
 	app.MountAuthController(service, a)
 	u := NewUsersController(service, uu)
 	app.MountUsersController(service, u)
+	p := NewPostsController(service, pu)
+	app.MountPostsController(service, p)
 
 	// Start service
 	if err := service.ListenAndServe(":3000"); err != nil {
