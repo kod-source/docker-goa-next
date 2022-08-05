@@ -3,23 +3,73 @@ import { DateTime } from 'luxon';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import styles from '../styles/Home.module.css';
 import { AppContext } from './_app';
 import Avatar from '@mui/material/Avatar';
+import { Post } from '../lib/model/post';
+import { User } from '../lib/model/user';
+import axios from 'axios';
+import { title } from 'process';
+import { toStringlinefeed } from '../lib/text';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
   const router = useRouter();
+  const [postsWithUser, setPostsWithUser] = useState<
+    {
+      post: Post;
+      user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+    }[]
+  >();
+  const [post, setPost] = useState<{ title: string; img: string }>({
+    title: '',
+    img: '',
+  });
+  const [forcus, setForcus] = useState(false);
 
   const logout = () => {
     localStorage.removeItem('token');
     router.push('/login');
   };
 
-  if (!user) {
+  const fetchData = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const res = await axios.get('http://localhost:3000/posts', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const postsWithUser: {
+      post: Post;
+      user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+    }[] = [];
+    res.data.forEach((d: any) => {
+      const post = new Post(
+        d.post_id,
+        d.user_id,
+        d.title,
+        new Date(d.created_at),
+        new Date(d.updated_at),
+        d.img
+      );
+      postsWithUser.push({
+        post: post,
+        user: { name: d.user_name, avatar: d.avatar },
+      });
+    });
+    setPostsWithUser(postsWithUser);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  if (!user || !postsWithUser) {
     return <p>Loading</p>;
   }
+  console.log(post);
   return (
     <div className={styles.container}>
       <Head>
@@ -30,12 +80,11 @@ const Home: NextPage = () => {
       <div className='text-right m-2'>
         <Button onClick={() => logout()}>ログアウト</Button>
       </div>
-      <div className='text-center text-red-700'>
-        <h1>トjップページ</h1>
-        <div>
+      <div className='text-center'>
+        {/* <div>
           <Avatar
             sx={{ width: 100, height: 100 }}
-            className="m-auto my-3"
+            className='m-auto my-3'
             alt='My Profile Image'
             src={user.avatar ? user.avatar : '/avatar.png'}
           />
@@ -46,7 +95,73 @@ const Home: NextPage = () => {
             作成日 :{' '}
             {DateTime.fromJSDate(user.createdAt).toFormat('yyyy年MM月dd日')}
           </p>
-        </div>
+        </div> */}
+        <form>
+          <div className='flex justify-center'>
+            <Avatar
+              sx={{ width: 80, height: 80 }}
+              className='mx-5'
+              alt='投稿者'
+              src={user.avatar ? user.avatar : '/avatar.png'}
+            />
+            <label className='cursor-pointer'>
+              {/* <div>
+                {forcus ? (
+                  <p>今どうしてる？</p>
+                ) : (
+                  <>
+                    <p>
+                      {toStringlinefeed(post.title)}
+                      <span className='animate-pulse '>|</span>
+                    </p>
+                  </>
+                )}
+              </div> */}
+              <textarea
+                // className='opacity-0'
+                className='w-96'
+                autoFocus
+                required
+                value={post.title}
+                onChange={(e) =>
+                  setPost((old) => ({ title: e.target.value, img: old.img }))
+                }
+              />
+            </label>
+          </div>
+        </form>
+      </div>
+      <div>
+        {postsWithUser?.map((p) => (
+          <div key={p.post.id}>
+            <div>
+              <Avatar
+                sx={{ width: 80, height: 80 }}
+                alt='投稿者'
+                src={p.user.avatar ? p.user.avatar : '/avatar.png'}
+              />
+              <p>{p.user.name}</p>
+              <p>
+                投稿日：
+                {DateTime.fromJSDate(p.post.createdAt).toFormat(
+                  'yyyy年MM月dd日'
+                )}
+              </p>
+              {p.post.createdAt.getTime() !== p.post.updatedAt.getTime() && (
+                <p>
+                  更新日：
+                  {DateTime.fromJSDate(p.post.updatedAt).toFormat(
+                    'yyyy年MM月dd日'
+                  )}
+                </p>
+              )}
+            </div>
+            <div>
+              <p>{p.post.title}</p>
+              <p>{p.post.img}</p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
