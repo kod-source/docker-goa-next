@@ -72,3 +72,36 @@ func (c *Client) NewCreatePostPostsRequest(ctx context.Context, path string, pay
 	}
 	return req, nil
 }
+
+// IndexPostsPath computes a request path to the index action of posts.
+func IndexPostsPath() string {
+	return fmt.Sprintf("/posts")
+}
+
+// 全部の登録を取得する
+func (c *Client) IndexPosts(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewIndexPostsRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewIndexPostsRequest create the request corresponding to the index action endpoint of the posts resource.
+func (c *Client) NewIndexPostsRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}

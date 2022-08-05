@@ -17,6 +17,34 @@ import (
 
 // 投稿 (default view)
 //
+// Identifier: application/vnd.index_post_json; view=default
+type IndexPostJSON struct {
+	// ユーザー名
+	Avatar *string `form:"avatar,omitempty" json:"avatar,omitempty" yaml:"avatar,omitempty" xml:"avatar,omitempty"`
+	// 作成日
+	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty" yaml:"created_at,omitempty" xml:"created_at,omitempty"`
+	// プロフィール画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// PostID
+	PostID int `form:"post_id" json:"post_id" yaml:"post_id" xml:"post_id"`
+	// タイトル
+	Title string `form:"title" json:"title" yaml:"title" xml:"title"`
+	// 更新日
+	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
+	// ユーザーID
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+	// ユーザー名
+	UserName string `form:"user_name" json:"user_name" yaml:"user_name" xml:"user_name"`
+}
+
+// Validate validates the IndexPostJSON media type instance.
+func (mt *IndexPostJSON) Validate() (err error) {
+
+	return
+}
+
+// 投稿 (default view)
+//
 // Identifier: application/vnd.post_json; view=default
 type PostJSON struct {
 	// 作成日
