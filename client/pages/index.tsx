@@ -3,15 +3,17 @@ import { DateTime } from 'luxon';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useContext, useEffect, useState } from 'react';
+import { FormEvent, useContext, useEffect, useState } from 'react';
 import styles from '../styles/Home.module.css';
 import { AppContext } from './_app';
 import Avatar from '@mui/material/Avatar';
 import { Post } from '../lib/model/post';
 import { User } from '../lib/model/user';
 import axios from 'axios';
-import { title } from 'process';
 import { toStringlinefeed } from '../lib/text';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import { isAxiosError, MyAxiosError } from '../lib/axios';
+import Image from 'next/image';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -26,7 +28,6 @@ const Home: NextPage = () => {
     title: '',
     img: '',
   });
-  const [forcus, setForcus] = useState(false);
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -66,10 +67,53 @@ const Home: NextPage = () => {
     fetchData();
   }, []);
 
+  const onChangeInputFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (!e.target) return null;
+        setPost((old) => ({
+          title: old.title,
+          img: e.target?.result as string,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      const res = await axios.post(
+        'http://localhost:3000/posts',
+        {
+          title: post.title,
+          img: post.img,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setPost({ title: '', img: '' });
+    } catch (e) {
+      if (isAxiosError(e)) {
+        const myAxiosError = e.response?.data as MyAxiosError;
+        if (!myAxiosError.message) {
+          return alert(e.message);
+        }
+        return alert(myAxiosError.message);
+      }
+    }
+  };
+
   if (!user || !postsWithUser) {
     return <p>Loading</p>;
   }
-  console.log(post);
   return (
     <div className={styles.container}>
       <Head>
@@ -81,22 +125,7 @@ const Home: NextPage = () => {
         <Button onClick={() => logout()}>ログアウト</Button>
       </div>
       <div className='text-center'>
-        {/* <div>
-          <Avatar
-            sx={{ width: 100, height: 100 }}
-            className='m-auto my-3'
-            alt='My Profile Image'
-            src={user.avatar ? user.avatar : '/avatar.png'}
-          />
-          <p>ID : {user.id}</p>
-          <p>ユーザー名 : {user.name}</p>
-          <p>メールアドレス : {user.email}</p>
-          <p>
-            作成日 :{' '}
-            {DateTime.fromJSDate(user.createdAt).toFormat('yyyy年MM月dd日')}
-          </p>
-        </div> */}
-        <form>
+        <form onSubmit={onSubmit}>
           <div className='flex justify-center'>
             <Avatar
               sx={{ width: 80, height: 80 }}
@@ -105,20 +134,7 @@ const Home: NextPage = () => {
               src={user.avatar ? user.avatar : '/avatar.png'}
             />
             <label className='cursor-pointer'>
-              {/* <div>
-                {forcus ? (
-                  <p>今どうしてる？</p>
-                ) : (
-                  <>
-                    <p>
-                      {toStringlinefeed(post.title)}
-                      <span className='animate-pulse '>|</span>
-                    </p>
-                  </>
-                )}
-              </div> */}
               <textarea
-                // className='opacity-0'
                 className='w-96'
                 autoFocus
                 required
@@ -129,36 +145,83 @@ const Home: NextPage = () => {
               />
             </label>
           </div>
+          <div className='my-2'>
+            {!!post.img && (
+              <div className='relative'>
+                <Image
+                  src={post.img}
+                  width={500}
+                  height={500}
+                  alt={'post picture'}
+                />
+                <div className='absolute left-[35%] bottom-[90%]'>
+                  <Button
+                    onClick={() =>
+                      setPost((old) => ({ title: old.title, img: '' }))
+                    }
+                  >
+                    ❌
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className='mr-36'>
+            <label className='cursor-pointer'>
+              <AddPhotoAlternateIcon sx={{ width: 50, height: 50 }} />
+              <input
+                type='file'
+                className='hidden'
+                accept='image/*'
+                onChange={onChangeInputFile}
+              />
+            </label>
+            <div className='text-right'>
+              <Button type='submit'>投稿する</Button>
+            </div>
+          </div>
         </form>
       </div>
       <div>
         {postsWithUser?.map((p) => (
-          <div key={p.post.id}>
-            <div>
+          <div key={p.post.id} className='m-5'>
+            <div className='flex'>
               <Avatar
                 sx={{ width: 80, height: 80 }}
                 alt='投稿者'
                 src={p.user.avatar ? p.user.avatar : '/avatar.png'}
               />
-              <p>{p.user.name}</p>
-              <p>
-                投稿日：
-                {DateTime.fromJSDate(p.post.createdAt).toFormat(
-                  'yyyy年MM月dd日'
-                )}
-              </p>
-              {p.post.createdAt.getTime() !== p.post.updatedAt.getTime() && (
-                <p>
-                  更新日：
-                  {DateTime.fromJSDate(p.post.updatedAt).toFormat(
-                    'yyyy年MM月dd日'
+              <div className='pt-5 mx-3'>
+                <p>{p.user.name}</p>
+                <div className='flex'>
+                  <p>
+                    投稿日：
+                    {DateTime.fromJSDate(p.post.createdAt).toFormat(
+                      'yyyy年MM月dd日'
+                    )}
+                  </p>
+                  {p.post.createdAt.getTime() !==
+                    p.post.updatedAt.getTime() && (
+                    <p className='mx-5'>
+                      更新日：
+                      {DateTime.fromJSDate(p.post.updatedAt).toFormat(
+                        'yyyy年MM月dd日'
+                      )}
+                    </p>
                   )}
-                </p>
-              )}
+                </div>
+              </div>
             </div>
             <div>
-              <p>{p.post.title}</p>
-              <p>{p.post.img}</p>
+              <p>{toStringlinefeed(p.post.title)}</p>
+              {!!p.post.img && (
+                <Image
+                  src={p.post.img}
+                  width={500}
+                  height={500}
+                  alt={p.post.title + 'picture'}
+                />
+              )}
             </div>
           </div>
         ))}
