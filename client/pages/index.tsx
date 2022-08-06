@@ -14,6 +14,7 @@ import { toStringlinefeed } from '../lib/text';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
 import Image from 'next/image';
+import { Loading } from '../lib/components/loading';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -111,8 +112,8 @@ const Home: NextPage = () => {
     }
   };
 
-  if (!user || !postsWithUser) {
-    return <p>Loading</p>;
+  if (!user) {
+    return <Loading />;
   }
   return (
     <div className={styles.container}>
@@ -182,50 +183,54 @@ const Home: NextPage = () => {
           </div>
         </form>
       </div>
-      <div>
-        {postsWithUser?.map((p) => (
-          <div key={p.post.id} className='m-5'>
-            <div className='flex'>
-              <Avatar
-                sx={{ width: 80, height: 80 }}
-                alt='投稿者'
-                src={p.user.avatar ? p.user.avatar : '/avatar.png'}
-              />
-              <div className='pt-5 mx-3'>
-                <p>{p.user.name}</p>
-                <div className='flex'>
-                  <p>
-                    投稿日：
-                    {DateTime.fromJSDate(p.post.createdAt).toFormat(
-                      'yyyy年MM月dd日'
-                    )}
-                  </p>
-                  {p.post.createdAt.getTime() !==
-                    p.post.updatedAt.getTime() && (
-                    <p className='mx-5'>
-                      更新日：
-                      {DateTime.fromJSDate(p.post.updatedAt).toFormat(
+      {postsWithUser ? (
+        <div>
+          {postsWithUser.map((p) => (
+            <div key={p.post.id} className='m-5'>
+              <div className='flex'>
+                <Avatar
+                  sx={{ width: 80, height: 80 }}
+                  alt='投稿者'
+                  src={p.user.avatar ? p.user.avatar : '/avatar.png'}
+                />
+                <div className='pt-5 mx-3'>
+                  <p>{p.user.name}</p>
+                  <div className='flex'>
+                    <p>
+                      投稿日：
+                      {DateTime.fromJSDate(p.post.createdAt).toFormat(
                         'yyyy年MM月dd日'
                       )}
                     </p>
-                  )}
+                    {p.post.createdAt.getTime() !==
+                      p.post.updatedAt.getTime() && (
+                      <p className='mx-5'>
+                        更新日：
+                        {DateTime.fromJSDate(p.post.updatedAt).toFormat(
+                          'yyyy年MM月dd日'
+                        )}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
+              <div>
+                <p>{toStringlinefeed(p.post.title)}</p>
+                {!!p.post.img && (
+                  <Image
+                    src={p.post.img}
+                    width={500}
+                    height={500}
+                    alt={p.post.title + 'picture'}
+                  />
+                )}
+              </div>
             </div>
-            <div>
-              <p>{toStringlinefeed(p.post.title)}</p>
-              {!!p.post.img && (
-                <Image
-                  src={p.post.img}
-                  width={500}
-                  height={500}
-                  alt={p.post.title + 'picture'}
-                />
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : (
+        <Loading />
+      )}
     </div>
   );
 };
