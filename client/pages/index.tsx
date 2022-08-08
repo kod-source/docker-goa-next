@@ -11,7 +11,6 @@ import { Post } from '../lib/model/post';
 import { User } from '../lib/model/user';
 import axios from 'axios';
 import { toStringlinefeed } from '../lib/text';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
 import Image from 'next/image';
 import { Loading } from '../lib/components/loading';
@@ -197,7 +196,7 @@ const Home: NextPage = () => {
           </div>
           <div className='mr-36'>
             <label className='cursor-pointer'>
-              <AddPhotoAlternateIcon sx={{ width: 50, height: 50 }} />
+              <Avatar src='/add_photo.jpg' className='m-auto' />
               <input
                 type='file'
                 className='hidden'
