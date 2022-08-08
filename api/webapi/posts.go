@@ -21,18 +21,22 @@ func NewPostsController(service *goa.Service, pu usecase.PostUseCase) *PostsCont
 // CreatePost runs the create_post action.
 func (c *PostsController) CreatePost(ctx *app.CreatePostPostsContext) error {
 	userID := getUserIDCode(ctx)
-	post, err := c.pu.CreatePost(ctx, userID, ctx.Payload.Title, ctx.Payload.Img)
+	ip, err := c.pu.CreatePost(ctx, userID, ctx.Payload.Title, ctx.Payload.Img)
 	if err != nil {
 		return ctx.InternalServerError()
 	}
 
-	return ctx.Created(&app.PostJSON{
-		ID:        post.ID,
-		UserID:    post.UserID,
-		Title:     post.Title,
-		Img:       post.Img,
-		CreatedAt: &post.CreatedAt,
-		UpdatedAt: &post.UpdatedAt,
+	return ctx.Created(&app.IndexPostJSON{
+		Post: &app.PostJSON{
+			ID:        ip.Post.ID,
+			UserID:    ip.Post.UserID,
+			Title:     ip.Post.Title,
+			Img:       ip.Post.Img,
+			CreatedAt: &ip.Post.CreatedAt,
+			UpdatedAt: &ip.Post.UpdatedAt,
+		},
+		Avatar:   ip.User.Avatar,
+		UserName: ip.User.Name,
 	})
 }
 

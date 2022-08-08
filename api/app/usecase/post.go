@@ -9,7 +9,7 @@ import (
 )
 
 type PostUseCase interface {
-	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.Post, error)
+	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
 	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 	Delete(ctx context.Context, id int) error
 }
@@ -22,15 +22,15 @@ func NewPostUseCase(pi interactor.PostInteractor) PostUseCase {
 	return postUseCase{pi: pi}
 }
 
-func (p postUseCase) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.Post, error) {
+func (p postUseCase) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
 	if len(title) == 0 {
 		return nil, myerrors.EmptyStringError
 	}
-	post, err := p.pi.CreatePost(ctx, userID, title, img)
+	indexPost, err := p.pi.CreatePost(ctx, userID, title, img)
 	if err != nil {
 		return nil, err
 	}
-	return post, nil
+	return indexPost, nil
 }
 
 func (p postUseCase) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {
