@@ -58,11 +58,11 @@ const Home: NextPage = () => {
     }[] = [];
     res.data.forEach((d: any) => {
       const post = new Post(
-        d.post_id,
-        d.user_id,
-        d.title,
-        new Date(d.created_at),
-        new Date(d.updated_at),
+        d.post.id,
+        d.post.user_id,
+        d.post.title,
+        new Date(d.post.created_at),
+        new Date(d.post.updated_at),
         d.img
       );
       postsWithUser.push({
