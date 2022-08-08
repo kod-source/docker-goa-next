@@ -322,9 +322,9 @@ type CreatePostPostsPayload struct {
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *CreatePostPostsContext) Created(r *PostJSON) error {
+func (ctx *CreatePostPostsContext) Created(r *IndexPostJSON) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.post_json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.index_post_json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }

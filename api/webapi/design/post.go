@@ -23,7 +23,7 @@ var _ = Resource("posts", func() {
 			})
 			Required("title")
 		})
-		Response(Created, post)
+		Response(Created, post_and_user)
 		Response(BadRequest, MyError)
 		Response(InternalServerError)
 	})

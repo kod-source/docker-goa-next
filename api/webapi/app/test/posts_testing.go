@@ -104,7 +104,7 @@ func CreatePostPostsBadRequest(t testing.TB, ctx context.Context, service *goa.S
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreatePostPostsCreated(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController, payload *app.CreatePostPostsPayload) (http.ResponseWriter, *app.PostJSON) {
+func CreatePostPostsCreated(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController, payload *app.CreatePostPostsPayload) (http.ResponseWriter, *app.IndexPostJSON) {
 	t.Helper()
 
 	// Setup service
@@ -158,12 +158,12 @@ func CreatePostPostsCreated(t testing.TB, ctx context.Context, service *goa.Serv
 	if rw.Code != 201 {
 		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
 	}
-	var mt *app.PostJSON
+	var mt *app.IndexPostJSON
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.PostJSON)
+		mt, _ok = resp.(*app.IndexPostJSON)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.PostJSON", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.IndexPostJSON", resp, resp)
 		}
 		err = mt.Validate()
 		if err != nil {

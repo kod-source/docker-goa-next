@@ -402,13 +402,13 @@ paths:
         schema:
           $ref: '#/definitions/CreatePostPostsPayload'
       produces:
-      - application/vnd.post_json
+      - application/vnd.index_post_json
       - application/vnd.service.verror
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/Post_json'
+            $ref: '#/definitions/Index_post_json'
         "400":
           description: Bad Request
           schema:
