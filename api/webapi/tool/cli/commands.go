@@ -57,6 +57,13 @@ type (
 		PrettyPrint bool
 	}
 
+	// DeletePostsCommand is the command line data structure for the delete action of posts
+	DeletePostsCommand struct {
+		// ID
+		ID          int
+		PrettyPrint bool
+	}
+
 	// IndexPostsCommand is the command line data structure for the index action of posts
 	IndexPostsCommand struct {
 		PrettyPrint bool
@@ -108,12 +115,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "get-current-user",
-		Short: `ログインしているユーザーの情報を取得する`,
+		Use:   "delete",
+		Short: `投稿を削除する`,
 	}
-	tmp3 := new(GetCurrentUserUsersCommand)
+	tmp3 := new(DeletePostsCommand)
 	sub = &cobra.Command{
-		Use:   `users ["/current_user"]`,
+		Use:   `posts ["/posts/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -122,12 +129,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "index",
-		Short: `全部の登録を取得する`,
+		Use:   "get-current-user",
+		Short: `ログインしているユーザーの情報を取得する`,
 	}
-	tmp4 := new(IndexPostsCommand)
+	tmp4 := new(GetCurrentUserUsersCommand)
 	sub = &cobra.Command{
-		Use:   `posts ["/posts"]`,
+		Use:   `users ["/current_user"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}
@@ -136,10 +143,24 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "index",
+		Short: `全部の登録を取得する`,
+	}
+	tmp5 := new(IndexPostsCommand)
+	sub = &cobra.Command{
+		Use:   `posts ["/posts"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
+	}
+	tmp5.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "login",
 		Short: `jwtでのログイン処理`,
 	}
-	tmp5 := new(LoginAuthCommand)
+	tmp6 := new(LoginAuthCommand)
 	sub = &cobra.Command{
 		Use:   `auth ["/login"]`,
 		Short: ``,
@@ -151,17 +172,17 @@ Payload example:
    "email": "sample@goa-sample.test.com",
    "password": "test1234"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
-	tmp5.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp6.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "sign-up",
 		Short: `サインアップ`,
 	}
-	tmp6 := new(SignUpAuthCommand)
+	tmp7 := new(SignUpAuthCommand)
 	sub = &cobra.Command{
 		Use:   `auth ["/sign_up"]`,
 		Short: ``,
@@ -175,10 +196,10 @@ Payload example:
    "name": "田中　太郎",
    "password": "test1234"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
-	tmp6.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp7.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp7.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 }
@@ -461,6 +482,32 @@ func (cmd *CreatePostPostsCommand) Run(c *client.Client, args []string) error {
 func (cmd *CreatePostPostsCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
 	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
+}
+
+// Run makes the HTTP request corresponding to the DeletePostsCommand command.
+func (cmd *DeletePostsCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/posts/%v", cmd.ID)
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.DeletePosts(ctx, path)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *DeletePostsCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id int
+	cc.Flags().IntVar(&cmd.ID, "id", id, `ID`)
 }
 
 // Run makes the HTTP request corresponding to the IndexPostsCommand command.

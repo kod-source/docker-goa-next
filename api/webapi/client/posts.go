@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 // CreatePostPostsPayload is the posts create_post action payload.
@@ -64,6 +65,40 @@ func (c *Client) NewCreatePostPostsRequest(ctx context.Context, path string, pay
 		header.Set("Content-Type", "application/json")
 	} else {
 		header.Set("Content-Type", contentType)
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
+// DeletePostsPath computes a request path to the delete action of posts.
+func DeletePostsPath(id int) string {
+	param0 := strconv.Itoa(id)
+	return fmt.Sprintf("/posts/%s", param0)
+}
+
+// 投稿を削除する
+func (c *Client) DeletePosts(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewDeletePostsRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewDeletePostsRequest create the request corresponding to the delete action endpoint of the posts resource.
+func (c *Client) NewDeletePostsRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequestWithContext(ctx, "DELETE", u.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 	if c.JWTSigner != nil {
 		if err := c.JWTSigner.Sign(req); err != nil {

@@ -11,6 +11,7 @@ import (
 type PostUseCase interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.Post, error)
 	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
+	Delete(ctx context.Context, id int) error
 }
 
 type postUseCase struct {
@@ -39,4 +40,13 @@ func (p postUseCase) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {
 	}
 
 	return indexPosts, nil
+}
+
+func (p postUseCase) Delete(ctx context.Context, id int) error {
+	err := p.pi.Delete(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
