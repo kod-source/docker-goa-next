@@ -45,6 +45,15 @@ func (c *PostsController) Index(ctx *app.IndexPostsContext) error {
 	return ctx.OK(c.toIndexPostJson(p))
 }
 
+func (c *PostsController) Delete(ctx *app.DeletePostsContext) error {
+	err := c.pu.Delete(ctx, ctx.ID)
+	if err != nil {
+		return err
+	}
+
+	return ctx.OK(nil)
+}
+
 func (c *PostsController) toIndexPostJson(indexPosts []*model.IndexPost) app.IndexPostJSONCollection {
 	ips := make(app.IndexPostJSONCollection, 0, len(indexPosts))
 	for _, ip := range indexPosts {

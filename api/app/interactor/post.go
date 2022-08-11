@@ -11,6 +11,7 @@ import (
 type PostInteractor interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.Post, error)
 	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
+	Delete(ctx context.Context, id int) error
 }
 
 type postInteractor struct {
@@ -94,20 +95,33 @@ func (p postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 		}
 
 		indexPosts = append(indexPosts, &model.IndexPost{
-		Post: model.Post{
-			ID:        post.ID,
-			UserID:    post.UserID,
-			Title:     post.Title,
-			Img:       post.Img,
-			CreatedAt: post.CreatedAt,
-			UpdatedAt: post.UpdatedAt,
-		},
-		User: model.User{
-			Name:      user.Name,
-			Avatar:    user.Avatar,
-		},
-	})
+			Post: model.Post{
+				ID:        post.ID,
+				UserID:    post.UserID,
+				Title:     post.Title,
+				Img:       post.Img,
+				CreatedAt: post.CreatedAt,
+				UpdatedAt: post.UpdatedAt,
+			},
+			User: model.User{
+				Name:   user.Name,
+				Avatar: user.Avatar,
+			},
+		})
 	}
 
 	return indexPosts, nil
+}
+
+func (p postInteractor) Delete(ctx context.Context, id int) error {
+	stmt, err := p.db.Prepare("DELETE FROM `posts` WHERE `id` = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

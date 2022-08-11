@@ -207,6 +207,7 @@ func handleOperandsOrigin(h goa.Handler) goa.Handler {
 type PostsController interface {
 	goa.Muxer
 	CreatePost(*CreatePostPostsContext) error
+	Delete(*DeletePostsContext) error
 	Index(*IndexPostsContext) error
 }
 
@@ -215,6 +216,7 @@ func MountPostsController(service *goa.Service, ctrl PostsController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/posts", ctrl.MuxHandler("preflight", handlePostsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/posts/:id", ctrl.MuxHandler("preflight", handlePostsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -238,6 +240,23 @@ func MountPostsController(service *goa.Service, ctrl PostsController) {
 	h = handlePostsOrigin(h)
 	service.Mux.Handle("POST", "/posts", ctrl.MuxHandler("create_post", h, unmarshalCreatePostPostsPayload))
 	service.LogInfo("mount", "ctrl", "Posts", "action", "CreatePost", "route", "POST /posts", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewDeletePostsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Delete(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handlePostsOrigin(h)
+	service.Mux.Handle("DELETE", "/posts/:id", ctrl.MuxHandler("delete", h, nil))
+	service.LogInfo("mount", "ctrl", "Posts", "action", "Delete", "route", "DELETE /posts/:id", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

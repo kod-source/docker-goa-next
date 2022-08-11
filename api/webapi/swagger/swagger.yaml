@@ -175,7 +175,7 @@ definitions:
     description: my error (default view)
     example:
       code: 404
-      details: 7db2f7de-aa64-4a77-a97a-674f2c38ad0f
+      details: 85f456e6-4445-4cda-a4f7-462d111aff9a
       message: record not found
       status: unauthenticated
     properties:
@@ -186,7 +186,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: 7db2f7de-aa64-4a77-a97a-674f2c38ad0f
+        example: 85f456e6-4445-4cda-a4f7-462d111aff9a
       message:
         description: エラーメッセージ
         example: record not found
@@ -447,6 +447,35 @@ paths:
       summary: create_post posts
       tags:
       - posts
+  /posts/{id}:
+    delete:
+      description: |-
+        投稿を削除する
+
+        Required security scopes:
+          * `api:access`
+      operationId: posts#delete
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: delete posts
+      tags:
+      - posts
   /sign_up:
     post:
       description: サインアップ
@@ -486,6 +515,8 @@ responses:
     description: Internal Server Error
   NotFound:
     description: Not Found
+  OK:
+    description: OK
 schemes:
 - http
 securityDefinitions:

@@ -35,6 +35,16 @@ var _ = Resource("posts", func() {
 		Response(NotFound)
 		Response(InternalServerError)
 	})
+
+	Action("delete", func() {
+		Routing(DELETE("posts/:id"))
+		Description("投稿を削除する")
+		Params(func() {
+			Param("id", Integer, "ID")
+		})
+		Response(OK)
+		Response(InternalServerError)
+	})
 })
 
 var post = MediaType("application/vnd.post_json", func() {

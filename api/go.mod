@@ -25,4 +25,5 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/zach-klippenstein/goregen v0.0.0-20160303162051-795b5e3961ea // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
+	golang.org/x/tools v0.1.10 // indirect
 )
