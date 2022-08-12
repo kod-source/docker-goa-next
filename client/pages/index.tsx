@@ -15,6 +15,8 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
 import Image from 'next/image';
 import { Loading } from '../lib/components/loading';
+import { DetailModal } from '../lib/components/detailModal';
+import { ConfirmationModal } from '../lib/components/confirmationModal';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -29,6 +31,13 @@ const Home: NextPage = () => {
     title: '',
     img: '',
   });
+  const [isShowDetailModal, setIsShowDetailModal] = useState(false);
+  const [widthAndHeightRate, setWidthAndHeightRate] = useState({
+    width: '',
+    height: '',
+  });
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [postID, setPostID] = useState(0);
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -112,6 +121,24 @@ const Home: NextPage = () => {
     }
   };
 
+  const onDelete = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      await axios.delete(`http://localhost:3000/posts/${postID}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setShowConfirmModal(false);
+      setPostsWithUser(postsWithUser?.filter((p) => p.post.id !== postID));
+    } catch (e) {
+      if (e instanceof Error) {
+        alert(e.message);
+      }
+    }
+  };
+
   if (!user) {
     return <Loading />;
   }
@@ -186,8 +213,8 @@ const Home: NextPage = () => {
       {postsWithUser ? (
         <div>
           {postsWithUser.map((p) => (
-            <div key={p.post.id} className='m-5'>
-              <div className='flex'>
+            <div key={p.post.id} className='my-5 mx-auto w-3/5'>
+              <div className='flex justify-center'>
                 <Avatar
                   sx={{ width: 80, height: 80 }}
                   alt='投稿者'
@@ -213,6 +240,27 @@ const Home: NextPage = () => {
                     )}
                   </div>
                 </div>
+                <div className='ml-auto'>
+                  <Button
+                    className='text-white'
+                    onClick={(e) => {
+                      const currentWidth = e.clientX;
+                      const currentHeight = e.clientY;
+                      setWidthAndHeightRate({
+                        width:
+                          String((currentWidth / window.innerWidth) * 100) +
+                          '%',
+                        height:
+                          String((currentHeight / window.innerHeight) * 100) +
+                          '%',
+                      });
+                      setPostID(p.post.id);
+                      setIsShowDetailModal(true);
+                    }}
+                  >
+                    :
+                  </Button>
+                </div>
               </div>
               <div>
                 <p>{toStringlinefeed(p.post.title)}</p>
@@ -231,6 +279,22 @@ const Home: NextPage = () => {
       ) : (
         <Loading />
       )}
+      <DetailModal
+        open={isShowDetailModal}
+        handleClose={() => setIsShowDetailModal(false)}
+        widthRate={widthAndHeightRate.width}
+        heightRate={widthAndHeightRate.height}
+        onDeleteClick={() => {
+          setIsShowDetailModal(false);
+          setShowConfirmModal(true);
+        }}
+      />
+      <ConfirmationModal
+        open={showConfirmModal}
+        handleClose={() => setShowConfirmModal(false)}
+        text='削除してもよろしいですか？'
+        confirmInvoke={() => onDelete()}
+      />
     </div>
   );
 };
