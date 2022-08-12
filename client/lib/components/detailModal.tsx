@@ -43,7 +43,7 @@ export const DetailModal: FC<Props> = (props) => {
           </>
         )}
         <div>
-          <Button>シェアする</Button>
+          <Button disabled>シェアする</Button>
         </div>
       </Box>
     </Modal>
