@@ -8,6 +8,7 @@ interface Props {
   widthRate: string;
   heightRate: string;
   onDeleteClick: () => void;
+  isMyPost: boolean;
 }
 
 export const DetailModal: FC<Props> = (props) => {
@@ -31,11 +32,18 @@ export const DetailModal: FC<Props> = (props) => {
       aria-describedby='modal-modal-description'
     >
       <Box sx={style} className='text-gray-900'>
+        {props.isMyPost && (
+          <>
+            <div>
+              <Button>編集</Button>
+            </div>
+            <div>
+              <Button onClick={props.onDeleteClick}>削除</Button>
+            </div>
+          </>
+        )}
         <div>
-          <Button>編集</Button>
-        </div>
-        <div>
-          <Button onClick={props.onDeleteClick}>削除</Button>
+          <Button>シェアする</Button>
         </div>
       </Box>
     </Modal>
