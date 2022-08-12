@@ -38,6 +38,7 @@ const Home: NextPage = () => {
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [postID, setPostID] = useState(0);
+  const [isMyPost, setIsMyPost] = useState(false);
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -256,6 +257,7 @@ const Home: NextPage = () => {
                       });
                       setPostID(p.post.id);
                       setIsShowDetailModal(true);
+                      setIsMyPost(p.post.userId === user.id);
                     }}
                   >
                     :
@@ -288,6 +290,7 @@ const Home: NextPage = () => {
           setIsShowDetailModal(false);
           setShowConfirmModal(true);
         }}
+        isMyPost={isMyPost}
       />
       <ConfirmationModal
         open={showConfirmModal}
