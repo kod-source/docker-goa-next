@@ -58,6 +58,25 @@ func (c *PostsController) Delete(ctx *app.DeletePostsContext) error {
 	return ctx.OK(nil)
 }
 
+func (c *PostsController) Update(ctx *app.UpdatePostsContext) error {
+	ip, err := c.pu.Update(ctx, ctx.ID, ctx.Payload.Title, ctx.Payload.Img)
+	if err != nil {
+		return ctx.InternalServerError()
+	}
+	return ctx.OK(&app.IndexPostJSON{
+		Post: &app.PostJSON{
+			ID:        ip.Post.ID,
+			UserID:    ip.Post.UserID,
+			Title:     ip.Post.Title,
+			Img:       ip.Post.Img,
+			CreatedAt: &ip.Post.CreatedAt,
+			UpdatedAt: &ip.Post.UpdatedAt,
+		},
+		UserName: ip.User.Name,
+		Avatar:   ip.User.Avatar,
+	})
+}
+
 func (c *PostsController) toIndexPostJson(indexPosts []*model.IndexPost) app.IndexPostJSONCollection {
 	ips := make(app.IndexPostJSONCollection, 0, len(indexPosts))
 	for _, ip := range indexPosts {
