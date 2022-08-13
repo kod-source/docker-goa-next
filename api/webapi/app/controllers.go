@@ -209,6 +209,7 @@ type PostsController interface {
 	CreatePost(*CreatePostPostsContext) error
 	Delete(*DeletePostsContext) error
 	Index(*IndexPostsContext) error
+	Update(*UpdatePostsContext) error
 }
 
 // MountPostsController "mounts" a Posts resource controller on the given service.
@@ -274,6 +275,29 @@ func MountPostsController(service *goa.Service, ctrl PostsController) {
 	h = handlePostsOrigin(h)
 	service.Mux.Handle("GET", "/posts", ctrl.MuxHandler("index", h, nil))
 	service.LogInfo("mount", "ctrl", "Posts", "action", "Index", "route", "GET /posts", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewUpdatePostsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*UpdatePostsPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Update(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handlePostsOrigin(h)
+	service.Mux.Handle("PUT", "/posts/:id", ctrl.MuxHandler("update", h, unmarshalUpdatePostsPayload))
+	service.LogInfo("mount", "ctrl", "Posts", "action", "Update", "route", "PUT /posts/:id", "security", "jwt")
 }
 
 // handlePostsOrigin applies the CORS response headers corresponding to the origin.
@@ -305,6 +329,21 @@ func handlePostsOrigin(h goa.Handler) goa.Handler {
 // unmarshalCreatePostPostsPayload unmarshals the request body into the context request data Payload field.
 func unmarshalCreatePostPostsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &createPostPostsPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalUpdatePostsPayload unmarshals the request body into the context request data Payload field.
+func unmarshalUpdatePostsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &updatePostsPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}
