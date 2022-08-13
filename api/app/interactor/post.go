@@ -9,7 +9,7 @@ import (
 )
 
 type PostInteractor interface {
-	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.Post, error)
+	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
 	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 	Delete(ctx context.Context, id int) error
 }
@@ -22,8 +22,8 @@ func NewPostInteractor(db *sql.DB) PostInteractor {
 	return postInteractor{db: db}
 }
 
-func (p postInteractor) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.Post, error) {
-	var post model.Post
+func (p postInteractor) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
+	var indexPost model.IndexPost
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, err
@@ -44,15 +44,21 @@ func (p postInteractor) CreatePost(ctx context.Context, userID int, title string
 	if err != nil {
 		return nil, err
 	}
-	err = tx.QueryRow(
-		"SELECT `id`, `user_id`, `title`, `img`, `created_at`, `updated_at` FROM `posts` WHERE `id` = ?", lastID,
-	).Scan(
-		&post.ID,
-		&post.UserID,
-		&post.Title,
-		&post.Img,
-		&post.CreatedAt,
-		&post.UpdatedAt,
+	err = tx.QueryRow(`
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
+		FROM posts as p
+		INNER JOIN users as u
+		ON p.user_id = u.id
+		WHERE p.id = ?
+	`, lastID).Scan(
+		&indexPost.Post.ID,
+		&indexPost.Post.UserID,
+		&indexPost.Post.Title,
+		&indexPost.Post.Img,
+		&indexPost.Post.CreatedAt,
+		&indexPost.Post.UpdatedAt,
+		&indexPost.User.Name,
+		&indexPost.User.Avatar,
 	)
 	if err != nil {
 		tx.Rollback()
@@ -60,7 +66,7 @@ func (p postInteractor) CreatePost(ctx context.Context, userID int, title string
 	}
 	tx.Commit()
 
-	return &post, nil
+	return &indexPost, nil
 }
 
 func (p postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {

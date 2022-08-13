@@ -11,7 +11,6 @@ import { Post } from '../lib/model/post';
 import { User } from '../lib/model/user';
 import axios from 'axios';
 import { toStringlinefeed } from '../lib/text';
-import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
 import Image from 'next/image';
 import { Loading } from '../lib/components/loading';
@@ -59,12 +58,12 @@ const Home: NextPage = () => {
     }[] = [];
     res.data.forEach((d: any) => {
       const post = new Post(
-        d.post_id,
-        d.user_id,
-        d.title,
-        new Date(d.created_at),
-        new Date(d.updated_at),
-        d.img
+        d.post.id,
+        d.post.user_id,
+        d.post.title,
+        new Date(d.post.created_at),
+        new Date(d.post.updated_at),
+        d.post.img
       );
       postsWithUser.push({
         post: post,
@@ -111,6 +110,26 @@ const Home: NextPage = () => {
         }
       );
       setPost({ title: '', img: '' });
+      setPostsWithUser((old) => {
+        const d = res.data;
+        const post = new Post(
+          d.post.id,
+          d.post.user_id,
+          d.post.title,
+          new Date(d.post.created_at),
+          new Date(d.post.updated_at),
+          d.post.img
+        );
+        if (!old) {
+          return [
+            { post: post, user: { name: d.user.name, avatar: d.user.name } },
+          ];
+        }
+        return [
+          { post: post, user: { name: d.user_name, avatar: d.avatar } },
+          ...old,
+        ];
+      });
     } catch (e) {
       if (isAxiosError(e)) {
         const myAxiosError = e.response?.data as MyAxiosError;
@@ -197,7 +216,7 @@ const Home: NextPage = () => {
           </div>
           <div className='mr-36'>
             <label className='cursor-pointer'>
-              <AddPhotoAlternateIcon sx={{ width: 50, height: 50 }} />
+              <Avatar src='/add_photo.jpg' className='m-auto' />
               <input
                 type='file'
                 className='hidden'
