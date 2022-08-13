@@ -63,7 +63,7 @@ const Home: NextPage = () => {
         d.post.title,
         new Date(d.post.created_at),
         new Date(d.post.updated_at),
-        d.img
+        d.post.img
       );
       postsWithUser.push({
         post: post,
@@ -110,6 +110,26 @@ const Home: NextPage = () => {
         }
       );
       setPost({ title: '', img: '' });
+      setPostsWithUser((old) => {
+        const d = res.data;
+        const post = new Post(
+          d.post.id,
+          d.post.user_id,
+          d.post.title,
+          new Date(d.post.created_at),
+          new Date(d.post.updated_at),
+          d.post.img
+        );
+        if (!old) {
+          return [
+            { post: post, user: { name: d.user.name, avatar: d.user.name } },
+          ];
+        }
+        return [
+          { post: post, user: { name: d.user_name, avatar: d.avatar } },
+          ...old,
+        ];
+      });
     } catch (e) {
       if (isAxiosError(e)) {
         const myAxiosError = e.response?.data as MyAxiosError;
