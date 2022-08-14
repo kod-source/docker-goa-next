@@ -12,6 +12,7 @@ type PostInteractor interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
 	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 	Delete(ctx context.Context, id int) error
+	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 }
 
 type postInteractor struct {
@@ -76,6 +77,7 @@ func (p postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 		FROM posts as p
 		INNER JOIN users as u
 		ON p.user_id = u.id
+		ORDER BY p.created_at DESC
 	`)
 	if err != nil {
 		return nil, err
@@ -130,4 +132,8 @@ func (p postInteractor) Delete(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+func (p postInteractor) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
+	return nil, nil
 }
