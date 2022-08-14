@@ -12,7 +12,6 @@ type PostInteractor interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
 	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 	Delete(ctx context.Context, id int) error
-	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 }
 
 type postInteractor struct {
@@ -132,8 +131,4 @@ func (p postInteractor) Delete(ctx context.Context, id int) error {
 	}
 
 	return nil
-}
-
-func (p postInteractor) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
-	return nil, nil
 }
