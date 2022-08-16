@@ -300,23 +300,27 @@ const Home: NextPage = () => {
       ) : (
         <Loading />
       )}
-      <DetailModal
-        open={isShowDetailModal}
-        handleClose={() => setIsShowDetailModal(false)}
-        widthRate={widthAndHeightRate.width}
-        heightRate={widthAndHeightRate.height}
-        onDeleteClick={() => {
-          setIsShowDetailModal(false);
-          setShowConfirmModal(true);
-        }}
-        isMyPost={isMyPost}
-      />
-      <ConfirmationModal
-        open={showConfirmModal}
-        handleClose={() => setShowConfirmModal(false)}
-        text='削除してもよろしいですか？'
-        confirmInvoke={() => onDelete()}
-      />
+      {isShowDetailModal && (
+        <DetailModal
+          open={isShowDetailModal}
+          handleClose={() => setIsShowDetailModal(false)}
+          widthRate={widthAndHeightRate.width}
+          heightRate={widthAndHeightRate.height}
+          onDeleteClick={() => {
+            setIsShowDetailModal(false);
+            setShowConfirmModal(true);
+          }}
+          isMyPost={isMyPost}
+        />
+      )}
+      {showConfirmModal && (
+        <ConfirmationModal
+          open={showConfirmModal}
+          handleClose={() => setShowConfirmModal(false)}
+          text='削除してもよろしいですか？'
+          confirmInvoke={() => onDelete()}
+        />
+      )}
     </div>
   );
 };
