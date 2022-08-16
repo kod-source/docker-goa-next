@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/kod-source/docker-goa-next/app/model"
+	"github.com/kod-source/docker-goa-next/app/repository"
 )
 
 type PostInteractor interface {
@@ -142,7 +143,8 @@ func (p postInteractor) Update(ctx context.Context, id int, title string, img *s
 	if err != nil {
 		return nil, err
 	}
-	result, err := upd.Exec(title, img, time.Now(), id)
+	ti := repository.NewTimeRepositoy()
+	result, err := upd.Exec(title, img, ti.Now(), id)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
