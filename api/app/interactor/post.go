@@ -138,11 +138,11 @@ func (p postInteractor) Update(ctx context.Context, id int, title string, img *s
 	if err != nil {
 		return nil, err
 	}
-	upd, err := tx.Prepare("UPDATE `posts` set `title` = ?, `img` = ? WHERE id = ?")
+	upd, err := tx.Prepare("UPDATE `posts` set `title` = ?, `img` = ?, `updated_at` = ? WHERE id = ?")
 	if err != nil {
 		return nil, err
 	}
-	result, err := upd.Exec(title, img, id)
+	result, err := upd.Exec(title, img, time.Now(), id)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
