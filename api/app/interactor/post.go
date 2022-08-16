@@ -134,5 +134,45 @@ func (p postInteractor) Delete(ctx context.Context, id int) error {
 }
 
 func (p postInteractor) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
-	return nil, nil
+	tx, err := p.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	upd, err := tx.Prepare("UPDATE `posts` set `title` = ?, `img` = ? WHERE id = ?")
+	if err != nil {
+		return nil, err
+	}
+	result, err := upd.Exec(title, img, id)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return nil, err
+	}
+	var indexPost model.IndexPost
+	err = tx.QueryRow(`
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
+		FROM posts as p
+		INNER JOIN users as u
+		ON p.user_id = u.id
+		WHERE p.id = ?
+	`, rowsAffected).Scan(
+		&indexPost.Post.ID,
+		&indexPost.Post.UserID,
+		&indexPost.Post.Title,
+		&indexPost.Post.Img,
+		&indexPost.Post.CreatedAt,
+		&indexPost.Post.UpdatedAt,
+		&indexPost.User.Name,
+		&indexPost.User.Avatar,
+	)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	tx.Commit()
+	return &indexPost, nil
 }
