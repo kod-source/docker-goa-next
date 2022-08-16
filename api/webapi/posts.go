@@ -77,6 +77,31 @@ func (c *PostsController) Update(ctx *app.UpdatePostsContext) error {
 	})
 }
 
+func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
+	ip, err := c.pu.Show(ctx, ctx.ID)
+	if err != nil {
+		return ctx.NotFound()
+	}
+
+	return ctx.OK(&app.PostAndUserJSON{
+		Post: &app.PostJSON{
+			ID:        ip.Post.ID,
+			UserID:    ip.Post.UserID,
+			Title:     ip.Post.Title,
+			Img:       ip.Post.Img,
+			CreatedAt: &ip.Post.CreatedAt,
+			UpdatedAt: &ip.Post.UpdatedAt,
+		},
+		User: &app.User{
+			ID:        ip.User.ID,
+			Name:      &ip.User.Name,
+			Email:     &ip.User.Email,
+			Avatar:    ip.User.Avatar,
+			CreatedAt: &ip.User.CreatedAt,
+		},
+	})
+}
+
 func (c *PostsController) toIndexPostJson(indexPosts []*model.IndexPost) app.IndexPostJSONCollection {
 	ips := make(app.IndexPostJSONCollection, 0, len(indexPosts))
 	for _, ip := range indexPosts {

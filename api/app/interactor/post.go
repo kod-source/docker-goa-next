@@ -14,6 +14,7 @@ type PostInteractor interface {
 	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
+	Show(ctx context.Context, id int) (*model.IndexPost, error)
 }
 
 type postInteractor struct {
@@ -178,4 +179,8 @@ func (p postInteractor) Update(ctx context.Context, id int, title string, img *s
 
 	tx.Commit()
 	return &indexPost, nil
+}
+
+func (p postInteractor) Show(ctx context.Context, id int) (*model.IndexPost, error) {
+	return nil, nil
 }
