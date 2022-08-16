@@ -140,3 +140,59 @@ func (c *Client) NewIndexPostsRequest(ctx context.Context, path string) (*http.R
 	}
 	return req, nil
 }
+
+// UpdatePostsPayload is the posts update action payload.
+type UpdatePostsPayload struct {
+	// プロフィール画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// タイトル
+	Title string `form:"title" json:"title" yaml:"title" xml:"title"`
+}
+
+// UpdatePostsPath computes a request path to the update action of posts.
+func UpdatePostsPath(id int) string {
+	param0 := strconv.Itoa(id)
+	return fmt.Sprintf("/posts/%s", param0)
+}
+
+// 投稿を更新する
+func (c *Client) UpdatePosts(ctx context.Context, path string, payload *UpdatePostsPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewUpdatePostsRequest(ctx, path, payload, contentType)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewUpdatePostsRequest create the request corresponding to the update action endpoint of the posts resource.
+func (c *Client) NewUpdatePostsRequest(ctx context.Context, path string, payload *UpdatePostsPayload, contentType string) (*http.Request, error) {
+	var body bytes.Buffer
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequestWithContext(ctx, "PUT", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	if contentType == "*/*" {
+		header.Set("Content-Type", "application/json")
+	} else {
+		header.Set("Content-Type", contentType)
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}

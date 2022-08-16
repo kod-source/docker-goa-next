@@ -12,6 +12,7 @@ type PostUseCase interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
 	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 	Delete(ctx context.Context, id int) error
+	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 }
 
 type postUseCase struct {
@@ -49,4 +50,13 @@ func (p postUseCase) Delete(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+func (p postUseCase) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
+	indexPosts, err := p.pi.Update(ctx, id, title, img)
+	if err != nil {
+		return nil, err
+	}
+
+	return indexPosts, nil
 }

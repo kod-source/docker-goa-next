@@ -430,6 +430,92 @@ func (ctx *IndexPostsContext) InternalServerError() error {
 	return nil
 }
 
+// UpdatePostsContext provides the posts update action context.
+type UpdatePostsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID      int
+	Payload *UpdatePostsPayload
+}
+
+// NewUpdatePostsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the posts controller update action.
+func NewUpdatePostsContext(ctx context.Context, r *http.Request, service *goa.Service) (*UpdatePostsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := UpdatePostsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// updatePostsPayload is the posts update action payload.
+type updatePostsPayload struct {
+	// プロフィール画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// タイトル
+	Title *string `form:"title,omitempty" json:"title,omitempty" yaml:"title,omitempty" xml:"title,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *updatePostsPayload) Validate() (err error) {
+	if payload.Title == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "title"))
+	}
+	return
+}
+
+// Publicize creates UpdatePostsPayload from updatePostsPayload
+func (payload *updatePostsPayload) Publicize() *UpdatePostsPayload {
+	var pub UpdatePostsPayload
+	if payload.Img != nil {
+		pub.Img = payload.Img
+	}
+	if payload.Title != nil {
+		pub.Title = *payload.Title
+	}
+	return &pub
+}
+
+// UpdatePostsPayload is the posts update action payload.
+type UpdatePostsPayload struct {
+	// プロフィール画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// タイトル
+	Title string `form:"title" json:"title" yaml:"title" xml:"title"`
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *UpdatePostsContext) OK(r *IndexPostJSON) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.index_post_json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *UpdatePostsContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *UpdatePostsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // GetCurrentUserUsersContext provides the users get_current_user action context.
 type GetCurrentUserUsersContext struct {
 	context.Context
