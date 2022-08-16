@@ -9,3 +9,14 @@
 // --version=v1.5.13
 
 package app
+
+import (
+	"fmt"
+	"strings"
+)
+
+// PostsHref returns the resource href.
+func PostsHref(id interface{}) string {
+	paramid := strings.TrimLeftFunc(fmt.Sprintf("%v", id), func(r rune) bool { return r == '/' })
+	return fmt.Sprintf("/posts/%v", paramid)
+}
