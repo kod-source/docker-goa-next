@@ -43,6 +43,8 @@ func main() {
 	app.MountUsersController(service, u)
 	p := NewPostsController(service, pu)
 	app.MountPostsController(service, p)
+	cc := NewCommentsController(service, usecase.NewcommentUsecase(interactor.NewCommentInteractor(db, repository.NewTimeRepositoy())))
+	app.MountCommentsController(service, cc)
 
 	// Start service
 	if err := service.ListenAndServe(":3000"); err != nil {
