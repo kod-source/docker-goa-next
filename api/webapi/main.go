@@ -7,6 +7,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/kod-source/docker-goa-next/app/interactor"
+	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
@@ -33,7 +34,7 @@ func main() {
 	defer db.Close()
 	// Mount "operands" controller
 	uu := usecase.NewUserUseCase(interactor.NewUserInteractor(db), interactor.NewJWTInteractor())
-	pu := usecase.NewPostUseCase(interactor.NewPostInteractor(db))
+	pu := usecase.NewPostUseCase(interactor.NewPostInteractor(db, repository.NewTimeRepositoy()))
 	c := NewOperandsController(service)
 	app.MountOperandsController(service, c)
 	a := NewAuthController(service, uu)

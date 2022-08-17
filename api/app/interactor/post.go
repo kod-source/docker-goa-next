@@ -19,13 +19,14 @@ type PostInteractor interface {
 
 type postInteractor struct {
 	db *sql.DB
+	tr repository.TimeRepository
 }
 
-func NewPostInteractor(db *sql.DB) PostInteractor {
-	return postInteractor{db: db}
+func NewPostInteractor(db *sql.DB, tr repository.TimeRepository) PostInteractor {
+	return &postInteractor{db: db, tr: tr}
 }
 
-func (p postInteractor) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
+func (p *postInteractor) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
 	var indexPost model.IndexPost
 	tx, err := p.db.Begin()
 	if err != nil {
@@ -72,7 +73,7 @@ func (p postInteractor) CreatePost(ctx context.Context, userID int, title string
 	return &indexPost, nil
 }
 
-func (p postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {
+func (p *postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {
 	var indexPosts []*model.IndexPost
 	rows, err := p.db.Query(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
@@ -123,7 +124,7 @@ func (p postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 	return indexPosts, nil
 }
 
-func (p postInteractor) Delete(ctx context.Context, id int) error {
+func (p *postInteractor) Delete(ctx context.Context, id int) error {
 	stmt, err := p.db.Prepare("DELETE FROM `posts` WHERE `id` = ?")
 	if err != nil {
 		return err
@@ -136,7 +137,7 @@ func (p postInteractor) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (p postInteractor) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
+func (p *postInteractor) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, err
@@ -145,8 +146,7 @@ func (p postInteractor) Update(ctx context.Context, id int, title string, img *s
 	if err != nil {
 		return nil, err
 	}
-	ti := repository.NewTimeRepositoy()
-	result, err := upd.Exec(title, img, ti.Now(), id)
+	result, err := upd.Exec(title, img, p.tr.Now(), id)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -181,7 +181,7 @@ func (p postInteractor) Update(ctx context.Context, id int, title string, img *s
 	return &indexPost, nil
 }
 
-func (p postInteractor) Show(ctx context.Context, id int) (*model.IndexPost, error) {
+func (p *postInteractor) Show(ctx context.Context, id int) (*model.IndexPost, error) {
 	var indexPost model.IndexPost
 	err := p.db.QueryRow(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar
