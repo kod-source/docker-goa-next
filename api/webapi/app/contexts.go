@@ -216,6 +216,82 @@ func (ctx *SignUpAuthContext) InternalServerError() error {
 	return nil
 }
 
+// CreateCommentCommentsContext provides the comments create_comment action context.
+type CreateCommentCommentsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *CreateCommentCommentsPayload
+}
+
+// NewCreateCommentCommentsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the comments controller create_comment action.
+func NewCreateCommentCommentsContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateCommentCommentsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreateCommentCommentsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// createCommentCommentsPayload is the comments create_comment action payload.
+type createCommentCommentsPayload struct {
+	// コメント画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コメントの内容
+	Text *string `form:"text,omitempty" json:"text,omitempty" yaml:"text,omitempty" xml:"text,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *createCommentCommentsPayload) Validate() (err error) {
+	if payload.Text == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "text"))
+	}
+	return
+}
+
+// Publicize creates CreateCommentCommentsPayload from createCommentCommentsPayload
+func (payload *createCommentCommentsPayload) Publicize() *CreateCommentCommentsPayload {
+	var pub CreateCommentCommentsPayload
+	if payload.Img != nil {
+		pub.Img = payload.Img
+	}
+	if payload.Text != nil {
+		pub.Text = *payload.Text
+	}
+	return &pub
+}
+
+// CreateCommentCommentsPayload is the comments create_comment action payload.
+type CreateCommentCommentsPayload struct {
+	// コメント画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コメントの内容
+	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *CreateCommentCommentsContext) Created(r *CommentJSON) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.comment_json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreateCommentCommentsContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *CreateCommentCommentsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // AddOperandsContext provides the operands add action context.
 type AddOperandsContext struct {
 	context.Context
