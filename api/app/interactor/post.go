@@ -19,10 +19,11 @@ type PostInteractor interface {
 
 type postInteractor struct {
 	db *sql.DB
+	tr repository.TimeRepository
 }
 
-func NewPostInteractor(db *sql.DB) PostInteractor {
-	return &postInteractor{db: db}
+func NewPostInteractor(db *sql.DB, tr repository.TimeRepository) PostInteractor {
+	return &postInteractor{db: db, tr: tr}
 }
 
 func (p *postInteractor) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
@@ -145,8 +146,7 @@ func (p *postInteractor) Update(ctx context.Context, id int, title string, img *
 	if err != nil {
 		return nil, err
 	}
-	ti := repository.NewTimeRepositoy()
-	result, err := upd.Exec(title, img, ti.Now(), id)
+	result, err := upd.Exec(title, img, p.tr.Now(), id)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
