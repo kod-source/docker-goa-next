@@ -227,5 +227,8 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 		comments = append(comments, &comment)
 	}
 	showPost.Comments = comments
+	if showPost.IndexPost.Post.ID == 0 {
+		return nil, sql.ErrNoRows
+	}
 	return &showPost, nil
 }
