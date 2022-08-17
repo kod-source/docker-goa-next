@@ -209,6 +209,7 @@ type PostsController interface {
 	CreatePost(*CreatePostPostsContext) error
 	Delete(*DeletePostsContext) error
 	Index(*IndexPostsContext) error
+	Show(*ShowPostsContext) error
 	Update(*UpdatePostsContext) error
 }
 
@@ -275,6 +276,23 @@ func MountPostsController(service *goa.Service, ctrl PostsController) {
 	h = handlePostsOrigin(h)
 	service.Mux.Handle("GET", "/posts", ctrl.MuxHandler("index", h, nil))
 	service.LogInfo("mount", "ctrl", "Posts", "action", "Index", "route", "GET /posts", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowPostsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Show(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handlePostsOrigin(h)
+	service.Mux.Handle("GET", "/posts/:id", ctrl.MuxHandler("show", h, nil))
+	service.LogInfo("mount", "ctrl", "Posts", "action", "Show", "route", "GET /posts/:id", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

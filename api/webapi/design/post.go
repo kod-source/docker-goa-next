@@ -65,6 +65,17 @@ var _ = Resource("posts", func() {
 		Response(BadRequest)
 		Response(InternalServerError)
 	})
+
+	Action("show", func() {
+		Routing(GET("posts/:id"))
+		Description("一つの投稿を取得する")
+		Params(func() {
+			Param("id", Integer, "ID")
+		})
+		Response(OK, post_and_all_user)
+		Response(NotFound)
+		Response(InternalServerError)
+	})
 })
 
 var post = MediaType("application/vnd.post_json", func() {
@@ -113,4 +124,15 @@ var post_and_user = MediaType("application/vnd.index_post_json", func() {
 		Attribute("avatar")
 	})
 	Required("post", "user_name")
+})
+
+var post_and_all_user = MediaType("application/vnd.post_and_user_json", func() {
+	Description("投稿とユーザーの情報")
+	Attribute("post", post, "post value")
+	Attribute("user", user, "user value")
+	View("default", func() {
+		Attribute("post")
+		Attribute("user")
+	})
+	Required("post", "user")
 })

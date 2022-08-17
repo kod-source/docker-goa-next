@@ -73,6 +73,44 @@ func (c *Client) DecodeIndexPostJSONCollection(resp *http.Response) (IndexPostJS
 	return decoded, err
 }
 
+// 投稿とユーザーの情報 (default view)
+//
+// Identifier: application/vnd.post_and_user_json; view=default
+type PostAndUserJSON struct {
+	// post value
+	Post *PostJSON `form:"post" json:"post" yaml:"post" xml:"post"`
+	// user value
+	User *User `form:"user" json:"user" yaml:"user" xml:"user"`
+}
+
+// Validate validates the PostAndUserJSON media type instance.
+func (mt *PostAndUserJSON) Validate() (err error) {
+	if mt.Post == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "post"))
+	}
+	if mt.User == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "user"))
+	}
+	if mt.Post != nil {
+		if err2 := mt.Post.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if mt.User != nil {
+		if err2 := mt.User.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// DecodePostAndUserJSON decodes the PostAndUserJSON instance encoded in resp body.
+func (c *Client) DecodePostAndUserJSON(resp *http.Response) (*PostAndUserJSON, error) {
+	var decoded PostAndUserJSON
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // 投稿 (default view)
 //
 // Identifier: application/vnd.post_json; view=default

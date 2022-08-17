@@ -141,6 +141,40 @@ func (c *Client) NewIndexPostsRequest(ctx context.Context, path string) (*http.R
 	return req, nil
 }
 
+// ShowPostsPath computes a request path to the show action of posts.
+func ShowPostsPath(id int) string {
+	param0 := strconv.Itoa(id)
+	return fmt.Sprintf("/posts/%s", param0)
+}
+
+// 一つの投稿を取得する
+func (c *Client) ShowPosts(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewShowPostsRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewShowPostsRequest create the request corresponding to the show action endpoint of the posts resource.
+func (c *Client) NewShowPostsRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
 // UpdatePostsPayload is the posts update action payload.
 type UpdatePostsPayload struct {
 	// プロフィール画像のパス

@@ -14,6 +14,7 @@ type PostInteractor interface {
 	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
+	Show(ctx context.Context, id int) (*model.IndexPost, error)
 }
 
 type postInteractor struct {
@@ -177,5 +178,32 @@ func (p postInteractor) Update(ctx context.Context, id int, title string, img *s
 	}
 
 	tx.Commit()
+	return &indexPost, nil
+}
+
+func (p postInteractor) Show(ctx context.Context, id int) (*model.IndexPost, error) {
+	var indexPost model.IndexPost
+	err := p.db.QueryRow(`
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar
+		FROM posts as p
+		INNER JOIN users as u
+		ON p.user_id = u.id
+		WHERE p.id = ?
+	`, id).Scan(
+		&indexPost.Post.ID,
+		&indexPost.Post.UserID,
+		&indexPost.Post.Title,
+		&indexPost.Post.Img,
+		&indexPost.Post.CreatedAt,
+		&indexPost.Post.UpdatedAt,
+		&indexPost.User.ID,
+		&indexPost.User.Name,
+		&indexPost.User.Email,
+		&indexPost.User.CreatedAt,
+		&indexPost.User.Avatar,
+	)
+	if err != nil {
+		return nil, err
+	}
 	return &indexPost, nil
 }

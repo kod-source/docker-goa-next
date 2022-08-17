@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
@@ -74,6 +76,34 @@ func (c *PostsController) Update(ctx *app.UpdatePostsContext) error {
 		},
 		UserName: ip.User.Name,
 		Avatar:   ip.User.Avatar,
+	})
+}
+
+func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
+	ip, err := c.pu.Show(ctx, ctx.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
+	}
+
+	return ctx.OK(&app.PostAndUserJSON{
+		Post: &app.PostJSON{
+			ID:        ip.Post.ID,
+			UserID:    ip.Post.UserID,
+			Title:     ip.Post.Title,
+			Img:       ip.Post.Img,
+			CreatedAt: &ip.Post.CreatedAt,
+			UpdatedAt: &ip.Post.UpdatedAt,
+		},
+		User: &app.User{
+			ID:        ip.User.ID,
+			Name:      &ip.User.Name,
+			Email:     &ip.User.Email,
+			Avatar:    ip.User.Avatar,
+			CreatedAt: &ip.User.CreatedAt,
+		},
 	})
 }
 
