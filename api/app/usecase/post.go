@@ -21,10 +21,10 @@ type postUseCase struct {
 }
 
 func NewPostUseCase(pi interactor.PostInteractor) PostUseCase {
-	return postUseCase{pi: pi}
+	return &postUseCase{pi: pi}
 }
 
-func (p postUseCase) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
+func (p *postUseCase) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
 	if len(title) == 0 {
 		return nil, myerrors.EmptyStringError
 	}
@@ -35,7 +35,7 @@ func (p postUseCase) CreatePost(ctx context.Context, userID int, title string, i
 	return indexPost, nil
 }
 
-func (p postUseCase) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {
+func (p *postUseCase) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {
 	indexPosts, err := p.pi.ShowAll(ctx)
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (p postUseCase) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {
 	return indexPosts, nil
 }
 
-func (p postUseCase) Delete(ctx context.Context, id int) error {
+func (p *postUseCase) Delete(ctx context.Context, id int) error {
 	err := p.pi.Delete(ctx, id)
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func (p postUseCase) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (p postUseCase) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
+func (p *postUseCase) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
 	indexPosts, err := p.pi.Update(ctx, id, title, img)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (p postUseCase) Update(ctx context.Context, id int, title string, img *stri
 	return indexPosts, nil
 }
 
-func (p postUseCase) Show(ctx context.Context, id int) (*model.IndexPost, error) {
+func (p *postUseCase) Show(ctx context.Context, id int) (*model.IndexPost, error) {
 	indexPosts, err := p.pi.Show(ctx, id)
 	if err != nil {
 		return nil, err

@@ -22,10 +22,10 @@ type userUseCase struct {
 }
 
 func NewUserUseCase(ui interactor.UserInteractor, ji interactor.JWTInteractor) UserUseCase {
-	return userUseCase{ui: ui, ji: ji}
+	return &userUseCase{ui: ui, ji: ji}
 }
 
-func (u userUseCase) GetUser(ctx context.Context, id int) (*model.User, error) {
+func (u *userUseCase) GetUser(ctx context.Context, id int) (*model.User, error) {
 	user, err := u.ui.GetUser(ctx, id)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (u userUseCase) GetUser(ctx context.Context, id int) (*model.User, error) {
 	return user, nil
 }
 
-func (u userUseCase) GetUserByEmail(ctx context.Context, email, password string) (*model.User, error) {
+func (u *userUseCase) GetUserByEmail(ctx context.Context, email, password string) (*model.User, error) {
 	user, err := u.ui.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
@@ -46,12 +46,12 @@ func (u userUseCase) GetUserByEmail(ctx context.Context, email, password string)
 	return user, nil
 }
 
-func (u userUseCase) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
+func (u *userUseCase) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
 	token, nil := u.ji.CreateJWTToken(ctx, id, name)
 	return token, nil
 }
 
-func (u userUseCase) SignUp(ctx context.Context, name, email, password string, avatar *string) (*model.User, error) {
+func (u *userUseCase) SignUp(ctx context.Context, name, email, password string, avatar *string) (*model.User, error) {
 	p, err := passwordEncrypt(password)
 	if err != nil {
 		return nil, err
