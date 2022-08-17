@@ -131,13 +131,16 @@ func (c *PostsController) toIndexPostJson(indexPosts []*model.IndexPost) app.Ind
 func (c *PostsController) toCommnetJson(comments []*model.Comment) app.CommentJSONCollection {
 	cs := make(app.CommentJSONCollection, 0, len(comments))
 	for _, c := range comments {
+		if c.ID == nil {
+			return cs
+		}
 		cs = append(cs, &app.CommentJSON{
-			ID:        c.ID,
-			PostID:    c.PostID,
-			Text:      c.Text,
+			ID:        *c.ID,
+			PostID:    *c.PostID,
+			Text:      *c.Text,
 			Img:       c.Img,
-			CreatedAt: &c.CreatedAt,
-			UpdatedAt: &c.UpdatedAt,
+			CreatedAt: c.CreatedAt,
+			UpdatedAt: c.UpdatedAt,
 		})
 	}
 	return cs

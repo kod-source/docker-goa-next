@@ -188,7 +188,7 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 		FROM posts as p
 		INNER JOIN users as u
 		ON p.user_id = u.id
-		INNER JOIN comments as c
+		LEFT JOIN comments as c
 		ON p.id = c.post_id
 		WHERE p.id = ?
 		ORDER BY c.created_at DESC
