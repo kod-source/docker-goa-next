@@ -18,3 +18,13 @@ CREATE TABLE IF NOT EXISTS `posts` (
     `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE IF NOT EXISTS `comments` (
+    `id` MEDIUMINT NOT NULL AUTO_INCREMENT,
+    `post_id` INT NOT NULL,
+    `text` VARCHAR(50) NOT NULL DEFAULT "",
+    `img` LONGTEXT,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
+    PRIMARY KEY (id)
+);

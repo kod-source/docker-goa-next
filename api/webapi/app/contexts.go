@@ -460,9 +460,9 @@ func NewShowPostsContext(ctx context.Context, r *http.Request, service *goa.Serv
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ShowPostsContext) OK(r *PostAndUserJSON) error {
+func (ctx *ShowPostsContext) OK(r *ShowPostJSON) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.post_and_user_json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.show_post_json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }

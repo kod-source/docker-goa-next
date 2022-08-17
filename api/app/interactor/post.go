@@ -14,7 +14,7 @@ type PostInteractor interface {
 	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
-	Show(ctx context.Context, id int) (*model.IndexPost, error)
+	Show(ctx context.Context, id int) (*model.ShowPost, error)
 }
 
 type postInteractor struct {
@@ -181,29 +181,54 @@ func (p *postInteractor) Update(ctx context.Context, id int, title string, img *
 	return &indexPost, nil
 }
 
-func (p *postInteractor) Show(ctx context.Context, id int) (*model.IndexPost, error) {
-	var indexPost model.IndexPost
-	err := p.db.QueryRow(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar
+func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, error) {
+	var showPost model.ShowPost
+	rows, err := p.db.Query(`
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar, c.id, c.post_id, c.text, c.img, c.created_at, c.updated_at
 		FROM posts as p
 		INNER JOIN users as u
 		ON p.user_id = u.id
+		LEFT JOIN comments as c
+		ON p.id = c.post_id
 		WHERE p.id = ?
-	`, id).Scan(
-		&indexPost.Post.ID,
-		&indexPost.Post.UserID,
-		&indexPost.Post.Title,
-		&indexPost.Post.Img,
-		&indexPost.Post.CreatedAt,
-		&indexPost.Post.UpdatedAt,
-		&indexPost.User.ID,
-		&indexPost.User.Name,
-		&indexPost.User.Email,
-		&indexPost.User.CreatedAt,
-		&indexPost.User.Avatar,
-	)
+		ORDER BY c.created_at DESC
+	`, id)
 	if err != nil {
 		return nil, err
 	}
-	return &indexPost, nil
+	defer rows.Close()
+
+	var comments []*model.Comment
+	for rows.Next() {
+		var comment model.Comment
+
+		err = rows.Scan(
+			&showPost.IndexPost.Post.ID,
+			&showPost.IndexPost.Post.UserID,
+			&showPost.IndexPost.Post.Title,
+			&showPost.IndexPost.Post.Img,
+			&showPost.IndexPost.Post.CreatedAt,
+			&showPost.IndexPost.Post.UpdatedAt,
+			&showPost.IndexPost.User.ID,
+			&showPost.IndexPost.User.Name,
+			&showPost.IndexPost.User.Email,
+			&showPost.IndexPost.User.CreatedAt,
+			&showPost.IndexPost.User.Avatar,
+			&comment.ID,
+			&comment.PostID,
+			&comment.Text,
+			&comment.Img,
+			&comment.CreatedAt,
+			&comment.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		comments = append(comments, &comment)
+	}
+	showPost.Comments = comments
+	if showPost.IndexPost.Post.ID == 0 {
+		return nil, sql.ErrNoRows
+	}
+	return &showPost, nil
 }

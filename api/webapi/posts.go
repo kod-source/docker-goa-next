@@ -80,7 +80,7 @@ func (c *PostsController) Update(ctx *app.UpdatePostsContext) error {
 }
 
 func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
-	ip, err := c.pu.Show(ctx, ctx.ID)
+	sp, err := c.pu.Show(ctx, ctx.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return ctx.NotFound()
@@ -88,21 +88,22 @@ func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 		return ctx.InternalServerError()
 	}
 
-	return ctx.OK(&app.PostAndUserJSON{
+	return ctx.OK(&app.ShowPostJSON{
+		Comments: c.toCommnetJson(sp.Comments),
 		Post: &app.PostJSON{
-			ID:        ip.Post.ID,
-			UserID:    ip.Post.UserID,
-			Title:     ip.Post.Title,
-			Img:       ip.Post.Img,
-			CreatedAt: &ip.Post.CreatedAt,
-			UpdatedAt: &ip.Post.UpdatedAt,
+			ID:        sp.IndexPost.Post.ID,
+			UserID:    sp.IndexPost.Post.UserID,
+			Title:     sp.IndexPost.Post.Title,
+			Img:       sp.IndexPost.Post.Img,
+			CreatedAt: &sp.IndexPost.Post.CreatedAt,
+			UpdatedAt: &sp.IndexPost.Post.UpdatedAt,
 		},
 		User: &app.User{
-			ID:        ip.User.ID,
-			Name:      &ip.User.Name,
-			Email:     &ip.User.Email,
-			Avatar:    ip.User.Avatar,
-			CreatedAt: &ip.User.CreatedAt,
+			ID:        sp.IndexPost.User.ID,
+			Name:      &sp.IndexPost.User.Name,
+			Email:     &sp.IndexPost.User.Email,
+			Avatar:    sp.IndexPost.User.Avatar,
+			CreatedAt: &sp.IndexPost.User.CreatedAt,
 		},
 	})
 }
@@ -125,4 +126,22 @@ func (c *PostsController) toIndexPostJson(indexPosts []*model.IndexPost) app.Ind
 	}
 
 	return ips
+}
+
+func (c *PostsController) toCommnetJson(comments []*model.Comment) app.CommentJSONCollection {
+	cs := make(app.CommentJSONCollection, 0, len(comments))
+	for _, c := range comments {
+		if c.ID == nil {
+			return cs
+		}
+		cs = append(cs, &app.CommentJSON{
+			ID:        *c.ID,
+			PostID:    *c.PostID,
+			Text:      *c.Text,
+			Img:       c.Img,
+			CreatedAt: c.CreatedAt,
+			UpdatedAt: c.UpdatedAt,
+		})
+	}
+	return cs
 }
