@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
@@ -80,7 +82,10 @@ func (c *PostsController) Update(ctx *app.UpdatePostsContext) error {
 func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 	ip, err := c.pu.Show(ctx, ctx.ID)
 	if err != nil {
-		return ctx.NotFound()
+		if err == sql.ErrNoRows {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
 	}
 
 	return ctx.OK(&app.PostAndUserJSON{
