@@ -685,7 +685,7 @@ func ShowPostsNotFound(t testing.TB, ctx context.Context, service *goa.Service, 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController, id int) (http.ResponseWriter, *app.PostAndUserJSON) {
+func ShowPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController, id int) (http.ResponseWriter, *app.ShowPostJSON) {
 	t.Helper()
 
 	// Setup service
@@ -739,12 +739,12 @@ func ShowPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl a
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt *app.PostAndUserJSON
+	var mt *app.ShowPostJSON
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(*app.PostAndUserJSON)
+		mt, _ok = resp.(*app.ShowPostJSON)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.PostAndUserJSON", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.ShowPostJSON", resp, resp)
 		}
 		err = mt.Validate()
 		if err != nil {

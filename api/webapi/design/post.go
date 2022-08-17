@@ -72,7 +72,7 @@ var _ = Resource("posts", func() {
 		Params(func() {
 			Param("id", Integer, "ID")
 		})
-		Response(OK, post_and_all_user)
+		Response(OK, show_post)
 		Response(NotFound)
 		Response(InternalServerError)
 	})
@@ -135,4 +135,17 @@ var post_and_all_user = MediaType("application/vnd.post_and_user_json", func() {
 		Attribute("user")
 	})
 	Required("post", "user")
+})
+
+var show_post = MediaType("application/vnd.show_post_json", func() {
+	Description("投稿とユーザーとコメントの情報")
+	Attribute("post", post, "post value")
+	Attribute("user", user, "user value")
+	Attribute("comments", CollectionOf(comment), "comments value")
+	View("default", func() {
+		Attribute("post")
+		Attribute("user")
+		Attribute("comments")
+	})
+	Required("post", "user", "comments")
 })
