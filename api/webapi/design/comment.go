@@ -7,6 +7,31 @@ import (
 	. "github.com/shogo82148/goa-v1/design/apidsl"
 )
 
+var _ = Resource("comments", func() {
+	Security(JWT, func() {
+		Scope("api:access")
+	})
+	Action("create_comment", func() {
+		Routing(POST("comments"))
+		Description("コメントの作成")
+		Payload(func() {
+			Attribute("post_id", Integer, "投稿ID", func() {
+				Example(1)
+			})
+			Attribute("text", String, "コメントの内容", func() {
+				Example("どうも~")
+			})
+			Attribute("img", String, "コメント画像のパス", func() {
+				Example("data:image/jpeg;base64,/9j/4A")
+			})
+			Required("post_id", "text")
+		})
+		Response(Created, comment)
+		Response(BadRequest)
+		Response(InternalServerError)
+	})
+})
+
 var comment = MediaType("application/vnd.comment_json", func() {
 	Description("コメント")
 	Attribute("id", Integer, "ID", func() {
