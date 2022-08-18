@@ -30,6 +30,17 @@ var _ = Resource("comments", func() {
 		Response(BadRequest)
 		Response(InternalServerError)
 	})
+
+	Action("show_comment", func() {
+		Routing(GET("comments/:post_id"))
+		Description("投稿に紐づくコメントの取得")
+		Params(func() {
+			Param("post_id", Integer, "PostID")
+		})
+		Response(OK, CollectionOf(comment))
+		Response(NotFound)
+		Response(InternalServerError)
+	})
 })
 
 var comment = MediaType("application/vnd.comment_json", func() {

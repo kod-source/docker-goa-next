@@ -10,6 +10,7 @@ import (
 
 type CommentInteractor interface {
 	Create(ctx context.Context, postID int, text string, img *string) (*model.Comment, error)
+	ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error)
 }
 
 type commentInteractor struct {
@@ -58,4 +59,8 @@ func (c *commentInteractor) Create(ctx context.Context, postID int, text string,
 	}
 
 	return &comment, tx.Commit()
+}
+
+func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error) {
+	return nil, nil
 }
