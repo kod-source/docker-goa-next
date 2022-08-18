@@ -48,6 +48,29 @@ func (c *CommentsController) ShowComment(ctx *app.ShowCommentCommentsContext) er
 	return ctx.OK(c.ToCommentJSONCollection(cs))
 }
 
+func (c *CommentsController) UpdateComment(ctx *app.UpdateCommentCommentsContext) error {
+	comment, err := c.cu.Update(ctx, ctx.ID, ctx.Payload.Text, ctx.Payload.Img)
+	if err != nil {
+		return ctx.InternalServerError()
+	}
+	return ctx.OK(&app.CommentJSON{
+		CreatedAt: comment.CreatedAt,
+		ID:        *comment.ID,
+		Img:       comment.Img,
+		PostID:    *comment.PostID,
+		Text:      *comment.Text,
+		UpdatedAt: comment.UpdatedAt,
+	})
+}
+
+func (c *CommentsController) DeleteComment(ctx *app.DeleteCommentCommentsContext) error {
+	err := c.cu.Delete(ctx, ctx.ID)
+	if err != nil {
+		return ctx.InternalServerError()
+	}
+	return ctx.OK(nil)
+}
+
 func (c *CommentsController) ToCommentJSONCollection(comments []*model.Comment) app.CommentJSONCollection {
 	var cs app.CommentJSONCollection
 	for _, c := range comments {

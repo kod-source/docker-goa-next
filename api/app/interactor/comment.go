@@ -11,6 +11,8 @@ import (
 type CommentInteractor interface {
 	Create(ctx context.Context, postID int, text string, img *string) (*model.Comment, error)
 	ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error)
+	Update(ctx context.Context, id int, text, img string) (*model.Comment, error)
+	Delete(ctx context.Context, id int) error
 }
 
 type commentInteractor struct {
@@ -92,4 +94,12 @@ func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*mo
 	}
 
 	return comments, nil
+}
+
+func (c *commentInteractor) Update(ctx context.Context, id int, text, img string) (*model.Comment, error) {
+	return nil, nil
+}
+
+func (c *commentInteractor) Delete(ctx context.Context, id int) error {
+	return nil
 }
