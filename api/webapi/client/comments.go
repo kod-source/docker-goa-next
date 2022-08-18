@@ -22,6 +22,8 @@ import (
 type CreateCommentCommentsPayload struct {
 	// コメント画像のパス
 	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// 投稿ID
+	PostID int `form:"post_id" json:"post_id" yaml:"post_id" xml:"post_id"`
 	// コメントの内容
 	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
 }

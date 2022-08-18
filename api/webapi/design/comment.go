@@ -15,13 +15,16 @@ var _ = Resource("comments", func() {
 		Routing(POST("comments"))
 		Description("コメントの作成")
 		Payload(func() {
+			Attribute("post_id", Integer, "投稿ID", func() {
+				Example(1)
+			})
 			Attribute("text", String, "コメントの内容", func() {
 				Example("どうも~")
 			})
 			Attribute("img", String, "コメント画像のパス", func() {
 				Example("data:image/jpeg;base64,/9j/4A")
 			})
-			Required("text")
+			Required("post_id", "text")
 		})
 		Response(Created, comment)
 		Response(BadRequest)

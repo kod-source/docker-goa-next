@@ -48,6 +48,17 @@ func CreateCommentCommentsBadRequest(t testing.TB, ctx context.Context, service 
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
 	// Setup request context
 	if ctx == nil {
 		ctx = context.Background()
@@ -61,23 +72,23 @@ func CreateCommentCommentsBadRequest(t testing.TB, ctx context.Context, service 
 	prms := url.Values{}
 
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "CommentsTest"), rw, req, prms)
-	createCommentCtx, err := app.NewCreateCommentCommentsContext(goaCtx, req, service)
-	if err != nil {
-		e, ok := err.(goa.ServiceError)
-		if !ok {
-			panic("invalid test data " + err.Error()) // bug
+	createCommentCtx, _err := app.NewCreateCommentCommentsContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
 		}
-		t.Errorf("unexpected parameter validation error: %+v", e)
+		t.Errorf("unexpected parameter validation error: %+v", _e)
 		return nil
 	}
 	createCommentCtx.Payload = payload
 
 	// Perform action
-	err = ctrl.CreateComment(createCommentCtx)
+	_err = ctrl.CreateComment(createCommentCtx)
 
 	// Validate response
-	if err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
 	}
 	if rw.Code != 400 {
 		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
@@ -111,6 +122,17 @@ func CreateCommentCommentsCreated(t testing.TB, ctx context.Context, service *go
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil, nil
+	}
+
 	// Setup request context
 	if ctx == nil {
 		ctx = context.Background()
@@ -124,37 +146,37 @@ func CreateCommentCommentsCreated(t testing.TB, ctx context.Context, service *go
 	prms := url.Values{}
 
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "CommentsTest"), rw, req, prms)
-	createCommentCtx, err := app.NewCreateCommentCommentsContext(goaCtx, req, service)
-	if err != nil {
-		e, ok := err.(goa.ServiceError)
-		if !ok {
-			panic("invalid test data " + err.Error()) // bug
+	createCommentCtx, _err := app.NewCreateCommentCommentsContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
 		}
-		t.Errorf("unexpected parameter validation error: %+v", e)
+		t.Errorf("unexpected parameter validation error: %+v", _e)
 		return nil, nil
 	}
 	createCommentCtx.Payload = payload
 
 	// Perform action
-	err = ctrl.CreateComment(createCommentCtx)
+	_err = ctrl.CreateComment(createCommentCtx)
 
 	// Validate response
-	if err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
 	}
 	if rw.Code != 201 {
 		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
 	}
 	var mt *app.CommentJSON
 	if resp != nil {
-		var _ok bool
-		mt, _ok = resp.(*app.CommentJSON)
-		if !_ok {
+		var __ok bool
+		mt, __ok = resp.(*app.CommentJSON)
+		if !__ok {
 			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.CommentJSON", resp, resp)
 		}
-		err = mt.Validate()
-		if err != nil {
-			t.Errorf("invalid response media type: %s", err)
+		_err = mt.Validate()
+		if _err != nil {
+			t.Errorf("invalid response media type: %s", _err)
 		}
 	}
 
@@ -185,6 +207,17 @@ func CreateCommentCommentsInternalServerError(t testing.TB, ctx context.Context,
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
 	// Setup request context
 	if ctx == nil {
 		ctx = context.Background()
@@ -198,23 +231,23 @@ func CreateCommentCommentsInternalServerError(t testing.TB, ctx context.Context,
 	prms := url.Values{}
 
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "CommentsTest"), rw, req, prms)
-	createCommentCtx, err := app.NewCreateCommentCommentsContext(goaCtx, req, service)
-	if err != nil {
-		e, ok := err.(goa.ServiceError)
-		if !ok {
-			panic("invalid test data " + err.Error()) // bug
+	createCommentCtx, _err := app.NewCreateCommentCommentsContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
 		}
-		t.Errorf("unexpected parameter validation error: %+v", e)
+		t.Errorf("unexpected parameter validation error: %+v", _e)
 		return nil
 	}
 	createCommentCtx.Payload = payload
 
 	// Perform action
-	err = ctrl.CreateComment(createCommentCtx)
+	_err = ctrl.CreateComment(createCommentCtx)
 
 	// Validate response
-	if err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
 	}
 	if rw.Code != 500 {
 		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)

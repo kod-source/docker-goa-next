@@ -240,12 +240,17 @@ func NewCreateCommentCommentsContext(ctx context.Context, r *http.Request, servi
 type createCommentCommentsPayload struct {
 	// コメント画像のパス
 	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// 投稿ID
+	PostID *int `form:"post_id,omitempty" json:"post_id,omitempty" yaml:"post_id,omitempty" xml:"post_id,omitempty"`
 	// コメントの内容
 	Text *string `form:"text,omitempty" json:"text,omitempty" yaml:"text,omitempty" xml:"text,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
 func (payload *createCommentCommentsPayload) Validate() (err error) {
+	if payload.PostID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "post_id"))
+	}
 	if payload.Text == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "text"))
 	}
@@ -258,6 +263,9 @@ func (payload *createCommentCommentsPayload) Publicize() *CreateCommentCommentsP
 	if payload.Img != nil {
 		pub.Img = payload.Img
 	}
+	if payload.PostID != nil {
+		pub.PostID = *payload.PostID
+	}
 	if payload.Text != nil {
 		pub.Text = *payload.Text
 	}
@@ -268,8 +276,16 @@ func (payload *createCommentCommentsPayload) Publicize() *CreateCommentCommentsP
 type CreateCommentCommentsPayload struct {
 	// コメント画像のパス
 	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// 投稿ID
+	PostID int `form:"post_id" json:"post_id" yaml:"post_id" xml:"post_id"`
 	// コメントの内容
 	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *CreateCommentCommentsPayload) Validate() (err error) {
+
+	return
 }
 
 // Created sends a HTTP response with status code 201.

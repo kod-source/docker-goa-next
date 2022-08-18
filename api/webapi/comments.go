@@ -19,7 +19,7 @@ func NewCommentsController(service *goa.Service, cu usecase.CommentUsecase) *Com
 
 // CreateComment runs the create_comment action.
 func (c *CommentsController) CreateComment(ctx *app.CreateCommentCommentsContext) error {
-	comment, err := c.cu.Create(ctx, ctx.Payload.Text, ctx.Payload.Img)
+	comment, err := c.cu.Create(ctx, ctx.Payload.PostID, ctx.Payload.Text, ctx.Payload.Img)
 	if err != nil {
 		return ctx.InternalServerError()
 	}

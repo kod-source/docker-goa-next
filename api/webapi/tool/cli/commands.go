@@ -129,6 +129,7 @@ Payload example:
 
 {
    "img": "data:image/jpeg;base64,/9j/4A",
+   "post_id": 1,
    "text": "どうも~"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },

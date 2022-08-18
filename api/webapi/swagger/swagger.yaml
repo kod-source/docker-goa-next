@@ -77,17 +77,24 @@ definitions:
   CreateCommentCommentsPayload:
     example:
       img: data:image/jpeg;base64,/9j/4A
+      post_id: 1
       text: どうも~
     properties:
       img:
         description: コメント画像のパス
         example: data:image/jpeg;base64,/9j/4A
         type: string
+      post_id:
+        description: 投稿ID
+        example: 1
+        format: int64
+        type: integer
       text:
         description: コメントの内容
         example: どうも~
         type: string
     required:
+    - post_id
     - text
     title: CreateCommentCommentsPayload
     type: object

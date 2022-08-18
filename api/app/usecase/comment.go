@@ -8,7 +8,7 @@ import (
 )
 
 type CommentUsecase interface {
-	Create(ctx context.Context, text string, img *string) (*model.Comment, error)
+	Create(ctx context.Context, postID int, text string, img *string) (*model.Comment, error)
 }
 
 type commentUsecase struct {
@@ -19,8 +19,8 @@ func NewcommentUsecase(ci interactor.CommentInteractor) CommentUsecase {
 	return &commentUsecase{ci: ci}
 }
 
-func (c *commentUsecase) Create(ctx context.Context, text string, img *string) (*model.Comment, error) {
-	comment, err := c.ci.Create(ctx, text, img)
+func (c *commentUsecase) Create(ctx context.Context, postID int, text string, img *string) (*model.Comment, error) {
+	comment, err := c.ci.Create(ctx, postID, text, img)
 	if err != nil {
 		return nil, err
 	}

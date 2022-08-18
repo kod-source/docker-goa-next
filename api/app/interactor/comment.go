@@ -9,7 +9,7 @@ import (
 )
 
 type CommentInteractor interface {
-	Create(ctx context.Context, text string, img *string) (*model.Comment, error)
+	Create(ctx context.Context, postID int, text string, img *string) (*model.Comment, error)
 }
 
 type commentInteractor struct {
@@ -21,6 +21,6 @@ func NewCommentInteractor(db *sql.DB, tr repository.TimeRepository) CommentInter
 	return &commentInteractor{db: db, tr: tr}
 }
 
-func (c *commentInteractor) Create(ctx context.Context, text string, img *string) (*model.Comment, error) {
+func (c *commentInteractor) Create(ctx context.Context, postID int, text string, img *string) (*model.Comment, error) {
 	return nil, nil
 }
