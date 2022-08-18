@@ -152,7 +152,9 @@ func unmarshalSignUpAuthPayload(ctx context.Context, service *goa.Service, req *
 type CommentsController interface {
 	goa.Muxer
 	CreateComment(*CreateCommentCommentsContext) error
+	DeleteComment(*DeleteCommentCommentsContext) error
 	ShowComment(*ShowCommentCommentsContext) error
+	UpdateComment(*UpdateCommentCommentsContext) error
 }
 
 // MountCommentsController "mounts" a Comments resource controller on the given service.
@@ -160,6 +162,7 @@ func MountCommentsController(service *goa.Service, ctrl CommentsController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/comments", ctrl.MuxHandler("preflight", handleCommentsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/comments/:id", ctrl.MuxHandler("preflight", handleCommentsOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/comments/:post_id", ctrl.MuxHandler("preflight", handleCommentsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
@@ -191,6 +194,23 @@ func MountCommentsController(service *goa.Service, ctrl CommentsController) {
 			return err
 		}
 		// Build the context
+		rctx, err := NewDeleteCommentCommentsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.DeleteComment(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleCommentsOrigin(h)
+	service.Mux.Handle("DELETE", "/comments/:id", ctrl.MuxHandler("delete_comment", h, nil))
+	service.LogInfo("mount", "ctrl", "Comments", "action", "DeleteComment", "route", "DELETE /comments/:id", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewShowCommentCommentsContext(ctx, req, service)
 		if err != nil {
 			return err
@@ -201,6 +221,29 @@ func MountCommentsController(service *goa.Service, ctrl CommentsController) {
 	h = handleCommentsOrigin(h)
 	service.Mux.Handle("GET", "/comments/:post_id", ctrl.MuxHandler("show_comment", h, nil))
 	service.LogInfo("mount", "ctrl", "Comments", "action", "ShowComment", "route", "GET /comments/:post_id", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewUpdateCommentCommentsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*UpdateCommentCommentsPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.UpdateComment(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleCommentsOrigin(h)
+	service.Mux.Handle("PUT", "/comments/:id", ctrl.MuxHandler("update_comment", h, unmarshalUpdateCommentCommentsPayload))
+	service.LogInfo("mount", "ctrl", "Comments", "action", "UpdateComment", "route", "PUT /comments/:id", "security", "jwt")
 }
 
 // handleCommentsOrigin applies the CORS response headers corresponding to the origin.
@@ -232,6 +275,21 @@ func handleCommentsOrigin(h goa.Handler) goa.Handler {
 // unmarshalCreateCommentCommentsPayload unmarshals the request body into the context request data Payload field.
 func unmarshalCreateCommentCommentsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &createCommentCommentsPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalUpdateCommentCommentsPayload unmarshals the request body into the context request data Payload field.
+func unmarshalUpdateCommentCommentsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &updateCommentCommentsPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}

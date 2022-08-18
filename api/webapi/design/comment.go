@@ -41,6 +41,36 @@ var _ = Resource("comments", func() {
 		Response(NotFound)
 		Response(InternalServerError)
 	})
+
+	Action("update_comment", func() {
+		Routing(PUT("comments/:id"))
+		Description("コメントの更新")
+		Params(func() {
+			Param("id", Integer, "ID")
+		})
+		Payload(func() {
+			Attribute("text", String, "コメントの内容", func() {
+				Example("どうも~")
+			})
+			Attribute("img", String, "コメント画像のパス", func() {
+				Example("data:image/jpeg;base64,/9j/4A")
+			})
+			Required("text", "img")
+		})
+		Response(OK, comment)
+		Response(BadRequest)
+		Response(InternalServerError)
+	})
+
+	Action("delete_comment", func() {
+		Routing(DELETE("comments/:id"))
+		Description("コメントの削除")
+		Params(func() {
+			Param("id", Integer, "ID")
+		})
+		Response(OK)
+		Response(InternalServerError)
+	})
 })
 
 var comment = MediaType("application/vnd.comment_json", func() {

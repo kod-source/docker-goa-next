@@ -257,6 +257,130 @@ func CreateCommentCommentsInternalServerError(t testing.TB, ctx context.Context,
 	return rw
 }
 
+// DeleteCommentCommentsInternalServerError runs the method DeleteComment of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func DeleteCommentCommentsInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.CommentsController, id int) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/comments/%v", id),
+	}
+	req := httptest.NewRequest("DELETE", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "CommentsTest"), rw, req, prms)
+	deleteCommentCtx, err := app.NewDeleteCommentCommentsContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+
+	// Perform action
+	err = ctrl.DeleteComment(deleteCommentCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 500 {
+		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// DeleteCommentCommentsOK runs the method DeleteComment of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func DeleteCommentCommentsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.CommentsController, id int) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/comments/%v", id),
+	}
+	req := httptest.NewRequest("DELETE", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "CommentsTest"), rw, req, prms)
+	deleteCommentCtx, err := app.NewDeleteCommentCommentsContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+
+	// Perform action
+	err = ctrl.DeleteComment(deleteCommentCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
 // ShowCommentCommentsInternalServerError runs the method ShowComment of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
@@ -449,6 +573,241 @@ func ShowCommentCommentsOK(t testing.TB, ctx context.Context, service *goa.Servi
 		err = mt.Validate()
 		if err != nil {
 			t.Errorf("invalid response media type: %s", err)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// UpdateCommentCommentsBadRequest runs the method UpdateComment of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func UpdateCommentCommentsBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.CommentsController, id int, payload *app.UpdateCommentCommentsPayload) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/comments/%v", id),
+	}
+	req := httptest.NewRequest("PUT", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "CommentsTest"), rw, req, prms)
+	updateCommentCtx, _err := app.NewUpdateCommentCommentsContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil
+	}
+	updateCommentCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.UpdateComment(updateCommentCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 400 {
+		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// UpdateCommentCommentsInternalServerError runs the method UpdateComment of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func UpdateCommentCommentsInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.CommentsController, id int, payload *app.UpdateCommentCommentsPayload) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/comments/%v", id),
+	}
+	req := httptest.NewRequest("PUT", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "CommentsTest"), rw, req, prms)
+	updateCommentCtx, _err := app.NewUpdateCommentCommentsContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil
+	}
+	updateCommentCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.UpdateComment(updateCommentCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 500 {
+		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// UpdateCommentCommentsOK runs the method UpdateComment of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func UpdateCommentCommentsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.CommentsController, id int, payload *app.UpdateCommentCommentsPayload) (http.ResponseWriter, *app.CommentJSON) {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil, nil
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/comments/%v", id),
+	}
+	req := httptest.NewRequest("PUT", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "CommentsTest"), rw, req, prms)
+	updateCommentCtx, _err := app.NewUpdateCommentCommentsContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil, nil
+	}
+	updateCommentCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.UpdateComment(updateCommentCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
+	}
+	var mt *app.CommentJSON
+	if resp != nil {
+		var __ok bool
+		mt, __ok = resp.(*app.CommentJSON)
+		if !__ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.CommentJSON", resp, resp)
+		}
+		_err = mt.Validate()
+		if _err != nil {
+			t.Errorf("invalid response media type: %s", _err)
 		}
 	}
 
