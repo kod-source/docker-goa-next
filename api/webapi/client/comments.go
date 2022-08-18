@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 // CreateCommentCommentsPayload is the comments create_comment action payload.
@@ -66,6 +67,40 @@ func (c *Client) NewCreateCommentCommentsRequest(ctx context.Context, path strin
 		header.Set("Content-Type", "application/json")
 	} else {
 		header.Set("Content-Type", contentType)
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
+// ShowCommentCommentsPath computes a request path to the show_comment action of comments.
+func ShowCommentCommentsPath(postID int) string {
+	param0 := strconv.Itoa(postID)
+	return fmt.Sprintf("/comments/%s", param0)
+}
+
+// 投稿に紐づくコメントの取得
+func (c *Client) ShowCommentComments(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewShowCommentCommentsRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewShowCommentCommentsRequest create the request corresponding to the show_comment action endpoint of the comments resource.
+func (c *Client) NewShowCommentCommentsRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	if err != nil {
+		return nil, err
 	}
 	if c.JWTSigner != nil {
 		if err := c.JWTSigner.Sign(req); err != nil {

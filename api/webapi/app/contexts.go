@@ -308,6 +308,58 @@ func (ctx *CreateCommentCommentsContext) InternalServerError() error {
 	return nil
 }
 
+// ShowCommentCommentsContext provides the comments show_comment action context.
+type ShowCommentCommentsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	PostID int
+}
+
+// NewShowCommentCommentsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the comments controller show_comment action.
+func NewShowCommentCommentsContext(ctx context.Context, r *http.Request, service *goa.Service) (*ShowCommentCommentsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ShowCommentCommentsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramPostID := req.Params["post_id"]
+	if len(paramPostID) > 0 {
+		rawPostID := paramPostID[0]
+		if postID, err2 := strconv.Atoi(rawPostID); err2 == nil {
+			rctx.PostID = postID
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("post_id", rawPostID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ShowCommentCommentsContext) OK(r CommentJSONCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.comment_json; type=collection")
+	}
+	if r == nil {
+		r = CommentJSONCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ShowCommentCommentsContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ShowCommentCommentsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // AddOperandsContext provides the operands add action context.
 type AddOperandsContext struct {
 	context.Context

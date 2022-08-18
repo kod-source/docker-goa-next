@@ -10,6 +10,7 @@ import (
 
 type CommentInteractor interface {
 	Create(ctx context.Context, postID int, text string, img *string) (*model.Comment, error)
+	ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error)
 }
 
 type commentInteractor struct {
@@ -58,4 +59,37 @@ func (c *commentInteractor) Create(ctx context.Context, postID int, text string,
 	}
 
 	return &comment, tx.Commit()
+}
+
+func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error) {
+	var comments []*model.Comment
+	rows, err := c.db.Query(
+		"SELECT `id`, `post_id`, `text`, `img`, `created_at`, `updated_at` FROM comments WHERE post_id = ?", postID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var comment model.Comment
+
+		err := rows.Scan(
+			&comment.ID,
+			&comment.PostID,
+			&comment.Text,
+			&comment.Img,
+			&comment.CreatedAt,
+			&comment.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		comments = append(comments, &comment)
+	}
+	if len(comments) == 0 {
+		return nil, sql.ErrNoRows
+	}
+
+	return comments, nil
 }

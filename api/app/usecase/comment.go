@@ -9,6 +9,7 @@ import (
 
 type CommentUsecase interface {
 	Create(ctx context.Context, postID int, text string, img *string) (*model.Comment, error)
+	ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error)
 }
 
 type commentUsecase struct {
@@ -25,4 +26,12 @@ func (c *commentUsecase) Create(ctx context.Context, postID int, text string, im
 		return nil, err
 	}
 	return comment, nil
+}
+
+func (c *commentUsecase) ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error) {
+	comments, err := c.ci.ShowByPostID(ctx, postID)
+	if err != nil {
+		return nil, err
+	}
+	return comments, nil
 }

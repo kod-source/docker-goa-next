@@ -152,6 +152,7 @@ func unmarshalSignUpAuthPayload(ctx context.Context, service *goa.Service, req *
 type CommentsController interface {
 	goa.Muxer
 	CreateComment(*CreateCommentCommentsContext) error
+	ShowComment(*ShowCommentCommentsContext) error
 }
 
 // MountCommentsController "mounts" a Comments resource controller on the given service.
@@ -159,6 +160,7 @@ func MountCommentsController(service *goa.Service, ctrl CommentsController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/comments", ctrl.MuxHandler("preflight", handleCommentsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/comments/:post_id", ctrl.MuxHandler("preflight", handleCommentsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -182,6 +184,23 @@ func MountCommentsController(service *goa.Service, ctrl CommentsController) {
 	h = handleCommentsOrigin(h)
 	service.Mux.Handle("POST", "/comments", ctrl.MuxHandler("create_comment", h, unmarshalCreateCommentCommentsPayload))
 	service.LogInfo("mount", "ctrl", "Comments", "action", "CreateComment", "route", "POST /comments", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowCommentCommentsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.ShowComment(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleCommentsOrigin(h)
+	service.Mux.Handle("GET", "/comments/:post_id", ctrl.MuxHandler("show_comment", h, nil))
+	service.LogInfo("mount", "ctrl", "Comments", "action", "ShowComment", "route", "GET /comments/:post_id", "security", "jwt")
 }
 
 // handleCommentsOrigin applies the CORS response headers corresponding to the origin.
