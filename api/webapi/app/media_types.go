@@ -82,13 +82,36 @@ func (mt *IndexPostJSON) Validate() (err error) {
 	return
 }
 
-// Index_post_jsonCollection is the media type for an array of Index_post_json (default view)
+// 投稿とnext_idに情報 (default view)
 //
-// Identifier: application/vnd.index_post_json; type=collection; view=default
-type IndexPostJSONCollection []*IndexPostJSON
+// Identifier: application/vnd.post_all_limit; view=default
+type PostAllLimit struct {
+	// http://localhost:3000/posts?next_id=20
+	NextToken *string `form:"next_token,omitempty" json:"next_token,omitempty" yaml:"next_token,omitempty" xml:"next_token,omitempty"`
+	// post_and_user vbalue
+	PostAndUser *IndexPostJSON `form:"post_and_user" json:"post_and_user" yaml:"post_and_user" xml:"post_and_user"`
+}
 
-// Validate validates the IndexPostJSONCollection media type instance.
-func (mt IndexPostJSONCollection) Validate() (err error) {
+// Validate validates the PostAllLimit media type instance.
+func (mt *PostAllLimit) Validate() (err error) {
+	if mt.PostAndUser == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "post_and_user"))
+	}
+	if mt.PostAndUser != nil {
+		if err2 := mt.PostAndUser.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// Post_all_limitCollection is the media type for an array of Post_all_limit (default view)
+//
+// Identifier: application/vnd.post_all_limit; type=collection; view=default
+type PostAllLimitCollection []*PostAllLimit
+
+// Validate validates the PostAllLimitCollection media type instance.
+func (mt PostAllLimitCollection) Validate() (err error) {
 	for _, e := range mt {
 		if e != nil {
 			if err2 := e.Validate(); err2 != nil {

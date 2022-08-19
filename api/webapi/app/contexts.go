@@ -674,6 +674,7 @@ type IndexPostsContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
+	NextID *int
 }
 
 // NewIndexPostsContext parses the incoming request URL and body, performs validations and creates the
@@ -685,16 +686,27 @@ func NewIndexPostsContext(ctx context.Context, r *http.Request, service *goa.Ser
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := IndexPostsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramNextID := req.Params["next_id"]
+	if len(paramNextID) > 0 {
+		rawNextID := paramNextID[0]
+		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
+			tmp8 := nextID
+			tmp7 := &tmp8
+			rctx.NextID = tmp7
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
+		}
+	}
 	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *IndexPostsContext) OK(r IndexPostJSONCollection) error {
+func (ctx *IndexPostsContext) OK(r PostAllLimitCollection) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.index_post_json; type=collection")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.post_all_limit; type=collection")
 	}
 	if r == nil {
-		r = IndexPostJSONCollection{}
+		r = PostAllLimitCollection{}
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }

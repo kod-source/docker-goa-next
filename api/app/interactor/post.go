@@ -11,7 +11,7 @@ import (
 
 type PostInteractor interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
-	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
+	ShowAll(ctx context.Context) ([]*model.IndexPost, *string, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 	Show(ctx context.Context, id int) (*model.ShowPost, error)
@@ -73,7 +73,7 @@ func (p *postInteractor) CreatePost(ctx context.Context, userID int, title strin
 	return &indexPost, nil
 }
 
-func (p *postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {
+func (p *postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, *string, error) {
 	var indexPosts []*model.IndexPost
 	rows, err := p.db.Query(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
@@ -83,7 +83,7 @@ func (p *postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error
 		ORDER BY p.created_at DESC
 	`)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer rows.Close()
 
@@ -102,7 +102,7 @@ func (p *postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error
 			&user.Avatar,
 		)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		indexPosts = append(indexPosts, &model.IndexPost{
@@ -121,7 +121,7 @@ func (p *postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error
 		})
 	}
 
-	return indexPosts, nil
+	return indexPosts, nil, nil
 }
 
 func (p *postInteractor) Delete(ctx context.Context, id int) error {
