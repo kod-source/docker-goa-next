@@ -34,7 +34,7 @@ var _ = Resource("posts", func() {
 			Param("next_id", Integer, "次のID")
 		})
 		Description("全部の登録を取得する")
-		Response(OK, CollectionOf(post_all_limit))
+		Response(OK, post_all_limit)
 		Response(NotFound)
 		Response(InternalServerError)
 	})
@@ -155,11 +155,11 @@ var show_post = MediaType("application/vnd.show_post_json", func() {
 
 var post_all_limit = MediaType("application/vnd.post_all_limit", func() {
 	Description("投稿とnext_idに情報")
-	Attribute("post_and_user", post_and_user, "post_and_user vbalue")
+	Attribute("show_posts", CollectionOf(post_and_user), "post_and_user vbalue")
 	Attribute("next_token", String, "http://localhost:3000/posts?next_id=20")
 	View("default", func() {
-		Attribute("post_and_user")
+		Attribute("show_posts")
 		Attribute("next_token")
 	})
-	Required("post_and_user")
+	Required("show_posts")
 })

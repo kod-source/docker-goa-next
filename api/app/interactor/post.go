@@ -3,6 +3,7 @@ package interactor
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/kod-source/docker-goa-next/app/model"
@@ -11,7 +12,7 @@ import (
 
 type PostInteractor interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
-	ShowAll(ctx context.Context) ([]*model.IndexPost, *string, error)
+	ShowAll(ctx context.Context, nextID int) ([]*model.IndexPost, *string, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 	Show(ctx context.Context, id int) (*model.ShowPost, error)
@@ -73,15 +74,17 @@ func (p *postInteractor) CreatePost(ctx context.Context, userID int, title strin
 	return &indexPost, nil
 }
 
-func (p *postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, *string, error) {
+func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPost, *string, error) {
 	var indexPosts []*model.IndexPost
+	limitNumber := 20
 	rows, err := p.db.Query(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
 		FROM posts as p
 		INNER JOIN users as u
 		ON p.user_id = u.id
 		ORDER BY p.created_at DESC
-	`)
+		LIMIT ?, ?
+	`, nextID, limitNumber)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -121,7 +124,20 @@ func (p *postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, *stri
 		})
 	}
 
-	return indexPosts, nil, nil
+	var id int
+	err = p.db.QueryRow(
+		"SELECT `id` FROM `posts` ORDER BY `created_at` LIMIT 1",
+	).Scan(
+		&id,
+	)
+	var nextToken *string
+	s := fmt.Sprintf("http://localhost:3000/posts?next_id=%d", nextID+limitNumber)
+	nextToken = &s
+	if len(indexPosts) == 0 || indexPosts[len(indexPosts)-1].Post.ID == id {
+		nextToken = nil
+	}
+
+	return indexPosts, nextToken, nil
 }
 
 func (p *postInteractor) Delete(ctx context.Context, id int) error {

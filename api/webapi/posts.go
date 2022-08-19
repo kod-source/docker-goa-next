@@ -43,7 +43,13 @@ func (c *PostsController) CreatePost(ctx *app.CreatePostPostsContext) error {
 }
 
 func (c *PostsController) Index(ctx *app.IndexPostsContext) error {
-	p, nextToken, err := c.pu.ShowAll(ctx)
+	var nextID int
+	if ctx.NextID == nil {
+		nextID = 0
+	} else {
+		nextID = *ctx.NextID
+	}
+	p, nextToken, err := c.pu.ShowAll(ctx, nextID)
 	if err != nil {
 		return ctx.InternalServerError()
 	}
@@ -108,27 +114,27 @@ func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 	})
 }
 
-func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPost, nextToken *string) app.PostAllLimitCollection {
-	ips := make(app.PostAllLimitCollection, 0, len(indexPosts))
+func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPost, nextToken *string) *app.PostAllLimit {
+	ips := make(app.IndexPostJSONCollection, 0, len(indexPosts))
 	for _, ip := range indexPosts {
-		ips = append(ips, &app.PostAllLimit{
-			PostAndUser: &app.IndexPostJSON{
-				Post: &app.PostJSON{
-					ID:        ip.Post.ID,
-					UserID:    ip.Post.UserID,
-					Title:     ip.Post.Title,
-					Img:       ip.Post.Img,
-					CreatedAt: &ip.Post.CreatedAt,
-					UpdatedAt: &ip.Post.UpdatedAt,
-				},
-				UserName: ip.User.Name,
-				Avatar:   ip.User.Avatar,
+		ips = append(ips, &app.IndexPostJSON{
+			Post: &app.PostJSON{
+				ID:        ip.Post.ID,
+				UserID:    ip.Post.UserID,
+				Title:     ip.Post.Title,
+				Img:       ip.Post.Img,
+				CreatedAt: &ip.Post.CreatedAt,
+				UpdatedAt: &ip.Post.UpdatedAt,
 			},
-			NextToken: nextToken,
+			UserName: ip.User.Name,
+			Avatar:   ip.User.Avatar,
 		})
 	}
 
-	return ips
+	return &app.PostAllLimit{
+		ShowPosts: ips,
+		NextToken: nextToken,
+	}
 }
 
 func (c *PostsController) toCommnetJson(comments []*model.Comment) app.CommentJSONCollection {

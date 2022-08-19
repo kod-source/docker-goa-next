@@ -701,12 +701,9 @@ func NewIndexPostsContext(ctx context.Context, r *http.Request, service *goa.Ser
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *IndexPostsContext) OK(r PostAllLimitCollection) error {
+func (ctx *IndexPostsContext) OK(r *PostAllLimit) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.post_all_limit; type=collection")
-	}
-	if r == nil {
-		r = PostAllLimitCollection{}
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.post_all_limit")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
