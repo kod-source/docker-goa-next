@@ -163,7 +163,6 @@ func MountCommentsController(service *goa.Service, ctrl CommentsController) {
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/comments", ctrl.MuxHandler("preflight", handleCommentsOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/comments/:id", ctrl.MuxHandler("preflight", handleCommentsOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/comments/:post_id", ctrl.MuxHandler("preflight", handleCommentsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -219,8 +218,8 @@ func MountCommentsController(service *goa.Service, ctrl CommentsController) {
 	}
 	h = handleSecurity("jwt", h, "api:access")
 	h = handleCommentsOrigin(h)
-	service.Mux.Handle("GET", "/comments/:post_id", ctrl.MuxHandler("show_comment", h, nil))
-	service.LogInfo("mount", "ctrl", "Comments", "action", "ShowComment", "route", "GET /comments/:post_id", "security", "jwt")
+	service.Mux.Handle("GET", "/comments/:id", ctrl.MuxHandler("show_comment", h, nil))
+	service.LogInfo("mount", "ctrl", "Comments", "action", "ShowComment", "route", "GET /comments/:id", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

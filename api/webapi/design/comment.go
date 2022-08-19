@@ -32,10 +32,10 @@ var _ = Resource("comments", func() {
 	})
 
 	Action("show_comment", func() {
-		Routing(GET("comments/:post_id"))
+		Routing(GET("comments/:id"))
 		Description("投稿に紐づくコメントの取得")
 		Params(func() {
-			Param("post_id", Integer, "PostID")
+			Param("id", Integer, "ID")
 		})
 		Response(OK, CollectionOf(comment))
 		Response(NotFound)
@@ -69,6 +69,7 @@ var _ = Resource("comments", func() {
 			Param("id", Integer, "ID")
 		})
 		Response(OK)
+		Response(NotFound)
 		Response(InternalServerError)
 	})
 })

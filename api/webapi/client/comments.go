@@ -111,8 +111,8 @@ func (c *Client) NewDeleteCommentCommentsRequest(ctx context.Context, path strin
 }
 
 // ShowCommentCommentsPath computes a request path to the show_comment action of comments.
-func ShowCommentCommentsPath(postID int) string {
-	param0 := strconv.Itoa(postID)
+func ShowCommentCommentsPath(id int) string {
+	param0 := strconv.Itoa(id)
 	return fmt.Sprintf("/comments/%s", param0)
 }
 

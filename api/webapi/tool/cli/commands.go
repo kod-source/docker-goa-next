@@ -57,8 +57,8 @@ type (
 
 	// ShowCommentCommentsCommand is the command line data structure for the show_comment action of comments
 	ShowCommentCommentsCommand struct {
-		// PostID
-		PostID      int
+		// ID
+		ID          int
 		PrettyPrint bool
 	}
 
@@ -281,7 +281,7 @@ Payload example:
 	}
 	tmp10 := new(ShowCommentCommentsCommand)
 	sub = &cobra.Command{
-		Use:   `comments ["/comments/POST_ID"]`,
+		Use:   `comments ["/comments/ID"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp10.Run(c, args) },
 	}
@@ -643,7 +643,7 @@ func (cmd *ShowCommentCommentsCommand) Run(c *client.Client, args []string) erro
 	if len(args) > 0 {
 		path = args[0]
 	} else {
-		path = fmt.Sprintf("/comments/%v", cmd.PostID)
+		path = fmt.Sprintf("/comments/%v", cmd.ID)
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
@@ -659,8 +659,8 @@ func (cmd *ShowCommentCommentsCommand) Run(c *client.Client, args []string) erro
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *ShowCommentCommentsCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var postID int
-	cc.Flags().IntVar(&cmd.PostID, "post_id", postID, `PostID`)
+	var id int
+	cc.Flags().IntVar(&cmd.ID, "id", id, `ID`)
 }
 
 // Run makes the HTTP request corresponding to the UpdateCommentCommentsCommand command.

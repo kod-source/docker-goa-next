@@ -519,6 +519,8 @@ paths:
       responses:
         "200":
           description: OK
+        "404":
+          description: Not Found
         "500":
           description: Internal Server Error
       schemes:
@@ -527,6 +529,38 @@ paths:
       - jwt:
         - api:access
       summary: delete_comment comments
+      tags:
+      - comments
+    get:
+      description: |-
+        投稿に紐づくコメントの取得
+
+        Required security scopes:
+          * `api:access`
+      operationId: comments#show_comment
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/vnd.comment_json; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Comment_jsonCollection'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: show_comment comments
       tags:
       - comments
     put:
@@ -564,39 +598,6 @@ paths:
       - jwt:
         - api:access
       summary: update_comment comments
-      tags:
-      - comments
-  /comments/{post_id}:
-    get:
-      description: |-
-        投稿に紐づくコメントの取得
-
-        Required security scopes:
-          * `api:access`
-      operationId: comments#show_comment
-      parameters:
-      - description: PostID
-        in: path
-        name: post_id
-        required: true
-        type: integer
-      produces:
-      - application/vnd.comment_json; type=collection
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/Comment_jsonCollection'
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-      schemes:
-      - http
-      security:
-      - jwt:
-        - api:access
-      summary: show_comment comments
       tags:
       - comments
   /current_user:

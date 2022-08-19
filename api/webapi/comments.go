@@ -37,7 +37,7 @@ func (c *CommentsController) CreateComment(ctx *app.CreateCommentCommentsContext
 }
 
 func (c *CommentsController) ShowComment(ctx *app.ShowCommentCommentsContext) error {
-	cs, err := c.cu.ShowByPostID(ctx, ctx.PostID)
+	cs, err := c.cu.ShowByPostID(ctx, ctx.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return ctx.NotFound()

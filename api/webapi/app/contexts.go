@@ -347,6 +347,12 @@ func (ctx *DeleteCommentCommentsContext) OK(resp []byte) error {
 	return err
 }
 
+// NotFound sends a HTTP response with status code 404.
+func (ctx *DeleteCommentCommentsContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *DeleteCommentCommentsContext) InternalServerError() error {
 	ctx.ResponseData.WriteHeader(500)
@@ -358,7 +364,7 @@ type ShowCommentCommentsContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	PostID int
+	ID int
 }
 
 // NewShowCommentCommentsContext parses the incoming request URL and body, performs validations and creates the
@@ -370,13 +376,13 @@ func NewShowCommentCommentsContext(ctx context.Context, r *http.Request, service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := ShowCommentCommentsContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramPostID := req.Params["post_id"]
-	if len(paramPostID) > 0 {
-		rawPostID := paramPostID[0]
-		if postID, err2 := strconv.Atoi(rawPostID); err2 == nil {
-			rctx.PostID = postID
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
 		} else {
-			err = goa.MergeErrors(err, goa.InvalidParamTypeError("post_id", rawPostID, "integer"))
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
 		}
 	}
 	return &rctx, err
