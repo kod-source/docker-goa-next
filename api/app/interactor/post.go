@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/kod-source/docker-goa-next/app/model"
@@ -131,7 +132,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 		&id,
 	)
 	var nextToken *string
-	s := fmt.Sprintf("http://localhost:3000/posts?next_id=%d", nextID+limitNumber)
+	s := fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber)
 	nextToken = &s
 	if len(indexPosts) == 0 || indexPosts[len(indexPosts)-1].Post.ID == id {
 		nextToken = nil
