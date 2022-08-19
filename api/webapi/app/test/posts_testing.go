@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -365,7 +366,7 @@ func DeletePostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func IndexPostsInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController) http.ResponseWriter {
+func IndexPostsInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController, nextID *int) http.ResponseWriter {
 	t.Helper()
 
 	// Setup service
@@ -389,12 +390,22 @@ func IndexPostsInternalServerError(t testing.TB, ctx context.Context, service *g
 		ctx = context.Background()
 	}
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		query["next_id"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts"),
+		Path:     fmt.Sprintf("/posts"),
+		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
 	prms := url.Values{}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		prms["next_id"] = sliceVal
+	}
 
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PostsTest"), rw, req, prms)
 	indexCtx, err := app.NewIndexPostsContext(goaCtx, req, service)
@@ -426,7 +437,7 @@ func IndexPostsInternalServerError(t testing.TB, ctx context.Context, service *g
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func IndexPostsNotFound(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController) http.ResponseWriter {
+func IndexPostsNotFound(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController, nextID *int) http.ResponseWriter {
 	t.Helper()
 
 	// Setup service
@@ -450,12 +461,22 @@ func IndexPostsNotFound(t testing.TB, ctx context.Context, service *goa.Service,
 		ctx = context.Background()
 	}
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		query["next_id"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts"),
+		Path:     fmt.Sprintf("/posts"),
+		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
 	prms := url.Values{}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		prms["next_id"] = sliceVal
+	}
 
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PostsTest"), rw, req, prms)
 	indexCtx, err := app.NewIndexPostsContext(goaCtx, req, service)
@@ -487,7 +508,7 @@ func IndexPostsNotFound(t testing.TB, ctx context.Context, service *goa.Service,
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func IndexPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController) (http.ResponseWriter, app.IndexPostJSONCollection) {
+func IndexPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.PostsController, nextID *int) (http.ResponseWriter, *app.PostAllLimit) {
 	t.Helper()
 
 	// Setup service
@@ -512,12 +533,22 @@ func IndexPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl 
 		ctx = context.Background()
 	}
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		query["next_id"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts"),
+		Path:     fmt.Sprintf("/posts"),
+		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
 	prms := url.Values{}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		prms["next_id"] = sliceVal
+	}
 
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "PostsTest"), rw, req, prms)
 	indexCtx, err := app.NewIndexPostsContext(goaCtx, req, service)
@@ -540,12 +571,12 @@ func IndexPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl 
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt app.IndexPostJSONCollection
+	var mt *app.PostAllLimit
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(app.IndexPostJSONCollection)
+		mt, _ok = resp.(*app.PostAllLimit)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.IndexPostJSONCollection", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.PostAllLimit", resp, resp)
 		}
 		err = mt.Validate()
 		if err != nil {

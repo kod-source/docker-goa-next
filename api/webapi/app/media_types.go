@@ -99,6 +99,27 @@ func (mt IndexPostJSONCollection) Validate() (err error) {
 	return
 }
 
+// 投稿とnext_idに情報 (default view)
+//
+// Identifier: application/vnd.post_all_limit; view=default
+type PostAllLimit struct {
+	// http://localhost:3000/posts?next_id=20
+	NextToken *string `form:"next_token,omitempty" json:"next_token,omitempty" yaml:"next_token,omitempty" xml:"next_token,omitempty"`
+	// post_and_user vbalue
+	ShowPosts IndexPostJSONCollection `form:"show_posts" json:"show_posts" yaml:"show_posts" xml:"show_posts"`
+}
+
+// Validate validates the PostAllLimit media type instance.
+func (mt *PostAllLimit) Validate() (err error) {
+	if mt.ShowPosts == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "show_posts"))
+	}
+	if err2 := mt.ShowPosts.Validate(); err2 != nil {
+		err = goa.MergeErrors(err, err2)
+	}
+	return
+}
+
 // 投稿とユーザーの情報 (default view)
 //
 // Identifier: application/vnd.post_and_user_json; view=default

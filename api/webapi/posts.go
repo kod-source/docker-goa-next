@@ -43,12 +43,18 @@ func (c *PostsController) CreatePost(ctx *app.CreatePostPostsContext) error {
 }
 
 func (c *PostsController) Index(ctx *app.IndexPostsContext) error {
-	p, err := c.pu.ShowAll(ctx)
+	var nextID int
+	if ctx.NextID == nil {
+		nextID = 0
+	} else {
+		nextID = *ctx.NextID
+	}
+	p, nextToken, err := c.pu.ShowAll(ctx, nextID)
 	if err != nil {
 		return ctx.InternalServerError()
 	}
 
-	return ctx.OK(c.toIndexPostJson(p))
+	return ctx.OK(c.toPostAllLimit(p, nextToken))
 }
 
 func (c *PostsController) Delete(ctx *app.DeletePostsContext) error {
@@ -108,7 +114,7 @@ func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 	})
 }
 
-func (c *PostsController) toIndexPostJson(indexPosts []*model.IndexPost) app.IndexPostJSONCollection {
+func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPost, nextToken *string) *app.PostAllLimit {
 	ips := make(app.IndexPostJSONCollection, 0, len(indexPosts))
 	for _, ip := range indexPosts {
 		ips = append(ips, &app.IndexPostJSON{
@@ -125,7 +131,10 @@ func (c *PostsController) toIndexPostJson(indexPosts []*model.IndexPost) app.Ind
 		})
 	}
 
-	return ips
+	return &app.PostAllLimit{
+		ShowPosts: ips,
+		NextToken: nextToken,
+	}
 }
 
 func (c *PostsController) toCommnetJson(comments []*model.Comment) app.CommentJSONCollection {

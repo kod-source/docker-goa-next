@@ -96,6 +96,8 @@ type (
 
 	// IndexPostsCommand is the command line data structure for the index action of posts
 	IndexPostsCommand struct {
+		// 次のID
+		NextID      int
 		PrettyPrint bool
 	}
 
@@ -795,7 +797,7 @@ func (cmd *IndexPostsCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.IndexPosts(ctx, path)
+	resp, err := c.IndexPosts(ctx, path, intFlagVal("next_id", cmd.NextID))
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -807,6 +809,8 @@ func (cmd *IndexPostsCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *IndexPostsCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var nextID int
+	cc.Flags().IntVar(&cmd.NextID, "next_id", nextID, `次のID`)
 }
 
 // Run makes the HTTP request corresponding to the ShowPostsCommand command.
