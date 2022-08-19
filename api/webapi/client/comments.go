@@ -76,9 +76,43 @@ func (c *Client) NewCreateCommentCommentsRequest(ctx context.Context, path strin
 	return req, nil
 }
 
+// DeleteCommentCommentsPath computes a request path to the delete_comment action of comments.
+func DeleteCommentCommentsPath(id int) string {
+	param0 := strconv.Itoa(id)
+	return fmt.Sprintf("/comments/%s", param0)
+}
+
+// コメントの削除
+func (c *Client) DeleteCommentComments(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewDeleteCommentCommentsRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewDeleteCommentCommentsRequest create the request corresponding to the delete_comment action endpoint of the comments resource.
+func (c *Client) NewDeleteCommentCommentsRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequestWithContext(ctx, "DELETE", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
 // ShowCommentCommentsPath computes a request path to the show_comment action of comments.
-func ShowCommentCommentsPath(postID int) string {
-	param0 := strconv.Itoa(postID)
+func ShowCommentCommentsPath(id int) string {
+	param0 := strconv.Itoa(id)
 	return fmt.Sprintf("/comments/%s", param0)
 }
 
@@ -101,6 +135,62 @@ func (c *Client) NewShowCommentCommentsRequest(ctx context.Context, path string)
 	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
 	if err != nil {
 		return nil, err
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
+// UpdateCommentCommentsPayload is the comments update_comment action payload.
+type UpdateCommentCommentsPayload struct {
+	// コメント画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コメントの内容
+	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
+}
+
+// UpdateCommentCommentsPath computes a request path to the update_comment action of comments.
+func UpdateCommentCommentsPath(id int) string {
+	param0 := strconv.Itoa(id)
+	return fmt.Sprintf("/comments/%s", param0)
+}
+
+// コメントの更新
+func (c *Client) UpdateCommentComments(ctx context.Context, path string, payload *UpdateCommentCommentsPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewUpdateCommentCommentsRequest(ctx, path, payload, contentType)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewUpdateCommentCommentsRequest create the request corresponding to the update_comment action endpoint of the comments resource.
+func (c *Client) NewUpdateCommentCommentsRequest(ctx context.Context, path string, payload *UpdateCommentCommentsPayload, contentType string) (*http.Request, error) {
+	var body bytes.Buffer
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequestWithContext(ctx, "PUT", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	if contentType == "*/*" {
+		header.Set("Content-Type", "application/json")
+	} else {
+		header.Set("Content-Type", contentType)
 	}
 	if c.JWTSigner != nil {
 		if err := c.JWTSigner.Sign(req); err != nil {

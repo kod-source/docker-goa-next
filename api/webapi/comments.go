@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
@@ -24,6 +25,9 @@ func NewCommentsController(service *goa.Service, cu usecase.CommentUsecase) *Com
 func (c *CommentsController) CreateComment(ctx *app.CreateCommentCommentsContext) error {
 	comment, err := c.cu.Create(ctx, ctx.Payload.PostID, ctx.Payload.Text, ctx.Payload.Img)
 	if err != nil {
+		if err == myerrors.BadRequestStingError {
+			return ctx.BadRequest()
+		}
 		return ctx.InternalServerError()
 	}
 	return ctx.Created(&app.CommentJSON{
@@ -37,7 +41,7 @@ func (c *CommentsController) CreateComment(ctx *app.CreateCommentCommentsContext
 }
 
 func (c *CommentsController) ShowComment(ctx *app.ShowCommentCommentsContext) error {
-	cs, err := c.cu.ShowByPostID(ctx, ctx.PostID)
+	cs, err := c.cu.ShowByPostID(ctx, ctx.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return ctx.NotFound()
@@ -46,6 +50,35 @@ func (c *CommentsController) ShowComment(ctx *app.ShowCommentCommentsContext) er
 	}
 
 	return ctx.OK(c.ToCommentJSONCollection(cs))
+}
+
+func (c *CommentsController) UpdateComment(ctx *app.UpdateCommentCommentsContext) error {
+	comment, err := c.cu.Update(ctx, ctx.ID, ctx.Payload.Text, ctx.Payload.Img)
+	if err != nil {
+		if err == myerrors.BadRequestStingError {
+			return ctx.BadRequest()
+		}
+		return ctx.InternalServerError()
+	}
+	return ctx.OK(&app.CommentJSON{
+		CreatedAt: comment.CreatedAt,
+		ID:        *comment.ID,
+		Img:       comment.Img,
+		PostID:    *comment.PostID,
+		Text:      *comment.Text,
+		UpdatedAt: comment.UpdatedAt,
+	})
+}
+
+func (c *CommentsController) DeleteComment(ctx *app.DeleteCommentCommentsContext) error {
+	err := c.cu.Delete(ctx, ctx.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
+	}
+	return ctx.OK(nil)
 }
 
 func (c *CommentsController) ToCommentJSONCollection(comments []*model.Comment) app.CommentJSONCollection {

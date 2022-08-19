@@ -146,13 +146,9 @@ func (p *postInteractor) Update(ctx context.Context, id int, title string, img *
 	if err != nil {
 		return nil, err
 	}
-	result, err := upd.Exec(title, img, p.tr.Now(), id)
+	_, err = upd.Exec(title, img, p.tr.Now(), id)
 	if err != nil {
 		tx.Rollback()
-		return nil, err
-	}
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
 		return nil, err
 	}
 	var indexPost model.IndexPost
@@ -162,7 +158,7 @@ func (p *postInteractor) Update(ctx context.Context, id int, title string, img *
 		INNER JOIN users as u
 		ON p.user_id = u.id
 		WHERE p.id = ?
-	`, rowsAffected).Scan(
+	`, id).Scan(
 		&indexPost.Post.ID,
 		&indexPost.Post.UserID,
 		&indexPost.Post.Title,

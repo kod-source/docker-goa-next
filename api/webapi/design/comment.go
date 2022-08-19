@@ -32,12 +32,43 @@ var _ = Resource("comments", func() {
 	})
 
 	Action("show_comment", func() {
-		Routing(GET("comments/:post_id"))
+		Routing(GET("comments/:id"))
 		Description("投稿に紐づくコメントの取得")
 		Params(func() {
-			Param("post_id", Integer, "PostID")
+			Param("id", Integer, "ID")
 		})
 		Response(OK, CollectionOf(comment))
+		Response(NotFound)
+		Response(InternalServerError)
+	})
+
+	Action("update_comment", func() {
+		Routing(PUT("comments/:id"))
+		Description("コメントの更新")
+		Params(func() {
+			Param("id", Integer, "ID")
+		})
+		Payload(func() {
+			Attribute("text", String, "コメントの内容", func() {
+				Example("どうも~")
+			})
+			Attribute("img", String, "コメント画像のパス", func() {
+				Example("data:image/jpeg;base64,/9j/4A")
+			})
+			Required("text")
+		})
+		Response(OK, comment)
+		Response(BadRequest)
+		Response(InternalServerError)
+	})
+
+	Action("delete_comment", func() {
+		Routing(DELETE("comments/:id"))
+		Description("コメントの削除")
+		Params(func() {
+			Param("id", Integer, "ID")
+		})
+		Response(OK)
 		Response(NotFound)
 		Response(InternalServerError)
 	})

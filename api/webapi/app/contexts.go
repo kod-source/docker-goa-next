@@ -308,12 +308,63 @@ func (ctx *CreateCommentCommentsContext) InternalServerError() error {
 	return nil
 }
 
+// DeleteCommentCommentsContext provides the comments delete_comment action context.
+type DeleteCommentCommentsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID int
+}
+
+// NewDeleteCommentCommentsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the comments controller delete_comment action.
+func NewDeleteCommentCommentsContext(ctx context.Context, r *http.Request, service *goa.Service) (*DeleteCommentCommentsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := DeleteCommentCommentsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *DeleteCommentCommentsContext) OK(resp []byte) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+	}
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *DeleteCommentCommentsContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *DeleteCommentCommentsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // ShowCommentCommentsContext provides the comments show_comment action context.
 type ShowCommentCommentsContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	PostID int
+	ID int
 }
 
 // NewShowCommentCommentsContext parses the incoming request URL and body, performs validations and creates the
@@ -325,13 +376,13 @@ func NewShowCommentCommentsContext(ctx context.Context, r *http.Request, service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := ShowCommentCommentsContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramPostID := req.Params["post_id"]
-	if len(paramPostID) > 0 {
-		rawPostID := paramPostID[0]
-		if postID, err2 := strconv.Atoi(rawPostID); err2 == nil {
-			rctx.PostID = postID
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
 		} else {
-			err = goa.MergeErrors(err, goa.InvalidParamTypeError("post_id", rawPostID, "integer"))
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -356,6 +407,92 @@ func (ctx *ShowCommentCommentsContext) NotFound() error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *ShowCommentCommentsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
+// UpdateCommentCommentsContext provides the comments update_comment action context.
+type UpdateCommentCommentsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID      int
+	Payload *UpdateCommentCommentsPayload
+}
+
+// NewUpdateCommentCommentsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the comments controller update_comment action.
+func NewUpdateCommentCommentsContext(ctx context.Context, r *http.Request, service *goa.Service) (*UpdateCommentCommentsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := UpdateCommentCommentsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// updateCommentCommentsPayload is the comments update_comment action payload.
+type updateCommentCommentsPayload struct {
+	// コメント画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コメントの内容
+	Text *string `form:"text,omitempty" json:"text,omitempty" yaml:"text,omitempty" xml:"text,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *updateCommentCommentsPayload) Validate() (err error) {
+	if payload.Text == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "text"))
+	}
+	return
+}
+
+// Publicize creates UpdateCommentCommentsPayload from updateCommentCommentsPayload
+func (payload *updateCommentCommentsPayload) Publicize() *UpdateCommentCommentsPayload {
+	var pub UpdateCommentCommentsPayload
+	if payload.Img != nil {
+		pub.Img = payload.Img
+	}
+	if payload.Text != nil {
+		pub.Text = *payload.Text
+	}
+	return &pub
+}
+
+// UpdateCommentCommentsPayload is the comments update_comment action payload.
+type UpdateCommentCommentsPayload struct {
+	// コメント画像のパス
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コメントの内容
+	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *UpdateCommentCommentsContext) OK(r *CommentJSON) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.comment_json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *UpdateCommentCommentsContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *UpdateCommentCommentsContext) InternalServerError() error {
 	ctx.ResponseData.WriteHeader(500)
 	return nil
 }
