@@ -147,7 +147,7 @@ func (c *Client) NewShowCommentCommentsRequest(ctx context.Context, path string)
 // UpdateCommentCommentsPayload is the comments update_comment action payload.
 type UpdateCommentCommentsPayload struct {
 	// コメント画像のパス
-	Img string `form:"img" json:"img" yaml:"img" xml:"img"`
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
 	// コメントの内容
 	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
 }

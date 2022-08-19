@@ -454,9 +454,6 @@ func (payload *updateCommentCommentsPayload) Validate() (err error) {
 	if payload.Text == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "text"))
 	}
-	if payload.Img == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "img"))
-	}
 	return
 }
 
@@ -464,7 +461,7 @@ func (payload *updateCommentCommentsPayload) Validate() (err error) {
 func (payload *updateCommentCommentsPayload) Publicize() *UpdateCommentCommentsPayload {
 	var pub UpdateCommentCommentsPayload
 	if payload.Img != nil {
-		pub.Img = *payload.Img
+		pub.Img = payload.Img
 	}
 	if payload.Text != nil {
 		pub.Text = *payload.Text
@@ -475,15 +472,9 @@ func (payload *updateCommentCommentsPayload) Publicize() *UpdateCommentCommentsP
 // UpdateCommentCommentsPayload is the comments update_comment action payload.
 type UpdateCommentCommentsPayload struct {
 	// コメント画像のパス
-	Img string `form:"img" json:"img" yaml:"img" xml:"img"`
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
 	// コメントの内容
 	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
-}
-
-// Validate runs the validation rules defined in the design.
-func (payload *UpdateCommentCommentsPayload) Validate() (err error) {
-
-	return
 }
 
 // OK sends a HTTP response with status code 200.

@@ -375,7 +375,6 @@ definitions:
         type: string
     required:
     - text
-    - img
     title: UpdateCommentCommentsPayload
     type: object
   UpdatePostsPayload:

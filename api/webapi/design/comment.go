@@ -55,7 +55,7 @@ var _ = Resource("comments", func() {
 			Attribute("img", String, "コメント画像のパス", func() {
 				Example("data:image/jpeg;base64,/9j/4A")
 			})
-			Required("text", "img")
+			Required("text")
 		})
 		Response(OK, comment)
 		Response(BadRequest)
