@@ -97,7 +97,36 @@ func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*mo
 }
 
 func (c *commentInteractor) Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error) {
-	return nil, nil
+	var comment model.Comment
+	tx, err := c.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	upd, err := tx.Prepare("UPDATE `comments` set `text` = ?, `img` = ?, `updated_at` = ? WHERE `id` = ?")
+	if err != nil {
+		return nil, err
+	}
+	_, err = upd.Exec(text, img, c.tr.Now(), id)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	err = tx.QueryRow(
+		"SELECT `id`, `post_id`, `text`, `img`, `created_at`, `updated_at` FROM `comments` WHERE `id` = ?", id,
+	).Scan(
+		&comment.ID,
+		&comment.PostID,
+		&comment.Text,
+		&comment.Img,
+		&comment.CreatedAt,
+		&comment.UpdatedAt,
+	)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return &comment, tx.Commit()
 }
 
 func (c *commentInteractor) Delete(ctx context.Context, id int) error {
