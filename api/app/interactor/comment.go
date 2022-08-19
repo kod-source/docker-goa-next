@@ -101,5 +101,21 @@ func (c *commentInteractor) Update(ctx context.Context, id int, text, img string
 }
 
 func (c *commentInteractor) Delete(ctx context.Context, id int) error {
+	stmt, err := c.db.Prepare("DELETE FROM `comments` WHERE `id` = ?")
+	if err != nil {
+		return err
+	}
+	r, err := stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+	i, err := r.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if i == 0 {
+		return sql.ErrNoRows
+	}
+
 	return nil
 }

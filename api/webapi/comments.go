@@ -66,6 +66,9 @@ func (c *CommentsController) UpdateComment(ctx *app.UpdateCommentCommentsContext
 func (c *CommentsController) DeleteComment(ctx *app.DeleteCommentCommentsContext) error {
 	err := c.cu.Delete(ctx, ctx.ID)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return ctx.NotFound()
+		}
 		return ctx.InternalServerError()
 	}
 	return ctx.OK(nil)
