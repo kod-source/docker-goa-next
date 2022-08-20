@@ -3,6 +3,8 @@ package interactor
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/kod-source/docker-goa-next/app/model"
@@ -11,20 +13,22 @@ import (
 
 type PostInteractor interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
-	ShowAll(ctx context.Context) ([]*model.IndexPost, error)
+	ShowAll(ctx context.Context, nextID int) ([]*model.IndexPost, *string, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
+	Show(ctx context.Context, id int) (*model.ShowPost, error)
 }
 
 type postInteractor struct {
 	db *sql.DB
+	tr repository.TimeRepository
 }
 
-func NewPostInteractor(db *sql.DB) PostInteractor {
-	return postInteractor{db: db}
+func NewPostInteractor(db *sql.DB, tr repository.TimeRepository) PostInteractor {
+	return &postInteractor{db: db, tr: tr}
 }
 
-func (p postInteractor) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
+func (p *postInteractor) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
 	var indexPost model.IndexPost
 	tx, err := p.db.Begin()
 	if err != nil {
@@ -71,17 +75,19 @@ func (p postInteractor) CreatePost(ctx context.Context, userID int, title string
 	return &indexPost, nil
 }
 
-func (p postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error) {
+func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPost, *string, error) {
 	var indexPosts []*model.IndexPost
+	limitNumber := 20
 	rows, err := p.db.Query(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
 		FROM posts as p
 		INNER JOIN users as u
 		ON p.user_id = u.id
 		ORDER BY p.created_at DESC
-	`)
+		LIMIT ?, ?
+	`, nextID, limitNumber)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer rows.Close()
 
@@ -100,7 +106,7 @@ func (p postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 			&user.Avatar,
 		)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		indexPosts = append(indexPosts, &model.IndexPost{
@@ -119,10 +125,23 @@ func (p postInteractor) ShowAll(ctx context.Context) ([]*model.IndexPost, error)
 		})
 	}
 
-	return indexPosts, nil
+	var id int
+	err = p.db.QueryRow(
+		"SELECT `id` FROM `posts` ORDER BY `created_at` LIMIT 1",
+	).Scan(
+		&id,
+	)
+	var nextToken *string
+	s := fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber)
+	nextToken = &s
+	if len(indexPosts) == 0 || indexPosts[len(indexPosts)-1].Post.ID == id {
+		nextToken = nil
+	}
+
+	return indexPosts, nextToken, nil
 }
 
-func (p postInteractor) Delete(ctx context.Context, id int) error {
+func (p *postInteractor) Delete(ctx context.Context, id int) error {
 	stmt, err := p.db.Prepare("DELETE FROM `posts` WHERE `id` = ?")
 	if err != nil {
 		return err
@@ -135,7 +154,7 @@ func (p postInteractor) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (p postInteractor) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
+func (p *postInteractor) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, err
@@ -144,8 +163,7 @@ func (p postInteractor) Update(ctx context.Context, id int, title string, img *s
 	if err != nil {
 		return nil, err
 	}
-	ti := repository.NewTimeRepositoy()
-	_, err = upd.Exec(title, img, ti.Now(), id)
+	_, err = upd.Exec(title, img, p.tr.Now(), id)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -174,4 +192,56 @@ func (p postInteractor) Update(ctx context.Context, id int, title string, img *s
 
 	tx.Commit()
 	return &indexPost, nil
+}
+
+func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, error) {
+	var showPost model.ShowPost
+	rows, err := p.db.Query(`
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar, c.id, c.post_id, c.text, c.img, c.created_at, c.updated_at
+		FROM posts as p
+		INNER JOIN users as u
+		ON p.user_id = u.id
+		LEFT JOIN comments as c
+		ON p.id = c.post_id
+		WHERE p.id = ?
+		ORDER BY c.created_at DESC
+	`, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var comments []*model.Comment
+	for rows.Next() {
+		var comment model.Comment
+
+		err = rows.Scan(
+			&showPost.IndexPost.Post.ID,
+			&showPost.IndexPost.Post.UserID,
+			&showPost.IndexPost.Post.Title,
+			&showPost.IndexPost.Post.Img,
+			&showPost.IndexPost.Post.CreatedAt,
+			&showPost.IndexPost.Post.UpdatedAt,
+			&showPost.IndexPost.User.ID,
+			&showPost.IndexPost.User.Name,
+			&showPost.IndexPost.User.Email,
+			&showPost.IndexPost.User.CreatedAt,
+			&showPost.IndexPost.User.Avatar,
+			&comment.ID,
+			&comment.PostID,
+			&comment.Text,
+			&comment.Img,
+			&comment.CreatedAt,
+			&comment.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		comments = append(comments, &comment)
+	}
+	showPost.Comments = comments
+	if showPost.IndexPost.Post.ID == 0 {
+		return nil, sql.ErrNoRows
+	}
+	return &showPost, nil
 }

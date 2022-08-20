@@ -15,3 +15,8 @@ type IndexPost struct {
 	Post Post
 	User User
 }
+
+type ShowPost struct {
+	IndexPost IndexPost
+	Comments  []*Comment
+}

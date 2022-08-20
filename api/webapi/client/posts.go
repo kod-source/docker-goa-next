@@ -114,8 +114,8 @@ func IndexPostsPath() string {
 }
 
 // 全部の登録を取得する
-func (c *Client) IndexPosts(ctx context.Context, path string) (*http.Response, error) {
-	req, err := c.NewIndexPostsRequest(ctx, path)
+func (c *Client) IndexPosts(ctx context.Context, path string, nextID *int) (*http.Response, error) {
+	req, err := c.NewIndexPostsRequest(ctx, path, nextID)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +123,47 @@ func (c *Client) IndexPosts(ctx context.Context, path string) (*http.Response, e
 }
 
 // NewIndexPostsRequest create the request corresponding to the index action endpoint of the posts resource.
-func (c *Client) NewIndexPostsRequest(ctx context.Context, path string) (*http.Request, error) {
+func (c *Client) NewIndexPostsRequest(ctx context.Context, path string, nextID *int) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	values := u.Query()
+	if nextID != nil {
+		tmp14 := strconv.Itoa(*nextID)
+		values.Set("next_id", tmp14)
+	}
+	u.RawQuery = values.Encode()
+	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
+// ShowPostsPath computes a request path to the show action of posts.
+func ShowPostsPath(id int) string {
+	param0 := strconv.Itoa(id)
+	return fmt.Sprintf("/posts/%s", param0)
+}
+
+// 一つの投稿を取得する
+func (c *Client) ShowPosts(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewShowPostsRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewShowPostsRequest create the request corresponding to the show action endpoint of the posts resource.
+func (c *Client) NewShowPostsRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "http"

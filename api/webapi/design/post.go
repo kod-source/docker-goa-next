@@ -30,8 +30,11 @@ var _ = Resource("posts", func() {
 
 	Action("index", func() {
 		Routing(GET("posts"))
+		Params(func() {
+			Param("next_id", Integer, "次のID")
+		})
 		Description("全部の登録を取得する")
-		Response(OK, CollectionOf(post_and_user))
+		Response(OK, post_all_limit)
 		Response(NotFound)
 		Response(InternalServerError)
 	})
@@ -63,6 +66,17 @@ var _ = Resource("posts", func() {
 		})
 		Response(OK, post_and_user)
 		Response(BadRequest)
+		Response(InternalServerError)
+	})
+
+	Action("show", func() {
+		Routing(GET("posts/:id"))
+		Description("一つの投稿を取得する")
+		Params(func() {
+			Param("id", Integer, "ID")
+		})
+		Response(OK, show_post)
+		Response(NotFound)
 		Response(InternalServerError)
 	})
 })
@@ -113,4 +127,39 @@ var post_and_user = MediaType("application/vnd.index_post_json", func() {
 		Attribute("avatar")
 	})
 	Required("post", "user_name")
+})
+
+var post_and_all_user = MediaType("application/vnd.post_and_user_json", func() {
+	Description("投稿とユーザーの情報")
+	Attribute("post", post, "post value")
+	Attribute("user", user, "user value")
+	View("default", func() {
+		Attribute("post")
+		Attribute("user")
+	})
+	Required("post", "user")
+})
+
+var show_post = MediaType("application/vnd.show_post_json", func() {
+	Description("投稿とユーザーとコメントの情報")
+	Attribute("post", post, "post value")
+	Attribute("user", user, "user value")
+	Attribute("comments", CollectionOf(comment), "comments value")
+	View("default", func() {
+		Attribute("post")
+		Attribute("user")
+		Attribute("comments")
+	})
+	Required("post", "user", "comments")
+})
+
+var post_all_limit = MediaType("application/vnd.post_all_limit", func() {
+	Description("投稿とnext_idに情報")
+	Attribute("show_posts", CollectionOf(post_and_user), "post_and_user vbalue")
+	Attribute("next_token", String, "http://localhost:3000/posts?next_id=20")
+	View("default", func() {
+		Attribute("show_posts")
+		Attribute("next_token")
+	})
+	Required("show_posts")
 })

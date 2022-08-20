@@ -148,6 +148,159 @@ func unmarshalSignUpAuthPayload(ctx context.Context, service *goa.Service, req *
 	return nil
 }
 
+// CommentsController is the controller interface for the Comments actions.
+type CommentsController interface {
+	goa.Muxer
+	CreateComment(*CreateCommentCommentsContext) error
+	DeleteComment(*DeleteCommentCommentsContext) error
+	ShowComment(*ShowCommentCommentsContext) error
+	UpdateComment(*UpdateCommentCommentsContext) error
+}
+
+// MountCommentsController "mounts" a Comments resource controller on the given service.
+func MountCommentsController(service *goa.Service, ctrl CommentsController) {
+	initService(service)
+	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/comments", ctrl.MuxHandler("preflight", handleCommentsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/comments/:id", ctrl.MuxHandler("preflight", handleCommentsOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewCreateCommentCommentsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*CreateCommentCommentsPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.CreateComment(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleCommentsOrigin(h)
+	service.Mux.Handle("POST", "/comments", ctrl.MuxHandler("create_comment", h, unmarshalCreateCommentCommentsPayload))
+	service.LogInfo("mount", "ctrl", "Comments", "action", "CreateComment", "route", "POST /comments", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewDeleteCommentCommentsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.DeleteComment(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleCommentsOrigin(h)
+	service.Mux.Handle("DELETE", "/comments/:id", ctrl.MuxHandler("delete_comment", h, nil))
+	service.LogInfo("mount", "ctrl", "Comments", "action", "DeleteComment", "route", "DELETE /comments/:id", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowCommentCommentsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.ShowComment(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleCommentsOrigin(h)
+	service.Mux.Handle("GET", "/comments/:id", ctrl.MuxHandler("show_comment", h, nil))
+	service.LogInfo("mount", "ctrl", "Comments", "action", "ShowComment", "route", "GET /comments/:id", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewUpdateCommentCommentsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*UpdateCommentCommentsPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.UpdateComment(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleCommentsOrigin(h)
+	service.Mux.Handle("PUT", "/comments/:id", ctrl.MuxHandler("update_comment", h, unmarshalUpdateCommentCommentsPayload))
+	service.LogInfo("mount", "ctrl", "Comments", "action", "UpdateComment", "route", "PUT /comments/:id", "security", "jwt")
+}
+
+// handleCommentsOrigin applies the CORS response headers corresponding to the origin.
+func handleCommentsOrigin(h goa.Handler) goa.Handler {
+	spec0 := regexp.MustCompile(".*localhost.*")
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOriginRegexp(origin, spec0) {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Vary", "Origin")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+				rw.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
+}
+
+// unmarshalCreateCommentCommentsPayload unmarshals the request body into the context request data Payload field.
+func unmarshalCreateCommentCommentsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &createCommentCommentsPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalUpdateCommentCommentsPayload unmarshals the request body into the context request data Payload field.
+func unmarshalUpdateCommentCommentsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &updateCommentCommentsPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
 // OperandsController is the controller interface for the Operands actions.
 type OperandsController interface {
 	goa.Muxer
@@ -209,6 +362,7 @@ type PostsController interface {
 	CreatePost(*CreatePostPostsContext) error
 	Delete(*DeletePostsContext) error
 	Index(*IndexPostsContext) error
+	Show(*ShowPostsContext) error
 	Update(*UpdatePostsContext) error
 }
 
@@ -275,6 +429,23 @@ func MountPostsController(service *goa.Service, ctrl PostsController) {
 	h = handlePostsOrigin(h)
 	service.Mux.Handle("GET", "/posts", ctrl.MuxHandler("index", h, nil))
 	service.LogInfo("mount", "ctrl", "Posts", "action", "Index", "route", "GET /posts", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowPostsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Show(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handlePostsOrigin(h)
+	service.Mux.Handle("GET", "/posts/:id", ctrl.MuxHandler("show", h, nil))
+	service.LogInfo("mount", "ctrl", "Posts", "action", "Show", "route", "GET /posts/:id", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
