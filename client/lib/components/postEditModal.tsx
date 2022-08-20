@@ -1,12 +1,11 @@
 import React, { FC, FormEvent, useState } from 'react';
 import Box from '@mui/material/Box';
-import { Button, Modal, Typography } from '@mui/material';
+import { Button, Modal } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Image from 'next/image';
 import { Post, SelectPost } from '../model/post';
 import axios from 'axios';
 import { User } from '../model/user';
-import { red } from '@material-ui/core/colors';
 
 interface Props {
   open: boolean;
