@@ -1,5 +1,6 @@
 .env
 db-goa-next/
+.vscode/
 
 # api
 api/tmp/

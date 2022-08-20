@@ -83,12 +83,22 @@ func (u userInteractor) CreateUser(ctx context.Context, name, email, passowrd st
 	if err != nil {
 		return nil, err
 	}
-	user, err := u.GetUser(ctx, int(lastID))
+	var user model.User
+	err = tx.QueryRow(
+		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `users` WHERE `id` = ?", lastID,
+	).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+		&user.Avatar,
+	)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
 	tx.Commit()
 
-	return user, nil
+	return &user, nil
 }
