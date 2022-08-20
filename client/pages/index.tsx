@@ -7,7 +7,7 @@ import { FormEvent, useContext, useEffect, useState } from 'react';
 import styles from '../styles/Home.module.css';
 import { AppContext } from './_app';
 import Avatar from '@mui/material/Avatar';
-import { Post } from '../lib/model/post';
+import { Post, SelectPost } from '../lib/model/post';
 import { User } from '../lib/model/user';
 import axios from 'axios';
 import { toStringlinefeed } from '../lib/text';
@@ -16,6 +16,7 @@ import Image from 'next/image';
 import { Loading } from '../lib/components/loading';
 import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
+import { PostEditModal } from '../lib/components/postEditModal';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -25,7 +26,7 @@ const Home: NextPage = () => {
       post: Post;
       user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
     }[]
-  >();
+  >([]);
   const [post, setPost] = useState<{ title: string; img: string }>({
     title: '',
     img: '',
@@ -38,6 +39,12 @@ const Home: NextPage = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [postID, setPostID] = useState(0);
   const [isMyPost, setIsMyPost] = useState(false);
+  const [showPostEditModal, setShowPostEditModal] = useState(false);
+  const [selectPost, setSelectPost] = useState<SelectPost>({
+    id: 0,
+    title: '',
+    img: '',
+  });
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -120,11 +127,6 @@ const Home: NextPage = () => {
           new Date(d.post.updated_at),
           d.post.img
         );
-        if (!old) {
-          return [
-            { post: post, user: { name: d.user.name, avatar: d.user.name } },
-          ];
-        }
         return [
           { post: post, user: { name: d.user_name, avatar: d.avatar } },
           ...old,
@@ -277,6 +279,11 @@ const Home: NextPage = () => {
                       setPostID(p.post.id);
                       setIsShowDetailModal(true);
                       setIsMyPost(p.post.userId === user.id);
+                      setSelectPost({
+                        id: p.post.id,
+                        title: p.post.title,
+                        img: p.post.img,
+                      });
                     }}
                   >
                     :
@@ -310,6 +317,10 @@ const Home: NextPage = () => {
             setIsShowDetailModal(false);
             setShowConfirmModal(true);
           }}
+          onUpdateClick={() => {
+            setIsShowDetailModal(false);
+            setShowPostEditModal(true);
+          }}
           isMyPost={isMyPost}
         />
       )}
@@ -319,6 +330,16 @@ const Home: NextPage = () => {
           handleClose={() => setShowConfirmModal(false)}
           text='削除してもよろしいですか？'
           confirmInvoke={() => onDelete()}
+        />
+      )}
+      {showPostEditModal && (
+        <PostEditModal
+          open={showPostEditModal}
+          handleClose={() => setShowPostEditModal(false)}
+          post={selectPost}
+          setPost={setSelectPost}
+          postWithUser={postsWithUser}
+          setPostWithUser={setPostsWithUser}
         />
       )}
     </div>
