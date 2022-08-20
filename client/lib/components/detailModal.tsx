@@ -8,6 +8,7 @@ interface Props {
   widthRate: string;
   heightRate: string;
   onDeleteClick: () => void;
+  onUpdateClick: () => void;
   isMyPost: boolean;
 }
 
@@ -35,7 +36,7 @@ export const DetailModal: FC<Props> = (props) => {
         {props.isMyPost && (
           <>
             <div>
-              <Button>編集</Button>
+              <Button onClick={props.onUpdateClick}>編集</Button>
             </div>
             <div>
               <Button onClick={props.onDeleteClick}>削除</Button>

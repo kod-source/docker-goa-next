@@ -8,3 +8,9 @@ export class Post {
     public img?: string
   ) {}
 }
+
+export interface SelectPost {
+  id: number;
+  title: string;
+  img?: string;
+}
