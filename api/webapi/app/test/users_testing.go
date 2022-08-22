@@ -5,7 +5,7 @@
 // Command:
 // $ goagen
 // --design=github.com/kod-source/docker-goa-next/webapi/design
-// --out=$(GOPATH)/src/app/webapi
+// --out=/Users/horikoudai/Documents/ProgrammingLearning/docker-goa-next/api/webapi
 // --version=v1.5.13
 
 package test
