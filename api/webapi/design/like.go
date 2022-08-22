@@ -23,6 +23,20 @@ var _ = Resource("likes", func() {
 		Response(BadRequest, MyError)
 		Response(InternalServerError)
 	})
+
+	Action("delete", func() {
+		Routing(DELETE("likes"))
+		Description("いいねの削除")
+		Payload(func() {
+			Attribute("post_id", Integer, "投稿ID", func() {
+				Example(1)
+			})
+			Required("post_id")
+		})
+		Response(OK)
+		Response(BadRequest)
+		Response(InternalServerError)
+	})
 })
 
 var like = MediaType("application/vnd.like_json", func() {

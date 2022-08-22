@@ -305,6 +305,7 @@ func unmarshalUpdateCommentCommentsPayload(ctx context.Context, service *goa.Ser
 type LikesController interface {
 	goa.Muxer
 	Create(*CreateLikesContext) error
+	Delete(*DeleteLikesContext) error
 }
 
 // MountLikesController "mounts" a Likes resource controller on the given service.
@@ -335,6 +336,29 @@ func MountLikesController(service *goa.Service, ctrl LikesController) {
 	h = handleLikesOrigin(h)
 	service.Mux.Handle("POST", "/likes", ctrl.MuxHandler("create", h, unmarshalCreateLikesPayload))
 	service.LogInfo("mount", "ctrl", "Likes", "action", "Create", "route", "POST /likes", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewDeleteLikesContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*DeleteLikesPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Delete(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleLikesOrigin(h)
+	service.Mux.Handle("DELETE", "/likes", ctrl.MuxHandler("delete", h, unmarshalDeleteLikesPayload))
+	service.LogInfo("mount", "ctrl", "Likes", "action", "Delete", "route", "DELETE /likes", "security", "jwt")
 }
 
 // handleLikesOrigin applies the CORS response headers corresponding to the origin.
@@ -366,6 +390,21 @@ func handleLikesOrigin(h goa.Handler) goa.Handler {
 // unmarshalCreateLikesPayload unmarshals the request body into the context request data Payload field.
 func unmarshalCreateLikesPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &createLikesPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalDeleteLikesPayload unmarshals the request body into the context request data Payload field.
+func unmarshalDeleteLikesPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &deleteLikesPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}
