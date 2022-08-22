@@ -568,6 +568,77 @@ func (ctx *CreateLikesContext) InternalServerError() error {
 	return nil
 }
 
+// DeleteLikesContext provides the likes delete action context.
+type DeleteLikesContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *DeleteLikesPayload
+}
+
+// NewDeleteLikesContext parses the incoming request URL and body, performs validations and creates the
+// context used by the likes controller delete action.
+func NewDeleteLikesContext(ctx context.Context, r *http.Request, service *goa.Service) (*DeleteLikesContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := DeleteLikesContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// deleteLikesPayload is the likes delete action payload.
+type deleteLikesPayload struct {
+	// 投稿ID
+	PostID *int `form:"post_id,omitempty" json:"post_id,omitempty" yaml:"post_id,omitempty" xml:"post_id,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *deleteLikesPayload) Validate() (err error) {
+	if payload.PostID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "post_id"))
+	}
+	return
+}
+
+// Publicize creates DeleteLikesPayload from deleteLikesPayload
+func (payload *deleteLikesPayload) Publicize() *DeleteLikesPayload {
+	var pub DeleteLikesPayload
+	if payload.PostID != nil {
+		pub.PostID = *payload.PostID
+	}
+	return &pub
+}
+
+// DeleteLikesPayload is the likes delete action payload.
+type DeleteLikesPayload struct {
+	// 投稿ID
+	PostID int `form:"post_id" json:"post_id" yaml:"post_id" xml:"post_id"`
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *DeleteLikesContext) OK(resp []byte) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+	}
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *DeleteLikesContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *DeleteLikesContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // AddOperandsContext provides the operands add action context.
 type AddOperandsContext struct {
 	context.Context

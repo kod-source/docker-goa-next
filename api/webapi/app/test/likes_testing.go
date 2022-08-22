@@ -236,3 +236,189 @@ func CreateLikesInternalServerError(t testing.TB, ctx context.Context, service *
 	// Return results
 	return rw
 }
+
+// DeleteLikesBadRequest runs the method Delete of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func DeleteLikesBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.LikesController, payload *app.DeleteLikesPayload) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/likes"),
+	}
+	req := httptest.NewRequest("DELETE", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "LikesTest"), rw, req, prms)
+	deleteCtx, err := app.NewDeleteLikesContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+	deleteCtx.Payload = payload
+
+	// Perform action
+	err = ctrl.Delete(deleteCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 400 {
+		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// DeleteLikesInternalServerError runs the method Delete of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func DeleteLikesInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.LikesController, payload *app.DeleteLikesPayload) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/likes"),
+	}
+	req := httptest.NewRequest("DELETE", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "LikesTest"), rw, req, prms)
+	deleteCtx, err := app.NewDeleteLikesContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+	deleteCtx.Payload = payload
+
+	// Perform action
+	err = ctrl.Delete(deleteCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 500 {
+		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// DeleteLikesOK runs the method Delete of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func DeleteLikesOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.LikesController, payload *app.DeleteLikesPayload) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/likes"),
+	}
+	req := httptest.NewRequest("DELETE", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "LikesTest"), rw, req, prms)
+	deleteCtx, err := app.NewDeleteLikesContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+	deleteCtx.Payload = payload
+
+	// Perform action
+	err = ctrl.Delete(deleteCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
+	}
+
+	// Return results
+	return rw
+}

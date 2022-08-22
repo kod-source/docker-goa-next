@@ -70,3 +70,56 @@ func (c *Client) NewCreateLikesRequest(ctx context.Context, path string, payload
 	}
 	return req, nil
 }
+
+// DeleteLikesPayload is the likes delete action payload.
+type DeleteLikesPayload struct {
+	// 投稿ID
+	PostID int `form:"post_id" json:"post_id" yaml:"post_id" xml:"post_id"`
+}
+
+// DeleteLikesPath computes a request path to the delete action of likes.
+func DeleteLikesPath() string {
+	return fmt.Sprintf("/likes")
+}
+
+// いいねの削除
+func (c *Client) DeleteLikes(ctx context.Context, path string, payload *DeleteLikesPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewDeleteLikesRequest(ctx, path, payload, contentType)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewDeleteLikesRequest create the request corresponding to the delete action endpoint of the likes resource.
+func (c *Client) NewDeleteLikesRequest(ctx context.Context, path string, payload *DeleteLikesPayload, contentType string) (*http.Request, error) {
+	var body bytes.Buffer
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequestWithContext(ctx, "DELETE", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	if contentType == "*/*" {
+		header.Set("Content-Type", "application/json")
+	} else {
+		header.Set("Content-Type", contentType)
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}

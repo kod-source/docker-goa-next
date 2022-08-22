@@ -116,6 +116,19 @@ definitions:
     - title
     title: CreatePostPostsPayload
     type: object
+  DeleteLikesPayload:
+    example:
+      post_id: 1
+    properties:
+      post_id:
+        description: 投稿ID
+        example: 1
+        format: int64
+        type: integer
+    required:
+    - post_id
+    title: DeleteLikesPayload
+    type: object
   Index_post_json:
     description: 投稿 (default view)
     example:
@@ -299,7 +312,7 @@ definitions:
     description: my error (default view)
     example:
       code: 404
-      details: aa136b39-b027-45ea-b9b4-e578344f31fd
+      details: 99050b33-7311-4131-b92b-5b4eddc6a322
       message: record not found
       status: unauthenticated
     properties:
@@ -310,7 +323,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: aa136b39-b027-45ea-b9b4-e578344f31fd
+        example: 99050b33-7311-4131-b92b-5b4eddc6a322
       message:
         description: エラーメッセージ
         example: record not found
@@ -687,6 +700,36 @@ paths:
       tags:
       - users
   /likes:
+    delete:
+      description: |-
+        いいねの削除
+
+        Required security scopes:
+          * `api:access`
+      operationId: likes#delete
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/DeleteLikesPayload'
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: delete likes
+      tags:
+      - likes
     post:
       description: |-
         いいね作成
