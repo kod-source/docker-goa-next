@@ -28,3 +28,11 @@ CREATE TABLE IF NOT EXISTS `comments` (
     `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE IF NOT EXISTS `likes` (
+    `id` MEDIUMINT NOT NULL AUTO_INCREMENT,
+    `post_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE post_user_id_index (post_id, user_id)
+);

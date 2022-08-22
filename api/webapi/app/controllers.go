@@ -301,6 +301,83 @@ func unmarshalUpdateCommentCommentsPayload(ctx context.Context, service *goa.Ser
 	return nil
 }
 
+// LikesController is the controller interface for the Likes actions.
+type LikesController interface {
+	goa.Muxer
+	Create(*CreateLikesContext) error
+}
+
+// MountLikesController "mounts" a Likes resource controller on the given service.
+func MountLikesController(service *goa.Service, ctrl LikesController) {
+	initService(service)
+	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/likes", ctrl.MuxHandler("preflight", handleLikesOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewCreateLikesContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*CreateLikesPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Create(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleLikesOrigin(h)
+	service.Mux.Handle("POST", "/likes", ctrl.MuxHandler("create", h, unmarshalCreateLikesPayload))
+	service.LogInfo("mount", "ctrl", "Likes", "action", "Create", "route", "POST /likes", "security", "jwt")
+}
+
+// handleLikesOrigin applies the CORS response headers corresponding to the origin.
+func handleLikesOrigin(h goa.Handler) goa.Handler {
+	spec0 := regexp.MustCompile(".*localhost.*")
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOriginRegexp(origin, spec0) {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Vary", "Origin")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+				rw.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
+}
+
+// unmarshalCreateLikesPayload unmarshals the request body into the context request data Payload field.
+func unmarshalCreateLikesPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &createLikesPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
 // OperandsController is the controller interface for the Operands actions.
 type OperandsController interface {
 	goa.Muxer

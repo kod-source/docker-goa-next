@@ -99,6 +99,24 @@ func (mt IndexPostJSONCollection) Validate() (err error) {
 	return
 }
 
+// いいね (default view)
+//
+// Identifier: application/vnd.like_json; view=default
+type LikeJSON struct {
+	// ID
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 投稿ID
+	PostID int `form:"post_id" json:"post_id" yaml:"post_id" xml:"post_id"`
+	// ユーザーID
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+}
+
+// Validate validates the LikeJSON media type instance.
+func (mt *LikeJSON) Validate() (err error) {
+
+	return
+}
+
 // 投稿とnext_idに情報 (default view)
 //
 // Identifier: application/vnd.post_all_limit; view=default
