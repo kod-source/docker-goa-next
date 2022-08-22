@@ -45,3 +45,15 @@ func (c *LikesController) Create(ctx *app.CreateLikesContext) error {
 		UserID: l.UserID,
 	})
 }
+
+func (c *LikesController) Delete(ctx *app.DeleteLikesContext) error {
+	err := c.lu.Delete(ctx, getUserIDCode(ctx), ctx.Payload.PostID)
+	if err != nil {
+		if err == myerrors.BadRequestIntError {
+			return ctx.BadRequest()
+		}
+		return ctx.InternalServerError()
+	}
+
+	return ctx.OK(nil)
+}

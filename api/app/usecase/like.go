@@ -10,6 +10,7 @@ import (
 
 type LikeUsecase interface {
 	Create(ctx context.Context, userID, postID int) (*model.Like, error)
+	Delete(ctx context.Context, userID, postID int) error
 }
 
 type likeUsecase struct {
@@ -30,4 +31,15 @@ func (l *likeUsecase) Create(ctx context.Context, userID, postID int) (*model.Li
 	}
 
 	return like, nil
+}
+
+func (l *likeUsecase) Delete(ctx context.Context, userID, postID int) error {
+	if userID == 0 || postID == 0 {
+		return myerrors.BadRequestIntError
+	}
+	err := l.li.Delete(ctx, userID, postID)
+	if err != nil {
+		return err
+	}
+	return nil
 }

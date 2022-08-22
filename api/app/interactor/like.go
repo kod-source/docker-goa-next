@@ -9,6 +9,7 @@ import (
 
 type LikeInteractor interface {
 	Create(ctx context.Context, userID, postID int) (*model.Like, error)
+	Delete(ctx context.Context, userID, postID int) error
 }
 
 type likeInteractor struct {
@@ -52,4 +53,17 @@ func (l *likeInteractor) Create(ctx context.Context, userID, postID int) (*model
 	}
 
 	return &like, tx.Commit()
+}
+
+func (l *likeInteractor) Delete(ctx context.Context, userID, postID int) error {
+	stmt, err := l.db.Prepare("DELETE FROM `likes` WHERE `user_id` = ? AND `post_id` = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(userID, postID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
