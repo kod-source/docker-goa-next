@@ -1,6 +1,7 @@
 package main
 
 import (
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
@@ -21,6 +22,20 @@ func NewLikesController(service *goa.Service, lu usecase.LikeUsecase) *LikesCont
 func (c *LikesController) Create(ctx *app.CreateLikesContext) error {
 	l, err := c.lu.Create(ctx, getUserIDCode(ctx), ctx.Payload.PostID)
 	if err != nil {
+		if err == myerrors.BadRequestIntError {
+			return ctx.BadRequest(&app.ServiceVerror{
+				Code:    400,
+				Message: "不明なリクエストです",
+				Status:  err.Error(),
+			})
+		}
+		if code := myerrors.GetMySQLErrorNumber(err); code == myerrors.MySQLErrorDuplicate.Number {
+			return ctx.BadRequest(&app.ServiceVerror{
+				Code:    int(code),
+				Message: "ユニークエラーです",
+				Status:  err.Error(),
+			})
+		}
 		return ctx.InternalServerError()
 	}
 

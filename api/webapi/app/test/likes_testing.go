@@ -26,17 +26,18 @@ import (
 )
 
 // CreateLikesBadRequest runs the method Create of the given controller with the given parameters and payload.
-// It returns the response writer so it's possible to inspect the response headers.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateLikesBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.LikesController, payload *app.CreateLikesPayload) http.ResponseWriter {
+func CreateLikesBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.LikesController, payload *app.CreateLikesPayload) (http.ResponseWriter, *app.ServiceVerror) {
 	t.Helper()
 
 	// Setup service
 	var (
 		logBuf strings.Builder
+		resp   interface{}
 
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
 	)
 	if service == nil {
 		service = goatest.Service(&logBuf, respSetter)
@@ -68,7 +69,7 @@ func CreateLikesBadRequest(t testing.TB, ctx context.Context, service *goa.Servi
 			panic("invalid test data " + err.Error()) // bug
 		}
 		t.Errorf("unexpected parameter validation error: %+v", e)
-		return nil
+		return nil, nil
 	}
 	createCtx.Payload = payload
 
@@ -82,9 +83,21 @@ func CreateLikesBadRequest(t testing.TB, ctx context.Context, service *goa.Servi
 	if rw.Code != 400 {
 		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
 	}
+	var mt *app.ServiceVerror
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(*app.ServiceVerror)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.ServiceVerror", resp, resp)
+		}
+		err = mt.Validate()
+		if err != nil {
+			t.Errorf("invalid response media type: %s", err)
+		}
+	}
 
 	// Return results
-	return rw
+	return rw, mt
 }
 
 // CreateLikesCreated runs the method Create of the given controller with the given parameters and payload.

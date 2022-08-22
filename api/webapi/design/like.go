@@ -20,7 +20,7 @@ var _ = Resource("likes", func() {
 			Required("post_id")
 		})
 		Response(Created, like)
-		Response(BadRequest)
+		Response(BadRequest, MyError)
 		Response(InternalServerError)
 	})
 })

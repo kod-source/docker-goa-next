@@ -299,7 +299,7 @@ definitions:
     description: my error (default view)
     example:
       code: 404
-      details: 2c05d5ec-9190-4c74-b170-3c863b34f6f2
+      details: aa136b39-b027-45ea-b9b4-e578344f31fd
       message: record not found
       status: unauthenticated
     properties:
@@ -310,7 +310,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: 2c05d5ec-9190-4c74-b170-3c863b34f6f2
+        example: aa136b39-b027-45ea-b9b4-e578344f31fd
       message:
         description: エラーメッセージ
         example: record not found
@@ -702,6 +702,7 @@ paths:
           $ref: '#/definitions/CreateLikesPayload'
       produces:
       - application/vnd.like_json
+      - application/vnd.service.verror
       responses:
         "201":
           description: Created
@@ -709,6 +710,8 @@ paths:
             $ref: '#/definitions/Like_json'
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/ServiceVerror'
         "500":
           description: Internal Server Error
       schemes:
