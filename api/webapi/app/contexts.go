@@ -497,6 +497,77 @@ func (ctx *UpdateCommentCommentsContext) InternalServerError() error {
 	return nil
 }
 
+// CreateLikesContext provides the likes create action context.
+type CreateLikesContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *CreateLikesPayload
+}
+
+// NewCreateLikesContext parses the incoming request URL and body, performs validations and creates the
+// context used by the likes controller create action.
+func NewCreateLikesContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateLikesContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreateLikesContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// createLikesPayload is the likes create action payload.
+type createLikesPayload struct {
+	// 投稿ID
+	PostID *int `form:"post_id,omitempty" json:"post_id,omitempty" yaml:"post_id,omitempty" xml:"post_id,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *createLikesPayload) Validate() (err error) {
+	if payload.PostID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "post_id"))
+	}
+	return
+}
+
+// Publicize creates CreateLikesPayload from createLikesPayload
+func (payload *createLikesPayload) Publicize() *CreateLikesPayload {
+	var pub CreateLikesPayload
+	if payload.PostID != nil {
+		pub.PostID = *payload.PostID
+	}
+	return &pub
+}
+
+// CreateLikesPayload is the likes create action payload.
+type CreateLikesPayload struct {
+	// 投稿ID
+	PostID int `form:"post_id" json:"post_id" yaml:"post_id" xml:"post_id"`
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *CreateLikesContext) Created(r *LikeJSON) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.like_json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreateLikesContext) BadRequest(r *ServiceVerror) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.service.verror")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *CreateLikesContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // AddOperandsContext provides the operands add action context.
 type AddOperandsContext struct {
 	context.Context

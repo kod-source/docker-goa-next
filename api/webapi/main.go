@@ -45,6 +45,8 @@ func main() {
 	app.MountPostsController(service, p)
 	cc := NewCommentsController(service, usecase.NewcommentUsecase(interactor.NewCommentInteractor(db, repository.NewTimeRepositoy())))
 	app.MountCommentsController(service, cc)
+	l := NewLikesController(service, usecase.NewLikeUsecase(interactor.NewLikeInteractor(db)))
+	app.MountLikesController(service, l)
 
 	// Start service
 	if err := service.ListenAndServe(":3000"); err != nil {

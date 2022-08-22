@@ -131,8 +131,8 @@ func (c *Client) NewIndexPostsRequest(ctx context.Context, path string, nextID *
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
 	if nextID != nil {
-		tmp14 := strconv.Itoa(*nextID)
-		values.Set("next_id", tmp14)
+		tmp15 := strconv.Itoa(*nextID)
+		values.Set("next_id", tmp15)
 	}
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
