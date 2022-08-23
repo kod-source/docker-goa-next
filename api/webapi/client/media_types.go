@@ -104,30 +104,6 @@ func (c *Client) DecodeIndexPostJSON(resp *http.Response) (*IndexPostJSON, error
 	return &decoded, err
 }
 
-// Index_post_jsonCollection is the media type for an array of Index_post_json (default view)
-//
-// Identifier: application/vnd.index_post_json; type=collection; view=default
-type IndexPostJSONCollection []*IndexPostJSON
-
-// Validate validates the IndexPostJSONCollection media type instance.
-func (mt IndexPostJSONCollection) Validate() (err error) {
-	for _, e := range mt {
-		if e != nil {
-			if err2 := e.Validate(); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	}
-	return
-}
-
-// DecodeIndexPostJSONCollection decodes the IndexPostJSONCollection instance encoded in resp body.
-func (c *Client) DecodeIndexPostJSONCollection(resp *http.Response) (IndexPostJSONCollection, error) {
-	var decoded IndexPostJSONCollection
-	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
-	return decoded, err
-}
-
 // いいね (default view)
 //
 // Identifier: application/vnd.like_json; view=default
@@ -184,7 +160,7 @@ type PostAllLimit struct {
 	// http://localhost:3000/posts?next_id=20
 	NextToken *string `form:"next_token,omitempty" json:"next_token,omitempty" yaml:"next_token,omitempty" xml:"next_token,omitempty"`
 	// post_and_user vbalue
-	ShowPosts IndexPostJSONCollection `form:"show_posts" json:"show_posts" yaml:"show_posts" xml:"show_posts"`
+	ShowPosts PostAndUserAndCountLikeJSONCollection `form:"show_posts" json:"show_posts" yaml:"show_posts" xml:"show_posts"`
 }
 
 // Validate validates the PostAllLimit media type instance.
@@ -203,6 +179,65 @@ func (c *Client) DecodePostAllLimit(resp *http.Response) (*PostAllLimit, error) 
 	var decoded PostAllLimit
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
+}
+
+// 投稿といいね数 (default view)
+//
+// Identifier: application/vnd.post_and_user_and_count_like_json; view=default
+type PostAndUserAndCountLikeJSON struct {
+	// ユーザー名
+	Avatar *string `form:"avatar,omitempty" json:"avatar,omitempty" yaml:"avatar,omitempty" xml:"avatar,omitempty"`
+	// いいね数
+	CountLike int `form:"count_like" json:"count_like" yaml:"count_like" xml:"count_like"`
+	// post value
+	Post *PostJSON `form:"post" json:"post" yaml:"post" xml:"post"`
+	// ユーザー名
+	UserName string `form:"user_name" json:"user_name" yaml:"user_name" xml:"user_name"`
+}
+
+// Validate validates the PostAndUserAndCountLikeJSON media type instance.
+func (mt *PostAndUserAndCountLikeJSON) Validate() (err error) {
+	if mt.Post == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "post"))
+	}
+
+	if mt.Post != nil {
+		if err2 := mt.Post.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// DecodePostAndUserAndCountLikeJSON decodes the PostAndUserAndCountLikeJSON instance encoded in resp body.
+func (c *Client) DecodePostAndUserAndCountLikeJSON(resp *http.Response) (*PostAndUserAndCountLikeJSON, error) {
+	var decoded PostAndUserAndCountLikeJSON
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// Post_and_user_and_count_like_jsonCollection is the media type for an array of Post_and_user_and_count_like_json (default view)
+//
+// Identifier: application/vnd.post_and_user_and_count_like_json; type=collection; view=default
+type PostAndUserAndCountLikeJSONCollection []*PostAndUserAndCountLikeJSON
+
+// Validate validates the PostAndUserAndCountLikeJSONCollection media type instance.
+func (mt PostAndUserAndCountLikeJSONCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// DecodePostAndUserAndCountLikeJSONCollection decodes the PostAndUserAndCountLikeJSONCollection instance encoded in resp body.
+func (c *Client) DecodePostAndUserAndCountLikeJSONCollection(resp *http.Response) (PostAndUserAndCountLikeJSONCollection, error) {
+	var decoded PostAndUserAndCountLikeJSONCollection
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return decoded, err
 }
 
 // 投稿とユーザーの情報 (default view)
