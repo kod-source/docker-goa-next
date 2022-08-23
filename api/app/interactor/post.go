@@ -18,6 +18,7 @@ type PostInteractor interface {
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 	Show(ctx context.Context, id int) (*model.ShowPost, error)
+	ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error)
 }
 
 type postInteractor struct {
@@ -277,4 +278,8 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 	showPost.Likes = likes
 
 	return &showPost, nil
+}
+
+func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
+	return nil, nil, nil
 }

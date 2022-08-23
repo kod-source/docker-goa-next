@@ -7,6 +7,7 @@ import (
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
+	"github.com/shogo82148/pointer"
 )
 
 // PostsController implements the posts resource.
@@ -113,6 +114,15 @@ func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 		},
 		Likes: c.toLikeJson(sp.Likes),
 	})
+}
+
+func (c *PostsController) ShowMyLike(ctx *app.ShowMyLikePostsContext) error {
+	ips, nextToken, err := c.pu.ShowMyLike(ctx, getUserIDCode(ctx), pointer.IntValue(ctx.NextID))
+	if err != nil {
+		return ctx.InternalServerError()
+	}
+
+	return ctx.OK(c.toPostAllLimit(ips, nextToken))
 }
 
 func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPostWithCountLike, nextToken *string) *app.PostAllLimit {
