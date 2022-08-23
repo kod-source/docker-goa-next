@@ -19,5 +19,10 @@ type IndexPost struct {
 type ShowPost struct {
 	IndexPost IndexPost
 	Comments  []*Comment
-	Likes []*Like
+	Likes     []*Like
+}
+
+type IndexPostWithCountLike struct {
+	IndexPost IndexPost
+	CountLike int
 }

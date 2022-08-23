@@ -115,20 +115,21 @@ func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 	})
 }
 
-func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPost, nextToken *string) *app.PostAllLimit {
-	ips := make(app.IndexPostJSONCollection, 0, len(indexPosts))
+func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPostWithCountLike, nextToken *string) *app.PostAllLimit {
+	ips := make(app.PostAndUserAndCountLikeJSONCollection, 0, len(indexPosts))
 	for _, ip := range indexPosts {
-		ips = append(ips, &app.IndexPostJSON{
+		ips = append(ips, &app.PostAndUserAndCountLikeJSON{
 			Post: &app.PostJSON{
-				ID:        ip.Post.ID,
-				UserID:    ip.Post.UserID,
-				Title:     ip.Post.Title,
-				Img:       ip.Post.Img,
-				CreatedAt: &ip.Post.CreatedAt,
-				UpdatedAt: &ip.Post.UpdatedAt,
+				ID:        ip.IndexPost.Post.ID,
+				UserID:    ip.IndexPost.Post.UserID,
+				Title:     ip.IndexPost.Post.Title,
+				Img:       ip.IndexPost.Post.Img,
+				CreatedAt: &ip.IndexPost.Post.CreatedAt,
+				UpdatedAt: &ip.IndexPost.Post.UpdatedAt,
 			},
-			UserName: ip.User.Name,
-			Avatar:   ip.User.Avatar,
+			UserName:  ip.IndexPost.User.Name,
+			Avatar:    ip.IndexPost.User.Avatar,
+			CountLike: ip.CountLike,
 		})
 	}
 

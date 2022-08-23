@@ -13,7 +13,7 @@ import (
 
 type PostInteractor interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
-	ShowAll(ctx context.Context, nextID int) ([]*model.IndexPost, *string, error)
+	ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *string, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 	Show(ctx context.Context, id int) (*model.ShowPost, error)
@@ -75,8 +75,8 @@ func (p *postInteractor) CreatePost(ctx context.Context, userID int, title strin
 	return &indexPost, nil
 }
 
-func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPost, *string, error) {
-	var indexPosts []*model.IndexPost
+func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
+	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	rows, err := p.db.Query(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
@@ -109,19 +109,22 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 			return nil, nil, err
 		}
 
-		indexPosts = append(indexPosts, &model.IndexPost{
-			Post: model.Post{
-				ID:        post.ID,
-				UserID:    post.UserID,
-				Title:     post.Title,
-				Img:       post.Img,
-				CreatedAt: post.CreatedAt,
-				UpdatedAt: post.UpdatedAt,
+		indexPostsWithCountLike = append(indexPostsWithCountLike, &model.IndexPostWithCountLike{
+			IndexPost: model.IndexPost{
+				Post: model.Post{
+					ID:        post.ID,
+					UserID:    post.UserID,
+					Title:     post.Title,
+					Img:       post.Img,
+					CreatedAt: post.CreatedAt,
+					UpdatedAt: post.UpdatedAt,
+				},
+				User: model.User{
+					Name:   user.Name,
+					Avatar: user.Avatar,
+				},
 			},
-			User: model.User{
-				Name:   user.Name,
-				Avatar: user.Avatar,
-			},
+			CountLike: 0,
 		})
 	}
 
@@ -134,11 +137,11 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 	var nextToken *string
 	s := fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber)
 	nextToken = &s
-	if len(indexPosts) == 0 || indexPosts[len(indexPosts)-1].Post.ID == id {
+	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == id {
 		nextToken = nil
 	}
 
-	return indexPosts, nextToken, nil
+	return indexPostsWithCountLike, nextToken, nil
 }
 
 func (p *postInteractor) Delete(ctx context.Context, id int) error {
