@@ -9,11 +9,12 @@ import (
 
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
+	"github.com/shogo82148/pointer"
 )
 
 type PostInteractor interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
-	ShowAll(ctx context.Context, nextID int) ([]*model.IndexPost, *string, error)
+	ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *string, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 	Show(ctx context.Context, id int) (*model.ShowPost, error)
@@ -75,14 +76,20 @@ func (p *postInteractor) CreatePost(ctx context.Context, userID int, title strin
 	return &indexPost, nil
 }
 
-func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPost, *string, error) {
-	var indexPosts []*model.IndexPost
+func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
+	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	rows, err := p.db.Query(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT
 		FROM posts as p
 		INNER JOIN users as u
 		ON p.user_id = u.id
+		LEFT JOIN (
+			SELECT post_id, COUNT(id) as COUNT
+			FROM likes
+			GROUP BY post_id
+		) as l
+		ON p.id = l.post_id
 		ORDER BY p.created_at DESC
 		LIMIT ?, ?
 	`, nextID, limitNumber)
@@ -94,6 +101,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 	for rows.Next() {
 		var post model.Post
 		var user model.User
+		var countLike *int
 
 		err := rows.Scan(
 			&post.ID,
@@ -104,41 +112,44 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 			&post.UpdatedAt,
 			&user.Name,
 			&user.Avatar,
+			&countLike,
 		)
 		if err != nil {
 			return nil, nil, err
 		}
 
-		indexPosts = append(indexPosts, &model.IndexPost{
-			Post: model.Post{
-				ID:        post.ID,
-				UserID:    post.UserID,
-				Title:     post.Title,
-				Img:       post.Img,
-				CreatedAt: post.CreatedAt,
-				UpdatedAt: post.UpdatedAt,
+		indexPostsWithCountLike = append(indexPostsWithCountLike, &model.IndexPostWithCountLike{
+			IndexPost: model.IndexPost{
+				Post: model.Post{
+					ID:        post.ID,
+					UserID:    post.UserID,
+					Title:     post.Title,
+					Img:       post.Img,
+					CreatedAt: post.CreatedAt,
+					UpdatedAt: post.UpdatedAt,
+				},
+				User: model.User{
+					Name:   user.Name,
+					Avatar: user.Avatar,
+				},
 			},
-			User: model.User{
-				Name:   user.Name,
-				Avatar: user.Avatar,
-			},
+			CountLike: pointer.IntValue(countLike),
 		})
 	}
 
-	var id int
+	var lastPostID int
 	err = p.db.QueryRow(
 		"SELECT `id` FROM `posts` ORDER BY `created_at` LIMIT 1",
 	).Scan(
-		&id,
+		&lastPostID,
 	)
 	var nextToken *string
-	s := fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber)
-	nextToken = &s
-	if len(indexPosts) == 0 || indexPosts[len(indexPosts)-1].Post.ID == id {
+	nextToken = pointer.String(fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber))
+	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		nextToken = nil
 	}
 
-	return indexPosts, nextToken, nil
+	return indexPostsWithCountLike, nextToken, nil
 }
 
 func (p *postInteractor) Delete(ctx context.Context, id int) error {

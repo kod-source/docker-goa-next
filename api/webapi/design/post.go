@@ -157,11 +157,32 @@ var show_post = MediaType("application/vnd.show_post_json", func() {
 
 var post_all_limit = MediaType("application/vnd.post_all_limit", func() {
 	Description("投稿とnext_idに情報")
-	Attribute("show_posts", CollectionOf(post_and_user), "post_and_user vbalue")
+	Attribute("show_posts", CollectionOf(post_and_user_and_count_like), "post_and_user vbalue")
 	Attribute("next_token", String, "http://localhost:3000/posts?next_id=20")
 	View("default", func() {
 		Attribute("show_posts")
 		Attribute("next_token")
 	})
 	Required("show_posts")
+})
+
+var post_and_user_and_count_like = MediaType("application/vnd.post_and_user_and_count_like_json", func() {
+	Description("投稿といいね数")
+	Attribute("post", post, "post value")
+	Attribute("user_name", String, "ユーザー名", func() {
+		Example("佐藤　太郎")
+	})
+	Attribute("avatar", String, "ユーザー名", func() {
+		Example("data:image/jpg")
+	})
+	Attribute("count_like", Integer, "いいね数", func() {
+		Example(10)
+	})
+	View("default", func() {
+		Attribute("post")
+		Attribute("user_name")
+		Attribute("avatar")
+		Attribute("count_like")
+	})
+	Required("post", "user_name", "count_like")
 })
