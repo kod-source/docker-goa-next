@@ -281,5 +281,92 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 }
 
 func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
-	return nil, nil, nil
+	var indexPostsWithCountLike []*model.IndexPostWithCountLike
+	limitNumber := 20
+	rows, err := p.db.Query(`
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT
+		FROM posts as p
+		INNER JOIN (
+			SELECT post_id
+			FROM likes
+			WHERE user_id = ?
+		) as lu
+		ON p.id = lu.post_id
+		INNER JOIN users as u
+		ON p.user_id = u.id
+		LEFT JOIN (
+			SELECT post_id, COUNT(id) as COUNT
+			FROM likes
+			GROUP BY post_id
+		) as l
+		ON p.id = l.post_id
+		ORDER BY p.created_at DESC
+		LIMIT ?, ?
+	`, userID, nextID, limitNumber)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post model.Post
+		var user model.User
+		var countLike *int
+
+		err := rows.Scan(
+			&post.ID,
+			&post.UserID,
+			&post.Title,
+			&post.Img,
+			&post.CreatedAt,
+			&post.UpdatedAt,
+			&user.Name,
+			&user.Avatar,
+			&countLike,
+		)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		indexPostsWithCountLike = append(indexPostsWithCountLike, &model.IndexPostWithCountLike{
+			IndexPost: model.IndexPost{
+				Post: model.Post{
+					ID:        post.ID,
+					UserID:    post.UserID,
+					Title:     post.Title,
+					Img:       post.Img,
+					CreatedAt: post.CreatedAt,
+					UpdatedAt: post.UpdatedAt,
+				},
+				User: model.User{
+					Name:   user.Name,
+					Avatar: user.Avatar,
+				},
+			},
+			CountLike: pointer.IntValue(countLike),
+		})
+	}
+
+	var lastPostID int
+	err = p.db.QueryRow(`
+		SELECT p.id
+		FROM posts AS p
+		INNER JOIN (
+			SELECT post_id
+			FROM likes
+			WHERE user_id = ?
+		) AS l
+		ON p.id = l.post_id
+		ORDER BY p.created_at
+		LIMIT 1
+	`, userID).Scan(
+		&lastPostID,
+	)
+	var nextToken *string
+	nextToken = pointer.String(fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber))
+	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
+		nextToken = nil
+	}
+
+	return indexPostsWithCountLike, nextToken, nil
 }
