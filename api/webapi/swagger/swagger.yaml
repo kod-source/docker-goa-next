@@ -203,6 +203,17 @@ definitions:
     - user_id
     title: 'Mediatype identifier: application/vnd.like_json; view=default'
     type: object
+  Like_jsonCollection:
+    description: Like_jsonCollection is the media type for an array of Like_json (default
+      view)
+    example:
+    - id: 8317064204162844080
+      post_id: 8628042983946352078
+      user_id: 4847958785831049216
+    items:
+      $ref: '#/definitions/Like_json'
+    title: 'Mediatype identifier: application/vnd.like_json; type=collection; view=default'
+    type: array
   LoginAuthPayload:
     example:
       email: sample@goa-sample.test.com
@@ -224,7 +235,7 @@ definitions:
   Post_all_limit:
     description: 投稿とnext_idに情報 (default view)
     example:
-      next_token: Voluptatem et voluptatum aliquid at.
+      next_token: Et voluptatum aliquid at voluptas exercitationem.
       show_posts:
       - avatar: data:image/jpg
         post:
@@ -256,7 +267,7 @@ definitions:
     properties:
       next_token:
         description: http://localhost:3000/posts?next_id=20
-        example: Voluptatem et voluptatum aliquid at.
+        example: Et voluptatum aliquid at voluptas exercitationem.
         type: string
       show_posts:
         $ref: '#/definitions/Index_post_jsonCollection'
@@ -312,7 +323,7 @@ definitions:
     description: my error (default view)
     example:
       code: 404
-      details: 99050b33-7311-4131-b92b-5b4eddc6a322
+      details: true
       message: record not found
       status: unauthenticated
     properties:
@@ -323,7 +334,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: 99050b33-7311-4131-b92b-5b4eddc6a322
+        example: true
       message:
         description: エラーメッセージ
         example: record not found
@@ -354,6 +365,16 @@ definitions:
         post_id: 1
         text: やっほー
         updated_at: "2019-01-31T00:00:00+09:00"
+      likes:
+      - id: 8317064204162844080
+        post_id: 8628042983946352078
+        user_id: 4847958785831049216
+      - id: 8317064204162844080
+        post_id: 8628042983946352078
+        user_id: 4847958785831049216
+      - id: 8317064204162844080
+        post_id: 8628042983946352078
+        user_id: 4847958785831049216
       post:
         created_at: "2019-01-31T00:00:00+09:00"
         id: 1
@@ -371,6 +392,8 @@ definitions:
     properties:
       comments:
         $ref: '#/definitions/Comment_jsonCollection'
+      likes:
+        $ref: '#/definitions/Like_jsonCollection'
       post:
         $ref: '#/definitions/Post_json'
       user:
@@ -379,6 +402,7 @@ definitions:
     - post
     - user
     - comments
+    - likes
     title: 'Mediatype identifier: application/vnd.show_post_json; view=default'
     type: object
   SignUpAuthPayload:

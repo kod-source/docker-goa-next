@@ -240,8 +240,30 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 		comments = append(comments, &comment)
 	}
 	showPost.Comments = comments
-	if showPost.IndexPost.Post.ID == 0 {
+	postID := showPost.IndexPost.Post.ID
+	if postID == 0 {
 		return nil, sql.ErrNoRows
 	}
+
+	var likes []*model.Like
+	likeRows, err := p.db.Query("SELECT `id`, `user_id`, `post_id` FROM `likes` WHERE `post_id` = ?", postID)
+	if err != nil {
+		return nil, err
+	}
+	defer likeRows.Close()
+	for likeRows.Next() {
+		var like model.Like
+		err = likeRows.Scan(
+			&like.ID,
+			&like.UserID,
+			&like.PostID,
+		)
+		if err != nil {
+			return nil, err
+		}
+		likes = append(likes, &like)
+	}
+	showPost.Likes = likes
+
 	return &showPost, nil
 }

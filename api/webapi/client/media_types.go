@@ -153,6 +153,30 @@ func (c *Client) DecodeLikeJSON(resp *http.Response) (*LikeJSON, error) {
 	return &decoded, err
 }
 
+// Like_jsonCollection is the media type for an array of Like_json (default view)
+//
+// Identifier: application/vnd.like_json; type=collection; view=default
+type LikeJSONCollection []*LikeJSON
+
+// Validate validates the LikeJSONCollection media type instance.
+func (mt LikeJSONCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// DecodeLikeJSONCollection decodes the LikeJSONCollection instance encoded in resp body.
+func (c *Client) DecodeLikeJSONCollection(resp *http.Response) (LikeJSONCollection, error) {
+	var decoded LikeJSONCollection
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return decoded, err
+}
+
 // 投稿とnext_idに情報 (default view)
 //
 // Identifier: application/vnd.post_all_limit; view=default
@@ -283,6 +307,8 @@ func (c *Client) DecodeServiceVerror(resp *http.Response) (*ServiceVerror, error
 type ShowPostJSON struct {
 	// comments value
 	Comments CommentJSONCollection `form:"comments" json:"comments" yaml:"comments" xml:"comments"`
+	// likes value
+	Likes LikeJSONCollection `form:"likes" json:"likes" yaml:"likes" xml:"likes"`
 	// post value
 	Post *PostJSON `form:"post" json:"post" yaml:"post" xml:"post"`
 	// user value
@@ -300,7 +326,13 @@ func (mt *ShowPostJSON) Validate() (err error) {
 	if mt.Comments == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "comments"))
 	}
+	if mt.Likes == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "likes"))
+	}
 	if err2 := mt.Comments.Validate(); err2 != nil {
+		err = goa.MergeErrors(err, err2)
+	}
+	if err2 := mt.Likes.Validate(); err2 != nil {
 		err = goa.MergeErrors(err, err2)
 	}
 	if mt.Post != nil {

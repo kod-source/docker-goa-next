@@ -111,6 +111,7 @@ func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 			Avatar:    sp.IndexPost.User.Avatar,
 			CreatedAt: &sp.IndexPost.User.CreatedAt,
 		},
+		Likes: c.toLikeJson(sp.Likes),
 	})
 }
 
@@ -153,4 +154,16 @@ func (c *PostsController) toCommnetJson(comments []*model.Comment) app.CommentJS
 		})
 	}
 	return cs
+}
+
+func (c *PostsController) toLikeJson(likes []*model.Like) app.LikeJSONCollection {
+	ls := make(app.LikeJSONCollection, 0, len(likes))
+	for _, l := range likes {
+		ls = append(ls, &app.LikeJSON{
+			ID:     l.ID,
+			PostID: l.PostID,
+			UserID: l.UserID,
+		})
+	}
+	return ls
 }
