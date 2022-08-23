@@ -137,16 +137,15 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 		})
 	}
 
-	var id int
+	var lastPostID int
 	err = p.db.QueryRow(
 		"SELECT `id` FROM `posts` ORDER BY `created_at` LIMIT 1",
 	).Scan(
-		&id,
+		&lastPostID,
 	)
 	var nextToken *string
-	s := fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber)
-	nextToken = &s
-	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == id {
+	nextToken = pointer.String(fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber))
+	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		nextToken = nil
 	}
 
