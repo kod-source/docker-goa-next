@@ -9,6 +9,7 @@ import (
 
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
+	"github.com/shogo82148/pointer"
 )
 
 type PostInteractor interface {
@@ -79,10 +80,16 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	rows, err := p.db.Query(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT
 		FROM posts as p
 		INNER JOIN users as u
 		ON p.user_id = u.id
+		LEFT JOIN (
+			SELECT post_id, COUNT(id) as COUNT
+			FROM likes
+			GROUP BY post_id
+		) as l
+		ON p.id = l.post_id
 		ORDER BY p.created_at DESC
 		LIMIT ?, ?
 	`, nextID, limitNumber)
@@ -94,6 +101,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 	for rows.Next() {
 		var post model.Post
 		var user model.User
+		var countLike *int
 
 		err := rows.Scan(
 			&post.ID,
@@ -104,6 +112,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 			&post.UpdatedAt,
 			&user.Name,
 			&user.Avatar,
+			&countLike,
 		)
 		if err != nil {
 			return nil, nil, err
@@ -124,7 +133,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 					Avatar: user.Avatar,
 				},
 			},
-			CountLike: 0,
+			CountLike: pointer.IntValue(countLike),
 		})
 	}
 
