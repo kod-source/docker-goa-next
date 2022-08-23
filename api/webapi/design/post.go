@@ -145,12 +145,14 @@ var show_post = MediaType("application/vnd.show_post_json", func() {
 	Attribute("post", post, "post value")
 	Attribute("user", user, "user value")
 	Attribute("comments", CollectionOf(comment), "comments value")
+	Attribute("likes", CollectionOf(like), "likes value")
 	View("default", func() {
 		Attribute("post")
 		Attribute("user")
 		Attribute("comments")
+		Attribute("likes")
 	})
-	Required("post", "user", "comments")
+	Required("post", "user", "comments", "likes")
 })
 
 var post_all_limit = MediaType("application/vnd.post_all_limit", func() {

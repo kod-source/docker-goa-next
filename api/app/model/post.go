@@ -19,4 +19,5 @@ type IndexPost struct {
 type ShowPost struct {
 	IndexPost IndexPost
 	Comments  []*Comment
+	Likes []*Like
 }
