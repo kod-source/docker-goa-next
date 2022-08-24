@@ -39,7 +39,7 @@ var _ = Resource("likes", func() {
 	})
 
 	Action("get_my_like", func() {
-		Routing(GET("likes/my"))
+		Routing(GET("likes"))
 		Description("自分がいいねした全ての投稿IDを取得する")
 		Response(OK, ArrayOf(Integer))
 	})

@@ -311,7 +311,6 @@ func MountLikesController(service *goa.Service, ctrl LikesController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/likes", ctrl.MuxHandler("preflight", handleLikesOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/likes/my", ctrl.MuxHandler("preflight", handleLikesOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -373,8 +372,8 @@ func MountLikesController(service *goa.Service, ctrl LikesController) {
 	}
 	h = handleSecurity("jwt", h, "api:access")
 	h = handleLikesOrigin(h)
-	service.Mux.Handle("GET", "/likes/my", ctrl.MuxHandler("get_my_like", h, nil))
-	service.LogInfo("mount", "ctrl", "Likes", "action", "GetMyLike", "route", "GET /likes/my", "security", "jwt")
+	service.Mux.Handle("GET", "/likes", ctrl.MuxHandler("get_my_like", h, nil))
+	service.LogInfo("mount", "ctrl", "Likes", "action", "GetMyLike", "route", "GET /likes", "security", "jwt")
 }
 
 // handleLikesOrigin applies the CORS response headers corresponding to the origin.

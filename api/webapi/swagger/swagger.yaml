@@ -777,6 +777,26 @@ paths:
       summary: delete likes
       tags:
       - likes
+    get:
+      description: |-
+        自分がいいねした全ての投稿IDを取得する
+
+        Required security scopes:
+          * `api:access`
+      operationId: likes#get_my_like
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: get_my_like likes
+      tags:
+      - likes
     post:
       description: |-
         いいね作成
@@ -810,27 +830,6 @@ paths:
       - jwt:
         - api:access
       summary: create likes
-      tags:
-      - likes
-  /likes/my:
-    get:
-      description: |-
-        自分がいいねした全ての投稿IDを取得する
-
-        Required security scopes:
-          * `api:access`
-      operationId: likes#get_my_like
-      produces:
-      - text/plain
-      responses:
-        "200":
-          description: OK
-      schemes:
-      - http
-      security:
-      - jwt:
-        - api:access
-      summary: get_my_like likes
       tags:
       - likes
   /login:

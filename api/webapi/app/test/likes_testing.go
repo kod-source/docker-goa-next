@@ -449,7 +449,7 @@ func GetMyLikeLikesOK(t testing.TB, ctx context.Context, service *goa.Service, c
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes/my"),
+		Path: fmt.Sprintf("/likes"),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
