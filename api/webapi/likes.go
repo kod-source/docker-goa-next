@@ -59,6 +59,9 @@ func (c *LikesController) Delete(ctx *app.DeleteLikesContext) error {
 }
 
 func (c *LikesController) GetMyLike(ctx *app.GetMyLikeLikesContext) error {
-	postIDs := [...]int{1, 2, 3, 5}
-	return ctx.OK(postIDs[:])
+	ps, err := c.lu.GetPostIDs(ctx, getUserIDCode(ctx))
+	if err != nil {
+		return ctx.InternalServerError()
+	}
+	return ctx.OK(ps)
 }

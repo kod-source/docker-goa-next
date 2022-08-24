@@ -663,6 +663,12 @@ func (ctx *GetMyLikeLikesContext) OK(r []int) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetMyLikeLikesContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // AddOperandsContext provides the operands add action context.
 type AddOperandsContext struct {
 	context.Context

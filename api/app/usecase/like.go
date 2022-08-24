@@ -11,6 +11,7 @@ import (
 type LikeUsecase interface {
 	Create(ctx context.Context, userID, postID int) (*model.Like, error)
 	Delete(ctx context.Context, userID, postID int) error
+	GetPostIDs(ctx context.Context, userID int) ([]int, error)
 }
 
 type likeUsecase struct {
@@ -42,4 +43,12 @@ func (l *likeUsecase) Delete(ctx context.Context, userID, postID int) error {
 		return err
 	}
 	return nil
+}
+
+func (l *likeUsecase) GetPostIDs(ctx context.Context, userID int) ([]int, error) {
+	postIDs, err := l.li.GetPostIDs(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+	return postIDs, nil
 }

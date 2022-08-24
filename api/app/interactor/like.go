@@ -10,6 +10,7 @@ import (
 type LikeInteractor interface {
 	Create(ctx context.Context, userID, postID int) (*model.Like, error)
 	Delete(ctx context.Context, userID, postID int) error
+	GetPostIDs(ctx context.Context, userID int) ([]int, error)
 }
 
 type likeInteractor struct {
@@ -66,4 +67,8 @@ func (l *likeInteractor) Delete(ctx context.Context, userID, postID int) error {
 	}
 
 	return nil
+}
+
+func (l *likeInteractor) GetPostIDs(ctx context.Context, userID int) ([]int, error) {
+	return nil, nil
 }

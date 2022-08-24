@@ -42,6 +42,7 @@ var _ = Resource("likes", func() {
 		Routing(GET("likes"))
 		Description("自分がいいねした全ての投稿IDを取得する")
 		Response(OK, ArrayOf(Integer))
+		Response(InternalServerError)
 	})
 })
 
