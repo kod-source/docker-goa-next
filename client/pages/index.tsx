@@ -17,6 +17,7 @@ import { Loading } from '../lib/components/loading';
 import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { PostEditModal } from '../lib/components/postEditModal';
+import InfiniteScroll from 'react-infinite-scroller';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -31,6 +32,8 @@ const Home: NextPage = () => {
     title: '',
     img: '',
   });
+  const [nextToken, setNextToken] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
   const [isShowDetailModal, setIsShowDetailModal] = useState(false);
   const [widthAndHeightRate, setWidthAndHeightRate] = useState({
     width: '',
@@ -63,7 +66,7 @@ const Home: NextPage = () => {
       post: Post;
       user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
     }[] = [];
-    res.data.forEach((d: any) => {
+    res.data.show_posts.forEach((d: any) => {
       const post = new Post(
         d.post.id,
         d.post.user_id,
@@ -77,11 +80,12 @@ const Home: NextPage = () => {
         user: { name: d.user_name, avatar: d.avatar },
       });
     });
+    setNextToken(res.data.next_token);
     setPostsWithUser(postsWithUser);
   };
 
   useEffect(() => {
-    fetchData();
+    // fetchData();
   }, []);
 
   const onChangeInputFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,9 +165,50 @@ const Home: NextPage = () => {
     }
   };
 
+  const loadMore = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const endPoint = nextToken ? nextToken : 'http://localhost:3000/posts';
+    const res = await axios.get(endPoint, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const nextT: string | null = res.data.next_token;
+    setNextToken(nextT);
+    if (!nextT) {
+      setHasMore(false);
+    }
+    const postsWithUser: {
+      post: Post;
+      user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+    }[] = [];
+    res.data.show_posts.forEach((d: any) => {
+      const post = new Post(
+        d.post.id,
+        d.post.user_id,
+        d.post.title,
+        new Date(d.post.created_at),
+        new Date(d.post.updated_at),
+        d.post.img
+      );
+      postsWithUser.push({
+        post: post,
+        user: { name: d.user_name, avatar: d.avatar },
+      });
+    });
+    setPostsWithUser((old) => {
+      if (!nextToken) {
+        return [...postsWithUser];
+      }
+      return [...old, ...postsWithUser];
+    });
+  };
+
   if (!user) {
     return <Loading />;
   }
+  const loading = <Loading />;
   return (
     <div className={styles.container}>
       <Head>
@@ -232,7 +277,7 @@ const Home: NextPage = () => {
           </div>
         </form>
       </div>
-      {postsWithUser ? (
+      {/* {postsWithUser ? (
         <div>
           {postsWithUser.map((p) => (
             <div key={p.post.id} className='my-5 mx-auto w-3/5'>
@@ -306,7 +351,77 @@ const Home: NextPage = () => {
         </div>
       ) : (
         <Loading />
-      )}
+      )} */}
+      <InfiniteScroll loadMore={loadMore} hasMore={hasMore} loader={loading}>
+        {postsWithUser.map((p) => (
+          <div key={p.post.id} className='my-5 mx-auto w-3/5'>
+            <div className='flex justify-center'>
+              <Avatar
+                sx={{ width: 80, height: 80 }}
+                alt='投稿者'
+                src={p.user.avatar ? p.user.avatar : '/avatar.png'}
+              />
+              <div className='pt-5 mx-3'>
+                <p>{p.user.name}</p>
+                <div className='flex'>
+                  <p>
+                    投稿日：
+                    {DateTime.fromJSDate(p.post.createdAt).toFormat(
+                      'yyyy年MM月dd日'
+                    )}
+                  </p>
+                  {p.post.createdAt.getTime() !==
+                    p.post.updatedAt.getTime() && (
+                    <p className='mx-5'>
+                      更新日：
+                      {DateTime.fromJSDate(p.post.updatedAt).toFormat(
+                        'yyyy年MM月dd日'
+                      )}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className='ml-auto'>
+                <Button
+                  className='text-white'
+                  onClick={(e) => {
+                    const currentWidth = e.clientX;
+                    const currentHeight = e.clientY;
+                    setWidthAndHeightRate({
+                      width:
+                        String((currentWidth / window.innerWidth) * 100) + '%',
+                      height:
+                        String((currentHeight / window.innerHeight) * 100) +
+                        '%',
+                    });
+                    setPostID(p.post.id);
+                    setIsShowDetailModal(true);
+                    setIsMyPost(p.post.userId === user.id);
+                    setSelectPost({
+                      id: p.post.id,
+                      title: p.post.title,
+                      img: p.post.img,
+                    });
+                  }}
+                >
+                  :
+                </Button>
+              </div>
+            </div>
+            <div>
+              <p>{toStringlinefeed(p.post.title)}</p>
+              {!!p.post.img && (
+                <Image
+                  src={p.post.img}
+                  width={500}
+                  height={500}
+                  alt={p.post.title + 'picture'}
+                />
+              )}
+            </div>
+          </div>
+        ))}
+      </InfiniteScroll>
       {isShowDetailModal && (
         <DetailModal
           open={isShowDetailModal}

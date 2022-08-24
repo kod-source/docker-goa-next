@@ -144,6 +144,9 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 	).Scan(
 		&lastPostID,
 	)
+	if err != nil {
+		return nil, nil, err
+	}
 	var nextToken *string
 	nextToken = pointer.String(fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber))
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
