@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { FormEvent, useContext, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useContext, useEffect, useState } from 'react';
 import styles from '../styles/Home.module.css';
 import { AppContext } from './_app';
 import Avatar from '@mui/material/Avatar';
@@ -45,6 +45,11 @@ const Home: NextPage = () => {
     title: '',
     img: '',
   });
+  const [againFetch, setAgainFetch] = useState(true);
+  const [nextToken, setNextToken] = useState<string | null>(
+    'http://localhost:3000/posts'
+  );
+  const [isLoading, setIsLoading] = useState(false);
 
   const logout = () => {
     localStorage.removeItem('token');
@@ -53,8 +58,9 @@ const Home: NextPage = () => {
 
   const fetchData = async () => {
     const token = localStorage.getItem('token');
-    if (!token) return;
-    const res = await axios.get('http://localhost:3000/posts', {
+    if (!token || !nextToken) return;
+    setIsLoading(true);
+    const res = await axios.get(nextToken, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -63,7 +69,7 @@ const Home: NextPage = () => {
       post: Post;
       user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
     }[] = [];
-    res.data.forEach((d: any) => {
+    res.data.show_posts.forEach((d: any) => {
       const post = new Post(
         d.post.id,
         d.post.user_id,
@@ -77,11 +83,33 @@ const Home: NextPage = () => {
         user: { name: d.user_name, avatar: d.avatar },
       });
     });
-    setPostsWithUser(postsWithUser);
+    const nextT: string | null = res.data.next_token;
+    setNextToken(nextT);
+    setPostsWithUser((old) => {
+      if (nextToken === 'http://localhost:3000/posts') {
+        return postsWithUser;
+      }
+      return [...old, ...postsWithUser];
+    });
+    setIsLoading(false);
   };
 
   useEffect(() => {
-    fetchData();
+    if (againFetch) {
+      fetchData();
+    }
+    window.addEventListener('scroll', changeBottom);
+    return () => window.removeEventListener('scroll', changeBottom);
+  }, [againFetch]);
+
+  const changeBottom = useCallback(() => {
+    const bottomPosition =
+      document.body.offsetHeight - (window.scrollY + window.innerHeight);
+    if (bottomPosition < 0) {
+      setAgainFetch(true);
+      return;
+    }
+    setAgainFetch(false);
   }, []);
 
   const onChangeInputFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,81 +260,81 @@ const Home: NextPage = () => {
           </div>
         </form>
       </div>
-      {postsWithUser ? (
-        <div>
-          {postsWithUser.map((p) => (
-            <div key={p.post.id} className='my-5 mx-auto w-3/5'>
-              <div className='flex justify-center'>
-                <Avatar
-                  sx={{ width: 80, height: 80 }}
-                  alt='投稿者'
-                  src={p.user.avatar ? p.user.avatar : '/avatar.png'}
-                />
-                <div className='pt-5 mx-3'>
-                  <p>{p.user.name}</p>
-                  <div className='flex'>
-                    <p>
-                      投稿日：
-                      {DateTime.fromJSDate(p.post.createdAt).toFormat(
+      <div>
+        {postsWithUser.map((p) => (
+          <div key={p.post.id} className='my-5 mx-auto w-3/5'>
+            <div className='flex justify-center'>
+              <Avatar
+                sx={{ width: 80, height: 80 }}
+                alt='投稿者'
+                src={p.user.avatar ? p.user.avatar : '/avatar.png'}
+              />
+              <div className='pt-5 mx-3'>
+                <p>{p.user.name}</p>
+                <div className='flex'>
+                  <p>
+                    投稿日：
+                    {DateTime.fromJSDate(p.post.createdAt).toFormat(
+                      'yyyy年MM月dd日'
+                    )}
+                  </p>
+                  {p.post.createdAt.getTime() !==
+                    p.post.updatedAt.getTime() && (
+                    <p className='mx-5'>
+                      更新日：
+                      {DateTime.fromJSDate(p.post.updatedAt).toFormat(
                         'yyyy年MM月dd日'
                       )}
                     </p>
-                    {p.post.createdAt.getTime() !==
-                      p.post.updatedAt.getTime() && (
-                      <p className='mx-5'>
-                        更新日：
-                        {DateTime.fromJSDate(p.post.updatedAt).toFormat(
-                          'yyyy年MM月dd日'
-                        )}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className='ml-auto'>
-                  <Button
-                    className='text-white'
-                    onClick={(e) => {
-                      const currentWidth = e.clientX;
-                      const currentHeight = e.clientY;
-                      setWidthAndHeightRate({
-                        width:
-                          String((currentWidth / window.innerWidth) * 100) +
-                          '%',
-                        height:
-                          String((currentHeight / window.innerHeight) * 100) +
-                          '%',
-                      });
-                      setPostID(p.post.id);
-                      setIsShowDetailModal(true);
-                      setIsMyPost(p.post.userId === user.id);
-                      setSelectPost({
-                        id: p.post.id,
-                        title: p.post.title,
-                        img: p.post.img,
-                      });
-                    }}
-                  >
-                    :
-                  </Button>
+                  )}
                 </div>
               </div>
-              <div>
-                <p>{toStringlinefeed(p.post.title)}</p>
-                {!!p.post.img && (
-                  <Image
-                    src={p.post.img}
-                    width={500}
-                    height={500}
-                    alt={p.post.title + 'picture'}
-                  />
-                )}
+              <div className='ml-auto'>
+                <Button
+                  className='text-white'
+                  onClick={(e) => {
+                    const currentWidth = e.clientX;
+                    const currentHeight = e.clientY;
+                    setWidthAndHeightRate({
+                      width:
+                        String((currentWidth / window.innerWidth) * 100) + '%',
+                      height:
+                        String((currentHeight / window.innerHeight) * 100) +
+                        '%',
+                    });
+                    setPostID(p.post.id);
+                    setIsShowDetailModal(true);
+                    setIsMyPost(p.post.userId === user.id);
+                    setSelectPost({
+                      id: p.post.id,
+                      title: p.post.title,
+                      img: p.post.img,
+                    });
+                  }}
+                >
+                  :
+                </Button>
               </div>
             </div>
-          ))}
-        </div>
-      ) : (
-        <Loading />
-      )}
+            <div>
+              <p>{toStringlinefeed(p.post.title)}</p>
+              {!!p.post.img && (
+                <Image
+                  src={p.post.img}
+                  width={500}
+                  height={500}
+                  alt={p.post.title + 'picture'}
+                />
+              )}
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div className='my-10'>
+            <Loading />
+          </div>
+        )}
+      </div>
       {isShowDetailModal && (
         <DetailModal
           open={isShowDetailModal}
