@@ -812,6 +812,27 @@ paths:
       summary: create likes
       tags:
       - likes
+  /likes/my:
+    get:
+      description: |-
+        自分がいいねした全ての投稿IDを取得する
+
+        Required security scopes:
+          * `api:access`
+      operationId: likes#get_my_like
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: get_my_like likes
+      tags:
+      - likes
   /login:
     post:
       description: jwtでのログイン処理

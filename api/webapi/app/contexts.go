@@ -636,6 +636,33 @@ func (ctx *DeleteLikesContext) InternalServerError() error {
 	return nil
 }
 
+// GetMyLikeLikesContext provides the likes get_my_like action context.
+type GetMyLikeLikesContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewGetMyLikeLikesContext parses the incoming request URL and body, performs validations and creates the
+// context used by the likes controller get_my_like action.
+func NewGetMyLikeLikesContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetMyLikeLikesContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetMyLikeLikesContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetMyLikeLikesContext) OK(r []int) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
 // AddOperandsContext provides the operands add action context.
 type AddOperandsContext struct {
 	context.Context

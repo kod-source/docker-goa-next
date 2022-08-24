@@ -57,3 +57,8 @@ func (c *LikesController) Delete(ctx *app.DeleteLikesContext) error {
 
 	return ctx.OK(nil)
 }
+
+func (c *LikesController) GetMyLike(ctx *app.GetMyLikeLikesContext) error {
+	postIDs := [...]int{1, 2, 3, 5}
+	return ctx.OK(postIDs[:])
+}
