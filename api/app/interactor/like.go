@@ -70,5 +70,24 @@ func (l *likeInteractor) Delete(ctx context.Context, userID, postID int) error {
 }
 
 func (l *likeInteractor) GetPostIDs(ctx context.Context, userID int) ([]int, error) {
-	return nil, nil
+	rows, err := l.db.Query("SELECT `post_id` FROM `likes` WHERE `user_id` = ?", userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var postIDs []int
+	for rows.Next() {
+		var postID int
+		err = rows.Scan(
+			&postID,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		postIDs = append(postIDs, postID)
+	}
+
+	return postIDs, nil
 }
