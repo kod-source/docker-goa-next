@@ -479,6 +479,7 @@ type PostsController interface {
 	Delete(*DeletePostsContext) error
 	Index(*IndexPostsContext) error
 	Show(*ShowPostsContext) error
+	ShowMyLike(*ShowMyLikePostsContext) error
 	Update(*UpdatePostsContext) error
 }
 
@@ -488,6 +489,7 @@ func MountPostsController(service *goa.Service, ctrl PostsController) {
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/posts", ctrl.MuxHandler("preflight", handlePostsOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/posts/:id", ctrl.MuxHandler("preflight", handlePostsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/posts/my_like", ctrl.MuxHandler("preflight", handlePostsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -562,6 +564,23 @@ func MountPostsController(service *goa.Service, ctrl PostsController) {
 	h = handlePostsOrigin(h)
 	service.Mux.Handle("GET", "/posts/:id", ctrl.MuxHandler("show", h, nil))
 	service.LogInfo("mount", "ctrl", "Posts", "action", "Show", "route", "GET /posts/:id", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowMyLikePostsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.ShowMyLike(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handlePostsOrigin(h)
+	service.Mux.Handle("GET", "/posts/my_like", ctrl.MuxHandler("show_my_like", h, nil))
+	service.LogInfo("mount", "ctrl", "Posts", "action", "ShowMyLike", "route", "GET /posts/my_like", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

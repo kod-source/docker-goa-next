@@ -14,6 +14,7 @@ type PostUseCase interface {
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 	Show(ctx context.Context, id int) (*model.ShowPost, error)
+	ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error)
 }
 
 type postUseCase struct {
@@ -68,4 +69,13 @@ func (p *postUseCase) Show(ctx context.Context, id int) (*model.ShowPost, error)
 		return nil, err
 	}
 	return showPost, nil
+}
+
+func (p *postUseCase) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
+	ips, nextToken, err := p.pi.ShowMyLike(ctx, userID, nextID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return ips, nextToken, nil
 }

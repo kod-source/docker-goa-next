@@ -131,8 +131,8 @@ func (c *Client) NewIndexPostsRequest(ctx context.Context, path string, nextID *
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
 	if nextID != nil {
-		tmp16 := strconv.Itoa(*nextID)
-		values.Set("next_id", tmp16)
+		tmp17 := strconv.Itoa(*nextID)
+		values.Set("next_id", tmp17)
 	}
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
@@ -169,6 +169,45 @@ func (c *Client) NewShowPostsRequest(ctx context.Context, path string) (*http.Re
 		scheme = "http"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
+// ShowMyLikePostsPath computes a request path to the show_my_like action of posts.
+func ShowMyLikePostsPath() string {
+	return fmt.Sprintf("/posts/my_like")
+}
+
+// 自分がいいねした投稿を取得する
+func (c *Client) ShowMyLikePosts(ctx context.Context, path string, nextID *int) (*http.Response, error) {
+	req, err := c.NewShowMyLikePostsRequest(ctx, path, nextID)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewShowMyLikePostsRequest create the request corresponding to the show_my_like action endpoint of the posts resource.
+func (c *Client) NewShowMyLikePostsRequest(ctx context.Context, path string, nextID *int) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "http"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	values := u.Query()
+	if nextID != nil {
+		tmp18 := strconv.Itoa(*nextID)
+		values.Set("next_id", tmp18)
+	}
+	u.RawQuery = values.Encode()
 	req, err := http.NewRequestWithContext(ctx, "GET", u.String(), nil)
 	if err != nil {
 		return nil, err

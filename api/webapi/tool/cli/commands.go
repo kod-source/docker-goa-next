@@ -122,6 +122,13 @@ type (
 		PrettyPrint bool
 	}
 
+	// ShowMyLikePostsCommand is the command line data structure for the show_my_like action of posts
+	ShowMyLikePostsCommand struct {
+		// 次のID
+		NextID      int
+		PrettyPrint bool
+	}
+
 	// UpdatePostsCommand is the command line data structure for the update action of posts
 	UpdatePostsCommand struct {
 		Payload     string
@@ -343,10 +350,24 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "show-my-like",
+		Short: `自分がいいねした投稿を取得する`,
+	}
+	tmp13 := new(ShowMyLikePostsCommand)
+	sub = &cobra.Command{
+		Use:   `posts ["/posts/my_like"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp13.Run(c, args) },
+	}
+	tmp13.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp13.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "sign-up",
 		Short: `サインアップ`,
 	}
-	tmp13 := new(SignUpAuthCommand)
+	tmp14 := new(SignUpAuthCommand)
 	sub = &cobra.Command{
 		Use:   `auth ["/sign_up"]`,
 		Short: ``,
@@ -360,17 +381,17 @@ Payload example:
    "name": "田中　太郎",
    "password": "test1234"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp13.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp14.Run(c, args) },
 	}
-	tmp13.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp13.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp14.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp14.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "update",
 		Short: `投稿を更新する`,
 	}
-	tmp14 := new(UpdatePostsCommand)
+	tmp15 := new(UpdatePostsCommand)
 	sub = &cobra.Command{
 		Use:   `posts ["/posts/ID"]`,
 		Short: ``,
@@ -382,17 +403,17 @@ Payload example:
    "img": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/",
    "title": "やっほー"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp14.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp15.Run(c, args) },
 	}
-	tmp14.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp14.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp15.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp15.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "update-comment",
 		Short: `コメントの更新`,
 	}
-	tmp15 := new(UpdateCommentCommentsCommand)
+	tmp16 := new(UpdateCommentCommentsCommand)
 	sub = &cobra.Command{
 		Use:   `comments ["/comments/ID"]`,
 		Short: ``,
@@ -404,10 +425,10 @@ Payload example:
    "img": "data:image/jpeg;base64,/9j/4A",
    "text": "どうも~"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp15.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp16.Run(c, args) },
 	}
-	tmp15.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp15.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp16.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp16.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 }
@@ -954,6 +975,32 @@ func (cmd *ShowPostsCommand) Run(c *client.Client, args []string) error {
 func (cmd *ShowPostsCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id int
 	cc.Flags().IntVar(&cmd.ID, "id", id, `ID`)
+}
+
+// Run makes the HTTP request corresponding to the ShowMyLikePostsCommand command.
+func (cmd *ShowMyLikePostsCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/posts/my_like"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.ShowMyLikePosts(ctx, path, intFlagVal("next_id", cmd.NextID))
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ShowMyLikePostsCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var nextID int
+	cc.Flags().IntVar(&cmd.NextID, "next_id", nextID, `次のID`)
 }
 
 // Run makes the HTTP request corresponding to the UpdatePostsCommand command.
