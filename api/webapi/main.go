@@ -1,4 +1,4 @@
-//go:generate goagen bootstrap -d github.com/kod-source/docker-goa-next/webapi/design
+//go:generate go run gen/main.go
 
 package main
 

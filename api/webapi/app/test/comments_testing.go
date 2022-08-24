@@ -3,10 +3,7 @@
 // API "docker_goa_next": comments TestHelpers
 //
 // Command:
-// $ goagen
-// --design=github.com/kod-source/docker-goa-next/webapi/design
-// --out=/Users/horikoudai/Documents/ProgrammingLearning/docker-goa-next/api/webapi
-// --version=v1.5.13
+// $ main
 
 package test
 
