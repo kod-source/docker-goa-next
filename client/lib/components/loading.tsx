@@ -4,7 +4,11 @@ import Box from '@mui/material/Box';
 
 export const Loading: FC = () => {
   return (
-    <Box sx={{ display: 'flex' }} className='absolute top-1/2 left-1/2'>
+    <Box
+      sx={{ display: 'flex' }}
+      className='relative'
+      style={{ top: '50%', left: '50%' }}
+    >
       <CircularProgress color='inherit' />
     </Box>
   );
