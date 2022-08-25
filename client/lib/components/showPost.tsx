@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { PostWithUser } from '../model/post';
 import { Avatar, Button } from '@mui/material';
 import { DateTime } from 'luxon';
@@ -22,6 +22,8 @@ export const ShowPost: FC<Props> = ({
   clickLikeButton,
   onClickDetail,
 }) => {
+  const [comments, setComments] = useState<Comment[]>([]);
+
   return (
     <div className='my-5 mx-auto w-3/5'>
       <div className='flex justify-center'>
