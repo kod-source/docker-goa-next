@@ -15,12 +15,14 @@ interface Props {
   postWithUser: {
     post: Post;
     user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+    countLike: number;
   }[];
   setPostWithUser: React.Dispatch<
     React.SetStateAction<
       | {
           post: Post;
           user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+          countLike: number;
         }[]
     >
   >;
@@ -66,6 +68,7 @@ export const PostEditModal: FC<Props> = (props) => {
             res.data.post.img
           ),
           user: p.user,
+          countLike: p.countLike,
         };
       }
       return p;

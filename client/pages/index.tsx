@@ -17,6 +17,7 @@ import { Loading } from '../lib/components/loading';
 import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { PostEditModal } from '../lib/components/postEditModal';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -25,6 +26,7 @@ const Home: NextPage = () => {
     {
       post: Post;
       user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+      countLike: number;
     }[]
   >([]);
   const [post, setPost] = useState<{ title: string; img: string }>({
@@ -37,7 +39,7 @@ const Home: NextPage = () => {
     height: '',
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [postID, setPostID] = useState(0);
+  const [selectPostID, setSelectPostID] = useState(0);
   const [isMyPost, setIsMyPost] = useState(false);
   const [showPostEditModal, setShowPostEditModal] = useState(false);
   const [selectPost, setSelectPost] = useState<SelectPost>({
@@ -50,13 +52,14 @@ const Home: NextPage = () => {
     'http://localhost:3000/posts'
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [myLikePostIds, setMyLikePostIds] = useState<number[]>([]);
 
   const logout = () => {
     localStorage.removeItem('token');
     router.push('/login');
   };
 
-  const fetchData = async () => {
+  const fetchPostData = async () => {
     const token = localStorage.getItem('token');
     if (!token || !nextToken) return;
     setIsLoading(true);
@@ -68,6 +71,7 @@ const Home: NextPage = () => {
     const postsWithUser: {
       post: Post;
       user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+      countLike: number;
     }[] = [];
     res.data.show_posts.forEach((d: any) => {
       const post = new Post(
@@ -81,6 +85,7 @@ const Home: NextPage = () => {
       postsWithUser.push({
         post: post,
         user: { name: d.user_name, avatar: d.avatar },
+        countLike: d.count_like,
       });
     });
     const nextT: string | null = res.data.next_token;
@@ -94,10 +99,22 @@ const Home: NextPage = () => {
     setIsLoading(false);
   };
 
+  const fetchData = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    const res = await axios.get('http://localhost:3000/likes', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    setMyLikePostIds(res.data);
+  };
+
   useEffect(() => {
     if (againFetch) {
-      fetchData();
+      fetchPostData();
     }
+    fetchData();
     window.addEventListener('scroll', changeBottom);
     return () => window.removeEventListener('scroll', changeBottom);
   }, [againFetch]);
@@ -156,7 +173,11 @@ const Home: NextPage = () => {
           d.post.img
         );
         return [
-          { post: post, user: { name: d.user_name, avatar: d.avatar } },
+          {
+            post: post,
+            user: { name: d.user_name, avatar: d.avatar },
+            countLike: 0,
+          },
           ...old,
         ];
       });
@@ -175,13 +196,81 @@ const Home: NextPage = () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
-      await axios.delete(`http://localhost:3000/posts/${postID}`, {
+      await axios.delete(`http://localhost:3000/posts/${selectPostID}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       setShowConfirmModal(false);
-      setPostsWithUser(postsWithUser?.filter((p) => p.post.id !== postID));
+      setPostsWithUser(
+        postsWithUser?.filter((p) => p.post.id !== selectPostID)
+      );
+    } catch (e) {
+      if (e instanceof Error) {
+        alert(e.message);
+      }
+    }
+  };
+
+  const clickLikeButton = async (postId: number) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+      if (myLikePostIds.includes(postId)) {
+        await axios.delete('http://localhost:3000/likes', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          data: {
+            post_id: postId,
+          },
+        });
+        setMyLikePostIds((old) => {
+          return old.filter((i) => i !== postId);
+        });
+        setPostsWithUser((old) => {
+          const newPosts = old.map((o) => {
+            if (o.post.id === postId) {
+              return {
+                post: o.post,
+                user: o.user,
+                countLike: o.countLike - 1,
+              };
+            }
+            return o;
+          });
+          return newPosts;
+        });
+      } else {
+        const res = await axios.post(
+          'http://localhost:3000/likes',
+          {
+            post_id: postId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (res.data.post_id !== postId) {
+          throw new Error('post_id unknow');
+        }
+        setMyLikePostIds((old) => [...old, postId]);
+        setPostsWithUser((old) => {
+          const newPosts = old.map((o) => {
+            if (o.post.id === postId) {
+              return {
+                post: o.post,
+                user: o.user,
+                countLike: o.countLike + 1,
+              };
+            }
+            return o;
+          });
+          return newPosts;
+        });
+      }
     } catch (e) {
       if (e instanceof Error) {
         alert(e.message);
@@ -302,7 +391,7 @@ const Home: NextPage = () => {
                         String((currentHeight / window.innerHeight) * 100) +
                         '%',
                     });
-                    setPostID(p.post.id);
+                    setSelectPostID(p.post.id);
                     setIsShowDetailModal(true);
                     setIsMyPost(p.post.userId === user.id);
                     setSelectPost({
@@ -326,6 +415,20 @@ const Home: NextPage = () => {
                   alt={p.post.title + 'picture'}
                 />
               )}
+            </div>
+            <div>
+              <div
+                className='cursor-pointer hover:opacity-60'
+                onClick={() => clickLikeButton(p.post.id)}
+              >
+                <FavoriteIcon
+                  className='mr-3'
+                  color={
+                    myLikePostIds.includes(p.post.id) ? 'error' : 'inherit'
+                  }
+                />
+                {p.countLike}
+              </div>
             </div>
           </div>
         ))}
