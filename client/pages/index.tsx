@@ -18,6 +18,7 @@ import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { PostEditModal } from '../lib/components/postEditModal';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import { getToken } from '../lib/token';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -60,12 +61,11 @@ const Home: NextPage = () => {
   };
 
   const fetchPostData = async () => {
-    const token = localStorage.getItem('token');
-    if (!token || !nextToken) return;
+    if (!nextToken) return;
     setIsLoading(true);
     const res = await axios.get(nextToken, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     });
     const postsWithUser: {
@@ -100,11 +100,9 @@ const Home: NextPage = () => {
   };
 
   const fetchData = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
     const res = await axios.get('http://localhost:3000/likes', {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getToken()}`,
       },
     });
     setMyLikePostIds(res.data);
@@ -114,10 +112,13 @@ const Home: NextPage = () => {
     if (againFetch) {
       fetchPostData();
     }
-    fetchData();
     window.addEventListener('scroll', changeBottom);
     return () => window.removeEventListener('scroll', changeBottom);
   }, [againFetch]);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const changeBottom = useCallback(() => {
     const bottomPosition =
@@ -147,8 +148,6 @@ const Home: NextPage = () => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
       const res = await axios.post(
         'http://localhost:3000/posts',
         {
@@ -157,7 +156,7 @@ const Home: NextPage = () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${getToken()}`,
           },
         }
       );
@@ -194,11 +193,9 @@ const Home: NextPage = () => {
 
   const onDelete = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
       await axios.delete(`http://localhost:3000/posts/${selectPostID}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${getToken()}`,
         },
       });
       setShowConfirmModal(false);
@@ -214,12 +211,10 @@ const Home: NextPage = () => {
 
   const clickLikeButton = async (postId: number) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
       if (myLikePostIds.includes(postId)) {
         await axios.delete('http://localhost:3000/likes', {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${getToken()}`,
           },
           data: {
             post_id: postId,
@@ -249,7 +244,7 @@ const Home: NextPage = () => {
           },
           {
             headers: {
-              Authorization: `Bearer ${token}`,
+              Authorization: `Bearer ${getToken()}`,
             },
           }
         );
