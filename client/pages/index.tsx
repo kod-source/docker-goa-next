@@ -1,5 +1,4 @@
 import { Button } from '@mui/material';
-import { DateTime } from 'luxon';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -7,29 +6,21 @@ import { FormEvent, useCallback, useContext, useEffect, useState } from 'react';
 import styles from '../styles/Home.module.css';
 import { AppContext } from './_app';
 import Avatar from '@mui/material/Avatar';
-import { Post, SelectPost } from '../lib/model/post';
-import { User } from '../lib/model/user';
+import { Post, PostWithUser, SelectPost } from '../lib/model/post';
 import axios from 'axios';
-import { toStringlinefeed } from '../lib/text';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
 import Image from 'next/image';
 import { Loading } from '../lib/components/loading';
 import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { PostEditModal } from '../lib/components/postEditModal';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import { getToken } from '../lib/token';
+import { ShowPost } from '../lib/components/showPost';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
   const router = useRouter();
-  const [postsWithUser, setPostsWithUser] = useState<
-    {
-      post: Post;
-      user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
-      countLike: number;
-    }[]
-  >([]);
+  const [postsWithUser, setPostsWithUser] = useState<PostWithUser[]>([]);
   const [post, setPost] = useState<{ title: string; img: string }>({
     title: '',
     img: '',
@@ -40,7 +31,6 @@ const Home: NextPage = () => {
     height: '',
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [selectPostID, setSelectPostID] = useState(0);
   const [isMyPost, setIsMyPost] = useState(false);
   const [showPostEditModal, setShowPostEditModal] = useState(false);
   const [selectPost, setSelectPost] = useState<SelectPost>({
@@ -68,11 +58,7 @@ const Home: NextPage = () => {
         Authorization: `Bearer ${getToken()}`,
       },
     });
-    const postsWithUser: {
-      post: Post;
-      user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
-      countLike: number;
-    }[] = [];
+    const postsWithUser: PostWithUser[] = [];
     res.data.show_posts.forEach((d: any) => {
       const post = new Post(
         d.post.id,
@@ -193,14 +179,14 @@ const Home: NextPage = () => {
 
   const onDelete = async () => {
     try {
-      await axios.delete(`http://localhost:3000/posts/${selectPostID}`, {
+      await axios.delete(`http://localhost:3000/posts/${selectPost.id}`, {
         headers: {
           Authorization: `Bearer ${getToken()}`,
         },
       });
       setShowConfirmModal(false);
       setPostsWithUser(
-        postsWithUser?.filter((p) => p.post.id !== selectPostID)
+        postsWithUser?.filter((p) => p.post.id !== selectPost.id)
       );
     } catch (e) {
       if (e instanceof Error) {
@@ -271,6 +257,25 @@ const Home: NextPage = () => {
         alert(e.message);
       }
     }
+  };
+
+  const onClickDetail = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    p: PostWithUser
+  ) => {
+    const currentWidth = e.clientX;
+    const currentHeight = e.clientY;
+    setWidthAndHeightRate({
+      width: String((currentWidth / window.innerWidth) * 100) + '%',
+      height: String((currentHeight / window.innerHeight) * 100) + '%',
+    });
+    setIsShowDetailModal(true);
+    setIsMyPost(p.post.userId === user?.id);
+    setSelectPost({
+      id: p.post.id,
+      title: p.post.title,
+      img: p.post.img,
+    });
   };
 
   if (!user) {
@@ -346,86 +351,13 @@ const Home: NextPage = () => {
       </div>
       <div>
         {postsWithUser.map((p) => (
-          <div key={p.post.id} className='my-5 mx-auto w-3/5'>
-            <div className='flex justify-center'>
-              <Avatar
-                sx={{ width: 80, height: 80 }}
-                alt='投稿者'
-                src={p.user.avatar ? p.user.avatar : '/avatar.png'}
-              />
-              <div className='pt-5 mx-3'>
-                <p>{p.user.name}</p>
-                <div className='flex'>
-                  <p>
-                    投稿日：
-                    {DateTime.fromJSDate(p.post.createdAt).toFormat(
-                      'yyyy年MM月dd日'
-                    )}
-                  </p>
-                  {p.post.createdAt.getTime() !==
-                    p.post.updatedAt.getTime() && (
-                    <p className='mx-5'>
-                      更新日：
-                      {DateTime.fromJSDate(p.post.updatedAt).toFormat(
-                        'yyyy年MM月dd日'
-                      )}
-                    </p>
-                  )}
-                </div>
-              </div>
-              <div className='ml-auto'>
-                <Button
-                  className='text-white'
-                  onClick={(e) => {
-                    const currentWidth = e.clientX;
-                    const currentHeight = e.clientY;
-                    setWidthAndHeightRate({
-                      width:
-                        String((currentWidth / window.innerWidth) * 100) + '%',
-                      height:
-                        String((currentHeight / window.innerHeight) * 100) +
-                        '%',
-                    });
-                    setSelectPostID(p.post.id);
-                    setIsShowDetailModal(true);
-                    setIsMyPost(p.post.userId === user.id);
-                    setSelectPost({
-                      id: p.post.id,
-                      title: p.post.title,
-                      img: p.post.img,
-                    });
-                  }}
-                >
-                  :
-                </Button>
-              </div>
-            </div>
-            <div>
-              <p>{toStringlinefeed(p.post.title)}</p>
-              {!!p.post.img && (
-                <Image
-                  src={p.post.img}
-                  width={500}
-                  height={500}
-                  alt={p.post.title + 'picture'}
-                />
-              )}
-            </div>
-            <div>
-              <div
-                className='cursor-pointer hover:opacity-60'
-                onClick={() => clickLikeButton(p.post.id)}
-              >
-                <FavoriteIcon
-                  className='mr-3'
-                  color={
-                    myLikePostIds.includes(p.post.id) ? 'error' : 'inherit'
-                  }
-                />
-                {p.countLike}
-              </div>
-            </div>
-          </div>
+          <ShowPost
+            key={p.post.id}
+            postWithUser={p}
+            myLikePostIds={myLikePostIds}
+            clickLikeButton={clickLikeButton}
+            onClickDetail={onClickDetail}
+          />
         ))}
         {isLoading && (
           <div className='my-10'>
@@ -464,7 +396,6 @@ const Home: NextPage = () => {
           handleClose={() => setShowPostEditModal(false)}
           post={selectPost}
           setPost={setSelectPost}
-          postWithUser={postsWithUser}
           setPostWithUser={setPostsWithUser}
         />
       )}

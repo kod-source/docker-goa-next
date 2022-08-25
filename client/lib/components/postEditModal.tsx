@@ -3,9 +3,8 @@ import Box from '@mui/material/Box';
 import { Button, Modal } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Image from 'next/image';
-import { Post, SelectPost } from '../model/post';
+import { Post, PostWithUser, SelectPost } from '../model/post';
 import axios from 'axios';
-import { User } from '../model/user';
 import { getToken } from '../token';
 
 interface Props {
@@ -13,20 +12,7 @@ interface Props {
   handleClose: () => void;
   post: SelectPost;
   setPost: React.Dispatch<React.SetStateAction<SelectPost>>;
-  postWithUser: {
-    post: Post;
-    user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
-    countLike: number;
-  }[];
-  setPostWithUser: React.Dispatch<
-    React.SetStateAction<
-      | {
-          post: Post;
-          user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
-          countLike: number;
-        }[]
-    >
-  >;
+  setPostWithUser: React.Dispatch<React.SetStateAction<PostWithUser[]>>;
 }
 
 export const PostEditModal: FC<Props> = (props) => {
@@ -55,8 +41,8 @@ export const PostEditModal: FC<Props> = (props) => {
         },
       }
     );
-    const newPostWithUser = props.postWithUser.map((p) => {
-      if (p.post.id === res.data.post.id) {
+    props.setPostWithUser((old) => {
+      const newPosts = old.map((p) => {
         return {
           post: new Post(
             res.data.post.id,
@@ -69,10 +55,9 @@ export const PostEditModal: FC<Props> = (props) => {
           user: p.user,
           countLike: p.countLike,
         };
-      }
-      return p;
+      });
+      return newPosts;
     });
-    props.setPostWithUser(newPostWithUser);
     setIsUpdating(false);
     props.handleClose();
   };

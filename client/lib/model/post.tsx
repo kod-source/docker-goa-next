@@ -1,3 +1,5 @@
+import { User } from './user';
+
 export class Post {
   constructor(
     public id: number,
@@ -13,4 +15,10 @@ export interface SelectPost {
   id: number;
   title: string;
   img?: string;
+}
+
+export interface PostWithUser {
+  post: Post;
+  user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+  countLike: number;
 }
