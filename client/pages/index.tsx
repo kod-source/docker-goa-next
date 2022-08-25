@@ -31,7 +31,6 @@ const Home: NextPage = () => {
     height: '',
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [selectPostID, setSelectPostID] = useState(0);
   const [isMyPost, setIsMyPost] = useState(false);
   const [showPostEditModal, setShowPostEditModal] = useState(false);
   const [selectPost, setSelectPost] = useState<SelectPost>({
@@ -180,14 +179,14 @@ const Home: NextPage = () => {
 
   const onDelete = async () => {
     try {
-      await axios.delete(`http://localhost:3000/posts/${selectPostID}`, {
+      await axios.delete(`http://localhost:3000/posts/${selectPost.id}`, {
         headers: {
           Authorization: `Bearer ${getToken()}`,
         },
       });
       setShowConfirmModal(false);
       setPostsWithUser(
-        postsWithUser?.filter((p) => p.post.id !== selectPostID)
+        postsWithUser?.filter((p) => p.post.id !== selectPost.id)
       );
     } catch (e) {
       if (e instanceof Error) {
@@ -270,7 +269,6 @@ const Home: NextPage = () => {
       width: String((currentWidth / window.innerWidth) * 100) + '%',
       height: String((currentHeight / window.innerHeight) * 100) + '%',
     });
-    setSelectPostID(p.post.id);
     setIsShowDetailModal(true);
     setIsMyPost(p.post.userId === user?.id);
     setSelectPost({
@@ -398,7 +396,6 @@ const Home: NextPage = () => {
           handleClose={() => setShowPostEditModal(false)}
           post={selectPost}
           setPost={setSelectPost}
-          postWithUser={postsWithUser}
           setPostWithUser={setPostsWithUser}
         />
       )}
