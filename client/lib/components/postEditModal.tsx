@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Post, SelectPost } from '../model/post';
 import axios from 'axios';
 import { User } from '../model/user';
+import { getToken } from '../token';
 
 interface Props {
   open: boolean;
@@ -15,12 +16,14 @@ interface Props {
   postWithUser: {
     post: Post;
     user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+    countLike: number;
   }[];
   setPostWithUser: React.Dispatch<
     React.SetStateAction<
       | {
           post: Post;
           user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+          countLike: number;
         }[]
     >
   >;
@@ -43,14 +46,12 @@ export const PostEditModal: FC<Props> = (props) => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsUpdating(true);
-    const token = localStorage.getItem('token');
-    if (!token) return;
     const res = await axios.put(
       `http://localhost:3000/posts/${props.post.id}`,
       { title: props.post.title, img: props.post.img },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${getToken()}`,
         },
       }
     );
@@ -66,6 +67,7 @@ export const PostEditModal: FC<Props> = (props) => {
             res.data.post.img
           ),
           user: p.user,
+          countLike: p.countLike,
         };
       }
       return p;
