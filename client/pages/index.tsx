@@ -91,7 +91,7 @@ const Home: NextPage = () => {
         Authorization: `Bearer ${getToken()}`,
       },
     });
-    setMyLikePostIds(res.data);
+    setMyLikePostIds(res.data === null ? [] : res.data);
   };
 
   useEffect(() => {
