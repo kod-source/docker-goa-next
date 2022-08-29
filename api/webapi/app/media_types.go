@@ -141,6 +141,8 @@ func (mt *PostAllLimit) Validate() (err error) {
 type PostAndUserAndCountLikeJSON struct {
 	// ユーザー名
 	Avatar *string `form:"avatar,omitempty" json:"avatar,omitempty" yaml:"avatar,omitempty" xml:"avatar,omitempty"`
+	// コメント数
+	CountComment int `form:"count_comment" json:"count_comment" yaml:"count_comment" xml:"count_comment"`
 	// いいね数
 	CountLike int `form:"count_like" json:"count_like" yaml:"count_like" xml:"count_like"`
 	// post value

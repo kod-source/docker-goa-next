@@ -232,6 +232,7 @@ definitions:
       next_token: Voluptatem et voluptatum aliquid at.
       show_posts:
       - avatar: data:image/jpg
+        count_comment: 10
         count_like: 10
         post:
           created_at: "2019-01-31T00:00:00+09:00"
@@ -256,6 +257,7 @@ definitions:
     description: 投稿といいね数 (default view)
     example:
       avatar: data:image/jpg
+      count_comment: 10
       count_like: 10
       post:
         created_at: "2019-01-31T00:00:00+09:00"
@@ -270,6 +272,11 @@ definitions:
         description: ユーザー名
         example: data:image/jpg
         type: string
+      count_comment:
+        description: コメント数
+        example: 10
+        format: int64
+        type: integer
       count_like:
         description: いいね数
         example: 10
@@ -285,6 +292,7 @@ definitions:
     - post
     - user_name
     - count_like
+    - count_comment
     title: 'Mediatype identifier: application/vnd.post_and_user_and_count_like_json;
       view=default'
     type: object
@@ -293,6 +301,7 @@ definitions:
       an array of Post_and_user_and_count_like_json (default view)
     example:
     - avatar: data:image/jpg
+      count_comment: 10
       count_like: 10
       post:
         created_at: "2019-01-31T00:00:00+09:00"
