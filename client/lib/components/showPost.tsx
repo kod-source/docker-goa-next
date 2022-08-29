@@ -65,7 +65,6 @@ export const ShowPost: FC<Props> = ({
       }
     }
   };
-  console.log(comments);
 
   return (
     <>
@@ -151,6 +150,7 @@ export const ShowPost: FC<Props> = ({
         handleClose={() => setIsShowPostModal(false)}
         postWithUser={postWithUser}
         comments={comments}
+        setComments={setComments}
       />
     </>
   );
