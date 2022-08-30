@@ -120,10 +120,11 @@ func (c *commentInteractor) Update(ctx context.Context, id int, text string, img
 		return nil, err
 	}
 	err = tx.QueryRow(
-		"SELECT `id`, `post_id`, `text`, `img`, `created_at`, `updated_at` FROM `comments` WHERE `id` = ?", id,
+		"SELECT `id`, `post_id`, `user_id`, `text`, `img`, `created_at`, `updated_at` FROM `comments` WHERE `id` = ?", id,
 	).Scan(
 		&comment.ID,
 		&comment.PostID,
+		&comment.UserID,
 		&comment.Text,
 		&comment.Img,
 		&comment.CreatedAt,
