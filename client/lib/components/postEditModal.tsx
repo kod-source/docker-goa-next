@@ -54,6 +54,7 @@ export const PostEditModal: FC<Props> = (props) => {
           ),
           user: p.user,
           countLike: p.countLike,
+          countComment: p.countComment,
         };
       });
       return newPosts;

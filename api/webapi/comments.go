@@ -8,6 +8,7 @@ import (
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
+	"github.com/shogo82148/pointer"
 )
 
 // CommentsController implements the comments resource.
@@ -23,20 +24,28 @@ func NewCommentsController(service *goa.Service, cu usecase.CommentUsecase) *Com
 
 // CreateComment runs the create_comment action.
 func (c *CommentsController) CreateComment(ctx *app.CreateCommentCommentsContext) error {
-	comment, err := c.cu.Create(ctx, ctx.Payload.PostID, ctx.Payload.Text, ctx.Payload.Img)
+	cu, err := c.cu.Create(ctx, ctx.Payload.PostID, getUserIDCode(ctx), ctx.Payload.Text, ctx.Payload.Img)
 	if err != nil {
 		if err == myerrors.BadRequestStingError {
 			return ctx.BadRequest()
 		}
 		return ctx.InternalServerError()
 	}
-	return ctx.Created(&app.CommentJSON{
-		ID:        *comment.ID,
-		PostID:    *comment.PostID,
-		Text:      *comment.Text,
-		Img:       comment.Img,
-		CreatedAt: comment.CreatedAt,
-		UpdatedAt: comment.UpdatedAt,
+	return ctx.Created(&app.CommentWithUserJSON{
+		Comment: &app.CommentJSON{
+			ID:        pointer.IntValue(cu.Comment.ID),
+			PostID:    pointer.IntValue(cu.Comment.PostID),
+			UserID:    pointer.IntValue(cu.Comment.UserID),
+			Img:       cu.Comment.Img,
+			Text:      pointer.StringValue(cu.Comment.Text),
+			CreatedAt: cu.Comment.CreatedAt,
+			UpdatedAt: cu.Comment.UpdatedAt,
+		},
+		User: &app.User{
+			ID:     cu.User.ID,
+			Name:   &cu.User.Name,
+			Avatar: cu.User.Avatar,
+		},
 	})
 }
 
@@ -65,6 +74,7 @@ func (c *CommentsController) UpdateComment(ctx *app.UpdateCommentCommentsContext
 		ID:        *comment.ID,
 		Img:       comment.Img,
 		PostID:    *comment.PostID,
+		UserID:    *comment.UserID,
 		Text:      *comment.Text,
 		UpdatedAt: comment.UpdatedAt,
 	})

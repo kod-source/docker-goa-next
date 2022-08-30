@@ -286,9 +286,9 @@ func (payload *CreateCommentCommentsPayload) Validate() (err error) {
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *CreateCommentCommentsContext) Created(r *CommentJSON) error {
+func (ctx *CreateCommentCommentsContext) Created(r *CommentWithUserJSON) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.comment_json")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.comment_with_user_json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }

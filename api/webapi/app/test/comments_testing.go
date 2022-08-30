@@ -99,7 +99,7 @@ func CreateCommentCommentsBadRequest(t testing.TB, ctx context.Context, service 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateCommentCommentsCreated(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.CommentsController, payload *app.CreateCommentCommentsPayload) (http.ResponseWriter, *app.CommentJSON) {
+func CreateCommentCommentsCreated(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.CommentsController, payload *app.CreateCommentCommentsPayload) (http.ResponseWriter, *app.CommentWithUserJSON) {
 	t.Helper()
 
 	// Setup service
@@ -164,12 +164,12 @@ func CreateCommentCommentsCreated(t testing.TB, ctx context.Context, service *go
 	if rw.Code != 201 {
 		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
 	}
-	var mt *app.CommentJSON
+	var mt *app.CommentWithUserJSON
 	if resp != nil {
 		var __ok bool
-		mt, __ok = resp.(*app.CommentJSON)
+		mt, __ok = resp.(*app.CommentWithUserJSON)
 		if !__ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.CommentJSON", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.CommentWithUserJSON", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {
