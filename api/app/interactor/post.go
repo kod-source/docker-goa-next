@@ -311,13 +311,13 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 			FROM likes
 			GROUP BY post_id
 		) as l
+		ON p.id = l.post_id
 		LEFT JOIN (
 			SELECT post_id, COUNT(id) as COUNT
 			FROM comments
 			GROUP BY post_id
 		) as c
 		ON p.id = c.post_id
-		ON p.id = l.post_id
 		ORDER BY p.created_at DESC
 		LIMIT ?, ?
 	`, userID, nextID, limitNumber)
