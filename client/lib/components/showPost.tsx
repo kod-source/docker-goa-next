@@ -31,42 +31,7 @@ export const ShowPost: FC<Props> = ({
   clickLikeButton,
   onClickDetail,
 }) => {
-  const [comments, setComments] = useState<Comment[]>([]);
   const [isShowPostModal, setIsShowPostModal] = useState(false);
-
-  const clickCommentButton = async (postId: number) => {
-    try {
-      const res = await axios.get(`http://localhost:3000/comments/${postId}`, {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      });
-      setComments(() => {
-        const newComments = res.data.map((d: any) => {
-          const comment = new Comment(
-            d.id,
-            d.post_id,
-            d.text,
-            d.created_at,
-            d.updated_at,
-            d.img
-          );
-          return comment;
-        });
-        return [...newComments];
-      });
-      setIsShowPostModal(true);
-    } catch (e) {
-      if (isAxiosError(e)) {
-        const myAxiosError = e.response;
-        if (myAxiosError?.status === 404) {
-          setIsShowPostModal(true);
-          return;
-        }
-        return alert(myAxiosError?.statusText);
-      }
-    }
-  };
 
   return (
     <>
@@ -124,7 +89,7 @@ export const ShowPost: FC<Props> = ({
         <div className='flex justify-start'>
           <div
             className='cursor-pointer mr-20 hover:opacity-60'
-            onClick={() => clickCommentButton(postWithUser.post.id)}
+            onClick={() => setIsShowPostModal(true)}
           >
             <CommentIcon className='mr-3' />
             {postWithUser.countComment}
@@ -148,14 +113,14 @@ export const ShowPost: FC<Props> = ({
           </div>
         </div>
       </div>
-      <PostModal
-        open={isShowPostModal}
-        handleClose={() => setIsShowPostModal(false)}
-        postWithUser={postWithUser}
-        setPostsWithUser={setPostsWithUser}
-        comments={comments}
-        setComments={setComments}
-      />
+      {isShowPostModal && (
+        <PostModal
+          open={isShowPostModal}
+          handleClose={() => setIsShowPostModal(false)}
+          postWithUser={postWithUser}
+          setPostsWithUser={setPostsWithUser}
+        />
+      )}
     </>
   );
 };
