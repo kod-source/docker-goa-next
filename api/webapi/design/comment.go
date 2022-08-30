@@ -26,7 +26,7 @@ var _ = Resource("comments", func() {
 			})
 			Required("post_id", "text")
 		})
-		Response(Created, comment)
+		Response(Created, comment_with_user)
 		Response(BadRequest)
 		Response(InternalServerError)
 	})
@@ -82,6 +82,9 @@ var comment = MediaType("application/vnd.comment_json", func() {
 	Attribute("post_id", Integer, "投稿ID", func() {
 		Example(1)
 	})
+	Attribute("user_id", Integer, "ユーザーID", func() {
+		Example(1)
+	})
 	Attribute("text", String, "コメント", func() {
 		Example("やっほー")
 	})
@@ -97,10 +100,22 @@ var comment = MediaType("application/vnd.comment_json", func() {
 	View("default", func() {
 		Attribute("id")
 		Attribute("post_id")
+		Attribute("user_id")
 		Attribute("text")
 		Attribute("img")
 		Attribute("created_at")
 		Attribute("updated_at")
 	})
-	Required("id", "post_id", "text")
+	Required("id", "post_id", "user_id", "text")
+})
+
+var comment_with_user = MediaType("application/vnd.comment_with_user_json", func() {
+	Description("コメントとユーザーの情報")
+	Attribute("comment", comment, "コメント")
+	Attribute("user", user, "ユーザー")
+	View("default", func() {
+		Attribute("comment")
+		Attribute("user")
+	})
+	Required("comment", "user")
 })

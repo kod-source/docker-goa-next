@@ -28,6 +28,8 @@ type CommentJSON struct {
 	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
 	// 更新日
 	UpdatedAt *time.Time `form:"updated_at,omitempty" json:"updated_at,omitempty" yaml:"updated_at,omitempty" xml:"updated_at,omitempty"`
+	// ユーザーID
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
 }
 
 // Validate validates the CommentJSON media type instance.
@@ -48,6 +50,37 @@ func (mt CommentJSONCollection) Validate() (err error) {
 			if err2 := e.Validate(); err2 != nil {
 				err = goa.MergeErrors(err, err2)
 			}
+		}
+	}
+	return
+}
+
+// コメントとユーザーの情報 (default view)
+//
+// Identifier: application/vnd.comment_with_user_json; view=default
+type CommentWithUserJSON struct {
+	// コメント
+	Comment *CommentJSON `form:"comment" json:"comment" yaml:"comment" xml:"comment"`
+	// ユーザー
+	User *User `form:"user" json:"user" yaml:"user" xml:"user"`
+}
+
+// Validate validates the CommentWithUserJSON media type instance.
+func (mt *CommentWithUserJSON) Validate() (err error) {
+	if mt.Comment == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "comment"))
+	}
+	if mt.User == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "user"))
+	}
+	if mt.Comment != nil {
+		if err2 := mt.Comment.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if mt.User != nil {
+		if err2 := mt.User.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
