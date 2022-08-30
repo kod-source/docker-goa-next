@@ -386,12 +386,12 @@ func NewShowCommentCommentsContext(ctx context.Context, r *http.Request, service
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ShowCommentCommentsContext) OK(r CommentJSONCollection) error {
+func (ctx *ShowCommentCommentsContext) OK(r CommentWithUserJSONCollection) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.comment_json; type=collection")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.comment_with_user_json; type=collection")
 	}
 	if r == nil {
-		r = CommentJSONCollection{}
+		r = CommentWithUserJSONCollection{}
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }

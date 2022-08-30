@@ -568,7 +568,7 @@ func ShowCommentCommentsNotFound(t testing.TB, ctx context.Context, service *goa
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowCommentCommentsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.CommentsController, id int) (http.ResponseWriter, app.CommentJSONCollection) {
+func ShowCommentCommentsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.CommentsController, id int) (http.ResponseWriter, app.CommentWithUserJSONCollection) {
 	t.Helper()
 
 	// Setup service
@@ -622,12 +622,12 @@ func ShowCommentCommentsOK(t testing.TB, ctx context.Context, service *goa.Servi
 	if rw.Code != 200 {
 		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
-	var mt app.CommentJSONCollection
+	var mt app.CommentWithUserJSONCollection
 	if resp != nil {
 		var _ok bool
-		mt, _ok = resp.(app.CommentJSONCollection)
+		mt, _ok = resp.(app.CommentWithUserJSONCollection)
 		if !_ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.CommentJSONCollection", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.CommentWithUserJSONCollection", resp, resp)
 		}
 		err = mt.Validate()
 		if err != nil {

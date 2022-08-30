@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/kod-source/docker-goa-next/app/interactor"
 	"github.com/kod-source/docker-goa-next/app/model"
@@ -11,7 +10,7 @@ import (
 
 type CommentUsecase interface {
 	Create(ctx context.Context, postID, userID int, text string, img *string) (*model.CommentWithUser, error)
-	ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error)
+	ShowByPostID(ctx context.Context, postID int) ([]*model.CommentWithUser, error)
 	Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error)
 	Delete(ctx context.Context, id int) error
 }
@@ -30,19 +29,17 @@ func (c *commentUsecase) Create(ctx context.Context, postID, userID int, text st
 	}
 	cu, err := c.ci.Create(ctx, postID, userID, text, img)
 	if err != nil {
-		fmt.Println("エラー")
-		fmt.Println(err)
 		return nil, err
 	}
 	return cu, nil
 }
 
-func (c *commentUsecase) ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error) {
-	comments, err := c.ci.ShowByPostID(ctx, postID)
+func (c *commentUsecase) ShowByPostID(ctx context.Context, postID int) ([]*model.CommentWithUser, error) {
+	cus, err := c.ci.ShowByPostID(ctx, postID)
 	if err != nil {
 		return nil, err
 	}
-	return comments, nil
+	return cus, nil
 }
 
 func (c *commentUsecase) Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error) {

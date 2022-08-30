@@ -37,7 +37,7 @@ var _ = Resource("comments", func() {
 		Params(func() {
 			Param("id", Integer, "ID")
 		})
-		Response(OK, CollectionOf(comment))
+		Response(OK, CollectionOf(comment_with_user))
 		Response(NotFound)
 		Response(InternalServerError)
 	})
