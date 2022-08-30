@@ -21,4 +21,5 @@ export interface PostWithUser {
   post: Post;
   user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
   countLike: number;
+  countComment: number;
 }

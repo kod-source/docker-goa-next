@@ -15,6 +15,7 @@ import { isAxiosError, MyAxiosError } from '../axios';
 
 interface Props {
   postWithUser: PostWithUser;
+  setPostsWithUser: React.Dispatch<React.SetStateAction<PostWithUser[]>>;
   myLikePostIds: number[];
   clickLikeButton: (postId: number) => Promise<void>;
   onClickDetail: (
@@ -25,6 +26,7 @@ interface Props {
 
 export const ShowPost: FC<Props> = ({
   postWithUser,
+  setPostsWithUser,
   myLikePostIds,
   clickLikeButton,
   onClickDetail,
@@ -124,7 +126,8 @@ export const ShowPost: FC<Props> = ({
             className='cursor-pointer mr-20 hover:opacity-60'
             onClick={() => clickCommentButton(postWithUser.post.id)}
           >
-            <CommentIcon />
+            <CommentIcon className='mr-3' />
+            {postWithUser.countComment}
           </div>
           <div
             className='cursor-pointer mx-20 hover:opacity-60'
@@ -149,6 +152,7 @@ export const ShowPost: FC<Props> = ({
         open={isShowPostModal}
         handleClose={() => setIsShowPostModal(false)}
         postWithUser={postWithUser}
+        setPostsWithUser={setPostsWithUser}
         comments={comments}
         setComments={setComments}
       />

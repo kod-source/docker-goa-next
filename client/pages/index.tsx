@@ -72,6 +72,7 @@ const Home: NextPage = () => {
         post: post,
         user: { name: d.user_name, avatar: d.avatar },
         countLike: d.count_like,
+        countComment: d.count_comment,
       });
     });
     const nextT: string | null = res.data.next_token;
@@ -162,6 +163,7 @@ const Home: NextPage = () => {
             post: post,
             user: { name: d.user_name, avatar: d.avatar },
             countLike: 0,
+            countComment: 0,
           },
           ...old,
         ];
@@ -216,6 +218,7 @@ const Home: NextPage = () => {
                 post: o.post,
                 user: o.user,
                 countLike: o.countLike - 1,
+                countComment: o.countComment,
               };
             }
             return o;
@@ -245,6 +248,7 @@ const Home: NextPage = () => {
                 post: o.post,
                 user: o.user,
                 countLike: o.countLike + 1,
+                countComment: o.countComment,
               };
             }
             return o;
@@ -354,6 +358,7 @@ const Home: NextPage = () => {
           <ShowPost
             key={p.post.id}
             postWithUser={p}
+            setPostsWithUser={setPostsWithUser}
             myLikePostIds={myLikePostIds}
             clickLikeButton={clickLikeButton}
             onClickDetail={onClickDetail}

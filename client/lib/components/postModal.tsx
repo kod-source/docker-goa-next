@@ -13,6 +13,7 @@ interface Props {
   open: boolean;
   handleClose: () => void;
   postWithUser: PostWithUser;
+  setPostsWithUser: React.Dispatch<React.SetStateAction<PostWithUser[]>>;
   comments: Comment[];
   setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
 }
@@ -21,6 +22,7 @@ export const PostModal: FC<Props> = ({
   open,
   handleClose,
   postWithUser,
+  setPostsWithUser,
   comments,
   setComments,
 }) => {
@@ -68,6 +70,20 @@ export const PostModal: FC<Props> = ({
         res.data.img
       );
       return [...old, newComment];
+    });
+    setPostsWithUser((old) => {
+      const newPosts = old.map((p) => {
+        if (p.post.id === postId) {
+          return {
+            post: p.post,
+            user: p.user,
+            countLike: p.countLike,
+            countComment: p.countComment + 1,
+          };
+        }
+        return p;
+      });
+      return newPosts;
     });
     setIsLoading(false);
   };
