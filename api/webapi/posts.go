@@ -137,9 +137,10 @@ func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPostWithCountL
 				CreatedAt: &ip.IndexPost.Post.CreatedAt,
 				UpdatedAt: &ip.IndexPost.Post.UpdatedAt,
 			},
-			UserName:  ip.IndexPost.User.Name,
-			Avatar:    ip.IndexPost.User.Avatar,
-			CountLike: ip.CountLike,
+			UserName:     ip.IndexPost.User.Name,
+			Avatar:       ip.IndexPost.User.Avatar,
+			CountLike:    ip.CountLike,
+			CountComment: ip.CountComment,
 		})
 	}
 

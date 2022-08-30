@@ -189,11 +189,15 @@ var post_and_user_and_count_like = MediaType("application/vnd.post_and_user_and_
 	Attribute("count_like", Integer, "いいね数", func() {
 		Example(10)
 	})
+	Attribute("count_comment", Integer, "コメント数", func() {
+		Example(10)
+	})
 	View("default", func() {
 		Attribute("post")
 		Attribute("user_name")
 		Attribute("avatar")
 		Attribute("count_like")
+		Attribute("count_comment")
 	})
-	Required("post", "user_name", "count_like")
+	Required("post", "user_name", "count_like", "count_comment")
 })

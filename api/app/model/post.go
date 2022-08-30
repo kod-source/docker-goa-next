@@ -25,4 +25,5 @@ type ShowPost struct {
 type IndexPostWithCountLike struct {
 	IndexPost IndexPost
 	CountLike int
+	CountComment int
 }

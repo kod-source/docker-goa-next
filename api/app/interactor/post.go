@@ -81,7 +81,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	rows, err := p.db.Query(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
 		FROM posts as p
 		INNER JOIN users as u
 		ON p.user_id = u.id
@@ -91,6 +91,12 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 			GROUP BY post_id
 		) as l
 		ON p.id = l.post_id
+		LEFT JOIN (
+			SELECT post_id, COUNT(id) as COUNT
+			FROM comments
+			GROUP BY post_id
+		) as c
+		ON p.id = c.post_id
 		ORDER BY p.created_at DESC
 		LIMIT ?, ?
 	`, nextID, limitNumber)
@@ -103,6 +109,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 		var post model.Post
 		var user model.User
 		var countLike *int
+		var countComment *int
 
 		err := rows.Scan(
 			&post.ID,
@@ -114,6 +121,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 			&user.Name,
 			&user.Avatar,
 			&countLike,
+			&countComment,
 		)
 		if err != nil {
 			return nil, nil, err
@@ -134,7 +142,8 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 					Avatar: user.Avatar,
 				},
 			},
-			CountLike: pointer.IntValue(countLike),
+			CountLike:    pointer.IntValue(countLike),
+			CountComment: pointer.IntValue(countComment),
 		})
 	}
 
@@ -287,7 +296,7 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	rows, err := p.db.Query(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
 		FROM posts as p
 		INNER JOIN (
 			SELECT post_id
@@ -303,6 +312,12 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 			GROUP BY post_id
 		) as l
 		ON p.id = l.post_id
+		LEFT JOIN (
+			SELECT post_id, COUNT(id) as COUNT
+			FROM comments
+			GROUP BY post_id
+		) as c
+		ON p.id = c.post_id
 		ORDER BY p.created_at DESC
 		LIMIT ?, ?
 	`, userID, nextID, limitNumber)
@@ -315,6 +330,7 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 		var post model.Post
 		var user model.User
 		var countLike *int
+		var countComment *int
 
 		err := rows.Scan(
 			&post.ID,
@@ -326,6 +342,7 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 			&user.Name,
 			&user.Avatar,
 			&countLike,
+			&countComment,
 		)
 		if err != nil {
 			return nil, nil, err
@@ -346,7 +363,8 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 					Avatar: user.Avatar,
 				},
 			},
-			CountLike: pointer.IntValue(countLike),
+			CountLike:    pointer.IntValue(countLike),
+			CountComment: pointer.IntValue(countComment),
 		})
 	}
 
