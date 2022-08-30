@@ -86,6 +86,23 @@ func (mt *CommentWithUserJSON) Validate() (err error) {
 	return
 }
 
+// Comment_with_user_jsonCollection is the media type for an array of Comment_with_user_json (default view)
+//
+// Identifier: application/vnd.comment_with_user_json; type=collection; view=default
+type CommentWithUserJSONCollection []*CommentWithUserJSON
+
+// Validate validates the CommentWithUserJSONCollection media type instance.
+func (mt CommentWithUserJSONCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
 // 投稿 (default view)
 //
 // Identifier: application/vnd.index_post_json; view=default

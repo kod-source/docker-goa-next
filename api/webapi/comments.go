@@ -91,17 +91,27 @@ func (c *CommentsController) DeleteComment(ctx *app.DeleteCommentCommentsContext
 	return ctx.OK(nil)
 }
 
-func (c *CommentsController) ToCommentJSONCollection(comments []*model.Comment) app.CommentJSONCollection {
-	var cs app.CommentJSONCollection
-	for _, c := range comments {
-		cs = append(cs, &app.CommentJSON{
-			ID:        *c.ID,
-			PostID:    *c.PostID,
-			Img:       c.Img,
-			Text:      *c.Text,
-			CreatedAt: c.CreatedAt,
-			UpdatedAt: c.UpdatedAt,
+func (c *CommentsController) ToCommentJSONCollection(comments_with_user []*model.CommentWithUser) app.CommentWithUserJSONCollection {
+	cus := make(app.CommentWithUserJSONCollection, 0, len(comments_with_user))
+	for _, cu := range comments_with_user {
+		cus = append(cus, &app.CommentWithUserJSON{
+			Comment: &app.CommentJSON{
+				ID:        pointer.IntValue(cu.Comment.ID),
+				PostID:    pointer.IntValue(cu.Comment.PostID),
+				UserID:    pointer.IntValue(cu.Comment.UserID),
+				Text:      pointer.StringValue(cu.Comment.Text),
+				Img:       cu.Comment.Img,
+				CreatedAt: cu.Comment.CreatedAt,
+				UpdatedAt: cu.Comment.UpdatedAt,
+			},
+			User: &app.User{
+				ID:        cu.User.ID,
+				Name:      &cu.User.Name,
+				Email:     &cu.User.Email,
+				Avatar:    cu.User.Avatar,
+				CreatedAt: &cu.User.CreatedAt,
+			},
 		})
 	}
-	return cs
+	return cus
 }

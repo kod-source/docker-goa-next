@@ -10,7 +10,7 @@ import (
 
 type CommentInteractor interface {
 	Create(ctx context.Context, postID, userID int, text string, img *string) (*model.CommentWithUser, error)
-	ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error)
+	ShowByPostID(ctx context.Context, postID int) ([]*model.CommentWithUser, error)
 	Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error)
 	Delete(ctx context.Context, id int) error
 }
@@ -71,37 +71,45 @@ func (c *commentInteractor) Create(ctx context.Context, postID, userID int, text
 	return &commentWithUser, tx.Commit()
 }
 
-func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*model.Comment, error) {
-	var comments []*model.Comment
-	rows, err := c.db.Query(
-		"SELECT `id`, `post_id`, `text`, `img`, `created_at`, `updated_at` FROM comments WHERE post_id = ?", postID,
-	)
+func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*model.CommentWithUser, error) {
+	var commentsWithUsers []*model.CommentWithUser
+	rows, err := c.db.Query(`
+		SELECT c.id, c.post_id, c.user_id, c.text, c.img, c.created_at, c.updated_at, u.id, u.name, u.avatar
+		FROM comments as c
+		INNER JOIN users as u
+		ON c.user_id = u.id
+		WHERE c.post_id = ?
+	`, postID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var comment model.Comment
+		var commentWithUser model.CommentWithUser
 
 		err := rows.Scan(
-			&comment.ID,
-			&comment.PostID,
-			&comment.Text,
-			&comment.Img,
-			&comment.CreatedAt,
-			&comment.UpdatedAt,
+			&commentWithUser.Comment.ID,
+			&commentWithUser.Comment.PostID,
+			&commentWithUser.Comment.UserID,
+			&commentWithUser.Comment.Text,
+			&commentWithUser.Comment.Img,
+			&commentWithUser.Comment.CreatedAt,
+			&commentWithUser.Comment.UpdatedAt,
+			&commentWithUser.User.ID,
+			&commentWithUser.User.Name,
+			&commentWithUser.User.Avatar,
 		)
 		if err != nil {
 			return nil, err
 		}
-		comments = append(comments, &comment)
+		commentsWithUsers = append(commentsWithUsers, &commentWithUser)
 	}
-	if len(comments) == 0 {
+	if len(commentsWithUsers) == 0 {
 		return nil, sql.ErrNoRows
 	}
 
-	return comments, nil
+	return commentsWithUsers, nil
 }
 
 func (c *commentInteractor) Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error) {
