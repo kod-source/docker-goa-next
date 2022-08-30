@@ -1,21 +1,21 @@
-import React, { FC, FormEvent, useState } from 'react';
+import React, { FC, FormEvent, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import { Avatar, Button, Modal, Typography } from '@mui/material';
 import { PostWithUser } from '../model/post';
-import { Comment } from '../model/comment';
+import { Comment, CommentWithUser } from '../model/comment';
 import Image from 'next/image';
 import { toStringlinefeed } from '../text';
 import { DateTime } from 'luxon';
 import axios from 'axios';
 import { getToken } from '../token';
+import { Loading } from './loading';
+import { isAxiosError } from '../axios';
 
 interface Props {
   open: boolean;
   handleClose: () => void;
   postWithUser: PostWithUser;
   setPostsWithUser: React.Dispatch<React.SetStateAction<PostWithUser[]>>;
-  comments: Comment[];
-  setComments: React.Dispatch<React.SetStateAction<Comment[]>>;
 }
 
 export const PostModal: FC<Props> = ({
@@ -23,8 +23,6 @@ export const PostModal: FC<Props> = ({
   handleClose,
   postWithUser,
   setPostsWithUser,
-  comments,
-  setComments,
 }) => {
   const style = {
     position: 'absolute' as 'absolute',
@@ -32,15 +30,61 @@ export const PostModal: FC<Props> = ({
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 800,
+    height: 1000,
     bgcolor: '#222222',
     border: '2px solid #000',
     boxShadow: 24,
     p: 4,
   };
 
-  const [comment, setComment] = useState('');
+  const [commentsWithUser, setCommentsWithUser] = useState<CommentWithUser[]>();
+  const [text, setText] = useState('');
   const [imagePath, setImagePath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:3000/comments/${postWithUser.post.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      setCommentsWithUser(() => {
+        const newCommentsWithUserr = res.data.map((d: any) => {
+          const comment = new Comment(
+            d.comment.id,
+            d.comment.post_id,
+            d.comment.user_id,
+            d.comment.text,
+            new Date(d.comment.created_at),
+            new Date(d.comment.updated_at),
+            d.comment.img
+          );
+          return {
+            comment: comment,
+            user: { id: d.user.id, name: d.user.name, avatar: d.user.avatar },
+          };
+        });
+        return [...newCommentsWithUserr];
+      });
+    } catch (e) {
+      if (isAxiosError(e)) {
+        const myAxiosError = e.response;
+        if (myAxiosError?.status === 404) {
+          setCommentsWithUser([]);
+          return;
+        }
+        return alert(myAxiosError?.statusText);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>, postId: number) => {
     setIsLoading(true);
@@ -49,7 +93,7 @@ export const PostModal: FC<Props> = ({
       'http://localhost:3000/comments',
       {
         post_id: postId,
-        text: comment,
+        text: text,
         img: imagePath,
       },
       {
@@ -58,18 +102,27 @@ export const PostModal: FC<Props> = ({
         },
       }
     );
-    setComment('');
+    setText('');
     setImagePath('');
-    setComments((old) => {
-      const newComment = new Comment(
-        res.data.id,
-        res.data.post_id,
-        res.data.text,
-        res.data.created_at,
-        res.data.updated_at,
-        res.data.img
-      );
-      return [...old, newComment];
+    setCommentsWithUser((old) => {
+      const newCommentWithUserr: CommentWithUser = {
+        comment: new Comment(
+          res.data.comment.id,
+          res.data.comment.post_id,
+          res.data.comment.user_id,
+          res.data.comment.text,
+          new Date(res.data.comment.created_at),
+          new Date(res.data.comment.updated_at),
+          res.data.comment.img
+        ),
+        user: {
+          id: res.data.user.id,
+          name: res.data.user.name,
+          avatar: res.data.user.avatar,
+        },
+      };
+      if (!old) return [newCommentWithUserr];
+      return [...old, newCommentWithUserr];
     });
     setPostsWithUser((old) => {
       const newPosts = old.map((p) => {
@@ -106,7 +159,7 @@ export const PostModal: FC<Props> = ({
       aria-labelledby='modal-modal-title'
       aria-describedby='modal-modal-description'
     >
-      <Box sx={style}>
+      <Box sx={style} className='overflow-scroll'>
         <div className='my-2 border border-slate-600 p-5 rounded-md'>
           <div className='flex'>
             <Avatar
@@ -159,8 +212,8 @@ export const PostModal: FC<Props> = ({
                   className='w-96'
                   autoFocus
                   required
-                  value={comment}
-                  onChange={(e) => setComment(e.target.value)}
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
                 />
               </label>
             </div>
@@ -197,24 +250,65 @@ export const PostModal: FC<Props> = ({
             </div>
           </form>
         </div>
-        <div>
-          {comments.map((c) => (
-            <div
-              key={c.id}
-              className='my-2 border border-slate-600 p-5 rounded-md'
-            >
-              <p>{toStringlinefeed(c.text)}</p>
-              {c.img && (
-                <Image
-                  src={c.img}
-                  width={500}
-                  height={500}
-                  alt={postWithUser.post.title + 'picture'}
-                />
-              )}
-            </div>
-          ))}
-        </div>
+        {commentsWithUser ? (
+          <div>
+            {commentsWithUser.map((cu) => (
+              <div
+                key={cu.comment.id}
+                className='my-2 border border-slate-600 p-5 rounded-md'
+              >
+                <div className='flex justify-center'>
+                  <Avatar
+                    sx={{ width: 80, height: 80 }}
+                    alt='投稿者'
+                    src={cu.user.avatar ? cu.user.avatar : '/avatar.png'}
+                  />
+                  <div className='pt-5 mx-3'>
+                    <p>{cu.user.name}</p>
+                    <div className='flex'>
+                      <p>
+                        投稿日：
+                        {DateTime.fromJSDate(cu.comment.createdAt).toFormat(
+                          'yyyy年MM月dd日'
+                        )}
+                      </p>
+                      {cu.comment.createdAt.getTime() !==
+                        cu.comment.updatedAt.getTime() && (
+                        <p className='mx-5'>
+                          更新日：
+                          {DateTime.fromJSDate(cu.comment.updatedAt).toFormat(
+                            'yyyy年MM月dd日'
+                          )}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className='ml-auto'>
+                    <Button
+                      className='text-white'
+                      // onClick={(e) => onClickDetail(e, postWithUser)}
+                    >
+                      :
+                    </Button>
+                  </div>
+                </div>
+                <div>
+                  <p>{toStringlinefeed(cu.comment.text)}</p>
+                  {cu.comment.img && (
+                    <Image
+                      src={cu.comment.img}
+                      width={500}
+                      height={500}
+                      alt={postWithUser.post.title + 'picture'}
+                    />
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <Loading />
+        )}
       </Box>
     </Modal>
   );
