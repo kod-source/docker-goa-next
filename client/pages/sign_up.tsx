@@ -19,6 +19,7 @@ import { AppContext } from './_app';
 import { User } from '../lib/model/user';
 import Avatar from '@mui/material/Avatar';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
+import { getEndPoint } from '../lib/token';
 
 function Copyright(props: any) {
   return (
@@ -50,7 +51,7 @@ const SignUp: NextPage = () => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:3000/sign_up', {
+      const res = await axios.post(`${getEndPoint()}/sign_up`, {
         name: name,
         email: email,
         password: password,

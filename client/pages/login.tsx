@@ -19,6 +19,7 @@ import {
   Avatar,
 } from '@mui/material';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
+import { getEndPoint } from '../lib/token';
 
 function Copyright(props: any) {
   return (
@@ -48,7 +49,7 @@ const Login: NextPage = () => {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:3000/login', {
+      const res = await axios.post(`${getEndPoint()}/login`, {
         email: email,
         password: password,
       });
