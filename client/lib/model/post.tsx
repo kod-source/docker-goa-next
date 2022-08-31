@@ -28,7 +28,7 @@ export interface PostWithUser {
 
 export interface ShowPost {
   post: Post;
-  user: Omit<User, 'id' | 'email' | 'password' | 'createdAt'>;
+  user: Omit<User, 'email' | 'password' | 'createdAt'>;
   likes: Like[];
   commentsWithUsers: CommentWithUser[];
 }
