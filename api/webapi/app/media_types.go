@@ -38,23 +38,6 @@ func (mt *CommentJSON) Validate() (err error) {
 	return
 }
 
-// Comment_jsonCollection is the media type for an array of Comment_json (default view)
-//
-// Identifier: application/vnd.comment_json; type=collection; view=default
-type CommentJSONCollection []*CommentJSON
-
-// Validate validates the CommentJSONCollection media type instance.
-func (mt CommentJSONCollection) Validate() (err error) {
-	for _, e := range mt {
-		if e != nil {
-			if err2 := e.Validate(); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	}
-	return
-}
-
 // コメントとユーザーの情報 (default view)
 //
 // Identifier: application/vnd.comment_with_user_json; view=default
@@ -312,7 +295,7 @@ func (mt *ServiceVerror) Validate() (err error) {
 // Identifier: application/vnd.show_post_json; view=default
 type ShowPostJSON struct {
 	// comments value
-	Comments CommentJSONCollection `form:"comments" json:"comments" yaml:"comments" xml:"comments"`
+	CommentsWithUsers CommentWithUserJSONCollection `form:"comments_with_users" json:"comments_with_users" yaml:"comments_with_users" xml:"comments_with_users"`
 	// likes value
 	Likes LikeJSONCollection `form:"likes" json:"likes" yaml:"likes" xml:"likes"`
 	// post value
@@ -329,13 +312,13 @@ func (mt *ShowPostJSON) Validate() (err error) {
 	if mt.User == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "user"))
 	}
-	if mt.Comments == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "comments"))
+	if mt.CommentsWithUsers == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "comments_with_users"))
 	}
 	if mt.Likes == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "likes"))
 	}
-	if err2 := mt.Comments.Validate(); err2 != nil {
+	if err2 := mt.CommentsWithUsers.Validate(); err2 != nil {
 		err = goa.MergeErrors(err, err2)
 	}
 	if err2 := mt.Likes.Validate(); err2 != nil {

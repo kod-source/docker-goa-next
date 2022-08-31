@@ -96,7 +96,7 @@ func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 	}
 
 	return ctx.OK(&app.ShowPostJSON{
-		Comments: c.toCommnetJson(sp.Comments),
+		CommentsWithUsers: c.toCommnetJson(sp.CommenstWithUsers),
 		Post: &app.PostJSON{
 			ID:        sp.IndexPost.Post.ID,
 			UserID:    sp.IndexPost.Post.UserID,
@@ -150,19 +150,27 @@ func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPostWithCountL
 	}
 }
 
-func (c *PostsController) toCommnetJson(comments []*model.Comment) app.CommentJSONCollection {
-	cs := make(app.CommentJSONCollection, 0, len(comments))
-	for _, c := range comments {
-		if c.ID == nil {
+func (c *PostsController) toCommnetJson(commentsWithUsers []*model.CommentWithUser) app.CommentWithUserJSONCollection {
+	cs := make(app.CommentWithUserJSONCollection, 0, len(commentsWithUsers))
+	for _, cu := range commentsWithUsers {
+		if cu.Comment.ID == nil {
 			return cs
 		}
-		cs = append(cs, &app.CommentJSON{
-			ID:        *c.ID,
-			PostID:    *c.PostID,
-			Text:      *c.Text,
-			Img:       c.Img,
-			CreatedAt: c.CreatedAt,
-			UpdatedAt: c.UpdatedAt,
+		cs = append(cs, &app.CommentWithUserJSON{
+			Comment: &app.CommentJSON{
+				ID:        pointer.IntValue(cu.Comment.ID),
+				PostID:    pointer.IntValue(cu.Comment.PostID),
+				UserID:    pointer.IntValue(cu.Comment.UserID),
+				Text:      pointer.StringValue(cu.Comment.Text),
+				Img:       cu.Comment.Img,
+				CreatedAt: cu.Comment.CreatedAt,
+				UpdatedAt: cu.Comment.UpdatedAt,
+			},
+			User: &app.User{
+				ID:     cu.User.ID,
+				Name:   &cu.User.Name,
+				Avatar: cu.User.Avatar,
+			},
 		})
 	}
 	return cs
