@@ -150,7 +150,7 @@ func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPostWithCountL
 	}
 }
 
-func (c *PostsController) toCommnetJson(commentsWithUsers []*model.CommentWithUser) app.CommentWithUserJSONCollection {
+func (c *PostsController) toCommnetJson(commentsWithUsers []*model.ShowCommentWithUser) app.CommentWithUserJSONCollection {
 	cs := make(app.CommentWithUserJSONCollection, 0, len(commentsWithUsers))
 	for _, cu := range commentsWithUsers {
 		if cu.Comment.ID == nil {
@@ -167,8 +167,8 @@ func (c *PostsController) toCommnetJson(commentsWithUsers []*model.CommentWithUs
 				UpdatedAt: cu.Comment.UpdatedAt,
 			},
 			User: &app.User{
-				ID:     cu.User.ID,
-				Name:   &cu.User.Name,
+				ID:     pointer.IntValue(cu.User.ID),
+				Name:   cu.User.Name,
 				Avatar: cu.User.Avatar,
 			},
 		})
