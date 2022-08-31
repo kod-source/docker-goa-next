@@ -240,9 +240,9 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 	}
 	defer rows.Close()
 
-	var commentsWithUsers []*model.CommentWithUser
+	var commentsWithUsers []*model.ShowCommentWithUser
 	for rows.Next() {
-		var commentWithUser model.CommentWithUser
+		var commentWithUser model.ShowCommentWithUser
 
 		err = rows.Scan(
 			&showPost.IndexPost.Post.ID,

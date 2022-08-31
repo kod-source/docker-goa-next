@@ -17,13 +17,18 @@ type IndexPost struct {
 }
 
 type ShowPost struct {
-	IndexPost       IndexPost
-	CommenstWithUsers []*CommentWithUser
-	Likes           []*Like
+	IndexPost         IndexPost
+	CommenstWithUsers []*ShowCommentWithUser
+	Likes             []*Like
 }
 
 type IndexPostWithCountLike struct {
 	IndexPost    IndexPost
 	CountLike    int
 	CountComment int
+}
+
+type ShowCommentWithUser struct {
+	Comment CommentNil
+	User    UserNil
 }
