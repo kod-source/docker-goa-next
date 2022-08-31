@@ -29,6 +29,6 @@ type IndexPostWithCountLike struct {
 }
 
 type ShowCommentWithUser struct {
-	Comment Comment
+	Comment CommentNil
 	User    UserNil
 }

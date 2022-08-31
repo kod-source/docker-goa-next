@@ -8,7 +8,6 @@ import (
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
-	"github.com/shogo82148/pointer"
 )
 
 // CommentsController implements the comments resource.
@@ -33,11 +32,11 @@ func (c *CommentsController) CreateComment(ctx *app.CreateCommentCommentsContext
 	}
 	return ctx.Created(&app.CommentWithUserJSON{
 		Comment: &app.CommentJSON{
-			ID:        pointer.IntValue(cu.Comment.ID),
-			PostID:    pointer.IntValue(cu.Comment.PostID),
-			UserID:    pointer.IntValue(cu.Comment.UserID),
+			ID:        cu.Comment.ID,
+			PostID:    cu.Comment.PostID,
+			UserID:    cu.Comment.UserID,
 			Img:       cu.Comment.Img,
-			Text:      pointer.StringValue(cu.Comment.Text),
+			Text:      cu.Comment.Text,
 			CreatedAt: cu.Comment.CreatedAt,
 			UpdatedAt: cu.Comment.UpdatedAt,
 		},
@@ -71,11 +70,11 @@ func (c *CommentsController) UpdateComment(ctx *app.UpdateCommentCommentsContext
 	}
 	return ctx.OK(&app.CommentJSON{
 		CreatedAt: comment.CreatedAt,
-		ID:        *comment.ID,
+		ID:        comment.ID,
 		Img:       comment.Img,
-		PostID:    *comment.PostID,
-		UserID:    *comment.UserID,
-		Text:      *comment.Text,
+		PostID:    comment.PostID,
+		UserID:    comment.UserID,
+		Text:      comment.Text,
 		UpdatedAt: comment.UpdatedAt,
 	})
 }
@@ -96,10 +95,10 @@ func (c *CommentsController) ToCommentJSONCollection(comments_with_user []*model
 	for _, cu := range comments_with_user {
 		cus = append(cus, &app.CommentWithUserJSON{
 			Comment: &app.CommentJSON{
-				ID:        pointer.IntValue(cu.Comment.ID),
-				PostID:    pointer.IntValue(cu.Comment.PostID),
-				UserID:    pointer.IntValue(cu.Comment.UserID),
-				Text:      pointer.StringValue(cu.Comment.Text),
+				ID:        cu.Comment.ID,
+				PostID:    cu.Comment.PostID,
+				UserID:    cu.Comment.UserID,
+				Text:      cu.Comment.Text,
 				Img:       cu.Comment.Img,
 				CreatedAt: cu.Comment.CreatedAt,
 				UpdatedAt: cu.Comment.UpdatedAt,
