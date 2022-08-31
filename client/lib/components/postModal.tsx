@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { toStringlinefeed } from '../text';
 import { DateTime } from 'luxon';
 import axios from 'axios';
-import { getToken } from '../token';
+import { getEndPoint, getToken } from '../token';
 import { Loading } from './loading';
 import { isAxiosError } from '../axios';
 
@@ -45,7 +45,7 @@ export const PostModal: FC<Props> = ({
   const fetchData = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:3000/comments/${postWithUser.post.id}`,
+        `${getEndPoint}/comments/${postWithUser.post.id}`,
         {
           headers: {
             Authorization: `Bearer ${getToken()}`,
@@ -90,7 +90,7 @@ export const PostModal: FC<Props> = ({
     setIsLoading(true);
     e.preventDefault();
     const res = await axios.post(
-      'http://localhost:3000/comments',
+      `${getEndPoint()}/comments`,
       {
         post_id: postId,
         text: text,

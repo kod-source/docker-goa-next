@@ -35,6 +35,8 @@ services:
     build:
       context: ./docker/client/
       dockerfile: Dockerfile
+    environment:
+      - NEXT_PUBLIC_END_POINT
     tty: true
     volumes:
       - ./client:/usr/src/app

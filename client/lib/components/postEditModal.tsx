@@ -5,7 +5,7 @@ import Avatar from '@mui/material/Avatar';
 import Image from 'next/image';
 import { Post, PostWithUser, SelectPost } from '../model/post';
 import axios from 'axios';
-import { getToken } from '../token';
+import { getEndPoint, getToken } from '../token';
 
 interface Props {
   open: boolean;
@@ -33,7 +33,7 @@ export const PostEditModal: FC<Props> = (props) => {
     e.preventDefault();
     setIsUpdating(true);
     const res = await axios.put(
-      `http://localhost:3000/posts/${props.post.id}`,
+      `${getEndPoint()}/posts/${props.post.id}`,
       { title: props.post.title, img: props.post.img },
       {
         headers: {

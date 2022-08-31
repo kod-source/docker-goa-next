@@ -14,7 +14,7 @@ import { Loading } from '../lib/components/loading';
 import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { PostEditModal } from '../lib/components/postEditModal';
-import { getToken } from '../lib/token';
+import { getEndPoint, getToken } from '../lib/token';
 import { ShowPost } from '../lib/components/showPost';
 
 const Home: NextPage = () => {
@@ -40,7 +40,7 @@ const Home: NextPage = () => {
   });
   const [againFetch, setAgainFetch] = useState(true);
   const [nextToken, setNextToken] = useState<string | null>(
-    'http://localhost:3000/posts'
+    `${getEndPoint()}/posts`
   );
   const [isLoading, setIsLoading] = useState(false);
   const [myLikePostIds, setMyLikePostIds] = useState<number[]>([]);
@@ -78,7 +78,7 @@ const Home: NextPage = () => {
     const nextT: string | null = res.data.next_token;
     setNextToken(nextT);
     setPostsWithUser((old) => {
-      if (nextToken === 'http://localhost:3000/posts') {
+      if (nextToken === `${getEndPoint()}/posts`) {
         return postsWithUser;
       }
       return [...old, ...postsWithUser];
@@ -87,7 +87,7 @@ const Home: NextPage = () => {
   };
 
   const fetchData = async () => {
-    const res = await axios.get('http://localhost:3000/likes', {
+    const res = await axios.get(`${getEndPoint()}/likes`, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
       },
@@ -136,7 +136,7 @@ const Home: NextPage = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        'http://localhost:3000/posts',
+        `${getEndPoint()}/posts`,
         {
           title: post.title,
           img: post.img,
@@ -181,7 +181,7 @@ const Home: NextPage = () => {
 
   const onDelete = async () => {
     try {
-      await axios.delete(`http://localhost:3000/posts/${selectPost.id}`, {
+      await axios.delete(`${getEndPoint()}/posts/${selectPost.id}`, {
         headers: {
           Authorization: `Bearer ${getToken()}`,
         },
@@ -200,7 +200,7 @@ const Home: NextPage = () => {
   const clickLikeButton = async (postId: number) => {
     try {
       if (myLikePostIds.includes(postId)) {
-        await axios.delete('http://localhost:3000/likes', {
+        await axios.delete(`${getEndPoint()}/likes`, {
           headers: {
             Authorization: `Bearer ${getToken()}`,
           },
@@ -227,7 +227,7 @@ const Home: NextPage = () => {
         });
       } else {
         const res = await axios.post(
-          'http://localhost:3000/likes',
+          `${getEndPoint()}/likes`,
           {
             post_id: postId,
           },

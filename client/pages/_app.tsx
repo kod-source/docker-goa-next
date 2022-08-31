@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { User } from '../lib/model/user';
 import 'tailwindcss/tailwind.css';
+import { getEndPoint } from '../lib/token';
 
 export const AppContext = React.createContext(
   {} as {
@@ -28,7 +29,7 @@ function MyApp({ Component, pageProps }: AppProps) {
       return router.push('/login');
     }
     try {
-      const res = await axios.get('http://localhost:3000/current_user', {
+      const res = await axios.get(`${getEndPoint()}/current_user`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
