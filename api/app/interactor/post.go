@@ -221,23 +221,28 @@ func (p *postInteractor) Update(ctx context.Context, id int, title string, img *
 func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, error) {
 	var showPost model.ShowPost
 	rows, err := p.db.Query(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar, c.id, c.post_id, c.text, c.img, c.created_at, c.updated_at
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar, cu.C_ID, cu.C_POST_ID, cu.C_TEXT, cu.C_IMG, cu.C_CREATED_AT, cu.C_UPDATED_AT, cu.U_ID, cu.U_NAME, cu.U_AVATAR
 		FROM posts as p
 		INNER JOIN users as u
 		ON p.user_id = u.id
-		LEFT JOIN comments as c
-		ON p.id = c.post_id
+		LEFT JOIN (
+			SELECT c.id as C_ID, c.post_id as C_POST_ID, c.text as C_TEXT, c.img as C_IMG, c.created_at as C_CREATED_AT, c.updated_at as C_UPDATED_AT, u.id as U_ID, u.name as U_NAME, u.avatar as U_AVATAR
+			FROM comments as c
+			INNER JOIN users as u
+			ON c.user_id = u.id
+		) as cu
+		ON p.id = cu.C_POST_ID
 		WHERE p.id = ?
-		ORDER BY c.created_at DESC
+		ORDER BY cu.C_CREATED_AT DESC
 	`, id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var comments []*model.Comment
+	var commentsWithUsers []*model.CommentWithUser
 	for rows.Next() {
-		var comment model.Comment
+		var commentWithUser model.CommentWithUser
 
 		err = rows.Scan(
 			&showPost.IndexPost.Post.ID,
@@ -251,19 +256,22 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 			&showPost.IndexPost.User.Email,
 			&showPost.IndexPost.User.CreatedAt,
 			&showPost.IndexPost.User.Avatar,
-			&comment.ID,
-			&comment.PostID,
-			&comment.Text,
-			&comment.Img,
-			&comment.CreatedAt,
-			&comment.UpdatedAt,
+			&commentWithUser.Comment.ID,
+			&commentWithUser.Comment.PostID,
+			&commentWithUser.Comment.Text,
+			&commentWithUser.Comment.Img,
+			&commentWithUser.Comment.CreatedAt,
+			&commentWithUser.Comment.UpdatedAt,
+			&commentWithUser.User.ID,
+			&commentWithUser.User.Name,
+			&commentWithUser.User.Avatar,
 		)
 		if err != nil {
 			return nil, err
 		}
-		comments = append(comments, &comment)
+		commentsWithUsers = append(commentsWithUsers, &commentWithUser)
 	}
-	showPost.Comments = comments
+	showPost.CommenstWithUsers = commentsWithUsers
 	postID := showPost.IndexPost.Post.ID
 	if postID == 0 {
 		return nil, sql.ErrNoRows

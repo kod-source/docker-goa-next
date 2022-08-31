@@ -155,15 +155,15 @@ var show_post = MediaType("application/vnd.show_post_json", func() {
 	Description("投稿とユーザーとコメントの情報")
 	Attribute("post", post, "post value")
 	Attribute("user", user, "user value")
-	Attribute("comments", CollectionOf(comment), "comments value")
+	Attribute("comments_with_users", CollectionOf(comment_with_user), "comments value")
 	Attribute("likes", CollectionOf(like), "likes value")
 	View("default", func() {
 		Attribute("post")
 		Attribute("user")
-		Attribute("comments")
+		Attribute("comments_with_users")
 		Attribute("likes")
 	})
-	Required("post", "user", "comments", "likes")
+	Required("post", "user", "comments_with_users", "likes")
 })
 
 var post_all_limit = MediaType("application/vnd.post_all_limit", func() {
