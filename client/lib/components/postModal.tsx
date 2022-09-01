@@ -122,7 +122,7 @@ export const PostModal: FC<Props> = ({
         },
       };
       if (!old) return [newCommentWithUserr];
-      return [...old, newCommentWithUserr];
+      return [newCommentWithUserr, ...old];
     });
     setPostsWithUser((old) => {
       const newPosts = old.map((p) => {
