@@ -79,6 +79,7 @@ func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*mo
 		INNER JOIN users as u
 		ON c.user_id = u.id
 		WHERE c.post_id = ?
+		ORDER BY c.created_at DESC
 	`, postID)
 	if err != nil {
 		return nil, err
