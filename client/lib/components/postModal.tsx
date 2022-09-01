@@ -45,7 +45,7 @@ export const PostModal: FC<Props> = ({
   const fetchData = async () => {
     try {
       const res = await axios.get(
-        `${getEndPoint}/comments/${postWithUser.post.id}`,
+        `${getEndPoint()}/comments/${postWithUser.post.id}`,
         {
           headers: {
             Authorization: `Bearer ${getToken()}`,

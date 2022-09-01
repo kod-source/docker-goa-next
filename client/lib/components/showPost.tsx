@@ -12,6 +12,7 @@ import { getToken } from '../token';
 import { Comment } from '../model/comment';
 import { PostModal } from './postModal';
 import { isAxiosError, MyAxiosError } from '../axios';
+import { useRouter } from 'next/router';
 
 interface Props {
   postWithUser: PostWithUser;
@@ -31,11 +32,15 @@ export const ShowPost: FC<Props> = ({
   clickLikeButton,
   onClickDetail,
 }) => {
+  const router = useRouter();
   const [isShowPostModal, setIsShowPostModal] = useState(false);
 
   return (
     <>
-      <div className='my-10 mx-auto w-3/5'>
+      <div
+        className='my-5 mx-auto w-3/5 border border-slate-600 p-5 rounded-md cursor-pointer'
+        onClick={() => router.push(`/${postWithUser.post.id}`)}
+      >
         <div className='flex justify-center'>
           <Avatar
             sx={{ width: 80, height: 80 }}
@@ -69,7 +74,10 @@ export const ShowPost: FC<Props> = ({
           <div className='ml-auto'>
             <Button
               className='text-white'
-              onClick={(e) => onClickDetail(e, postWithUser)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onClickDetail(e, postWithUser);
+              }}
             >
               :
             </Button>
@@ -89,14 +97,20 @@ export const ShowPost: FC<Props> = ({
         <div className='flex justify-start'>
           <div
             className='cursor-pointer mr-20 hover:opacity-60'
-            onClick={() => setIsShowPostModal(true)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsShowPostModal(true);
+            }}
           >
             <CommentIcon className='mr-3' />
             {postWithUser.countComment}
           </div>
           <div
             className='cursor-pointer mx-20 hover:opacity-60'
-            onClick={() => clickLikeButton(postWithUser.post.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              clickLikeButton(postWithUser.post.id);
+            }}
           >
             <FavoriteIcon
               className='mr-3'
@@ -108,7 +122,12 @@ export const ShowPost: FC<Props> = ({
             />
             {postWithUser.countLike}
           </div>
-          <div className='cursor-pointer mx-20 hover:opacity-60'>
+          <div
+            className='cursor-pointer mx-20 hover:opacity-60'
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <ShareIcon />
           </div>
         </div>

@@ -1,3 +1,5 @@
+import { CommentWithUser } from './comment';
+import { Like } from './like';
 import { User } from './user';
 
 export class Post {
@@ -22,4 +24,11 @@ export interface PostWithUser {
   user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
   countLike: number;
   countComment: number;
+}
+
+export interface ShowPost {
+  post: Post;
+  user: Omit<User, 'email' | 'password' | 'createdAt'>;
+  likes: Like[];
+  commentsWithUsers: CommentWithUser[];
 }
