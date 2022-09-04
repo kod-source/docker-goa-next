@@ -159,7 +159,7 @@ export const PostModal: FC<Props> = ({
       aria-labelledby='modal-modal-title'
       aria-describedby='modal-modal-description'
     >
-      <Box sx={style} className='overflow-scroll'>
+      <Box sx={style} className='overflow-scroll h-3/4'>
         <div className='my-2 border border-slate-600 p-5 rounded-md'>
           <div className='flex'>
             <Avatar
