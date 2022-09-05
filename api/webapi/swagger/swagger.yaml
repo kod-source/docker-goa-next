@@ -1137,6 +1137,44 @@ paths:
       summary: update posts
       tags:
       - posts
+  /posts/likes/{id}:
+    get:
+      description: |-
+        指定したユーザーIDのいいねした投稿を取得する
+
+        Required security scopes:
+          * `api:access`
+      operationId: posts#show_post_like
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 次のID
+        in: query
+        name: next_id
+        required: false
+        type: integer
+      produces:
+      - application/vnd.post_all_limit
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Post_all_limit'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: show_post_like posts
+      tags:
+      - posts
   /posts/my_like:
     get:
       description: |-
