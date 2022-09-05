@@ -496,6 +496,7 @@ type PostsController interface {
 	Show(*ShowPostsContext) error
 	ShowMyLike(*ShowMyLikePostsContext) error
 	ShowPostLike(*ShowPostLikePostsContext) error
+	ShowPostMy(*ShowPostMyPostsContext) error
 	Update(*UpdatePostsContext) error
 }
 
@@ -507,6 +508,7 @@ func MountPostsController(service *goa.Service, ctrl PostsController) {
 	service.Mux.Handle("OPTIONS", "/posts/:id", ctrl.MuxHandler("preflight", handlePostsOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/posts/my_like", ctrl.MuxHandler("preflight", handlePostsOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/posts/likes/:id", ctrl.MuxHandler("preflight", handlePostsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/posts/my_post/:id", ctrl.MuxHandler("preflight", handlePostsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -615,6 +617,23 @@ func MountPostsController(service *goa.Service, ctrl PostsController) {
 	h = handlePostsOrigin(h)
 	service.Mux.Handle("GET", "/posts/likes/:id", ctrl.MuxHandler("show_post_like", h, nil))
 	service.LogInfo("mount", "ctrl", "Posts", "action", "ShowPostLike", "route", "GET /posts/likes/:id", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowPostMyPostsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.ShowPostMy(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handlePostsOrigin(h)
+	service.Mux.Handle("GET", "/posts/my_post/:id", ctrl.MuxHandler("show_post_my", h, nil))
+	service.LogInfo("mount", "ctrl", "Posts", "action", "ShowPostMy", "route", "GET /posts/my_post/:id", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
