@@ -46,6 +46,13 @@ func (c *UsersController) ShowUser(ctx *app.ShowUserUsersContext) error {
 		if err == sql.ErrNoRows {
 			return ctx.NotFound()
 		}
+		return ctx.InternalServerError()
 	}
-	return ctx.OK(&app.ShowUser{})
+
+	return ctx.OK(&app.ShowUser{
+		ID:        user.ID,
+		Name:      user.Name,
+		CreatedAt: user.CreatedAt,
+		Avatar:    user.Avatar,
+	})
 }
