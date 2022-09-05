@@ -337,6 +337,26 @@ func (mt *ShowPostJSON) Validate() (err error) {
 	return
 }
 
+// show_user (default view)
+//
+// Identifier: application/vnd.show_user+json; view=default
+type ShowUser struct {
+	// プロフィール画像パス
+	Avatar *string `form:"avatar,omitempty" json:"avatar,omitempty" yaml:"avatar,omitempty" xml:"avatar,omitempty"`
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// ID
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 名前
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+}
+
+// Validate validates the ShowUser media type instance.
+func (mt *ShowUser) Validate() (err error) {
+
+	return
+}
+
 // token (default view)
 //
 // Identifier: application/vnd.token+json; view=default

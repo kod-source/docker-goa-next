@@ -39,3 +39,20 @@ func (c *UsersController) GetCurrentUser(ctx *app.GetCurrentUserUsersContext) er
 	}
 	return ctx.OK(res)
 }
+
+func (c *UsersController) ShowUser(ctx *app.ShowUserUsersContext) error {
+	user, err := c.uu.GetUser(ctx, ctx.ID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
+	}
+
+	return ctx.OK(&app.ShowUser{
+		ID:        user.ID,
+		Name:      user.Name,
+		CreatedAt: user.CreatedAt,
+		Avatar:    user.Avatar,
+	})
+}

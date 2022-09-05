@@ -681,6 +681,7 @@ func unmarshalUpdatePostsPayload(ctx context.Context, service *goa.Service, req 
 type UsersController interface {
 	goa.Muxer
 	GetCurrentUser(*GetCurrentUserUsersContext) error
+	ShowUser(*ShowUserUsersContext) error
 }
 
 // MountUsersController "mounts" a Users resource controller on the given service.
@@ -688,6 +689,7 @@ func MountUsersController(service *goa.Service, ctrl UsersController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/current_user", ctrl.MuxHandler("preflight", handleUsersOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users/:id", ctrl.MuxHandler("preflight", handleUsersOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -705,6 +707,23 @@ func MountUsersController(service *goa.Service, ctrl UsersController) {
 	h = handleUsersOrigin(h)
 	service.Mux.Handle("GET", "/current_user", ctrl.MuxHandler("get_current_user", h, nil))
 	service.LogInfo("mount", "ctrl", "Users", "action", "GetCurrentUser", "route", "GET /current_user", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowUserUsersContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.ShowUser(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleUsersOrigin(h)
+	service.Mux.Handle("GET", "/users/:id", ctrl.MuxHandler("show_user", h, nil))
+	service.LogInfo("mount", "ctrl", "Users", "action", "ShowUser", "route", "GET /users/:id", "security", "jwt")
 }
 
 // handleUsersOrigin applies the CORS response headers corresponding to the origin.
