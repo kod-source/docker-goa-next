@@ -82,6 +82,7 @@ func (p *postUseCase) ShowMyLike(ctx context.Context, userID, nextID int) ([]*mo
 	return ips, nextToken, nil
 }
 
+// ShowPostMy 指定したUserIDが投稿したものを取得する
 func (p *postUseCase) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
 	ips, nextToken, err := p.pi.ShowPostMy(ctx, userID, nextID)
 	if err != nil {

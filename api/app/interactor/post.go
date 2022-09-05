@@ -402,6 +402,7 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 	return indexPostsWithCountLike, nextToken, nil
 }
 
+// ShowPostMy 指定したUserIDが投稿したものを取得する
 func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
