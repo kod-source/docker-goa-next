@@ -19,6 +19,8 @@ type PostInteractor interface {
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 	Show(ctx context.Context, id int) (*model.ShowPost, error)
 	ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error)
+	// ShowPostMy 指定したUserIDが投稿したものを取得する
+	ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error)
 }
 
 type postInteractor struct {
@@ -395,6 +397,109 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 	nextToken = pointer.String(fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber))
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		nextToken = nil
+	}
+
+	return indexPostsWithCountLike, nextToken, nil
+}
+
+func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
+	var indexPostsWithCountLike []*model.IndexPostWithCountLike
+	limitNumber := 20
+	tx, err := p.db.Begin()
+	if err != nil {
+		return nil, nil, err
+	}
+	defer tx.Rollback()
+	rows, err := tx.Query(`
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
+		FROM posts as p
+		INNER JOIN users as u
+		ON p.user_id = u.id
+		LEFT JOIN (
+			SELECT post_id, COUNT(id) as COUNT
+			FROM likes
+			GROUP BY post_id
+		) as l
+		ON p.id = l.post_id
+		LEFT JOIN (
+			SELECT post_id, COUNT(id) as COUNT
+			FROM comments
+			GROUP BY post_id
+		) as c
+		ON p.id = c.post_id
+		WHERE p.user_id = ?
+		ORDER BY p.created_at DESC
+		LIMIT ?, ?
+	`, userID, nextID, limitNumber)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post model.Post
+		var user model.User
+		var countLike *int
+		var countComment *int
+
+		err := rows.Scan(
+			&post.ID,
+			&post.UserID,
+			&post.Title,
+			&post.Img,
+			&post.CreatedAt,
+			&post.UpdatedAt,
+			&user.Name,
+			&user.Avatar,
+			&countLike,
+			&countComment,
+		)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		indexPostsWithCountLike = append(indexPostsWithCountLike, &model.IndexPostWithCountLike{
+			IndexPost: model.IndexPost{
+				Post: model.Post{
+					ID:        post.ID,
+					UserID:    post.UserID,
+					Title:     post.Title,
+					Img:       post.Img,
+					CreatedAt: post.CreatedAt,
+					UpdatedAt: post.UpdatedAt,
+				},
+				User: model.User{
+					Name:   user.Name,
+					Avatar: user.Avatar,
+				},
+			},
+			CountLike:    pointer.IntValue(countLike),
+			CountComment: pointer.IntValue(countComment),
+		})
+	}
+
+	var lastPostID int
+	err = tx.QueryRow(`
+		SELECT p.id
+		FROM posts AS p
+		INNER JOIN (
+			SELECT post_id
+			FROM likes
+			WHERE user_id = ?
+		) AS l
+		ON p.id = l.post_id
+		ORDER BY p.created_at
+		LIMIT 1
+	`, userID).Scan(
+		&lastPostID,
+	)
+	var nextToken *string
+	nextToken = pointer.String(fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber))
+	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
+		nextToken = nil
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, nil, err
 	}
 
 	return indexPostsWithCountLike, nextToken, nil

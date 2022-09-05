@@ -134,6 +134,14 @@ func (c *PostsController) ShowPostLike(ctx *app.ShowPostLikePostsContext) error 
 	return ctx.OK(c.toPostAllLimit(ips, nextToken))
 }
 
+func (c *PostsController) ShowPostMy(ctx *app.ShowPostMyPostsContext) error {
+	ips, nextToken, err := c.pu.ShowPostMy(ctx, ctx.ID, pointer.IntValue(ctx.NextID))
+	if err != nil {
+		return ctx.InternalServerError()
+	}
+	return ctx.OK(c.toPostAllLimit(ips, nextToken))
+}
+
 func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPostWithCountLike, nextToken *string) *app.PostAllLimit {
 	ips := make(app.PostAndUserAndCountLikeJSONCollection, 0, len(indexPosts))
 	for _, ip := range indexPosts {

@@ -102,6 +102,18 @@ var _ = Resource("posts", func() {
 		Response(NotFound)
 		Response(InternalServerError)
 	})
+
+	Action("show_post_my", func() {
+		Routing(GET("posts/my_post/:id"))
+		Description("指定したユーザー自身が投稿したのを取得する")
+		Params(func() {
+			Param("id", Integer, "User ID")
+			Param("next_id", Integer, "次のID")
+		})
+		Response(OK, post_all_limit)
+		Response(NotFound)
+		Response(InternalServerError)
+	})
 })
 
 var post = MediaType("application/vnd.post_json", func() {
