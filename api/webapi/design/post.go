@@ -90,6 +90,18 @@ var _ = Resource("posts", func() {
 		Response(NotFound)
 		Response(InternalServerError)
 	})
+
+	Action("show_post_like", func() {
+		Routing(GET("posts/likes/:id"))
+		Description("指定したユーザーIDのいいねした投稿を取得する")
+		Params(func() {
+			Param("id", Integer, "User ID")
+			Param("next_id", Integer, "次のID")
+		})
+		Response(OK, post_all_limit)
+		Response(NotFound)
+		Response(InternalServerError)
+	})
 })
 
 var post = MediaType("application/vnd.post_json", func() {
