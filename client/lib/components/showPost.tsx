@@ -38,15 +38,23 @@ export const ShowPost: FC<Props> = ({
         onClick={() => router.push(`/${postWithUser.post.id}`)}
       >
         <div className='flex justify-center'>
-          <Avatar
-            sx={{ width: 80, height: 80 }}
-            alt='投稿者'
-            src={
-              postWithUser.user.avatar
-                ? postWithUser.user.avatar
-                : '/avatar.png'
-            }
-          />
+          <div
+            className='cursor-pointer hover:opacity-60'
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`users/${postWithUser.post.userId}`);
+            }}
+          >
+            <Avatar
+              sx={{ width: 80, height: 80 }}
+              alt='投稿者'
+              src={
+                postWithUser.user.avatar
+                  ? postWithUser.user.avatar
+                  : '/avatar.png'
+              }
+            />
+          </div>
           <div className='pt-5 mx-3'>
             <p>{postWithUser.user.name}</p>
             <div className='flex'>
