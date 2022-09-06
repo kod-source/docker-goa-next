@@ -25,7 +25,3 @@ export const asyncApiClient = {
     });
   },
 };
-
-export async function apiClient() {
-  return await asyncApiClient.create();
-}

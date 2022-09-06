@@ -19,7 +19,7 @@ import { AppContext } from './_app';
 import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { PostEditModal } from '../lib/components/postEditModal';
-import { apiClient, asyncApiClient } from '../lib/axios';
+import { asyncApiClient } from '../lib/axios';
 
 interface Props {
   id: number;
