@@ -1,5 +1,4 @@
 import { Avatar, Button } from '@mui/material';
-import axios from 'axios';
 import { DateTime } from 'luxon';
 import { NextPage, GetServerSideProps } from 'next';
 import Image from 'next/image';
@@ -8,9 +7,8 @@ import { FormEvent, useContext, useEffect, useState } from 'react';
 import { Loading } from '../lib/components/loading';
 import { Comment, CommentWithUser } from '../lib/model/comment';
 import { Like } from '../lib/model/like';
-import { Post, ShowPost } from '../lib/model/post';
+import { ShowPost } from '../lib/model/post';
 import { toStringlinefeed } from '../lib/text';
-import { getEndPoint, getToken } from '../lib/token';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CommentIcon from '@mui/icons-material/Comment';
@@ -20,6 +18,7 @@ import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { PostEditModal } from '../lib/components/postEditModal';
 import { asyncApiClient } from '../lib/axios';
+import { PostRepository } from '../lib/repository/post';
 
 interface Props {
   id: number;
@@ -43,51 +42,8 @@ const PostShow: NextPage<Props> = ({ id }) => {
   const [isMine, setIsMine] = useState(false);
 
   const fetchData = async () => {
-    const apiClient = await asyncApiClient.create();
-    const res = await apiClient.get(`posts/${id}`);
-    setShowPost(() => {
-      const data = res.data;
-      const likes: Like[] = data.likes.map((l: any) => {
-        return { id: l.id, userId: l.user_id, postId: l.post_id };
-      });
-      const commentsWithUsers: CommentWithUser[] = data.comments_with_users.map(
-        (cu: any) => {
-          return {
-            comment: new Comment(
-              cu.comment.id,
-              cu.comment.post_id,
-              cu.comment.user_id,
-              cu.comment.text,
-              new Date(cu.comment.created_at),
-              new Date(cu.comment.updated_at),
-              cu.comment.img
-            ),
-            user: {
-              id: cu.user.id,
-              name: cu.user.name,
-              avatar: cu.user.avatar,
-            },
-          };
-        }
-      );
-      return {
-        post: new Post(
-          data.post.id,
-          data.post.user_id,
-          data.post.title,
-          new Date(data.post.created_at),
-          new Date(data.post.updated_at),
-          data.post.img
-        ),
-        user: {
-          id: data.user.id,
-          name: data.user.name,
-          avatar: data.user.avatar,
-        },
-        likes: likes,
-        commentsWithUsers: commentsWithUsers,
-      };
-    });
+    const showPost = await PostRepository.show(id);
+    setShowPost(showPost);
   };
 
   useEffect(() => {
