@@ -1,6 +1,6 @@
 import React, { FC, FormEvent, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
-import { Avatar, Button, Modal, Typography } from '@mui/material';
+import { Avatar, Button, Modal } from '@mui/material';
 import { PostWithUser } from '../model/post';
 import { Comment, CommentWithUser } from '../model/comment';
 import Image from 'next/image';

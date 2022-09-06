@@ -16,7 +16,6 @@ import ShareIcon from '@mui/icons-material/Share';
 import { AppContext } from './_app';
 import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
-import { PostEditModal } from '../lib/components/postEditModal';
 import { asyncApiClient } from '../lib/axios';
 import { PostRepository } from '../lib/repository/post';
 

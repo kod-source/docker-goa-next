@@ -1,7 +1,6 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios from 'axios';
 import {
   Grid,
   Typography,
@@ -16,10 +15,8 @@ import {
 import { FormEvent, useContext, useState } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from './_app';
-import { User } from '../lib/model/user';
 import Avatar from '@mui/material/Avatar';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
-import { getEndPoint } from '../lib/token';
 import { AuthRepository } from '../lib/repository/auth';
 
 function Copyright(props: any) {
