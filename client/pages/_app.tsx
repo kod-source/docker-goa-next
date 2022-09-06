@@ -2,10 +2,9 @@ import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import axios from 'axios';
 import { User } from '../lib/model/user';
 import 'tailwindcss/tailwind.css';
-import { getEndPoint } from '../lib/token';
+import { UserRepostiory } from '../lib/repository/user';
 
 export const AppContext = React.createContext(
   {} as {
@@ -29,20 +28,8 @@ function MyApp({ Component, pageProps }: AppProps) {
       return router.push('/login');
     }
     try {
-      const res = await axios.get(`${getEndPoint()}/current_user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setUser(
-        new User(
-          res.data.id,
-          res.data.name,
-          res.data.email,
-          new Date(res.data.created_at),
-          res.data.avatar
-        )
-      );
+      const user = await UserRepostiory.currentUser();
+      setUser(user);
     } catch {
       if (isFirst) {
         alert('tokenの認証が切れました。再度ログインしてください。');

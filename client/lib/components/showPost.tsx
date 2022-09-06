@@ -7,11 +7,7 @@ import Image from 'next/image';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CommentIcon from '@mui/icons-material/Comment';
 import ShareIcon from '@mui/icons-material/Share';
-import axios, { AxiosError } from 'axios';
-import { getToken } from '../token';
-import { Comment } from '../model/comment';
 import { PostModal } from './postModal';
-import { isAxiosError, MyAxiosError } from '../axios';
 import { useRouter } from 'next/router';
 
 interface Props {

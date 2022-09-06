@@ -6,7 +6,7 @@ import { FormEvent, useCallback, useContext, useEffect, useState } from 'react';
 import styles from '../styles/Home.module.css';
 import { AppContext } from './_app';
 import Avatar from '@mui/material/Avatar';
-import { Post, PostWithUser, SelectPost } from '../lib/model/post';
+import { PostWithUser, SelectPost } from '../lib/model/post';
 import axios from 'axios';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
 import Image from 'next/image';
@@ -16,6 +16,7 @@ import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { PostEditModal } from '../lib/components/postEditModal';
 import { getEndPoint, getToken } from '../lib/token';
 import { ShowPost } from '../lib/components/showPost';
+import { PostRepository } from '../lib/repository/post';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -53,35 +54,13 @@ const Home: NextPage = () => {
   const fetchPostData = async () => {
     if (!nextToken) return;
     setIsLoading(true);
-    const res = await axios.get(nextToken, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
-    const postsWithUser: PostWithUser[] = [];
-    res.data.show_posts.forEach((d: any) => {
-      const post = new Post(
-        d.post.id,
-        d.post.user_id,
-        d.post.title,
-        new Date(d.post.created_at),
-        new Date(d.post.updated_at),
-        d.post.img
-      );
-      postsWithUser.push({
-        post: post,
-        user: { name: d.user_name, avatar: d.avatar },
-        countLike: d.count_like,
-        countComment: d.count_comment,
-      });
-    });
-    const nextT: string | null = res.data.next_token;
-    setNextToken(nextT);
+    const postAllLimit = await PostRepository.index(nextToken);
+    setNextToken(postAllLimit.nextToken);
     setPostsWithUser((old) => {
       if (nextToken === `${getEndPoint()}/posts`) {
-        return postsWithUser;
+        return postAllLimit.postsWithUsers;
       }
-      return [...old, ...postsWithUser];
+      return [...old, ...postAllLimit.postsWithUsers];
     });
     setIsLoading(false);
   };
@@ -135,39 +114,9 @@ const Home: NextPage = () => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        `${getEndPoint()}/posts`,
-        {
-          title: post.title,
-          img: post.img,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
-      );
+      const postWithUser = await PostRepository.create(post.title, post.img);
       setPost({ title: '', img: '' });
-      setPostsWithUser((old) => {
-        const d = res.data;
-        const post = new Post(
-          d.post.id,
-          d.post.user_id,
-          d.post.title,
-          new Date(d.post.created_at),
-          new Date(d.post.updated_at),
-          d.post.img
-        );
-        return [
-          {
-            post: post,
-            user: { name: d.user_name, avatar: d.avatar },
-            countLike: 0,
-            countComment: 0,
-          },
-          ...old,
-        ];
-      });
+      setPostsWithUser((old) => [postWithUser, ...old]);
     } catch (e) {
       if (isAxiosError(e)) {
         const myAxiosError = e.response?.data as MyAxiosError;
@@ -181,11 +130,7 @@ const Home: NextPage = () => {
 
   const onDelete = async () => {
     try {
-      await axios.delete(`${getEndPoint()}/posts/${selectPost.id}`, {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      });
+      await PostRepository.delete(selectPost.id);
       setShowConfirmModal(false);
       setPostsWithUser(
         postsWithUser?.filter((p) => p.post.id !== selectPost.id)
@@ -401,7 +346,7 @@ const Home: NextPage = () => {
           handleClose={() => setShowPostEditModal(false)}
           post={selectPost}
           setPost={setSelectPost}
-          setPostWithUser={setPostsWithUser}
+          setPostsWithUsers={setPostsWithUser}
         />
       )}
     </div>

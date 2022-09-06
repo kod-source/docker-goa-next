@@ -1,7 +1,6 @@
 import { NextPage } from 'next';
 import Head from 'next/head';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import axios from 'axios';
 import {
   Grid,
   Typography,
@@ -16,10 +15,9 @@ import {
 import { FormEvent, useContext, useState } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from './_app';
-import { User } from '../lib/model/user';
 import Avatar from '@mui/material/Avatar';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
-import { getEndPoint } from '../lib/token';
+import { AuthRepository } from '../lib/repository/auth';
 
 function Copyright(props: any) {
   return (
@@ -51,23 +49,14 @@ const SignUp: NextPage = () => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${getEndPoint()}/sign_up`, {
-        name: name,
-        email: email,
-        password: password,
-        avatar: avatarPath,
-      });
-      const token: string = res.data.token;
-      localStorage.setItem('token', token);
-      setUser(
-        new User(
-          res.data.user.id,
-          res.data.user.name,
-          res.data.user.email,
-          new Date(res.data.user.created_at),
-          res.data.user.avatar
-        )
+      const auth = await AuthRepository.signUp(
+        name,
+        email,
+        password,
+        avatarPath
       );
+      localStorage.setItem('token', auth.token);
+      setUser(auth.user);
       router.push('/');
     } catch (e) {
       if (isAxiosError(e)) {

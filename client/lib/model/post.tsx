@@ -32,3 +32,8 @@ export interface ShowPost {
   likes: Like[];
   commentsWithUsers: CommentWithUser[];
 }
+
+export interface PostAllLimit {
+  postsWithUsers: PostWithUser[];
+  nextToken: string | null;
+}

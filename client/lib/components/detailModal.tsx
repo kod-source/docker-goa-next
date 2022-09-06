@@ -1,6 +1,6 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import Box from '@mui/material/Box';
-import { Button, Modal, Typography } from '@mui/material';
+import { Button, Modal } from '@mui/material';
 
 interface Props {
   open: boolean;

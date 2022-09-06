@@ -3,16 +3,15 @@ import Box from '@mui/material/Box';
 import { Button, Modal } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Image from 'next/image';
-import { Post, PostWithUser, SelectPost } from '../model/post';
-import axios from 'axios';
-import { getEndPoint, getToken } from '../token';
+import { PostWithUser, SelectPost } from '../model/post';
+import { PostRepository } from '../repository/post';
 
 interface Props {
   open: boolean;
   handleClose: () => void;
   post: SelectPost;
   setPost: React.Dispatch<React.SetStateAction<SelectPost>>;
-  setPostWithUser: React.Dispatch<React.SetStateAction<PostWithUser[]>>;
+  setPostsWithUsers: React.Dispatch<React.SetStateAction<PostWithUser[]>>;
 }
 
 export const PostEditModal: FC<Props> = (props) => {
@@ -32,30 +31,22 @@ export const PostEditModal: FC<Props> = (props) => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsUpdating(true);
-    const res = await axios.put(
-      `${getEndPoint()}/posts/${props.post.id}`,
-      { title: props.post.title, img: props.post.img },
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      }
+    const post = await PostRepository.update(
+      props.post.id,
+      props.post.title,
+      props.post.img
     );
-    props.setPostWithUser((old) => {
+    props.setPostsWithUsers((old) => {
       const newPosts = old.map((p) => {
-        return {
-          post: new Post(
-            res.data.post.id,
-            res.data.post.user_id,
-            res.data.post.title,
-            new Date(res.data.post.created_at),
-            new Date(res.data.post.updated_at),
-            res.data.post.img
-          ),
-          user: p.user,
-          countLike: p.countLike,
-          countComment: p.countComment,
-        };
+        if (p.post.id === props.post.id) {
+          return {
+            post: post,
+            user: p.user,
+            countLike: p.countLike,
+            countComment: p.countComment,
+          };
+        }
+        return p;
       });
       return newPosts;
     });
