@@ -19,6 +19,7 @@ import { AppContext } from './_app';
 import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { PostEditModal } from '../lib/components/postEditModal';
+import { asyncApiClient } from '../lib/axios';
 
 interface Props {
   id: number;
@@ -42,11 +43,8 @@ const PostShow: NextPage<Props> = ({ id }) => {
   const [isMine, setIsMine] = useState(false);
 
   const fetchData = async () => {
-    const res = await axios.get(`${getEndPoint()}/posts/${id}`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
+    const apiClient = await asyncApiClient.create();
+    const res = await apiClient.get(`posts/${id}`);
     setShowPost(() => {
       const data = res.data;
       const likes: Like[] = data.likes.map((l: any) => {
@@ -99,19 +97,12 @@ const PostShow: NextPage<Props> = ({ id }) => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>, postId: number) => {
     setIsLoading(true);
     e.preventDefault();
-    const res = await axios.post(
-      `${getEndPoint()}/comments`,
-      {
-        post_id: postId,
-        text: text,
-        img: imagePath,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      }
-    );
+    const apiClient = await asyncApiClient.create();
+    const res = await apiClient.post(`comments`, {
+      post_id: postId,
+      text: text,
+      img: imagePath,
+    });
     setText('');
     setImagePath('');
     setShowPost((old) => {
@@ -145,14 +136,8 @@ const PostShow: NextPage<Props> = ({ id }) => {
   const clickLikeButton = async (postId: number) => {
     try {
       if (showPost?.likes.some((l) => l.userId === user?.id)) {
-        await axios.delete(`${getEndPoint()}/likes`, {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-          data: {
-            post_id: postId,
-          },
-        });
+        const apiClient = await asyncApiClient.create();
+        await apiClient.delete('likes', { data: { post_id: postId } });
         setShowPost((old) => {
           if (!old) return;
           const filterLikes = old.likes.filter(
@@ -166,17 +151,10 @@ const PostShow: NextPage<Props> = ({ id }) => {
           };
         });
       } else {
-        const res = await axios.post(
-          `${getEndPoint()}/likes`,
-          {
-            post_id: postId,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${getToken()}`,
-            },
-          }
-        );
+        const apiClient = await asyncApiClient.create();
+        const res = await apiClient.post(`likes`, {
+          post_id: postId,
+        });
         if (res.data.post_id !== postId) {
           throw new Error('post_id unknow');
         }
@@ -228,11 +206,8 @@ const PostShow: NextPage<Props> = ({ id }) => {
 
   const onDelete = async () => {
     if (selectComment) {
-      await axios.delete(`${getEndPoint()}/comments/${selectComment.id}`, {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      });
+      const apiClient = await asyncApiClient.create();
+      await apiClient.delete(`comments/${selectComment.id}`);
       setShowPost((old) => {
         if (!old) return;
         const newCommentsWithUser = old.commentsWithUsers.filter(
@@ -246,11 +221,8 @@ const PostShow: NextPage<Props> = ({ id }) => {
         };
       });
     } else {
-      await axios.delete(`${getEndPoint()}/posts/${id}`, {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      });
+      const apiClient = await asyncApiClient.create();
+      await apiClient.delete(`posts/${id}`);
       router.push('/');
     }
     setIsShowConfirmModal(false);
