@@ -39,7 +39,6 @@ function MyApp({ Component, pageProps }: AppProps) {
           res.data.id,
           res.data.name,
           res.data.email,
-          res.data.password,
           new Date(res.data.created_at),
           res.data.avatar
         )

@@ -64,7 +64,6 @@ const SignUp: NextPage = () => {
           res.data.user.id,
           res.data.user.name,
           res.data.user.email,
-          res.data.user.password,
           new Date(res.data.user.created_at),
           res.data.user.avatar
         )
