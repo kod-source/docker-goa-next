@@ -50,7 +50,7 @@ const Home: NextPage = () => {
   };
 
   const fetchPostData = async () => {
-    if (nextID === null) return;
+    if (nextID == null) return;
     setIsLoading(true);
     const postAllLimit = await PostRepository.index(nextID);
     setNextID(postAllLimit.nextId);
