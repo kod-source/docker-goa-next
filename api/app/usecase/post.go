@@ -39,12 +39,12 @@ func (p *postUseCase) CreatePost(ctx context.Context, userID int, title string, 
 }
 
 func (p *postUseCase) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
-	indexPostsWithCountLike, ni, err := p.pi.ShowAll(ctx, nextID)
+	indexPostsWithCountLike, nID, err := p.pi.ShowAll(ctx, nextID)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return indexPostsWithCountLike, ni, nil
+	return indexPostsWithCountLike, nID, nil
 }
 
 func (p *postUseCase) Delete(ctx context.Context, id int) error {
@@ -74,20 +74,20 @@ func (p *postUseCase) Show(ctx context.Context, id int) (*model.ShowPost, error)
 }
 
 func (p *postUseCase) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
-	ips, ni, err := p.pi.ShowMyLike(ctx, userID, nextID)
+	ips, nID, err := p.pi.ShowMyLike(ctx, userID, nextID)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return ips, ni, nil
+	return ips, nID, nil
 }
 
 // ShowPostMy 指定したUserIDが投稿したものを取得する
 func (p *postUseCase) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
-	ips, ni, err := p.pi.ShowPostMy(ctx, userID, nextID)
+	ips, nID, err := p.pi.ShowPostMy(ctx, userID, nextID)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return ips, ni, nil
+	return ips, nID, nil
 }
