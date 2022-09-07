@@ -151,8 +151,8 @@ func (mt LikeJSONCollection) Validate() (err error) {
 //
 // Identifier: application/vnd.post_all_limit; view=default
 type PostAllLimit struct {
-	// http://localhost:3000/posts?next_id=20
-	NextToken *string `form:"next_token,omitempty" json:"next_token,omitempty" yaml:"next_token,omitempty" xml:"next_token,omitempty"`
+	// 次取得するPostID
+	NextID *int `form:"next_id,omitempty" json:"next_id,omitempty" yaml:"next_id,omitempty" xml:"next_id,omitempty"`
 	// post_and_user vbalue
 	ShowPosts PostAndUserAndCountLikeJSONCollection `form:"show_posts" json:"show_posts" yaml:"show_posts" xml:"show_posts"`
 }

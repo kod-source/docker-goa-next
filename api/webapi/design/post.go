@@ -193,10 +193,10 @@ var show_post = MediaType("application/vnd.show_post_json", func() {
 var post_all_limit = MediaType("application/vnd.post_all_limit", func() {
 	Description("投稿とnext_idに情報")
 	Attribute("show_posts", CollectionOf(post_and_user_and_count_like), "post_and_user vbalue")
-	Attribute("next_token", String, "http://localhost:3000/posts?next_id=20")
+	Attribute("next_id", Integer, "次取得するPostID")
 	View("default", func() {
 		Attribute("show_posts")
-		Attribute("next_token")
+		Attribute("next_id")
 	})
 	Required("show_posts")
 })
