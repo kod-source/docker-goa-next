@@ -44,18 +44,12 @@ func (c *PostsController) CreatePost(ctx *app.CreatePostPostsContext) error {
 }
 
 func (c *PostsController) Index(ctx *app.IndexPostsContext) error {
-	var nextID int
-	if ctx.NextID == nil {
-		nextID = 0
-	} else {
-		nextID = *ctx.NextID
-	}
-	p, nextToken, err := c.pu.ShowAll(ctx, nextID)
+	p, nextID, err := c.pu.ShowAll(ctx, pointer.IntValue(ctx.NextID))
 	if err != nil {
 		return ctx.InternalServerError()
 	}
 
-	return ctx.OK(c.toPostAllLimit(p, nextToken))
+	return ctx.OK(c.toPostAllLimit(p, nextID))
 }
 
 func (c *PostsController) Delete(ctx *app.DeletePostsContext) error {
@@ -117,32 +111,32 @@ func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 }
 
 func (c *PostsController) ShowMyLike(ctx *app.ShowMyLikePostsContext) error {
-	ips, nextToken, err := c.pu.ShowMyLike(ctx, getUserIDCode(ctx), pointer.IntValue(ctx.NextID))
+	ips, nextID, err := c.pu.ShowMyLike(ctx, getUserIDCode(ctx), pointer.IntValue(ctx.NextID))
 	if err != nil {
 		return ctx.InternalServerError()
 	}
 
-	return ctx.OK(c.toPostAllLimit(ips, nextToken))
+	return ctx.OK(c.toPostAllLimit(ips, nextID))
 }
 
 func (c *PostsController) ShowPostLike(ctx *app.ShowPostLikePostsContext) error {
-	ips, nextToken, err := c.pu.ShowMyLike(ctx, ctx.ID, pointer.IntValue(ctx.NextID))
+	ips, nextID, err := c.pu.ShowMyLike(ctx, ctx.ID, pointer.IntValue(ctx.NextID))
 	if err != nil {
 		return ctx.InternalServerError()
 	}
 
-	return ctx.OK(c.toPostAllLimit(ips, nextToken))
+	return ctx.OK(c.toPostAllLimit(ips, nextID))
 }
 
 func (c *PostsController) ShowPostMy(ctx *app.ShowPostMyPostsContext) error {
-	ips, nextToken, err := c.pu.ShowPostMy(ctx, ctx.ID, pointer.IntValue(ctx.NextID))
+	ips, nextID, err := c.pu.ShowPostMy(ctx, ctx.ID, pointer.IntValue(ctx.NextID))
 	if err != nil {
 		return ctx.InternalServerError()
 	}
-	return ctx.OK(c.toPostAllLimit(ips, nextToken))
+	return ctx.OK(c.toPostAllLimit(ips, nextID))
 }
 
-func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPostWithCountLike, nextToken *string) *app.PostAllLimit {
+func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPostWithCountLike, nextID *int) *app.PostAllLimit {
 	ips := make(app.PostAndUserAndCountLikeJSONCollection, 0, len(indexPosts))
 	for _, ip := range indexPosts {
 		ips = append(ips, &app.PostAndUserAndCountLikeJSON{
@@ -163,7 +157,7 @@ func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPostWithCountL
 
 	return &app.PostAllLimit{
 		ShowPosts: ips,
-		NextToken: nextToken,
+		NextID:    nextID,
 	}
 }
 

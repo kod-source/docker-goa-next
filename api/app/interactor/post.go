@@ -3,8 +3,6 @@ package interactor
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"os"
 	"time"
 
 	"github.com/kod-source/docker-goa-next/app/model"
@@ -14,13 +12,13 @@ import (
 
 type PostInteractor interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
-	ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *string, error)
+	ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
 	Delete(ctx context.Context, id int) error
 	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
 	Show(ctx context.Context, id int) (*model.ShowPost, error)
-	ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error)
+	ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
 	// ShowPostMy 指定したUserIDが投稿したものを取得する
-	ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error)
+	ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
 }
 
 type postInteractor struct {
@@ -79,7 +77,7 @@ func (p *postInteractor) CreatePost(ctx context.Context, userID int, title strin
 	return &indexPost, nil
 }
 
-func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
+func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	rows, err := p.db.Query(`
@@ -158,13 +156,13 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 	if err != nil {
 		return nil, nil, err
 	}
-	var nextToken *string
-	nextToken = pointer.String(fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber))
+	var resNextID *int
+	resNextID = pointer.Int(nextID + limitNumber)
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
-		nextToken = nil
+		resNextID = nil
 	}
 
-	return indexPostsWithCountLike, nextToken, nil
+	return indexPostsWithCountLike, resNextID, nil
 }
 
 func (p *postInteractor) Delete(ctx context.Context, id int) error {
@@ -302,7 +300,7 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 	return &showPost, nil
 }
 
-func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
+func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	rows, err := p.db.Query(`
@@ -393,17 +391,17 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 	`, userID).Scan(
 		&lastPostID,
 	)
-	var nextToken *string
-	nextToken = pointer.String(fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber))
+	var resNextID *int
+	resNextID = pointer.Int(nextID + limitNumber)
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
-		nextToken = nil
+		resNextID = nil
 	}
 
-	return indexPostsWithCountLike, nextToken, nil
+	return indexPostsWithCountLike, resNextID, nil
 }
 
 // ShowPostMy 指定したUserIDが投稿したものを取得する
-func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *string, error) {
+func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	tx, err := p.db.Begin()
@@ -494,14 +492,14 @@ func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]
 	`, userID).Scan(
 		&lastPostID,
 	)
-	var nextToken *string
-	nextToken = pointer.String(fmt.Sprintf("%s/posts?next_id=%d", os.Getenv("END_POINT"), nextID+limitNumber))
+	var resNextID *int
+	resNextID = pointer.Int(nextID + limitNumber)
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
-		nextToken = nil
+		resNextID = nil
 	}
 	if err := tx.Commit(); err != nil {
 		return nil, nil, err
 	}
 
-	return indexPostsWithCountLike, nextToken, nil
+	return indexPostsWithCountLike, resNextID, nil
 }
