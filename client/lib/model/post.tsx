@@ -35,5 +35,5 @@ export interface ShowPost {
 
 export interface PostAllLimit {
   postsWithUsers: PostWithUser[];
-  nextToken: string | null;
+  nextId: number | null;
 }

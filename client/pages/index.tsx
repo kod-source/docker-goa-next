@@ -40,9 +40,7 @@ const Home: NextPage = () => {
     img: '',
   });
   const [againFetch, setAgainFetch] = useState(true);
-  const [nextToken, setNextToken] = useState<string | null>(
-    `${getEndPoint()}/posts`
-  );
+  const [nextID, setNextID] = useState<number | null>(0);
   const [isLoading, setIsLoading] = useState(false);
   const [myLikePostIds, setMyLikePostIds] = useState<number[]>([]);
 
@@ -52,12 +50,12 @@ const Home: NextPage = () => {
   };
 
   const fetchPostData = async () => {
-    if (!nextToken) return;
+    if (nextID == null) return;
     setIsLoading(true);
-    const postAllLimit = await PostRepository.index(nextToken);
-    setNextToken(postAllLimit.nextToken);
+    const postAllLimit = await PostRepository.index(nextID);
+    setNextID(postAllLimit.nextId);
     setPostsWithUser((old) => {
-      if (nextToken === `${getEndPoint()}/posts`) {
+      if (nextID === 0) {
         return postAllLimit.postsWithUsers;
       }
       return [...old, ...postAllLimit.postsWithUsers];
