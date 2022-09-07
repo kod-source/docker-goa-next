@@ -6,12 +6,9 @@ import { Post, PostAllLimit, PostWithUser, ShowPost } from '../model/post';
 import { getToken } from '../token';
 
 export const PostRepository = {
-  index: async (nextToken: string): Promise<PostAllLimit> => {
-    const res = await axios.get(nextToken, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
+  index: async (nextID: number): Promise<PostAllLimit> => {
+    const apiClient = await asyncApiClient.create();
+    const res = await apiClient.get(`posts?next_id=${nextID}`);
     const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any) => {
       const post = new Post(
         d.post.id,
@@ -29,7 +26,10 @@ export const PostRepository = {
       };
     });
 
-    return { postsWithUsers: postsWithUser, nextToken: res.data.next_token };
+    return {
+      postsWithUsers: postsWithUser,
+      nextId: res.data.next_id ? res.data.next_id : null,
+    };
   },
 
   create: async (title: string, img?: string): Promise<PostWithUser> => {
@@ -127,12 +127,9 @@ export const PostRepository = {
   },
 
   // showMyLike 自分がいいねした投稿を取得する
-  showMyLike: async (nextToken: string): Promise<PostAllLimit> => {
-    const res = await axios.get(nextToken, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
+  showMyLike: async (nextID: number): Promise<PostAllLimit> => {
+    const apiClient = await asyncApiClient.create();
+    const res = await apiClient.get(`posts/my_like?next_id=${nextID}`);
     const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any) => {
       const post = new Post(
         d.post.id,
@@ -150,16 +147,19 @@ export const PostRepository = {
       };
     });
 
-    return { postsWithUsers: postsWithUser, nextToken: res.data.next_token };
+    return {
+      postsWithUsers: postsWithUser,
+      nextId: res.data.next_id ? res.data.next_id : null,
+    };
   },
 
   // showPostLike 指定したユーザーのいいねした投稿を取得する
-  showPostLike: async (nextToken: string): Promise<PostAllLimit> => {
-    const res = await axios.get(nextToken, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
+  showPostLike: async (
+    nextID: number,
+    userID: number
+  ): Promise<PostAllLimit> => {
+    const apiClient = await asyncApiClient.create();
+    const res = await apiClient.get(`posts/likes/${userID}?next_id=${nextID}`);
     const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any) => {
       const post = new Post(
         d.post.id,
@@ -177,16 +177,18 @@ export const PostRepository = {
       };
     });
 
-    return { postsWithUsers: postsWithUser, nextToken: res.data.next_token };
+    return {
+      postsWithUsers: postsWithUser,
+      nextId: res.data.next_id ? res.data.next_id : null,
+    };
   },
 
   // showPostMy 指定したユーザー自身が投稿したものを取得する
-  showPostMy: async (nextToken: string): Promise<PostAllLimit> => {
-    const res = await axios.get(nextToken, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
+  showPostMy: async (nextID: number, userID: number): Promise<PostAllLimit> => {
+    const apiClient = await asyncApiClient.create();
+    const res = await apiClient.get(
+      `posts/my_post/${userID}?next_id=${nextID}`
+    );
     const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any) => {
       const post = new Post(
         d.post.id,
@@ -204,6 +206,9 @@ export const PostRepository = {
       };
     });
 
-    return { postsWithUsers: postsWithUser, nextToken: res.data.next_token };
+    return {
+      postsWithUsers: postsWithUser,
+      nextId: res.data.next_id ? res.data.next_id : null,
+    };
   },
 };
