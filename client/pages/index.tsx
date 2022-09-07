@@ -17,6 +17,7 @@ import { PostEditModal } from '../lib/components/postEditModal';
 import { getEndPoint, getToken } from '../lib/token';
 import { ShowPost } from '../lib/components/showPost';
 import { PostRepository } from '../lib/repository/post';
+import { LikeRepository } from '../lib/repository/like';
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -64,12 +65,8 @@ const Home: NextPage = () => {
   };
 
   const fetchData = async () => {
-    const res = await axios.get(`${getEndPoint()}/likes`, {
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
-    setMyLikePostIds(res.data === null ? [] : res.data);
+    const myLikePostIds = await LikeRepository.getMyLike();
+    setMyLikePostIds(myLikePostIds);
   };
 
   useEffect(() => {
@@ -143,14 +140,7 @@ const Home: NextPage = () => {
   const clickLikeButton = async (postId: number) => {
     try {
       if (myLikePostIds.includes(postId)) {
-        await axios.delete(`${getEndPoint()}/likes`, {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-          data: {
-            post_id: postId,
-          },
-        });
+        await LikeRepository.delete(postId);
         setMyLikePostIds((old) => {
           return old.filter((i) => i !== postId);
         });
@@ -169,18 +159,8 @@ const Home: NextPage = () => {
           return newPosts;
         });
       } else {
-        const res = await axios.post(
-          `${getEndPoint()}/likes`,
-          {
-            post_id: postId,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${getToken()}`,
-            },
-          }
-        );
-        if (res.data.post_id !== postId) {
+        const like = await LikeRepository.create(postId);
+        if (like.postId !== postId) {
           throw new Error('post_id unknow');
         }
         setMyLikePostIds((old) => [...old, postId]);

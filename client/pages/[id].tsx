@@ -18,6 +18,7 @@ import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { asyncApiClient } from '../lib/axios';
 import { PostRepository } from '../lib/repository/post';
+import { LikeRepository } from '../lib/repository/like';
 
 interface Props {
   id: number;
@@ -91,8 +92,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
   const clickLikeButton = async (postId: number) => {
     try {
       if (showPost?.likes.some((l) => l.userId === user?.id)) {
-        const apiClient = await asyncApiClient.create();
-        await apiClient.delete('likes', { data: { post_id: postId } });
+        await LikeRepository.delete(postId);
         setShowPost((old) => {
           if (!old) return;
           const filterLikes = old.likes.filter(
@@ -106,24 +106,16 @@ const PostShow: NextPage<Props> = ({ id }) => {
           };
         });
       } else {
-        const apiClient = await asyncApiClient.create();
-        const res = await apiClient.post(`likes`, {
-          post_id: postId,
-        });
-        if (res.data.post_id !== postId) {
+        const like = await LikeRepository.create(postId);
+        if (like.postId !== postId) {
           throw new Error('post_id unknow');
         }
         setShowPost((old) => {
           if (!old) return;
-          const newLike = new Like(
-            res.data.id,
-            res.data.user_id,
-            res.data.post_id
-          );
           return {
             post: old.post,
             user: old.user,
-            likes: [...old.likes, newLike],
+            likes: [...old.likes, like],
             commentsWithUsers: old.commentsWithUsers,
           };
         });
