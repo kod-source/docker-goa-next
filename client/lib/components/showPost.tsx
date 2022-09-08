@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import { PostWithUser } from '../model/post';
 import { Avatar, Button } from '@mui/material';
 import { DateTime } from 'luxon';
-import { toStringlinefeed } from '../text';
+import { toStringlinefeed } from './text';
 import Image from 'next/image';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CommentIcon from '@mui/icons-material/Comment';

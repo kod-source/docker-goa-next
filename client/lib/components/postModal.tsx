@@ -4,7 +4,7 @@ import { Avatar, Button, Modal } from '@mui/material';
 import { PostWithUser } from '../model/post';
 import { Comment, CommentWithUser } from '../model/comment';
 import Image from 'next/image';
-import { toStringlinefeed } from '../text';
+import { toStringlinefeed } from './text';
 import { DateTime } from 'luxon';
 import axios from 'axios';
 import { getEndPoint, getToken } from '../token';
