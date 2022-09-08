@@ -5,8 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { FormEvent, useContext, useEffect, useState } from 'react';
 import { Loading } from '../lib/components/loading';
-import { Comment, CommentWithUser } from '../lib/model/comment';
-import { Like } from '../lib/model/like';
+import { Comment } from '../lib/model/comment';
 import { ShowPost } from '../lib/model/post';
 import { toStringlinefeed } from '../lib/components/text';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -16,8 +15,9 @@ import ShareIcon from '@mui/icons-material/Share';
 import { AppContext } from './_app';
 import { DetailModal } from '../lib/components/detailModal';
 import { ConfirmationModal } from '../lib/components/confirmationModal';
-import { asyncApiClient } from '../lib/axios';
 import { PostRepository } from '../lib/repository/post';
+import { LikeRepository } from '../lib/repository/like';
+import { CommentRepository } from '../lib/repository/comment';
 
 interface Props {
   id: number;
@@ -52,47 +52,29 @@ const PostShow: NextPage<Props> = ({ id }) => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>, postId: number) => {
     setIsLoading(true);
     e.preventDefault();
-    const apiClient = await asyncApiClient.create();
-    const res = await apiClient.post(`comments`, {
-      post_id: postId,
-      text: text,
-      img: imagePath,
-    });
-    setText('');
-    setImagePath('');
+    const commentWithUser = await CommentRepository.create(
+      postId,
+      text,
+      imagePath
+    );
     setShowPost((old) => {
       if (!old) return;
-      const newCommentWithUser: CommentWithUser = {
-        comment: new Comment(
-          res.data.comment.id,
-          res.data.comment.post_id,
-          res.data.comment.user_id,
-          res.data.comment.text,
-          new Date(res.data.comment.created_at),
-          new Date(res.data.comment.updated_at),
-          res.data.comment.img
-        ),
-        user: {
-          id: res.data.user.id,
-          name: res.data.user.name,
-          avatar: res.data.user.avatar,
-        },
-      };
       return {
         post: old.post,
         user: old.user,
         likes: old.likes,
-        commentsWithUsers: [newCommentWithUser, ...old.commentsWithUsers],
+        commentsWithUsers: [commentWithUser, ...old.commentsWithUsers],
       };
     });
+    setText('');
+    setImagePath('');
     setIsLoading(false);
   };
 
   const clickLikeButton = async (postId: number) => {
     try {
       if (showPost?.likes.some((l) => l.userId === user?.id)) {
-        const apiClient = await asyncApiClient.create();
-        await apiClient.delete('likes', { data: { post_id: postId } });
+        await LikeRepository.delete(postId);
         setShowPost((old) => {
           if (!old) return;
           const filterLikes = old.likes.filter(
@@ -106,24 +88,16 @@ const PostShow: NextPage<Props> = ({ id }) => {
           };
         });
       } else {
-        const apiClient = await asyncApiClient.create();
-        const res = await apiClient.post(`likes`, {
-          post_id: postId,
-        });
-        if (res.data.post_id !== postId) {
+        const like = await LikeRepository.create(postId);
+        if (like.postId !== postId) {
           throw new Error('post_id unknow');
         }
         setShowPost((old) => {
           if (!old) return;
-          const newLike = new Like(
-            res.data.id,
-            res.data.user_id,
-            res.data.post_id
-          );
           return {
             post: old.post,
             user: old.user,
-            likes: [...old.likes, newLike],
+            likes: [...old.likes, like],
             commentsWithUsers: old.commentsWithUsers,
           };
         });
@@ -161,8 +135,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
 
   const onDelete = async () => {
     if (selectComment) {
-      const apiClient = await asyncApiClient.create();
-      await apiClient.delete(`comments/${selectComment.id}`);
+      await CommentRepository.delete(selectComment.id);
       setShowPost((old) => {
         if (!old) return;
         const newCommentsWithUser = old.commentsWithUsers.filter(
@@ -176,8 +149,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
         };
       });
     } else {
-      const apiClient = await asyncApiClient.create();
-      await apiClient.delete(`posts/${id}`);
+      await PostRepository.delete(id);
       router.push('/');
     }
     setIsShowConfirmModal(false);
