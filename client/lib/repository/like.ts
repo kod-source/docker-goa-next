@@ -20,4 +20,11 @@ export const LikeRepository = {
     const apiClient = await asyncApiClient.create();
     return await apiClient.delete('likes', { data: { post_id: postID } });
   },
+
+  getLikeByUser: async (userID: number): Promise<number[]> => {
+    const apiClient = await asyncApiClient.create();
+    const res = await apiClient.get(`likes/${userID}`);
+
+    return res.data == null ? [] : res.data;
+  },
 };
