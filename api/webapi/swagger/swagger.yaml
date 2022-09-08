@@ -1000,6 +1000,37 @@ paths:
       summary: create likes
       tags:
       - likes
+  /likes/{user_id}:
+    get:
+      description: |-
+        user_idに紐づくいいねした全ての投稿IDを取得する
+
+        Required security scopes:
+          * `api:access`
+      operationId: likes#get_like_by_user
+      parameters:
+      - description: UserID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: get_like_by_user likes
+      tags:
+      - likes
   /login:
     post:
       description: jwtでのログイン処理

@@ -303,6 +303,7 @@ type LikesController interface {
 	goa.Muxer
 	Create(*CreateLikesContext) error
 	Delete(*DeleteLikesContext) error
+	GetLikeByUser(*GetLikeByUserLikesContext) error
 	GetMyLike(*GetMyLikeLikesContext) error
 }
 
@@ -311,6 +312,7 @@ func MountLikesController(service *goa.Service, ctrl LikesController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/likes", ctrl.MuxHandler("preflight", handleLikesOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/likes/:user_id", ctrl.MuxHandler("preflight", handleLikesOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -357,6 +359,23 @@ func MountLikesController(service *goa.Service, ctrl LikesController) {
 	h = handleLikesOrigin(h)
 	service.Mux.Handle("DELETE", "/likes", ctrl.MuxHandler("delete", h, unmarshalDeleteLikesPayload))
 	service.LogInfo("mount", "ctrl", "Likes", "action", "Delete", "route", "DELETE /likes", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetLikeByUserLikesContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetLikeByUser(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleLikesOrigin(h)
+	service.Mux.Handle("GET", "/likes/:user_id", ctrl.MuxHandler("get_like_by_user", h, nil))
+	service.LogInfo("mount", "ctrl", "Likes", "action", "GetLikeByUser", "route", "GET /likes/:user_id", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

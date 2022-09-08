@@ -44,6 +44,17 @@ var _ = Resource("likes", func() {
 		Response(OK, ArrayOf(Integer))
 		Response(InternalServerError)
 	})
+
+	Action("get_like_by_user", func() {
+		Routing(GET("likes/:user_id"))
+		Params(func() {
+			Param("user_id", Integer, "UserID")
+		})
+		Description("user_idに紐づくいいねした全ての投稿IDを取得する")
+		Response(OK, ArrayOf(Integer))
+		Response(NotFound)
+		Response(InternalServerError)
+	})
 })
 
 var like = MediaType("application/vnd.like_json", func() {
