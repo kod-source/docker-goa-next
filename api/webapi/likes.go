@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
@@ -61,6 +63,17 @@ func (c *LikesController) Delete(ctx *app.DeleteLikesContext) error {
 func (c *LikesController) GetMyLike(ctx *app.GetMyLikeLikesContext) error {
 	ps, err := c.lu.GetPostIDs(ctx, getUserIDCode(ctx))
 	if err != nil {
+		return ctx.InternalServerError()
+	}
+	return ctx.OK(ps)
+}
+
+func (c *LikesController) GetLikeByUser(ctx *app.GetLikeByUserLikesContext) error {
+	ps, err := c.lu.GetPostIDs(ctx, ctx.UserID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return ctx.NotFound()
+		}
 		return ctx.InternalServerError()
 	}
 	return ctx.OK(ps)
