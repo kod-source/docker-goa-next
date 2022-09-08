@@ -7,7 +7,6 @@ import styles from '../styles/Home.module.css';
 import { AppContext } from './_app';
 import Avatar from '@mui/material/Avatar';
 import { PostWithUser, SelectPost } from '../lib/model/post';
-import axios from 'axios';
 import { isAxiosError, MyAxiosError } from '../lib/axios';
 import Image from 'next/image';
 import { Loading } from '../lib/components/loading';

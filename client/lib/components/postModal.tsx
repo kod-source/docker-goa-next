@@ -6,10 +6,9 @@ import { Comment, CommentWithUser } from '../model/comment';
 import Image from 'next/image';
 import { toStringlinefeed } from './text';
 import { DateTime } from 'luxon';
-import axios from 'axios';
-import { getEndPoint, getToken } from '../token';
 import { Loading } from './loading';
 import { isAxiosError } from '../axios';
+import { CommentRepository } from '../repository/comment';
 
 interface Props {
   open: boolean;
@@ -44,32 +43,10 @@ export const PostModal: FC<Props> = ({
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(
-        `${getEndPoint()}/comments/${postWithUser.post.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
+      const commentWithUser = await CommentRepository.show(
+        postWithUser.post.id
       );
-      setCommentsWithUser(() => {
-        const newCommentsWithUserr = res.data.map((d: any) => {
-          const comment = new Comment(
-            d.comment.id,
-            d.comment.post_id,
-            d.comment.user_id,
-            d.comment.text,
-            new Date(d.comment.created_at),
-            new Date(d.comment.updated_at),
-            d.comment.img
-          );
-          return {
-            comment: comment,
-            user: { id: d.user.id, name: d.user.name, avatar: d.user.avatar },
-          };
-        });
-        return [...newCommentsWithUserr];
-      });
+      setCommentsWithUser(commentWithUser);
     } catch (e) {
       if (isAxiosError(e)) {
         const myAxiosError = e.response;
@@ -89,41 +66,17 @@ export const PostModal: FC<Props> = ({
   const onSubmit = async (e: FormEvent<HTMLFormElement>, postId: number) => {
     setIsLoading(true);
     e.preventDefault();
-    const res = await axios.post(
-      `${getEndPoint()}/comments`,
-      {
-        post_id: postId,
-        text: text,
-        img: imagePath,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      }
+    const commentWithUser = await CommentRepository.create(
+      postId,
+      text,
+      imagePath
     );
+    setCommentsWithUser((old) => {
+      if (!old) return [commentWithUser];
+      return [commentWithUser, ...old];
+    });
     setText('');
     setImagePath('');
-    setCommentsWithUser((old) => {
-      const newCommentWithUserr: CommentWithUser = {
-        comment: new Comment(
-          res.data.comment.id,
-          res.data.comment.post_id,
-          res.data.comment.user_id,
-          res.data.comment.text,
-          new Date(res.data.comment.created_at),
-          new Date(res.data.comment.updated_at),
-          res.data.comment.img
-        ),
-        user: {
-          id: res.data.user.id,
-          name: res.data.user.name,
-          avatar: res.data.user.avatar,
-        },
-      };
-      if (!old) return [newCommentWithUserr];
-      return [newCommentWithUserr, ...old];
-    });
     setPostsWithUser((old) => {
       const newPosts = old.map((p) => {
         if (p.post.id === postId) {
