@@ -1,7 +1,6 @@
 import { CommentWithUser } from './comment';
 import { Like } from './like';
 import { User } from './user';
-
 export class Post {
   constructor(
     public id: number,

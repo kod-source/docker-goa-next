@@ -8,7 +8,7 @@ import { Loading } from '../lib/components/loading';
 import { Comment, CommentWithUser } from '../lib/model/comment';
 import { Like } from '../lib/model/like';
 import { ShowPost } from '../lib/model/post';
-import { toStringlinefeed } from '../lib/text';
+import { toStringlinefeed } from '../lib/components/text';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CommentIcon from '@mui/icons-material/Comment';
