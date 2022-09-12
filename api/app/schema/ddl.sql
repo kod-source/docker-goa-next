@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `users` (
     `created_at` DATETIME NOT NULL,
     `avatar` TEXT,
     UNIQUE (`email`)
-);
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 
 CREATE TABLE IF NOT EXISTS `posts` (
@@ -17,13 +17,12 @@ CREATE TABLE IF NOT EXISTS `posts` (
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (id),
-    INDEX (user_id),
     FOREIGN KEY (user_id)
     REFERENCES `users`(id)
     ON UPDATE CASCADE ON DELETE RESTRICT
-);
+)  ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `comment` (
+CREATE TABLE IF NOT EXISTS `comments` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `post_id` INT NOT NULL,
     `user_id` INT NOT NULL,
@@ -32,8 +31,6 @@ CREATE TABLE IF NOT EXISTS `comment` (
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (id),
-    INDEX (post_id),
-    INDEX (user_id),
 
     FOREIGN KEY (post_id)
     REFERENCES `posts`(id)
@@ -42,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `comment` (
     FOREIGN KEY (user_id)
     REFERENCES `users`(id)
     ON UPDATE CASCADE ON DELETE RESTRICT
-);
+)  ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `likes` (
     `id` INT NOT NULL AUTO_INCREMENT,
@@ -61,4 +58,4 @@ CREATE TABLE IF NOT EXISTS `likes` (
     FOREIGN KEY (user_id)
     REFERENCES `users`(id)
     ON UPDATE CASCADE ON DELETE RESTRICT
-);
+)  ENGINE=InnoDB  DEFAULT CHARSET=utf8;
