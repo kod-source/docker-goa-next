@@ -10,30 +10,55 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 
 CREATE TABLE IF NOT EXISTS `posts` (
-    `id` MEDIUMINT NOT NULL AUTO_INCREMENT,
+    `id` INT NOT NULL AUTO_INCREMENT,
     `user_id` INT NOT NULL,
     `title` VARCHAR(50) NOT NULL DEFAULT "",
     `img` LONGTEXT,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    INDEX (user_id),
+    FOREIGN KEY (user_id)
+    REFERENCES `users`(id)
+    ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
-CREATE TABLE IF NOT EXISTS `comments` (
-    `id` MEDIUMINT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `comment` (
+    `id` INT NOT NULL AUTO_INCREMENT,
     `post_id` INT NOT NULL,
     `user_id` INT NOT NULL,
     `text` VARCHAR(50) NOT NULL DEFAULT "",
     `img` LONGTEXT,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
-    PRIMARY KEY (id)
+    PRIMARY KEY (id),
+    INDEX (post_id),
+    INDEX (user_id),
+
+    FOREIGN KEY (post_id)
+    REFERENCES `posts`(id)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+
+    FOREIGN KEY (user_id)
+    REFERENCES `users`(id)
+    ON UPDATE CASCADE ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS `likes` (
-    `id` MEDIUMINT NOT NULL AUTO_INCREMENT,
+    `id` INT NOT NULL AUTO_INCREMENT,
     `post_id` INT NOT NULL,
     `user_id` INT NOT NULL,
     PRIMARY KEY (id),
-    UNIQUE post_user_id_index (post_id, user_id)
+    UNIQUE post_user_id_index (post_id, user_id),
+
+    INDEX (post_id),
+    INDEX (user_id),
+
+    FOREIGN KEY (post_id)
+    REFERENCES `posts`(id)
+    ON UPDATE CASCADE ON DELETE RESTRICT,
+
+    FOREIGN KEY (user_id)
+    REFERENCES `users`(id)
+    ON UPDATE CASCADE ON DELETE RESTRICT
 );
