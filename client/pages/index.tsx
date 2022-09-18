@@ -220,12 +220,17 @@ const Home: NextPage = () => {
       <div className='text-center'>
         <form onSubmit={onSubmit}>
           <div className='flex justify-center'>
-            <Avatar
-              sx={{ width: 80, height: 80 }}
-              className='mx-5'
-              alt='投稿者'
-              src={user.avatar ? user.avatar : '/avatar.png'}
-            />
+            <div
+              className='cursor-pointer hover:opacity-60'
+              onClick={() => router.push(`users/${user.id}`)}
+            >
+              <Avatar
+                sx={{ width: 80, height: 80 }}
+                className='mx-5'
+                alt='投稿者'
+                src={user.avatar ? user.avatar : '/avatar.png'}
+              />
+            </div>
             <label className='cursor-pointer'>
               <textarea
                 className='w-96'
@@ -275,7 +280,7 @@ const Home: NextPage = () => {
           </div>
         </form>
       </div>
-      <div>
+      <div className='mx-auto w-3/5'>
         {postsWithUser.map((p) => (
           <ShowPost
             key={p.post.id}

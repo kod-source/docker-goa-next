@@ -7,3 +7,9 @@ export class User {
     public avatar?: string
   ) {}
 }
+
+export const enum UserPostSelection {
+  My = "my",
+  Media = "media",
+  Like = "like",
+}

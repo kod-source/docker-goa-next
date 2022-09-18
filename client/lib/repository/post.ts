@@ -211,4 +211,36 @@ export const PostRepository = {
       nextId: res.data.next_id ? res.data.next_id : null,
     };
   },
+
+  // showPostMedia 指定したユーザーの画像あり投稿を取得する
+  showPostMedia: async (
+    nextID: number,
+    userID: number
+  ): Promise<PostAllLimit> => {
+    const apiClient = await asyncApiClient.create();
+    const res = await apiClient.get(
+      `posts/my_media/${userID}?next_id=${nextID}`
+    );
+    const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any) => {
+      const post = new Post(
+        d.post.id,
+        d.post.user_id,
+        d.post.title,
+        new Date(d.post.created_at),
+        new Date(d.post.updated_at),
+        d.post.img
+      );
+      return {
+        post: post,
+        user: { name: d.user_name, avatar: d.avatar },
+        countLike: d.count_like,
+        countComment: d.count_comment,
+      };
+    });
+
+    return {
+      postsWithUsers: postsWithUser,
+      nextId: res.data.next_id ? res.data.next_id : null,
+    };
+  },
 };

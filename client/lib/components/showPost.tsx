@@ -34,19 +34,27 @@ export const ShowPost: FC<Props> = ({
   return (
     <>
       <div
-        className='my-5 mx-auto w-3/5 border border-slate-600 p-5 rounded-md cursor-pointer'
+        className='my-5 border border-slate-600 p-5 rounded-md cursor-pointer'
         onClick={() => router.push(`/${postWithUser.post.id}`)}
       >
         <div className='flex justify-center'>
-          <Avatar
-            sx={{ width: 80, height: 80 }}
-            alt='投稿者'
-            src={
-              postWithUser.user.avatar
-                ? postWithUser.user.avatar
-                : '/avatar.png'
-            }
-          />
+          <div
+            className='cursor-pointer hover:opacity-60'
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`users/${postWithUser.post.userId}`);
+            }}
+          >
+            <Avatar
+              sx={{ width: 80, height: 80 }}
+              alt='投稿者'
+              src={
+                postWithUser.user.avatar
+                  ? postWithUser.user.avatar
+                  : '/avatar.png'
+              }
+            />
+          </div>
           <div className='pt-5 mx-3'>
             <p>{postWithUser.user.name}</p>
             <div className='flex'>
