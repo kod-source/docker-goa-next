@@ -34,7 +34,7 @@ export const ShowPost: FC<Props> = ({
   return (
     <>
       <div
-        className='my-5 mx-auto w-3/5 border border-slate-600 p-5 rounded-md cursor-pointer'
+        className='my-5 border border-slate-600 p-5 rounded-md cursor-pointer'
         onClick={() => router.push(`/${postWithUser.post.id}`)}
       >
         <div className='flex justify-center'>

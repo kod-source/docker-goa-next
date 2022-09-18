@@ -280,7 +280,7 @@ const Home: NextPage = () => {
           </div>
         </form>
       </div>
-      <div>
+      <div className='mx-auto w-3/5'>
         {postsWithUser.map((p) => (
           <ShowPost
             key={p.post.id}
