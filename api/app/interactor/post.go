@@ -531,7 +531,7 @@ func (p *postInteractor) ShowPostMedia(ctx context.Context, userID, nextID int) 
 			GROUP BY post_id
 		) as c
 		ON p.id = c.post_id
-		WHERE p.user_id = ? AND p.img IS NOT NULL
+		WHERE p.user_id = ? AND p.img IS NOT NULL AND p.img != ""
 		ORDER BY p.created_at DESC
 		LIMIT ?, ?
 	`, userID, nextID, limitNumber)
