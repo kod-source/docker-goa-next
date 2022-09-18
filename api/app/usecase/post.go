@@ -17,6 +17,8 @@ type PostUseCase interface {
 	ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
 	// ShowPostMy 指定したUserIDが投稿したものを取得する
 	ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
+	// ShowPostMedia 指定したUserIDが画像投稿したものを取得する
+	ShowPostMedia(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
 }
 
 type postUseCase struct {
@@ -89,5 +91,13 @@ func (p *postUseCase) ShowPostMy(ctx context.Context, userID, nextID int) ([]*mo
 		return nil, nil, err
 	}
 
+	return ips, nID, nil
+}
+
+func (p *postUseCase) ShowPostMedia(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
+	ips, nID, err := p.pi.ShowPostMedia(ctx, userID, nextID)
+	if err != nil {
+		return nil, nil, err
+	}
 	return ips, nID, nil
 }

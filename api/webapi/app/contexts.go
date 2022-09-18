@@ -1102,6 +1102,67 @@ func (ctx *ShowPostLikePostsContext) InternalServerError() error {
 	return nil
 }
 
+// ShowPostMediaPostsContext provides the posts show_post_media action context.
+type ShowPostMediaPostsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID     int
+	NextID *int
+}
+
+// NewShowPostMediaPostsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the posts controller show_post_media action.
+func NewShowPostMediaPostsContext(ctx context.Context, r *http.Request, service *goa.Service) (*ShowPostMediaPostsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ShowPostMediaPostsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	paramNextID := req.Params["next_id"]
+	if len(paramNextID) > 0 {
+		rawNextID := paramNextID[0]
+		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
+			tmp18 := nextID
+			tmp17 := &tmp18
+			rctx.NextID = tmp17
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ShowPostMediaPostsContext) OK(r *PostAllLimit) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.post_all_limit")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ShowPostMediaPostsContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ShowPostMediaPostsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // ShowPostMyPostsContext provides the posts show_post_my action context.
 type ShowPostMyPostsContext struct {
 	context.Context
@@ -1133,9 +1194,9 @@ func NewShowPostMyPostsContext(ctx context.Context, r *http.Request, service *go
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp18 := nextID
-			tmp17 := &tmp18
-			rctx.NextID = tmp17
+			tmp21 := nextID
+			tmp20 := &tmp21
+			rctx.NextID = tmp20
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
