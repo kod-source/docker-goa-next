@@ -1301,6 +1301,44 @@ paths:
       summary: show_my_like posts
       tags:
       - posts
+  /posts/my_media/{id}:
+    get:
+      description: |-
+        指定したユーザー画像投稿したのを取得する
+
+        Required security scopes:
+          * `api:access`
+      operationId: posts#show_post_media
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 次のID
+        in: query
+        name: next_id
+        required: false
+        type: integer
+      produces:
+      - application/vnd.post_all_limit
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Post_all_limit'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: show_post_media posts
+      tags:
+      - posts
   /posts/my_post/{id}:
     get:
       description: |-
