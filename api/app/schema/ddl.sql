@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS `posts` (
     `img` LONGTEXT,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
-    PRIMARY KEY (id),
-    FOREIGN KEY (user_id)
-    REFERENCES `users`(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT
+    PRIMARY KEY (`id`),
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users`(`id`)
+    ON UPDATE CASCADE ON DELETE CASCADE
 )  ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `comments` (
@@ -30,32 +30,32 @@ CREATE TABLE IF NOT EXISTS `comments` (
     `img` LONGTEXT,
     `created_at` DATETIME NOT NULL,
     `updated_at` DATETIME NOT NULL,
-    PRIMARY KEY (id),
+    PRIMARY KEY (`id`),
 
-    FOREIGN KEY (post_id)
-    REFERENCES `posts`(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (`post_id`)
+    REFERENCES `posts`(`id`)
+    ON UPDATE CASCADE ON DELETE CASCADE,
 
-    FOREIGN KEY (user_id)
-    REFERENCES `users`(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users`(`id`)
+    ON UPDATE CASCADE ON DELETE CASCADE
 )  ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `likes` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `post_id` INT NOT NULL,
     `user_id` INT NOT NULL,
-    PRIMARY KEY (id),
-    UNIQUE post_user_id_index (post_id, user_id),
+    PRIMARY KEY (`id`),
+    UNIQUE `post_user_id_index` (`post_id`, `user_id`),
 
-    INDEX (post_id),
-    INDEX (user_id),
+    INDEX (`post_id`),
+    INDEX (`user_id`),
 
-    FOREIGN KEY (post_id)
-    REFERENCES `posts`(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (`post_id`)
+    REFERENCES `posts`(`id`)
+    ON UPDATE CASCADE ON DELETE CASCADE,
 
-    FOREIGN KEY (user_id)
-    REFERENCES `users`(id)
-    ON UPDATE CASCADE ON DELETE RESTRICT
+    FOREIGN KEY (`user_id`)
+    REFERENCES `users`(`id`)
+    ON UPDATE CASCADE ON DELETE CASCADE
 )  ENGINE=InnoDB  DEFAULT CHARSET=utf8;
