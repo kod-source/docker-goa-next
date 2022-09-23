@@ -289,6 +289,7 @@ const Home: NextPage = () => {
             myLikePostIds={myLikePostIds}
             clickLikeButton={clickLikeButton}
             onClickDetail={onClickDetail}
+            onRouter={() => router.push(`users/${p.post.userId}`)}
           />
         ))}
         {isLoading && (

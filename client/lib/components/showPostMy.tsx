@@ -8,21 +8,27 @@ import { PostWithUser } from '../model/post';
 import { Loading } from './loading';
 import { ShowPost } from './showPost';
 import { LikeRepository } from '../repository/like';
+import { useRouter } from 'next/router';
 
 interface Props {
   value: UserPostSelection;
+  setValue: React.Dispatch<React.SetStateAction<UserPostSelection>>;
   showUser: User;
+  setShowUser: React.Dispatch<React.SetStateAction<User | undefined>>;
   myLikePostIds: number[];
   setMyLikePostIds: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 export const ShowPostMy: FC<Props> = ({
   value,
+  setValue,
   showUser,
+  setShowUser,
   myLikePostIds,
   setMyLikePostIds,
 }) => {
   const { user } = useContext(AppContext);
+  const router = useRouter();
   const [nextID, setNextID] = useState<number | null>(0);
   const [postsWithUser, setPostsWithUser] = useState<PostWithUser[]>([]);
   const [againFetch, setAgainFetch] = useState(true);
@@ -53,7 +59,7 @@ export const ShowPostMy: FC<Props> = ({
     }
     window.addEventListener('scroll', changeBottom);
     return () => window.removeEventListener('scroll', changeBottom);
-  }, [value, againFetch]);
+  }, [value, againFetch, showUser, nextID]);
 
   const changeBottom = useCallback(() => {
     const bottomPosition =
@@ -127,6 +133,24 @@ export const ShowPostMy: FC<Props> = ({
             myLikePostIds={myLikePostIds}
             clickLikeButton={clickLikeButton}
             onClickDetail={onClickDetail}
+            onRouter={() => {
+              if (showUser.id === p.post.userId) {
+                return;
+              }
+              setValue(UserPostSelection.My);
+              setNextID(0);
+              setShowUser((old) => {
+                if (!old) return;
+                return new User(
+                  p.post.userId,
+                  p.user.name,
+                  old.email,
+                  old.createdAt,
+                  p.user.avatar
+                );
+              });
+              router.push(`${p.post.userId}`);
+            }}
           />
         ))}
         {isLoading && (

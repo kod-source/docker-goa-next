@@ -36,7 +36,7 @@ const ShowUser: NextPage<Props> = ({ id }) => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [id]);
 
   const handleChange = (
     e: React.SyntheticEvent,
@@ -91,7 +91,9 @@ const ShowUser: NextPage<Props> = ({ id }) => {
             <TabPanel value={UserPostSelection.My}>
               <ShowPostMy
                 value={value}
+                setValue={setValue}
                 showUser={showUser}
+                setShowUser={setShowUser}
                 myLikePostIds={myLikePostIds}
                 setMyLikePostIds={setMyLikePostIds}
               />
@@ -99,7 +101,9 @@ const ShowUser: NextPage<Props> = ({ id }) => {
             <TabPanel value={UserPostSelection.Media}>
               <ShowPostMy
                 value={value}
+                setValue={setValue}
                 showUser={showUser}
+                setShowUser={setShowUser}
                 myLikePostIds={myLikePostIds}
                 setMyLikePostIds={setMyLikePostIds}
               />
@@ -107,7 +111,9 @@ const ShowUser: NextPage<Props> = ({ id }) => {
             <TabPanel value={UserPostSelection.Like}>
               <ShowPostMy
                 value={value}
+                setValue={setValue}
                 showUser={showUser}
+                setShowUser={setShowUser}
                 myLikePostIds={myLikePostIds}
                 setMyLikePostIds={setMyLikePostIds}
               />
