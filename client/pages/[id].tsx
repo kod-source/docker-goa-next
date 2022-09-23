@@ -168,11 +168,15 @@ const PostShow: NextPage<Props> = ({ id }) => {
         </div>
         <div className='my-5 border border-slate-600 p-5 rounded-md cursor-pointer'>
           <div className='flex justify-center'>
-            <Avatar
-              sx={{ width: 80, height: 80 }}
-              alt='投稿者'
-              src={showPost.user.avatar ? showPost.user.avatar : '/avatar.png'}
-            />
+            <div onClick={() => router.push(`users/${showPost.user.id}`)}>
+              <Avatar
+                sx={{ width: 80, height: 80 }}
+                alt='投稿者'
+                src={
+                  showPost.user.avatar ? showPost.user.avatar : '/avatar.png'
+                }
+              />
+            </div>
             <div className='pt-5 mx-3'>
               <p>{showPost.user.name}</p>
               <div className='flex'>

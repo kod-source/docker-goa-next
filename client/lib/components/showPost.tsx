@@ -19,6 +19,7 @@ interface Props {
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     p: PostWithUser
   ) => void;
+  onRouter: () => void;
 }
 
 export const ShowPost: FC<Props> = ({
@@ -27,6 +28,7 @@ export const ShowPost: FC<Props> = ({
   myLikePostIds,
   clickLikeButton,
   onClickDetail,
+  onRouter,
 }) => {
   const router = useRouter();
   const [isShowPostModal, setIsShowPostModal] = useState(false);
@@ -42,7 +44,7 @@ export const ShowPost: FC<Props> = ({
             className='cursor-pointer hover:opacity-60'
             onClick={(e) => {
               e.stopPropagation();
-              router.push(`users/${postWithUser.post.userId}`);
+              onRouter();
             }}
           >
             <Avatar
