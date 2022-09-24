@@ -4,11 +4,14 @@ import Box from '@mui/material/Box';
 import { User, UserPostSelection } from '../model/user';
 import { AppContext } from '../../pages/_app';
 import { PostRepository } from '../repository/post';
-import { PostWithUser } from '../model/post';
+import { PostWithUser, SelectPost } from '../model/post';
 import { Loading } from './loading';
 import { ShowPost } from './showPost';
 import { LikeRepository } from '../repository/like';
 import { useRouter } from 'next/router';
+import { DetailModal } from './detailModal';
+import { ConfirmationModal } from './confirmationModal';
+import { PostEditModal } from './postEditModal';
 
 interface Props {
   value: UserPostSelection;
@@ -33,6 +36,19 @@ export const ShowPostMy: FC<Props> = ({
   const [postsWithUser, setPostsWithUser] = useState<PostWithUser[]>([]);
   const [againFetch, setAgainFetch] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isShowDetailModal, setIsShowDetailModal] = useState(false);
+  const [widthAndHeightRate, setWidthAndHeightRate] = useState({
+    width: '',
+    height: '',
+  });
+  const [isMyPost, setIsMyPost] = useState(false);
+  const [selectPost, setSelectPost] = useState<SelectPost>({
+    id: 0,
+    title: '',
+    img: '',
+  });
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showPostEditModal, setShowPostEditModal] = useState(false);
 
   const fetchData = async () => {
     if (nextID == null) return;
@@ -120,7 +136,38 @@ export const ShowPostMy: FC<Props> = ({
     }
   };
 
-  const onClickDetail = () => {};
+  const onClickDetail = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    p: PostWithUser
+  ) => {
+    const currentWidth = e.clientX;
+    const currentHeight = e.clientY;
+    setWidthAndHeightRate({
+      width: String((currentWidth / window.innerWidth) * 100) + '%',
+      height: String((currentHeight / window.innerHeight) * 100) + '%',
+    });
+    setIsShowDetailModal(true);
+    setIsMyPost(p.post.userId === user?.id);
+    setSelectPost({
+      id: p.post.id,
+      title: p.post.title,
+      img: p.post.img,
+    });
+  };
+
+  const onDelete = async () => {
+    try {
+      await PostRepository.delete(selectPost.id);
+      setShowConfirmModal(false);
+      setPostsWithUser(
+        postsWithUser?.filter((p) => p.post.id !== selectPost.id)
+      );
+    } catch (e) {
+      if (e instanceof Error) {
+        alert(e.message);
+      }
+    }
+  };
 
   return (
     <div>
@@ -159,6 +206,40 @@ export const ShowPostMy: FC<Props> = ({
           </div>
         )}
       </div>
+      {isShowDetailModal && (
+        <DetailModal
+          open={isShowDetailModal}
+          handleClose={() => setIsShowDetailModal(false)}
+          widthRate={widthAndHeightRate.width}
+          heightRate={widthAndHeightRate.height}
+          onDeleteClick={() => {
+            setIsShowDetailModal(false);
+            setShowConfirmModal(true);
+          }}
+          onUpdateClick={() => {
+            setIsShowDetailModal(false);
+            setShowPostEditModal(true);
+          }}
+          isMyPost={isMyPost}
+        />
+      )}
+      {showConfirmModal && (
+        <ConfirmationModal
+          open={showConfirmModal}
+          handleClose={() => setShowConfirmModal(false)}
+          text='削除してもよろしいですか？'
+          confirmInvoke={() => onDelete()}
+        />
+      )}
+      {showPostEditModal && (
+        <PostEditModal
+          open={showPostEditModal}
+          handleClose={() => setShowPostEditModal(false)}
+          post={selectPost}
+          setPost={setSelectPost}
+          setPostsWithUsers={setPostsWithUser}
+        />
+      )}
     </div>
   );
 };
