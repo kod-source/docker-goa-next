@@ -1,4 +1,4 @@
-import React, { FC, FormEvent, useEffect, useState } from 'react';
+import React, { FC, FormEvent, useContext, useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import { Avatar, Button, Modal } from '@mui/material';
 import { PostWithUser } from '../model/post';
@@ -9,6 +9,12 @@ import { DateTime } from 'luxon';
 import { Loading } from './loading';
 import { isAxiosError } from '../axios';
 import { CommentRepository } from '../repository/comment';
+import { DetailModal } from './detailModal';
+import { ConfirmationModal } from './confirmationModal';
+import { ShowPost } from '../model/post';
+import { PostRepository } from '../repository/post';
+import { User } from '../model/user';
+import { AppContext } from '../../pages/_app';
 
 interface Props {
   open: boolean;
@@ -36,10 +42,20 @@ export const PostModal: FC<Props> = ({
     p: 4,
   };
 
+  const { user } = useContext(AppContext);
   const [commentsWithUser, setCommentsWithUser] = useState<CommentWithUser[]>();
   const [text, setText] = useState('');
   const [imagePath, setImagePath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [widthAndHeightRate, setWidthAndHeightRate] = useState({
+    width: '',
+    height: '',
+  });
+  const [isShowDetailModal, setIsShowDetailModal] = useState(false);
+  const [isShowConfirmModal, setIsShowConfirmModal] = useState(false);
+  const [isShowUpdateModal, setIsShowUpdateModal] = useState(false);
+  const [selectComment, setSelectComment] = useState<Comment>();
+  const [isMine, setIsMine] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -105,6 +121,49 @@ export const PostModal: FC<Props> = ({
       reader.readAsDataURL(file);
     }
   };
+
+  const onClickDetail = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    const currentWidth = e.clientX;
+    const currentHeight = e.clientY;
+    setWidthAndHeightRate({
+      width: String((currentWidth / window.innerWidth) * 100) + '%',
+      height: String((currentHeight / window.innerHeight) * 100) + '%',
+    });
+    setIsShowDetailModal(true);
+  };
+
+  const onDelete = async () => {
+    if (selectComment) {
+      await CommentRepository.delete(selectComment.id);
+      setCommentsWithUser((old) => {
+        if (!old) return;
+        const newCommentsWithUser = old.filter(
+          (cu) => cu.comment.id !== selectComment.id
+        );
+        return newCommentsWithUser;
+      });
+      setPostsWithUser((old) => {
+        const newPosts = old.map((p) => {
+          if (p.post.id === postWithUser.post.id) {
+            return {
+              post: p.post,
+              user: p.user,
+              countLike: p.countLike,
+              countComment: p.countComment - 1,
+            };
+          }
+          return p;
+        });
+        return newPosts;
+      });
+    } else {
+      await PostRepository.delete(postWithUser.post.id);
+      handleClose();
+    }
+    setIsShowConfirmModal(false);
+  };
   return (
     <Modal
       open={open}
@@ -143,6 +202,17 @@ export const PostModal: FC<Props> = ({
                   </p>
                 )}
               </div>
+            </div>
+            <div className='ml-auto'>
+              <Button
+                className='text-white'
+                onClick={(e) => {
+                  setIsMine(postWithUser.post.userId === user?.id);
+                  onClickDetail(e);
+                }}
+              >
+                :
+              </Button>
             </div>
           </div>
           <div>
@@ -239,7 +309,11 @@ export const PostModal: FC<Props> = ({
                   <div className='ml-auto'>
                     <Button
                       className='text-white'
-                      // onClick={(e) => onClickDetail(e, postWithUser)}
+                      onClick={(e) => {
+                        setIsMine(cu.user.id === user?.id);
+                        setSelectComment(cu.comment);
+                        onClickDetail(e);
+                      }}
                     >
                       :
                     </Button>
@@ -261,6 +335,31 @@ export const PostModal: FC<Props> = ({
           </div>
         ) : (
           <Loading />
+        )}
+        {isShowDetailModal && (
+          <DetailModal
+            open={isShowDetailModal}
+            handleClose={() => setIsShowDetailModal(false)}
+            widthRate={widthAndHeightRate.width}
+            heightRate={widthAndHeightRate.height}
+            onUpdateClick={() => {
+              setIsShowDetailModal(false);
+              setIsShowUpdateModal(true);
+            }}
+            onDeleteClick={() => {
+              setIsShowDetailModal(false);
+              setIsShowConfirmModal(true);
+            }}
+            isMyPost={isMine}
+          />
+        )}
+        {isShowConfirmModal && (
+          <ConfirmationModal
+            open={isShowConfirmModal}
+            handleClose={() => setIsShowConfirmModal(false)}
+            text='削除してもよろしいでしょうか？'
+            confirmInvoke={() => onDelete()}
+          />
         )}
       </Box>
     </Modal>
