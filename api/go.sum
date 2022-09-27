@@ -52,6 +52,7 @@ github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5y
 github.com/golang/protobuf v1.3.2/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/google/go-cmp v0.3.1/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
 github.com/google/go-cmp v0.4.0/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
+github.com/google/go-cmp v0.5.9 h1:O2Tfq5qg4qc4AmwVlvv0oLiVAGB7enBSJ2x2DqQFi38=
 github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/M65Eg=
 github.com/google/gxui v0.0.0-20151028112939-f85e0a97b3a4 h1:OL2d27ueTKnlQJoqLW2fc9pWYulFnJYLWzomGV7HqZo=
 github.com/gopherjs/gopherjs v1.17.2 h1:fQnZVsXk8uxXIStYb0N4bGk7jeyTalG/wsZjQ25dO0g=
@@ -117,6 +118,8 @@ github.com/prometheus/procfs v0.0.8/go.mod h1:7Qr8sr6344vo1JqZ6HhLceV9o3AJ1Ff+Gx
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/shogo82148/goa-v1 v1.5.13 h1:Kknq9cEFt+MZX4EQsCw31QuVgM5VC/h/jVAiFIJrb0k=
 github.com/shogo82148/goa-v1 v1.5.13/go.mod h1:TT7OMoxk8j9DhN9WGYfddZz7fIy6eHEISK5YLC/AMCI=
+github.com/shogo82148/myddlmaker v0.0.2 h1:L/E8eEGBlNxPvMh8b75ONGxpvYliM2pVKRt4Z5osix8=
+github.com/shogo82148/myddlmaker v0.0.2/go.mod h1:AyJfmk86lLlEe0xAREdylvTLlJApBv+NC1/1234e9C0=
 github.com/shogo82148/pointer v1.2.0 h1:MEPjAx9hK17sdEVhaqHROphdy+RxTH70vaBypZzZ/d8=
 github.com/shogo82148/pointer v1.2.0/go.mod h1:agZ5JFpavFPXznbWonIvbG78NDfvDTFppe+7o53up5w=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=

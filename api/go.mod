@@ -6,6 +6,7 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/shogo82148/goa-v1 v1.5.13
+	github.com/shogo82148/myddlmaker v0.0.2
 	github.com/shogo82148/pointer v1.2.0
 	github.com/spf13/cobra v1.4.0
 	github.com/tanimutomo/sqlfile v1.0.0
