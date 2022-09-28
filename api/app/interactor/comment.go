@@ -31,7 +31,7 @@ func (c *commentInteractor) Create(ctx context.Context, postID, userID int, text
 		return nil, err
 	}
 	ins, err := tx.Prepare(
-		"INSERT INTO comments(`post_id`, `user_id`, `text`, `img`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?)",
+		"INSERT INTO comment(`post_id`, `user_id`, `text`, `img`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?)",
 	)
 	if err != nil {
 		return nil, err
@@ -47,8 +47,8 @@ func (c *commentInteractor) Create(ctx context.Context, postID, userID int, text
 	}
 	err = tx.QueryRow(`
 		SELECT c.id, c.post_id, c.user_id, c.text, c.img, c.created_at, c.updated_at, u.id, u.name, u.avatar
-		FROM comments as c
-		INNER JOIN users as u
+		FROM comment as c
+		INNER JOIN user as u
 		ON c.user_id = u.id
 		WHERE c.id = ?
 	`, lastID).Scan(
@@ -75,8 +75,8 @@ func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*mo
 	var commentsWithUsers []*model.CommentWithUser
 	rows, err := c.db.Query(`
 		SELECT c.id, c.post_id, c.user_id, c.text, c.img, c.created_at, c.updated_at, u.id, u.name, u.avatar
-		FROM comments as c
-		INNER JOIN users as u
+		FROM comment as c
+		INNER JOIN user as u
 		ON c.user_id = u.id
 		WHERE c.post_id = ?
 		ORDER BY c.created_at DESC
@@ -119,7 +119,7 @@ func (c *commentInteractor) Update(ctx context.Context, id int, text string, img
 	if err != nil {
 		return nil, err
 	}
-	upd, err := tx.Prepare("UPDATE `comments` set `text` = ?, `img` = ?, `updated_at` = ? WHERE `id` = ?")
+	upd, err := tx.Prepare("UPDATE `comment` set `text` = ?, `img` = ?, `updated_at` = ? WHERE `id` = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (c *commentInteractor) Update(ctx context.Context, id int, text string, img
 		return nil, err
 	}
 	err = tx.QueryRow(
-		"SELECT `id`, `post_id`, `user_id`, `text`, `img`, `created_at`, `updated_at` FROM `comments` WHERE `id` = ?", id,
+		"SELECT `id`, `post_id`, `user_id`, `text`, `img`, `created_at`, `updated_at` FROM `comment` WHERE `id` = ?", id,
 	).Scan(
 		&comment.ID,
 		&comment.PostID,
@@ -148,7 +148,7 @@ func (c *commentInteractor) Update(ctx context.Context, id int, text string, img
 }
 
 func (c *commentInteractor) Delete(ctx context.Context, id int) error {
-	stmt, err := c.db.Prepare("DELETE FROM `comments` WHERE `id` = ?")
+	stmt, err := c.db.Prepare("DELETE FROM `comment` WHERE `id` = ?")
 	if err != nil {
 		return err
 	}

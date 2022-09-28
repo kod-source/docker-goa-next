@@ -39,7 +39,7 @@ func (p *postInteractor) CreatePost(ctx context.Context, userID int, title strin
 		return nil, err
 	}
 	ins, err := tx.Prepare(
-		"INSERT INTO posts(`user_id`, `title`, `img`, `created_at`, `updated_at`) VALUES(?,?,?,?,?)",
+		"INSERT INTO post(`user_id`, `title`, `img`, `created_at`, `updated_at`) VALUES(?,?,?,?,?)",
 	)
 	if err != nil {
 		tx.Rollback()
@@ -56,8 +56,8 @@ func (p *postInteractor) CreatePost(ctx context.Context, userID int, title strin
 	}
 	err = tx.QueryRow(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
-		FROM posts as p
-		INNER JOIN users as u
+		FROM post as p
+		INNER JOIN user as u
 		ON p.user_id = u.id
 		WHERE p.id = ?
 	`, lastID).Scan(
@@ -84,18 +84,18 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 	limitNumber := 20
 	rows, err := p.db.Query(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
-		FROM posts as p
-		INNER JOIN users as u
+		FROM post as p
+		INNER JOIN user as u
 		ON p.user_id = u.id
 		LEFT JOIN (
 			SELECT post_id, COUNT(id) as COUNT
-			FROM likes
+			FROM like
 			GROUP BY post_id
 		) as l
 		ON p.id = l.post_id
 		LEFT JOIN (
 			SELECT post_id, COUNT(id) as COUNT
-			FROM comments
+			FROM comment
 			GROUP BY post_id
 		) as c
 		ON p.id = c.post_id
@@ -151,7 +151,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 
 	var lastPostID int
 	err = p.db.QueryRow(
-		"SELECT `id` FROM `posts` ORDER BY `created_at` LIMIT 1",
+		"SELECT `id` FROM `post` ORDER BY `created_at` LIMIT 1",
 	).Scan(
 		&lastPostID,
 	)
@@ -168,7 +168,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 }
 
 func (p *postInteractor) Delete(ctx context.Context, id int) error {
-	stmt, err := p.db.Prepare("DELETE FROM `posts` WHERE `id` = ?")
+	stmt, err := p.db.Prepare("DELETE FROM `post` WHERE `id` = ?")
 	if err != nil {
 		return err
 	}
@@ -185,7 +185,7 @@ func (p *postInteractor) Update(ctx context.Context, id int, title string, img *
 	if err != nil {
 		return nil, err
 	}
-	upd, err := tx.Prepare("UPDATE `posts` set `title` = ?, `img` = ?, `updated_at` = ? WHERE id = ?")
+	upd, err := tx.Prepare("UPDATE `post` set `title` = ?, `img` = ?, `updated_at` = ? WHERE id = ?")
 	if err != nil {
 		return nil, err
 	}
@@ -197,8 +197,8 @@ func (p *postInteractor) Update(ctx context.Context, id int, title string, img *
 	var indexPost model.IndexPost
 	err = tx.QueryRow(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
-		FROM posts as p
-		INNER JOIN users as u
+		FROM post as p
+		INNER JOIN user as u
 		ON p.user_id = u.id
 		WHERE p.id = ?
 	`, id).Scan(
@@ -224,13 +224,13 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 	var showPost model.ShowPost
 	rows, err := p.db.Query(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar, cu.C_ID, cu.C_POST_ID, cu.C_TEXT, cu.C_IMG, cu.C_CREATED_AT, cu.C_UPDATED_AT, cu.U_ID, cu.U_NAME, cu.U_AVATAR
-		FROM posts as p
-		INNER JOIN users as u
+		FROM post as p
+		INNER JOIN user as u
 		ON p.user_id = u.id
 		LEFT JOIN (
 			SELECT c.id as C_ID, c.post_id as C_POST_ID, c.text as C_TEXT, c.img as C_IMG, c.created_at as C_CREATED_AT, c.updated_at as C_UPDATED_AT, u.id as U_ID, u.name as U_NAME, u.avatar as U_AVATAR
-			FROM comments as c
-			INNER JOIN users as u
+			FROM comment as c
+			INNER JOIN user as u
 			ON c.user_id = u.id
 		) as cu
 		ON p.id = cu.C_POST_ID
@@ -280,7 +280,7 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 	}
 
 	var likes []*model.Like
-	likeRows, err := p.db.Query("SELECT `id`, `user_id`, `post_id` FROM `likes` WHERE `post_id` = ?", postID)
+	likeRows, err := p.db.Query("SELECT `id`, `user_id`, `post_id` FROM `like` WHERE `post_id` = ?", postID)
 	if err != nil {
 		return nil, err
 	}
@@ -307,24 +307,24 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 	limitNumber := 20
 	rows, err := p.db.Query(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
-		FROM posts as p
+		FROM post as p
 		INNER JOIN (
 			SELECT post_id
-			FROM likes
+			FROM like
 			WHERE user_id = ?
 		) as lu
 		ON p.id = lu.post_id
-		INNER JOIN users as u
+		INNER JOIN user as u
 		ON p.user_id = u.id
 		LEFT JOIN (
 			SELECT post_id, COUNT(id) as COUNT
-			FROM likes
+			FROM like
 			GROUP BY post_id
 		) as l
 		ON p.id = l.post_id
 		LEFT JOIN (
 			SELECT post_id, COUNT(id) as COUNT
-			FROM comments
+			FROM comment
 			GROUP BY post_id
 		) as c
 		ON p.id = c.post_id
@@ -381,10 +381,10 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 	var lastPostID int
 	err = p.db.QueryRow(`
 		SELECT p.id
-		FROM posts AS p
+		FROM post AS p
 		INNER JOIN (
 			SELECT post_id
-			FROM likes
+			FROM like
 			WHERE user_id = ?
 		) AS l
 		ON p.id = l.post_id
@@ -413,18 +413,18 @@ func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]
 	defer tx.Rollback()
 	rows, err := tx.Query(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
-		FROM posts as p
-		INNER JOIN users as u
+		FROM post as p
+		INNER JOIN user as u
 		ON p.user_id = u.id
 		LEFT JOIN (
 			SELECT post_id, COUNT(id) as COUNT
-			FROM likes
+			FROM like
 			GROUP BY post_id
 		) as l
 		ON p.id = l.post_id
 		LEFT JOIN (
 			SELECT post_id, COUNT(id) as COUNT
-			FROM comments
+			FROM comment
 			GROUP BY post_id
 		) as c
 		ON p.id = c.post_id
@@ -482,10 +482,10 @@ func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]
 	var lastPostID int
 	err = tx.QueryRow(`
 		SELECT p.id
-		FROM posts AS p
+		FROM post AS p
 		INNER JOIN (
 			SELECT post_id
-			FROM likes
+			FROM like
 			WHERE user_id = ?
 		) AS l
 		ON p.id = l.post_id
@@ -516,18 +516,18 @@ func (p *postInteractor) ShowPostMedia(ctx context.Context, userID, nextID int) 
 	defer tx.Rollback()
 	rows, err := tx.Query(`
 		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
-		FROM posts as p
-		INNER JOIN users as u
+		FROM post as p
+		INNER JOIN user as u
 		ON p.user_id = u.id
 		LEFT JOIN (
 			SELECT post_id, COUNT(id) as COUNT
-			FROM likes
+			FROM like
 			GROUP BY post_id
 		) as l
 		ON p.id = l.post_id
 		LEFT JOIN (
 			SELECT post_id, COUNT(id) as COUNT
-			FROM comments
+			FROM comment
 			GROUP BY post_id
 		) as c
 		ON p.id = c.post_id
@@ -585,10 +585,10 @@ func (p *postInteractor) ShowPostMedia(ctx context.Context, userID, nextID int) 
 	var lastPostID int
 	err = tx.QueryRow(`
 		SELECT p.id
-		FROM posts AS p
+		FROM post AS p
 		INNER JOIN (
 			SELECT post_id
-			FROM likes
+			FROM like
 			WHERE user_id = ?
 		) AS l
 		ON p.id = l.post_id
