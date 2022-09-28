@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/kod-source/docker-goa-next/app/interactor"
 	"github.com/kod-source/docker-goa-next/app/model"
@@ -44,8 +43,6 @@ func (p *postUseCase) CreatePost(ctx context.Context, userID int, title string, 
 func (p *postUseCase) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	indexPostsWithCountLike, nID, err := p.pi.ShowAll(ctx, nextID)
 	if err != nil {
-		fmt.Println("エラー")
-		fmt.Println(err)
 		return nil, nil, err
 	}
 

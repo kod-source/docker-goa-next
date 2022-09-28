@@ -28,7 +28,7 @@ func (l *likeInteractor) Create(ctx context.Context, userID, postID int) (*model
 		return nil, err
 	}
 	ins, err := tx.Prepare(
-		"INSERT INTO like(`user_id`, `post_id`) VALUES(?, ?)",
+		"INSERT INTO `like`(`user_id`, `post_id`) VALUES(?, ?)",
 	)
 	if err != nil {
 		return nil, err

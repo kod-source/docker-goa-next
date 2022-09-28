@@ -82,26 +82,26 @@ func (p *postInteractor) CreatePost(ctx context.Context, userID int, title strin
 func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
-	rows, err := p.db.Query(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
-		FROM post as p
-		INNER JOIN user as u
-		ON p.user_id = u.id
-		LEFT JOIN (
-			SELECT post_id, COUNT(id) as COUNT
-			FROM like
-			GROUP BY post_id
-		) as l
-		ON p.id = l.post_id
-		LEFT JOIN (
-			SELECT post_id, COUNT(id) as COUNT
-			FROM comment
-			GROUP BY post_id
-		) as c
-		ON p.id = c.post_id
-		ORDER BY p.created_at DESC
-		LIMIT ?, ?
-	`, nextID, limitNumber)
+	rows, err := p.db.Query("SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT"+
+		" FROM `post` AS `p`"+
+		" INNER JOIN `user` AS `u`"+
+		" ON p.user_id = u.id"+
+		" LEFT JOIN"+
+		" ("+
+		" SELECT `post_id`, COUNT(id) AS `COUNT`"+
+		" FROM `like`"+
+		" GROUP BY `post_id`"+
+		" ) AS `l`"+
+		" ON p.id = l.post_id"+
+		" LEFT JOIN"+
+		" ("+
+		" SELECT `post_id`, COUNT(id) AS `COUNT`"+
+		" FROM `comment`"+
+		" GROUP BY `post_id`"+
+		" ) AS `c`"+
+		" ON p.id = c.post_id"+
+		" ORDER BY p.created_at DESC"+
+		" LIMIT ?, ?", nextID, limitNumber)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -222,21 +222,20 @@ func (p *postInteractor) Update(ctx context.Context, id int, title string, img *
 
 func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, error) {
 	var showPost model.ShowPost
-	rows, err := p.db.Query(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar, cu.C_ID, cu.C_POST_ID, cu.C_TEXT, cu.C_IMG, cu.C_CREATED_AT, cu.C_UPDATED_AT, cu.U_ID, cu.U_NAME, cu.U_AVATAR
-		FROM post as p
-		INNER JOIN user as u
-		ON p.user_id = u.id
-		LEFT JOIN (
-			SELECT c.id as C_ID, c.post_id as C_POST_ID, c.text as C_TEXT, c.img as C_IMG, c.created_at as C_CREATED_AT, c.updated_at as C_UPDATED_AT, u.id as U_ID, u.name as U_NAME, u.avatar as U_AVATAR
-			FROM comment as c
-			INNER JOIN user as u
-			ON c.user_id = u.id
-		) as cu
-		ON p.id = cu.C_POST_ID
-		WHERE p.id = ?
-		ORDER BY cu.C_CREATED_AT DESC
-	`, id)
+	rows, err := p.db.Query("SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar, cu.C_ID, cu.C_POST_ID, cu.C_TEXT, cu.C_IMG, cu.C_CREATED_AT, cu.C_UPDATED_AT, cu.U_ID, cu.U_NAME, cu.U_AVATAR"+
+		" FROM `post` as `p`"+
+		" INNER JOIN `user` as `u`"+
+		" ON p.user_id = u.id"+
+		" LEFT JOIN"+
+		"("+
+		" SELECT c.id as C_ID, c.post_id as C_POST_ID, c.text as C_TEXT, c.img as C_IMG, c.created_at as C_CREATED_AT, c.updated_at as C_UPDATED_AT, u.id as U_ID, u.name as U_NAME, u.avatar as U_AVATAR"+
+		" FROM `comment` as `c`"+
+		" INNER JOIN `user` as `u`"+
+		" ON c.user_id = u.id"+
+		" ) as `cu`"+
+		" ON p.id = cu.C_POST_ID"+
+		" WHERE p.id = ?"+
+		" ORDER BY cu.C_CREATED_AT DESC", id)
 	if err != nil {
 		return nil, err
 	}
@@ -305,32 +304,32 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
-	rows, err := p.db.Query(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
-		FROM post as p
-		INNER JOIN (
-			SELECT post_id
-			FROM like
-			WHERE user_id = ?
-		) as lu
-		ON p.id = lu.post_id
-		INNER JOIN user as u
-		ON p.user_id = u.id
-		LEFT JOIN (
-			SELECT post_id, COUNT(id) as COUNT
-			FROM like
-			GROUP BY post_id
-		) as l
-		ON p.id = l.post_id
-		LEFT JOIN (
-			SELECT post_id, COUNT(id) as COUNT
-			FROM comment
-			GROUP BY post_id
-		) as c
-		ON p.id = c.post_id
-		ORDER BY p.created_at DESC
-		LIMIT ?, ?
-	`, userID, nextID, limitNumber)
+	rows, err := p.db.Query("SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT"+
+		" FROM `post` AS `p`"+
+		" INNER JOIN ("+
+		" SELECT `post_id`"+
+		" FROM `like`"+
+		" WHERE `user_id` = ?"+
+		" ) AS `lu`"+
+		" ON p.id = lu.post_id"+
+		" INNER JOIN `user` AS `u`"+
+		" ON p.user_id = u.id"+
+		" LEFT JOIN"+
+		" ("+
+		" SELECT `post_id`, COUNT(id) AS `COUNT`"+
+		" FROM `like`"+
+		" GROUP BY `post_id`"+
+		" ) AS `l`"+
+		" ON p.id = l.post_id"+
+		" LEFT JOIN"+
+		" ("+
+		" SELECT `post_id`, COUNT(id) AS `COUNT`"+
+		" FROM `comment`"+
+		" GROUP BY `post_id`"+
+		" ) AS `c`"+
+		" ON p.id = c.post_id"+
+		" ORDER BY p.created_at DESC"+
+		" LIMIT ?, ?", userID, nextID, limitNumber)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -379,18 +378,17 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 	}
 
 	var lastPostID int
-	err = p.db.QueryRow(`
-		SELECT p.id
-		FROM post AS p
-		INNER JOIN (
-			SELECT post_id
-			FROM like
-			WHERE user_id = ?
-		) AS l
-		ON p.id = l.post_id
-		ORDER BY p.created_at
-		LIMIT 1
-	`, userID).Scan(
+	err = p.db.QueryRow("SELECT p.id"+
+		" FROM `post` AS `p`"+
+		" INNER JOIN"+
+		" ("+
+		" SELECT `post_id`"+
+		" FROM `like`"+
+		" WHERE `user_id` = ?"+
+		" ) AS `l`"+
+		" ON p.id = l.post_id"+
+		" ORDER BY p.created_at"+
+		" LIMIT 1", userID).Scan(
 		&lastPostID,
 	)
 	var resNextID *int
@@ -411,27 +409,27 @@ func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]
 		return nil, nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
-		FROM post as p
-		INNER JOIN user as u
-		ON p.user_id = u.id
-		LEFT JOIN (
-			SELECT post_id, COUNT(id) as COUNT
-			FROM like
-			GROUP BY post_id
-		) as l
-		ON p.id = l.post_id
-		LEFT JOIN (
-			SELECT post_id, COUNT(id) as COUNT
-			FROM comment
-			GROUP BY post_id
-		) as c
-		ON p.id = c.post_id
-		WHERE p.user_id = ?
-		ORDER BY p.created_at DESC
-		LIMIT ?, ?
-	`, userID, nextID, limitNumber)
+	rows, err := tx.Query("SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT"+
+		" FROM `post` AS `p`"+
+		" INNER JOIN `user` AS `u`"+
+		" ON p.user_id = u.id"+
+		" LEFT JOIN"+
+		" ("+
+		" SELECT `post_id`, COUNT(id) AS `COUNT`"+
+		" FROM `like`"+
+		" GROUP BY `post_id`"+
+		" ) AS `l`"+
+		" ON p.id = l.post_id"+
+		" LEFT JOIN"+
+		" ("+
+		" SELECT `post_id`, COUNT(id) AS `COUNT`"+
+		" FROM `comment`"+
+		" GROUP BY `post_id`"+
+		" ) AS `c`"+
+		" ON p.id = c.post_id"+
+		" WHERE p.user_id = ?"+
+		" ORDER BY p.created_at DESC"+
+		" LIMIT ?, ?", userID, nextID, limitNumber)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -514,27 +512,27 @@ func (p *postInteractor) ShowPostMedia(ctx context.Context, userID, nextID int) 
 		return nil, nil, err
 	}
 	defer tx.Rollback()
-	rows, err := tx.Query(`
-		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT
-		FROM post as p
-		INNER JOIN user as u
-		ON p.user_id = u.id
-		LEFT JOIN (
-			SELECT post_id, COUNT(id) as COUNT
-			FROM like
-			GROUP BY post_id
-		) as l
-		ON p.id = l.post_id
-		LEFT JOIN (
-			SELECT post_id, COUNT(id) as COUNT
-			FROM comment
-			GROUP BY post_id
-		) as c
-		ON p.id = c.post_id
-		WHERE p.user_id = ? AND p.img IS NOT NULL AND p.img != ""
-		ORDER BY p.created_at DESC
-		LIMIT ?, ?
-	`, userID, nextID, limitNumber)
+	rows, err := tx.Query("SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT"+
+		" FROM `post` AS `p`"+
+		" INNER JOIN `user` AS `u`"+
+		" ON p.user_id = u.id"+
+		" LEFT JOIN"+
+		" ("+
+		" SELECT `post_id`, COUNT(id) AS `COUNT`"+
+		" FROM `like`"+
+		" GROUP BY `post_id`"+
+		" ) AS `l`"+
+		" ON p.id = l.post_id"+
+		" LEFT JOIN"+
+		" ("+
+		" SELECT `post_id`, COUNT(id) AS `COUNT`"+
+		" FROM `comment`"+
+		" GROUP BY `post_id`"+
+		" ) AS `c`"+
+		" ON p.id = c.post_id"+
+		" WHERE p.user_id = ? AND p.img IS NOT NULL AND p.img != ''"+
+		" ORDER BY p.created_at DESC"+
+		" LIMIT ?, ?", userID, nextID, limitNumber)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -583,18 +581,16 @@ func (p *postInteractor) ShowPostMedia(ctx context.Context, userID, nextID int) 
 	}
 
 	var lastPostID int
-	err = tx.QueryRow(`
-		SELECT p.id
-		FROM post AS p
-		INNER JOIN (
-			SELECT post_id
-			FROM like
-			WHERE user_id = ?
-		) AS l
-		ON p.id = l.post_id
-		ORDER BY p.created_at
-		LIMIT 1
-	`, userID).Scan(
+	err = tx.QueryRow("SELECT p.id"+
+		" FROM `post` AS `p`"+
+		" INNER JOIN ("+
+		" SELECT `post_id`"+
+		" FROM `like`"+
+		" WHERE `user_id` = ?"+
+		" ) AS `l`"+
+		" ON p.id = l.post_id"+
+		" ORDER BY p.created_at"+
+		" LIMIT 1", userID).Scan(
 		&lastPostID,
 	)
 	var resNextID *int
