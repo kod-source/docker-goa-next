@@ -7,8 +7,8 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/schemalex/schemalex/diff"
 	"github.com/shogo82148/schemalex-deploy/deploy"
-	"github.com/shogo82148/schemalex-deploy/diff"
 )
 
 func main() {
@@ -24,24 +24,29 @@ func main() {
 	// if err := db.Import(ctx, newDDL); err != nil {
 	// 	panic(err)
 	// }
+
+	// 現状のCREATE TABLEを取得する
 	s, err := db.LoadSchema(ctx)
 	if err != nil {
 		panic(err)
 	}
-	if err := diff.Strings(os.Stdout, s, newDDL, diff.WithTransaction(true)); err != nil {
-		fmt.Println("エラーでうしょー")
-		fmt.Println(err)
-	}
-	// plan, err := db.Plan(ctx, s)
-	// if err != nil {
-	// 	fmt.Println("エラー")
-	// 	panic(err)
+
+	// sqlの差分を表示する
+	diff.Strings(os.Stdout, s, newDDL, diff.WithTransaction(true))
+	// if err := diff.Strings(os.Stdout, s, newDDL, diff.WithTransaction(true)); err != nil {
+	// 	fmt.Println("エラーでうしょー")
+	// 	fmt.Println(err)
 	// }
-	// fmt.Println(plan)
+
+	plan, err := db.Plan(ctx, s)
+	if err != nil {
+		fmt.Println("エラー")
+		panic(err)
+	}
+	fmt.Println(plan)
 }
 
 func readFile(filePath string) (string, error) {
-	// ファイルをOpenする
 	f, err := os.Open(filePath)
 	if err != nil {
 		return "", err

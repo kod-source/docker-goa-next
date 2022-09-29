@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/schemalex/schemalex v0.1.1
 	github.com/shogo82148/goa-v1 v1.5.13
 	github.com/shogo82148/myddlmaker v0.0.2
 	github.com/shogo82148/pointer v1.2.0
@@ -16,6 +17,7 @@ require (
 
 require (
 	github.com/armon/go-metrics v0.4.0 // indirect
+	github.com/deckarep/golang-set v0.0.0-20170826194844-b3af78e1d186 // indirect
 	github.com/dimfeld/httppath v0.0.0-20170720192232-ee938bf73598 // indirect
 	github.com/dimfeld/httptreemux v5.0.1+incompatible // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect
@@ -25,6 +27,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/manveru/faker v0.0.0-20171103152722-9fbc68a78c4d // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/smartystreets/assertions v1.13.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/zach-klippenstein/goregen v0.0.0-20160303162051-795b5e3961ea // indirect
