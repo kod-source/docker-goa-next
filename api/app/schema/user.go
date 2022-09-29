@@ -21,3 +21,9 @@ type User struct {
 func (*User) PrimaryKey() *myddlmaker.PrimaryKey {
 	return myddlmaker.NewPrimaryKey("id")
 }
+
+func (*User) UniqueIndexes() []*myddlmaker.UniqueIndex {
+	return []*myddlmaker.UniqueIndex{
+		myddlmaker.NewUniqueIndex("idx_email", "email"),
+	}
+}

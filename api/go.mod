@@ -8,6 +8,7 @@ require (
 	github.com/shogo82148/goa-v1 v1.5.13
 	github.com/shogo82148/myddlmaker v0.0.2
 	github.com/shogo82148/pointer v1.2.0
+	github.com/shogo82148/schemalex-deploy v0.0.7
 	github.com/spf13/cobra v1.4.0
 	github.com/tanimutomo/sqlfile v1.0.0
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97

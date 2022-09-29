@@ -19,14 +19,14 @@ func (*Like) PrimaryKey() *myddlmaker.PrimaryKey {
 func (*Like) ForeignKeys() []*myddlmaker.ForeignKey {
 	return []*myddlmaker.ForeignKey{
 		myddlmaker.NewForeignKey(
-			"user_id_constraint",
+			"u_id_constraint",
 			[]string{"user_id"},
 			"user",
 			[]string{"id"},
 		).OnUpdate(myddlmaker.ForeignKeyOptionCascade).OnDelete(myddlmaker.ForeignKeyOptionCascade),
 
 		myddlmaker.NewForeignKey(
-			"post_id_constraint",
+			"p_id_constraint",
 			[]string{"post_id"},
 			"post",
 			[]string{"id"},

@@ -25,7 +25,7 @@ func (*Comment) PrimaryKey() *myddlmaker.PrimaryKey {
 func (*Comment) ForeignKeys() []*myddlmaker.ForeignKey {
 	return []*myddlmaker.ForeignKey{
 		myddlmaker.NewForeignKey(
-			"user_id_constraint",
+			"user_constraint",
 			[]string{"user_id"},
 			"user",
 			[]string{"id"},
