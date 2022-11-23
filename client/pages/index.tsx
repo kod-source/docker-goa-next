@@ -85,7 +85,7 @@ const Home: NextPage = () => {
   };
 
   useEffect(() => {
-    // fetchData();
+	fetchData();
   }, []);
 
   const onChangeInputFile = (e: React.ChangeEvent<HTMLInputElement>) => {
