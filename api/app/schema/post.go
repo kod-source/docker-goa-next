@@ -9,7 +9,7 @@ import (
 //go:generate go run -tags myddlmaker gen/main.go
 
 type Post struct {
-	ID        uint64 `ddl:",auto`
+	ID        uint64 `ddl:",auto"`
 	UserID    uint64
 	Title     string
 	CreatedAt time.Time

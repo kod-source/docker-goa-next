@@ -68,13 +68,13 @@ func (u userInteractor) CreateUser(ctx context.Context, name, email, passowrd st
 		return nil, err
 	}
 	ins, err := tx.Prepare(
-		"INSERT INTO user(`name`,`email`,`password`,`created_at`, `avatar`) VALUES(?,?,?,?,?)",
+		"INSERT INTO user(`name`,`email`,`password`,`created_at`, `updated_at`, `avatar`) VALUES(?,?,?,?,?,?)",
 	)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	res, err := ins.Exec(name, email, passowrd, time.Now(), avatar)
+	res, err := ins.Exec(name, email, passowrd, time.Now(), time.Now(), avatar)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
