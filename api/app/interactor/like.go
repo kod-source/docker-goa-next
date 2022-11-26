@@ -28,7 +28,7 @@ func (l *likeInteractor) Create(ctx context.Context, userID, postID int) (*model
 		return nil, err
 	}
 	ins, err := tx.Prepare(
-		"INSERT INTO likes(`user_id`, `post_id`) VALUES(?, ?)",
+		"INSERT INTO `like`(`user_id`, `post_id`) VALUES(?, ?)",
 	)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (l *likeInteractor) Create(ctx context.Context, userID, postID int) (*model
 		return nil, err
 	}
 	err = tx.QueryRow(
-		"SELECT `id`, `user_id`, `post_id` FROM `likes` WHERE `id` = ?", id,
+		"SELECT `id`, `user_id`, `post_id` FROM `like` WHERE `id` = ?", id,
 	).Scan(
 		&like.ID,
 		&like.UserID,
@@ -57,7 +57,7 @@ func (l *likeInteractor) Create(ctx context.Context, userID, postID int) (*model
 }
 
 func (l *likeInteractor) Delete(ctx context.Context, userID, postID int) error {
-	stmt, err := l.db.Prepare("DELETE FROM `likes` WHERE `user_id` = ? AND `post_id` = ?")
+	stmt, err := l.db.Prepare("DELETE FROM `like` WHERE `user_id` = ? AND `post_id` = ?")
 	if err != nil {
 		return err
 	}
@@ -70,7 +70,7 @@ func (l *likeInteractor) Delete(ctx context.Context, userID, postID int) error {
 }
 
 func (l *likeInteractor) GetPostIDs(ctx context.Context, userID int) ([]int, error) {
-	rows, err := l.db.Query("SELECT `post_id` FROM `likes` WHERE `user_id` = ?", userID)
+	rows, err := l.db.Query("SELECT `post_id` FROM `like` WHERE `user_id` = ?", userID)
 	if err != nil {
 		return nil, err
 	}

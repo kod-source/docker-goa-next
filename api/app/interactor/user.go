@@ -27,7 +27,7 @@ func NewUserInteractor(db *sql.DB) UserInteractor {
 func (u userInteractor) GetUser(ctx context.Context, id int) (*model.User, error) {
 	var user model.User
 	err := u.db.QueryRow(
-		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `users` WHERE `id` = ?", id,
+		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `id` = ?", id,
 	).Scan(
 		&user.ID,
 		&user.Name,
@@ -45,7 +45,7 @@ func (u userInteractor) GetUser(ctx context.Context, id int) (*model.User, error
 func (u userInteractor) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	var user model.User
 	err := u.db.QueryRow(
-		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `users` WHERE `email` = ?",
+		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `email` = ?",
 		email,
 	).Scan(
 		&user.ID,
@@ -68,13 +68,13 @@ func (u userInteractor) CreateUser(ctx context.Context, name, email, passowrd st
 		return nil, err
 	}
 	ins, err := tx.Prepare(
-		"INSERT INTO users(`name`,`email`,`password`,`created_at`, `avatar`) VALUES(?,?,?,?,?)",
+		"INSERT INTO user(`name`,`email`,`password`,`created_at`, `updated_at`, `avatar`) VALUES(?,?,?,?,?,?)",
 	)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-	res, err := ins.Exec(name, email, passowrd, time.Now(), avatar)
+	res, err := ins.Exec(name, email, passowrd, time.Now(), time.Now(), avatar)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -85,7 +85,7 @@ func (u userInteractor) CreateUser(ctx context.Context, name, email, passowrd st
 	}
 	var user model.User
 	err = tx.QueryRow(
-		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `users` WHERE `id` = ?", lastID,
+		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `id` = ?", lastID,
 	).Scan(
 		&user.ID,
 		&user.Name,
