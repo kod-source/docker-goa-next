@@ -1,4 +1,4 @@
-package interactor
+package datastore
 
 import (
 	"context"
@@ -8,23 +8,23 @@ import (
 	"github.com/kod-source/docker-goa-next/app/repository"
 )
 
-type CommentInteractor interface {
+type CommentDatastore interface {
 	Create(ctx context.Context, postID, userID int, text string, img *string) (*model.CommentWithUser, error)
 	ShowByPostID(ctx context.Context, postID int) ([]*model.CommentWithUser, error)
 	Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error)
 	Delete(ctx context.Context, id int) error
 }
 
-type commentInteractor struct {
+type commentDatastore struct {
 	db *sql.DB
 	tr repository.TimeRepository
 }
 
-func NewCommentInteractor(db *sql.DB, tr repository.TimeRepository) CommentInteractor {
-	return &commentInteractor{db: db, tr: tr}
+func NewCommentDatastore(db *sql.DB, tr repository.TimeRepository) CommentDatastore {
+	return &commentDatastore{db: db, tr: tr}
 }
 
-func (c *commentInteractor) Create(ctx context.Context, postID, userID int, text string, img *string) (*model.CommentWithUser, error) {
+func (c *commentDatastore) Create(ctx context.Context, postID, userID int, text string, img *string) (*model.CommentWithUser, error) {
 	var commentWithUser model.CommentWithUser
 	tx, err := c.db.Begin()
 	if err != nil {
@@ -71,7 +71,7 @@ func (c *commentInteractor) Create(ctx context.Context, postID, userID int, text
 	return &commentWithUser, tx.Commit()
 }
 
-func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*model.CommentWithUser, error) {
+func (c *commentDatastore) ShowByPostID(ctx context.Context, postID int) ([]*model.CommentWithUser, error) {
 	var commentsWithUsers []*model.CommentWithUser
 	rows, err := c.db.Query(`
 		SELECT c.id, c.post_id, c.user_id, c.text, c.img, c.created_at, c.updated_at, u.id, u.name, u.avatar
@@ -113,7 +113,7 @@ func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*mo
 	return commentsWithUsers, nil
 }
 
-func (c *commentInteractor) Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error) {
+func (c *commentDatastore) Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error) {
 	var comment model.Comment
 	tx, err := c.db.Begin()
 	if err != nil {
@@ -147,7 +147,7 @@ func (c *commentInteractor) Update(ctx context.Context, id int, text string, img
 	return &comment, tx.Commit()
 }
 
-func (c *commentInteractor) Delete(ctx context.Context, id int) error {
+func (c *commentDatastore) Delete(ctx context.Context, id int) error {
 	stmt, err := c.db.Prepare("DELETE FROM `comment` WHERE `id` = ?")
 	if err != nil {
 		return err

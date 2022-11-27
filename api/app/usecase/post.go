@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/kod-source/docker-goa-next/app/interactor"
+	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 )
@@ -22,18 +22,18 @@ type PostUseCase interface {
 }
 
 type postUseCase struct {
-	pi interactor.PostInteractor
+	pd datastore.PostDatastore
 }
 
-func NewPostUseCase(pi interactor.PostInteractor) PostUseCase {
-	return &postUseCase{pi: pi}
+func NewPostUseCase(pd datastore.PostDatastore) PostUseCase {
+	return &postUseCase{pd: pd}
 }
 
 func (p *postUseCase) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
 	if len(title) == 0 {
 		return nil, myerrors.EmptyStringError
 	}
-	indexPost, err := p.pi.CreatePost(ctx, userID, title, img)
+	indexPost, err := p.pd.CreatePost(ctx, userID, title, img)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (p *postUseCase) CreatePost(ctx context.Context, userID int, title string, 
 }
 
 func (p *postUseCase) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
-	indexPostsWithCountLike, nID, err := p.pi.ShowAll(ctx, nextID)
+	indexPostsWithCountLike, nID, err := p.pd.ShowAll(ctx, nextID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -50,7 +50,7 @@ func (p *postUseCase) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPo
 }
 
 func (p *postUseCase) Delete(ctx context.Context, id int) error {
-	err := p.pi.Delete(ctx, id)
+	err := p.pd.Delete(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (p *postUseCase) Delete(ctx context.Context, id int) error {
 }
 
 func (p *postUseCase) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
-	indexPosts, err := p.pi.Update(ctx, id, title, img)
+	indexPosts, err := p.pd.Update(ctx, id, title, img)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +68,7 @@ func (p *postUseCase) Update(ctx context.Context, id int, title string, img *str
 }
 
 func (p *postUseCase) Show(ctx context.Context, id int) (*model.ShowPost, error) {
-	showPost, err := p.pi.Show(ctx, id)
+	showPost, err := p.pd.Show(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (p *postUseCase) Show(ctx context.Context, id int) (*model.ShowPost, error)
 }
 
 func (p *postUseCase) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
-	ips, nID, err := p.pi.ShowMyLike(ctx, userID, nextID)
+	ips, nID, err := p.pd.ShowMyLike(ctx, userID, nextID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -86,7 +86,7 @@ func (p *postUseCase) ShowMyLike(ctx context.Context, userID, nextID int) ([]*mo
 
 // ShowPostMy 指定したUserIDが投稿したものを取得する
 func (p *postUseCase) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
-	ips, nID, err := p.pi.ShowPostMy(ctx, userID, nextID)
+	ips, nID, err := p.pd.ShowPostMy(ctx, userID, nextID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -95,7 +95,7 @@ func (p *postUseCase) ShowPostMy(ctx context.Context, userID, nextID int) ([]*mo
 }
 
 func (p *postUseCase) ShowPostMedia(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
-	ips, nID, err := p.pi.ShowPostMedia(ctx, userID, nextID)
+	ips, nID, err := p.pd.ShowPostMedia(ctx, userID, nextID)
 	if err != nil {
 		return nil, nil, err
 	}

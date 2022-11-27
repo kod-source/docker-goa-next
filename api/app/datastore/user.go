@@ -1,30 +1,32 @@
-package interactor
+package datastore
 
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/kod-source/docker-goa-next/app/model"
+	"github.com/kod-source/docker-goa-next/app/repository"
 )
 
-type UserInteractor interface {
+type UserDatastore interface {
 	GetUser(ctx context.Context, id int) (*model.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
 	CreateUser(ctx context.Context, name, email, password string, avatar *string) (*model.User, error)
 }
 
-type userInteractor struct {
+type userDatastore struct {
 	db *sql.DB
+	tr repository.TimeRepository
 }
 
-func NewUserInteractor(db *sql.DB) UserInteractor {
-	return userInteractor{
+func NewUserDatastore(db *sql.DB, tr repository.TimeRepository) UserDatastore {
+	return userDatastore{
 		db: db,
+		tr: tr,
 	}
 }
 
-func (u userInteractor) GetUser(ctx context.Context, id int) (*model.User, error) {
+func (u userDatastore) GetUser(ctx context.Context, id int) (*model.User, error) {
 	var user model.User
 	err := u.db.QueryRow(
 		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `id` = ?", id,
@@ -42,7 +44,7 @@ func (u userInteractor) GetUser(ctx context.Context, id int) (*model.User, error
 	return &user, nil
 }
 
-func (u userInteractor) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+func (u userDatastore) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	var user model.User
 	err := u.db.QueryRow(
 		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `email` = ?",
@@ -62,7 +64,7 @@ func (u userInteractor) GetUserByEmail(ctx context.Context, email string) (*mode
 	return &user, nil
 }
 
-func (u userInteractor) CreateUser(ctx context.Context, name, email, passowrd string, avatar *string) (*model.User, error) {
+func (u userDatastore) CreateUser(ctx context.Context, name, email, passowrd string, avatar *string) (*model.User, error) {
 	tx, err := u.db.Begin()
 	if err != nil {
 		return nil, err
@@ -74,7 +76,7 @@ func (u userInteractor) CreateUser(ctx context.Context, name, email, passowrd st
 		tx.Rollback()
 		return nil, err
 	}
-	res, err := ins.Exec(name, email, passowrd, time.Now(), time.Now(), avatar)
+	res, err := ins.Exec(name, email, passowrd, u.tr.Now(), u.tr.Now(), avatar)
 	if err != nil {
 		tx.Rollback()
 		return nil, err

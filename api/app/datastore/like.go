@@ -1,4 +1,4 @@
-package interactor
+package datastore
 
 import (
 	"context"
@@ -7,21 +7,21 @@ import (
 	"github.com/kod-source/docker-goa-next/app/model"
 )
 
-type LikeInteractor interface {
+type LikeDatastore interface {
 	Create(ctx context.Context, userID, postID int) (*model.Like, error)
 	Delete(ctx context.Context, userID, postID int) error
 	GetPostIDs(ctx context.Context, userID int) ([]int, error)
 }
 
-type likeInteractor struct {
+type likeDatastore struct {
 	db *sql.DB
 }
 
-func NewLikeInteractor(db *sql.DB) LikeInteractor {
-	return &likeInteractor{db: db}
+func NewLikeDatastore(db *sql.DB) LikeDatastore {
+	return &likeDatastore{db: db}
 }
 
-func (l *likeInteractor) Create(ctx context.Context, userID, postID int) (*model.Like, error) {
+func (l *likeDatastore) Create(ctx context.Context, userID, postID int) (*model.Like, error) {
 	var like model.Like
 	tx, err := l.db.Begin()
 	if err != nil {
@@ -56,7 +56,7 @@ func (l *likeInteractor) Create(ctx context.Context, userID, postID int) (*model
 	return &like, tx.Commit()
 }
 
-func (l *likeInteractor) Delete(ctx context.Context, userID, postID int) error {
+func (l *likeDatastore) Delete(ctx context.Context, userID, postID int) error {
 	stmt, err := l.db.Prepare("DELETE FROM `like` WHERE `user_id` = ? AND `post_id` = ?")
 	if err != nil {
 		return err
@@ -69,7 +69,7 @@ func (l *likeInteractor) Delete(ctx context.Context, userID, postID int) error {
 	return nil
 }
 
-func (l *likeInteractor) GetPostIDs(ctx context.Context, userID int) ([]int, error) {
+func (l *likeDatastore) GetPostIDs(ctx context.Context, userID int) ([]int, error) {
 	rows, err := l.db.Query("SELECT `post_id` FROM `like` WHERE `user_id` = ?", userID)
 	if err != nil {
 		return nil, err

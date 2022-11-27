@@ -6,7 +6,7 @@ import (
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/kod-source/docker-goa-next/app/interactor"
+	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
 	"github.com/kod-source/docker-goa-next/app/usecase"
@@ -33,8 +33,8 @@ func main() {
 	}
 	defer db.Close()
 	// Mount "operands" controller
-	uu := usecase.NewUserUseCase(interactor.NewUserInteractor(db), interactor.NewJWTInteractor())
-	pu := usecase.NewPostUseCase(interactor.NewPostInteractor(db, repository.NewTimeRepositoy()))
+	uu := usecase.NewUserUseCase(datastore.NewUserDatastore(db, repository.NewTimeRepositoy()), datastore.NewJWTDatastore(repository.NewTimeRepositoy()))
+	pu := usecase.NewPostUseCase(datastore.NewPostDatastore(db, repository.NewTimeRepositoy()))
 	c := NewOperandsController(service)
 	app.MountOperandsController(service, c)
 	a := NewAuthController(service, uu)
@@ -43,9 +43,9 @@ func main() {
 	app.MountUsersController(service, u)
 	p := NewPostsController(service, pu)
 	app.MountPostsController(service, p)
-	cc := NewCommentsController(service, usecase.NewcommentUsecase(interactor.NewCommentInteractor(db, repository.NewTimeRepositoy())))
+	cc := NewCommentsController(service, usecase.NewcommentUsecase(datastore.NewCommentDatastore(db, repository.NewTimeRepositoy())))
 	app.MountCommentsController(service, cc)
-	l := NewLikesController(service, usecase.NewLikeUsecase(interactor.NewLikeInteractor(db)))
+	l := NewLikesController(service, usecase.NewLikeUsecase(datastore.NewLikeDatastore(db)))
 	app.MountLikesController(service, l)
 
 	// Start service

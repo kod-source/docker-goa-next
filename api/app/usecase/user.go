@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/kod-source/docker-goa-next/app/interactor"
+	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"golang.org/x/crypto/bcrypt"
@@ -17,16 +17,16 @@ type UserUseCase interface {
 }
 
 type userUseCase struct {
-	ui interactor.UserInteractor
-	ji interactor.JWTInteractor
+	ud datastore.UserDatastore
+	jd datastore.JWTDatastore
 }
 
-func NewUserUseCase(ui interactor.UserInteractor, ji interactor.JWTInteractor) UserUseCase {
-	return &userUseCase{ui: ui, ji: ji}
+func NewUserUseCase(ud datastore.UserDatastore, jd datastore.JWTDatastore) UserUseCase {
+	return &userUseCase{ud: ud, jd: jd}
 }
 
 func (u *userUseCase) GetUser(ctx context.Context, id int) (*model.User, error) {
-	user, err := u.ui.GetUser(ctx, id)
+	user, err := u.ud.GetUser(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (u *userUseCase) GetUser(ctx context.Context, id int) (*model.User, error) 
 }
 
 func (u *userUseCase) GetUserByEmail(ctx context.Context, email, password string) (*model.User, error) {
-	user, err := u.ui.GetUserByEmail(ctx, email)
+	user, err := u.ud.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,7 @@ func (u *userUseCase) GetUserByEmail(ctx context.Context, email, password string
 }
 
 func (u *userUseCase) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
-	token, nil := u.ji.CreateJWTToken(ctx, id, name)
+	token, nil := u.jd.CreateJWTToken(ctx, id, name)
 	return token, nil
 }
 
@@ -56,7 +56,7 @@ func (u *userUseCase) SignUp(ctx context.Context, name, email, password string, 
 	if err != nil {
 		return nil, err
 	}
-	user, err := u.ui.CreateUser(ctx, name, email, p, avatar)
+	user, err := u.ud.CreateUser(ctx, name, email, p, avatar)
 	if err != nil {
 		return nil, err
 	}

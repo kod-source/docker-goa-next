@@ -1,16 +1,15 @@
-package interactor
+package datastore
 
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/shogo82148/pointer"
 )
 
-type PostInteractor interface {
+type PostDatastore interface {
 	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
 	ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
 	Delete(ctx context.Context, id int) error
@@ -23,16 +22,16 @@ type PostInteractor interface {
 	ShowPostMedia(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
 }
 
-type postInteractor struct {
+type postDatastore struct {
 	db *sql.DB
 	tr repository.TimeRepository
 }
 
-func NewPostInteractor(db *sql.DB, tr repository.TimeRepository) PostInteractor {
-	return &postInteractor{db: db, tr: tr}
+func NewPostDatastore(db *sql.DB, tr repository.TimeRepository) PostDatastore {
+	return &postDatastore{db: db, tr: tr}
 }
 
-func (p *postInteractor) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
+func (p *postDatastore) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
 	var indexPost model.IndexPost
 	tx, err := p.db.Begin()
 	if err != nil {
@@ -45,7 +44,7 @@ func (p *postInteractor) CreatePost(ctx context.Context, userID int, title strin
 		tx.Rollback()
 		return nil, err
 	}
-	res, err := ins.Exec(userID, title, img, time.Now(), time.Now())
+	res, err := ins.Exec(userID, title, img, p.tr.Now(), p.tr.Now())
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -79,7 +78,7 @@ func (p *postInteractor) CreatePost(ctx context.Context, userID int, title strin
 	return &indexPost, nil
 }
 
-func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
+func (p *postDatastore) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	rows, err := p.db.Query("SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT"+
@@ -167,7 +166,7 @@ func (p *postInteractor) ShowAll(ctx context.Context, nextID int) ([]*model.Inde
 	return indexPostsWithCountLike, resNextID, nil
 }
 
-func (p *postInteractor) Delete(ctx context.Context, id int) error {
+func (p *postDatastore) Delete(ctx context.Context, id int) error {
 	stmt, err := p.db.Prepare("DELETE FROM `post` WHERE `id` = ?")
 	if err != nil {
 		return err
@@ -180,7 +179,7 @@ func (p *postInteractor) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (p *postInteractor) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
+func (p *postDatastore) Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error) {
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, err
@@ -220,7 +219,7 @@ func (p *postInteractor) Update(ctx context.Context, id int, title string, img *
 	return &indexPost, nil
 }
 
-func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, error) {
+func (p *postDatastore) Show(ctx context.Context, id int) (*model.ShowPost, error) {
 	var showPost model.ShowPost
 	rows, err := p.db.Query("SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.id, u.name, u.email, u.created_at, u.avatar, cu.C_ID, cu.C_POST_ID, cu.C_TEXT, cu.C_IMG, cu.C_CREATED_AT, cu.C_UPDATED_AT, cu.U_ID, cu.U_NAME, cu.U_AVATAR"+
 		" FROM `post` as `p`"+
@@ -301,7 +300,7 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 	return &showPost, nil
 }
 
-func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
+func (p *postDatastore) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	rows, err := p.db.Query("SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT"+
@@ -401,7 +400,7 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 }
 
 // ShowPostMy 指定したUserIDが投稿したものを取得する
-func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
+func (p *postDatastore) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	tx, err := p.db.Begin()
@@ -504,7 +503,7 @@ func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]
 	return indexPostsWithCountLike, resNextID, nil
 }
 
-func (p *postInteractor) ShowPostMedia(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
+func (p *postDatastore) ShowPostMedia(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
 	limitNumber := 20
 	tx, err := p.db.Begin()
