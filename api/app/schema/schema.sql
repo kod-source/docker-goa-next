@@ -9,7 +9,7 @@ CREATE TABLE `user` (
     `password` VARCHAR(191) NOT NULL,
     `created_at` DATETIME(6) NOT NULL,
     `updated_at` DATETIME(6) NOT NULL,
-    `avatar` VARBINARY(63210) NULL,
+    `avatar` LONGTEXT NULL,
     UNIQUE `idx_email` (`email`),
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 DEFAULT COLLATE=utf8mb4_bin;
@@ -23,7 +23,7 @@ CREATE TABLE `post` (
     `title` VARCHAR(191) NOT NULL,
     `created_at` DATETIME(6) NOT NULL,
     `updated_at` DATETIME(6) NOT NULL,
-    `img` VARBINARY(64734) NULL,
+    `img` LONGTEXT NULL,
     CONSTRAINT `user_id_constraint` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 DEFAULT COLLATE=utf8mb4_bin;
@@ -38,7 +38,7 @@ CREATE TABLE `comment` (
     `text` VARCHAR(191) NOT NULL,
     `created_at` DATETIME(6) NOT NULL,
     `updated_at` DATETIME(6) NOT NULL,
-    `img` VARBINARY(64726) NULL,
+    `img` LONGTEXT NULL,
     CONSTRAINT `user_constraint` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT `post_id_constraint` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
     PRIMARY KEY (`id`)

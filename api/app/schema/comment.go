@@ -15,7 +15,7 @@ type Comment struct {
 	Text      string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
-	Img       []byte `ddl:",null,size=64726"`
+	Img       string `ddl:",null,type=LONGTEXT"`
 }
 
 func (*Comment) PrimaryKey() *myddlmaker.PrimaryKey {

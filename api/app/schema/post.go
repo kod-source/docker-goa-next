@@ -14,7 +14,7 @@ type Post struct {
 	Title     string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Img       []byte `ddl:",null,size=64734"`
+	Img       string `ddl:",null,type=LONGTEXT"`
 }
 
 func (*Post) PrimaryKey() *myddlmaker.PrimaryKey {

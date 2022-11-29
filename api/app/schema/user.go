@@ -15,7 +15,7 @@ type User struct {
 	Password  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Avatar    []byte `ddl:",null,size=63210"`
+	Avatar    string `ddl:",null,type=LONGTEXT"`
 }
 
 func (*User) PrimaryKey() *myddlmaker.PrimaryKey {
