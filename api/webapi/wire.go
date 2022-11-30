@@ -9,9 +9,9 @@ import (
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/external"
+	"github.com/kod-source/docker-goa-next/app/interactor"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
-	"github.com/kod-source/docker-goa-next/app/usecase"
 )
 
 func NewApp(ctx context.Context) (*App, error) {
@@ -22,12 +22,12 @@ func NewApp(ctx context.Context) (*App, error) {
 		schema.NewDB,
 		// TimeRepostiory
 		repository.TimeRepositorySet,
-		// external
+		// service (external)
 		external.Set,
-		// datastore ...
+		// repostiory (datastore) ...
 		datastore.Set,
-		// usecase ...
-		usecase.Set,
+		// usecase (interactor) ...
+		interactor.Set,
 		// Controller ...
 		ControllerSet,
 	)

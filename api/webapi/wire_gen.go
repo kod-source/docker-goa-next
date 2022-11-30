@@ -10,9 +10,9 @@ import (
 	"context"
 	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/external"
+	"github.com/kod-source/docker-goa-next/app/interactor"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
-	"github.com/kod-source/docker-goa-next/app/usecase"
 )
 
 // Injectors from wire.go:
@@ -26,19 +26,19 @@ func NewApp(ctx context.Context) (*App, error) {
 	timeRepository := repository.NewTimeRepositoy()
 	userDatastore := datastore.NewUserDatastore(db, timeRepository)
 	jwtExternal := external.NewJWTExternal(timeRepository)
-	userUseCase := usecase.NewUserUseCase(userDatastore, jwtExternal)
-	usersController := NewUsersController(service, userUseCase)
+	userInteractor := interactor.NewUserInteractor(userDatastore, jwtExternal)
+	usersController := NewUsersController(service, userInteractor)
 	postDatastore := datastore.NewPostDatastore(db, timeRepository)
-	postUseCase := usecase.NewPostUseCase(postDatastore)
-	postsController := NewPostsController(service, postUseCase)
+	postInteractor := interactor.NewPostInteractor(postDatastore)
+	postsController := NewPostsController(service, postInteractor)
 	operandsController := NewOperandsController(service)
 	likeDatastore := datastore.NewLikeDatastore(db)
-	likeUsecase := usecase.NewLikeUsecase(likeDatastore)
-	likesController := NewLikesController(service, likeUsecase)
+	likeInteractor := interactor.NewLikeInteractor(likeDatastore)
+	likesController := NewLikesController(service, likeInteractor)
 	commentDatastore := datastore.NewCommentDatastore(db, timeRepository)
-	commentUsecase := usecase.NewCommentUsecase(commentDatastore)
-	commentsController := NewCommentsController(service, commentUsecase)
-	authController := NewAuthController(service, userUseCase)
+	commentInteractor := interactor.NewCommentInteractor(commentDatastore)
+	commentsController := NewCommentsController(service, commentInteractor)
+	authController := NewAuthController(service, userInteractor)
 	app, err := newApp(ctx, service, usersController, postsController, operandsController, likesController, commentsController, authController)
 	if err != nil {
 		return nil, err
