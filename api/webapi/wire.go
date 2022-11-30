@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/datastore"
+	"github.com/kod-source/docker-goa-next/app/external"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
 	"github.com/kod-source/docker-goa-next/app/usecase"
@@ -21,6 +22,8 @@ func NewApp(ctx context.Context) (*App, error) {
 		schema.NewDB,
 		// repository
 		repository.Set,
+		// external
+		external.Set,
 		// datastore ...
 		datastore.Set,
 		// usecase ...

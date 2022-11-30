@@ -9,13 +9,10 @@ package main
 import (
 	"context"
 	"github.com/kod-source/docker-goa-next/app/datastore"
+	"github.com/kod-source/docker-goa-next/app/external"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
 	"github.com/kod-source/docker-goa-next/app/usecase"
-)
-
-import (
-	_ "github.com/go-sql-driver/mysql"
 )
 
 // Injectors from wire.go:
@@ -28,8 +25,8 @@ func NewApp(ctx context.Context) (*App, error) {
 	}
 	timeRepository := repository.NewTimeRepositoy()
 	userDatastore := datastore.NewUserDatastore(db, timeRepository)
-	jwtDatastore := datastore.NewJWTDatastore(timeRepository)
-	userUseCase := usecase.NewUserUseCase(userDatastore, jwtDatastore)
+	jwtExternal := external.NewJWTExternal(timeRepository)
+	userUseCase := usecase.NewUserUseCase(userDatastore, jwtExternal)
 	usersController := NewUsersController(service, userUseCase)
 	postDatastore := datastore.NewPostDatastore(db, timeRepository)
 	postUseCase := usecase.NewPostUseCase(postDatastore)

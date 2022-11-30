@@ -7,6 +7,5 @@ var Set = wire.NewSet(
 	UserDatastoreSet,
 	PostDatastoreSet,
 	LikeDatastoreSet,
-	JWTDatastoreSet,
 	CommentDatastoreSet,
 )
