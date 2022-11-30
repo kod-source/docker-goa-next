@@ -4,8 +4,16 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
+)
+
+var _ CommentDatastore = (*commentDatastore)(nil)
+
+var CommentDatastoreSet = wire.NewSet(
+	NewCommentDatastore,
+	wire.Bind(new(CommentDatastore), new(*commentDatastore)),
 )
 
 type CommentDatastore interface {
@@ -20,7 +28,7 @@ type commentDatastore struct {
 	tr repository.TimeRepository
 }
 
-func NewCommentDatastore(db *sql.DB, tr repository.TimeRepository) CommentDatastore {
+func NewCommentDatastore(db *sql.DB, tr repository.TimeRepository) *commentDatastore {
 	return &commentDatastore{db: db, tr: tr}
 }
 

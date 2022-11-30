@@ -4,9 +4,17 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/shogo82148/pointer"
+)
+
+var _ PostDatastore = (*postDatastore)(nil)
+
+var PostDatastoreSet = wire.NewSet(
+	NewPostDatastore,
+	wire.Bind(new(PostDatastore), new(*postDatastore)),
 )
 
 type PostDatastore interface {
@@ -27,7 +35,7 @@ type postDatastore struct {
 	tr repository.TimeRepository
 }
 
-func NewPostDatastore(db *sql.DB, tr repository.TimeRepository) PostDatastore {
+func NewPostDatastore(db *sql.DB, tr repository.TimeRepository) *postDatastore {
 	return &postDatastore{db: db, tr: tr}
 }
 

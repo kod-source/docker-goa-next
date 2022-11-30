@@ -3,10 +3,19 @@ package usecase
 import (
 	"context"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
+	"github.com/kod-source/docker-goa-next/app/service"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var _ UserUseCase = (*userUseCase)(nil)
+
+var UserUseCaseSet = wire.NewSet(
+	NewUserUseCase,
+	wire.Bind(new(UserUseCase), new(*userUseCase)),
 )
 
 type UserUseCase interface {
@@ -18,11 +27,11 @@ type UserUseCase interface {
 
 type userUseCase struct {
 	ud datastore.UserDatastore
-	jd datastore.JWTDatastore
+	js service.JWTService
 }
 
-func NewUserUseCase(ud datastore.UserDatastore, jd datastore.JWTDatastore) UserUseCase {
-	return &userUseCase{ud: ud, jd: jd}
+func NewUserUseCase(ud datastore.UserDatastore, js service.JWTService) *userUseCase {
+	return &userUseCase{ud: ud, js: js}
 }
 
 func (u *userUseCase) GetUser(ctx context.Context, id int) (*model.User, error) {
@@ -47,7 +56,7 @@ func (u *userUseCase) GetUserByEmail(ctx context.Context, email, password string
 }
 
 func (u *userUseCase) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
-	token, nil := u.jd.CreateJWTToken(ctx, id, name)
+	token, nil := u.js.CreateJWTToken(ctx, id, name)
 	return token, nil
 }
 

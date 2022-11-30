@@ -3,9 +3,17 @@ package usecase
 import (
 	"context"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
+)
+
+var _ CommentUsecase = (*commentUsecase)(nil)
+
+var CommentUseCaseSet = wire.NewSet(
+	NewCommentUsecase,
+	wire.Bind(new(CommentUsecase), new(*commentUsecase)),
 )
 
 type CommentUsecase interface {
@@ -19,7 +27,7 @@ type commentUsecase struct {
 	cd datastore.CommentDatastore
 }
 
-func NewcommentUsecase(cd datastore.CommentDatastore) CommentUsecase {
+func NewCommentUsecase(cd datastore.CommentDatastore) *commentUsecase {
 	return &commentUsecase{cd: cd}
 }
 
