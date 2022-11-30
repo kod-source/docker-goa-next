@@ -4,8 +4,16 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
+)
+
+var _ CommentDatastore = (*commentDatastore)(nil)
+
+var CommentDatastoreSet = wire.NewSet(
+	NewCommentDatastore,
+	wire.Bind(new(CommentDatastore), new(*commentDatastore)),
 )
 
 type CommentDatastore interface {

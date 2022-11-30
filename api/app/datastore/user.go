@@ -4,8 +4,16 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
+)
+
+var _ UserDatastore = (*userDatastore)(nil)
+
+var UserDatastoreSet = wire.NewSet(
+	NewUserDatastore,
+	wire.Bind(new(UserDatastore), new(*userDatastore)),
 )
 
 type UserDatastore interface {

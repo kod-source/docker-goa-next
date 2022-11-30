@@ -5,7 +5,15 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/repository"
+)
+
+var _ JWTDatastore = (*jwtDatastore)(nil)
+
+var JWTDatastoreSet = wire.NewSet(
+	NewJWTDatastore,
+	wire.Bind(new(JWTDatastore), new(*jwtDatastore)),
 )
 
 type JWTDatastore interface {

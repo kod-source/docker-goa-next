@@ -4,9 +4,17 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/shogo82148/pointer"
+)
+
+var _ PostDatastore = (*postDatastore)(nil)
+
+var PostDatastoreSet = wire.NewSet(
+	NewPostDatastore,
+	wire.Bind(new(PostDatastore), new(*postDatastore)),
 )
 
 type PostDatastore interface {

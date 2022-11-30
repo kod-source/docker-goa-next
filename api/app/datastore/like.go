@@ -4,7 +4,15 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
+)
+
+var _ LikeDatastore = (*likeDatastore)(nil)
+
+var LikeDatastoreSet = wire.NewSet(
+	NewLikeDatastore,
+	wire.Bind(new(LikeDatastore), new(*likeDatastore)),
 )
 
 type LikeDatastore interface {
