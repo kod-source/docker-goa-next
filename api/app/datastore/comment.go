@@ -9,19 +9,12 @@ import (
 	"github.com/kod-source/docker-goa-next/app/repository"
 )
 
-var _ CommentDatastore = (*commentDatastore)(nil)
+var _ repository.CommentRepository = (*commentDatastore)(nil)
 
 var CommentDatastoreSet = wire.NewSet(
 	NewCommentDatastore,
-	wire.Bind(new(CommentDatastore), new(*commentDatastore)),
+	wire.Bind(new(repository.CommentRepository), new(*commentDatastore)),
 )
-
-type CommentDatastore interface {
-	Create(ctx context.Context, postID, userID int, text string, img *string) (*model.CommentWithUser, error)
-	ShowByPostID(ctx context.Context, postID int) ([]*model.CommentWithUser, error)
-	Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error)
-	Delete(ctx context.Context, id int) error
-}
 
 type commentDatastore struct {
 	db *sql.DB

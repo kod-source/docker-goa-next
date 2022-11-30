@@ -9,18 +9,12 @@ import (
 	"github.com/kod-source/docker-goa-next/app/repository"
 )
 
-var _ UserDatastore = (*userDatastore)(nil)
+var _ repository.UserRepository = (*userDatastore)(nil)
 
 var UserDatastoreSet = wire.NewSet(
 	NewUserDatastore,
-	wire.Bind(new(UserDatastore), new(*userDatastore)),
+	wire.Bind(new(repository.UserRepository), new(*userDatastore)),
 )
-
-type UserDatastore interface {
-	GetUser(ctx context.Context, id int) (*model.User, error)
-	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
-	CreateUser(ctx context.Context, name, email, password string, avatar *string) (*model.User, error)
-}
 
 type userDatastore struct {
 	db *sql.DB

@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/google/wire"
-	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
+	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/service"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -26,16 +26,16 @@ type UserUseCase interface {
 }
 
 type userUseCase struct {
-	ud datastore.UserDatastore
+	ur repository.UserRepository
 	js service.JWTService
 }
 
-func NewUserUseCase(ud datastore.UserDatastore, js service.JWTService) *userUseCase {
-	return &userUseCase{ud: ud, js: js}
+func NewUserUseCase(ur repository.UserRepository, js service.JWTService) *userUseCase {
+	return &userUseCase{ur: ur, js: js}
 }
 
 func (u *userUseCase) GetUser(ctx context.Context, id int) (*model.User, error) {
-	user, err := u.ud.GetUser(ctx, id)
+	user, err := u.ur.GetUser(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (u *userUseCase) GetUser(ctx context.Context, id int) (*model.User, error) 
 }
 
 func (u *userUseCase) GetUserByEmail(ctx context.Context, email, password string) (*model.User, error) {
-	user, err := u.ud.GetUserByEmail(ctx, email)
+	user, err := u.ur.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func (u *userUseCase) SignUp(ctx context.Context, name, email, password string, 
 	if err != nil {
 		return nil, err
 	}
-	user, err := u.ud.CreateUser(ctx, name, email, p, avatar)
+	user, err := u.ur.CreateUser(ctx, name, email, p, avatar)
 	if err != nil {
 		return nil, err
 	}

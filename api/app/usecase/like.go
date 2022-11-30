@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/google/wire"
-	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
+	"github.com/kod-source/docker-goa-next/app/repository"
 )
 
 var _ LikeUsecase = (*likeUsecase)(nil)
@@ -23,18 +23,18 @@ type LikeUsecase interface {
 }
 
 type likeUsecase struct {
-	ld datastore.LikeDatastore
+	lr repository.LikeRepository
 }
 
-func NewLikeUsecase(ld datastore.LikeDatastore) *likeUsecase {
-	return &likeUsecase{ld: ld}
+func NewLikeUsecase(lr repository.LikeRepository) *likeUsecase {
+	return &likeUsecase{lr: lr}
 }
 
 func (l *likeUsecase) Create(ctx context.Context, userID, postID int) (*model.Like, error) {
 	if userID == 0 || postID == 0 {
 		return nil, myerrors.BadRequestIntError
 	}
-	like, err := l.ld.Create(ctx, userID, postID)
+	like, err := l.lr.Create(ctx, userID, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (l *likeUsecase) Delete(ctx context.Context, userID, postID int) error {
 	if userID == 0 || postID == 0 {
 		return myerrors.BadRequestIntError
 	}
-	err := l.ld.Delete(ctx, userID, postID)
+	err := l.lr.Delete(ctx, userID, postID)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (l *likeUsecase) Delete(ctx context.Context, userID, postID int) error {
 }
 
 func (l *likeUsecase) GetPostIDs(ctx context.Context, userID int) ([]int, error) {
-	postIDs, err := l.ld.GetPostIDs(ctx, userID)
+	postIDs, err := l.lr.GetPostIDs(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
