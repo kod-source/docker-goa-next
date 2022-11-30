@@ -20,8 +20,8 @@ func NewApp(ctx context.Context) (*App, error) {
 		newApp, newService,
 		// DB
 		schema.NewDB,
-		// repository
-		repository.Set,
+		// TimeRepostiory
+		repository.TimeRepositorySet,
 		// external
 		external.Set,
 		// datastore ...
