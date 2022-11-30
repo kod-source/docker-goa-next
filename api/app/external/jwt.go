@@ -10,22 +10,22 @@ import (
 	"github.com/kod-source/docker-goa-next/app/service"
 )
 
-var _ service.JWTService = (*JWTExternal)(nil)
+var _ service.JWTService = (*jwtExternal)(nil)
 
 var JWTDatastoreSet = wire.NewSet(
 	NewJWTExternal,
-	wire.Bind(new(service.JWTService), new(*JWTExternal)),
+	wire.Bind(new(service.JWTService), new(*jwtExternal)),
 )
 
-type JWTExternal struct {
+type jwtExternal struct {
 	tr repository.TimeRepository
 }
 
-func NewJWTExternal(tr repository.TimeRepository) *JWTExternal {
-	return &JWTExternal{tr: tr}
+func NewJWTExternal(tr repository.TimeRepository) *jwtExternal {
+	return &jwtExternal{tr: tr}
 }
 
-func (j *JWTExternal) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
+func (j *jwtExternal) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
 	claims := jwt.MapClaims{
 		"sub":       "auth jwt",
 		"user_id":   id,
