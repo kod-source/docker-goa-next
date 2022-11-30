@@ -27,14 +27,14 @@ type userDatastore struct {
 	tr repository.TimeRepository
 }
 
-func NewUserDatastore(db *sql.DB, tr repository.TimeRepository) UserDatastore {
-	return userDatastore{
+func NewUserDatastore(db *sql.DB, tr repository.TimeRepository) *userDatastore {
+	return &userDatastore{
 		db: db,
 		tr: tr,
 	}
 }
 
-func (u userDatastore) GetUser(ctx context.Context, id int) (*model.User, error) {
+func (u *userDatastore) GetUser(ctx context.Context, id int) (*model.User, error) {
 	var user model.User
 	err := u.db.QueryRow(
 		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `id` = ?", id,
@@ -52,7 +52,7 @@ func (u userDatastore) GetUser(ctx context.Context, id int) (*model.User, error)
 	return &user, nil
 }
 
-func (u userDatastore) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+func (u *userDatastore) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
 	var user model.User
 	err := u.db.QueryRow(
 		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `email` = ?",
@@ -72,7 +72,7 @@ func (u userDatastore) GetUserByEmail(ctx context.Context, email string) (*model
 	return &user, nil
 }
 
-func (u userDatastore) CreateUser(ctx context.Context, name, email, passowrd string, avatar *string) (*model.User, error) {
+func (u *userDatastore) CreateUser(ctx context.Context, name, email, passowrd string, avatar *string) (*model.User, error) {
 	tx, err := u.db.Begin()
 	if err != nil {
 		return nil, err

@@ -35,7 +35,7 @@ type postDatastore struct {
 	tr repository.TimeRepository
 }
 
-func NewPostDatastore(db *sql.DB, tr repository.TimeRepository) PostDatastore {
+func NewPostDatastore(db *sql.DB, tr repository.TimeRepository) *postDatastore {
 	return &postDatastore{db: db, tr: tr}
 }
 

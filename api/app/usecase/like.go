@@ -26,7 +26,7 @@ type likeUsecase struct {
 	ld datastore.LikeDatastore
 }
 
-func NewLikeUsecase(ld datastore.LikeDatastore) LikeUsecase {
+func NewLikeUsecase(ld datastore.LikeDatastore) *likeUsecase {
 	return &likeUsecase{ld: ld}
 }
 

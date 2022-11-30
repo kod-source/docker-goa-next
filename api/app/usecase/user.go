@@ -29,7 +29,7 @@ type userUseCase struct {
 	jd datastore.JWTDatastore
 }
 
-func NewUserUseCase(ud datastore.UserDatastore, jd datastore.JWTDatastore) UserUseCase {
+func NewUserUseCase(ud datastore.UserDatastore, jd datastore.JWTDatastore) *userUseCase {
 	return &userUseCase{ud: ud, jd: jd}
 }
 

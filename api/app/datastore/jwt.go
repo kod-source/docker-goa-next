@@ -24,11 +24,11 @@ type jwtDatastore struct {
 	tr repository.TimeRepository
 }
 
-func NewJWTDatastore(tr repository.TimeRepository) JWTDatastore {
-	return jwtDatastore{tr: tr}
+func NewJWTDatastore(tr repository.TimeRepository) *jwtDatastore {
+	return &jwtDatastore{tr: tr}
 }
 
-func (j jwtDatastore) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
+func (j *jwtDatastore) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
 	claims := jwt.MapClaims{
 		"sub":       "auth jwt",
 		"user_id":   id,

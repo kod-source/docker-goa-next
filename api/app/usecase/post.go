@@ -33,7 +33,7 @@ type postUseCase struct {
 	pd datastore.PostDatastore
 }
 
-func NewPostUseCase(pd datastore.PostDatastore) PostUseCase {
+func NewPostUseCase(pd datastore.PostDatastore) *postUseCase {
 	return &postUseCase{pd: pd}
 }
 

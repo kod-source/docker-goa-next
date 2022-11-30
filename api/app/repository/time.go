@@ -19,7 +19,7 @@ type TimeRepository interface {
 
 type timeRepository struct{}
 
-func NewTimeRepositoy() TimeRepository {
+func NewTimeRepositoy() *timeRepository {
 	return &timeRepository{}
 }
 

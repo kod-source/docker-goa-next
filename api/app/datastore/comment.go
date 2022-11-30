@@ -28,7 +28,7 @@ type commentDatastore struct {
 	tr repository.TimeRepository
 }
 
-func NewCommentDatastore(db *sql.DB, tr repository.TimeRepository) CommentDatastore {
+func NewCommentDatastore(db *sql.DB, tr repository.TimeRepository) *commentDatastore {
 	return &commentDatastore{db: db, tr: tr}
 }
 

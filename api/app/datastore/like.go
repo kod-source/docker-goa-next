@@ -25,7 +25,7 @@ type likeDatastore struct {
 	db *sql.DB
 }
 
-func NewLikeDatastore(db *sql.DB) LikeDatastore {
+func NewLikeDatastore(db *sql.DB) *likeDatastore {
 	return &likeDatastore{db: db}
 }
 

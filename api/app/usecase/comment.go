@@ -27,7 +27,7 @@ type commentUsecase struct {
 	cd datastore.CommentDatastore
 }
 
-func NewCommentUsecase(cd datastore.CommentDatastore) CommentUsecase {
+func NewCommentUsecase(cd datastore.CommentDatastore) *commentUsecase {
 	return &commentUsecase{cd: cd}
 }
 
