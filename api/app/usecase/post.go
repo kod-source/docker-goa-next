@@ -3,9 +3,17 @@ package usecase
 import (
 	"context"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
+)
+
+var _ PostUseCase = (*postUseCase)(nil)
+
+var PostUseCaseSet = wire.NewSet(
+	NewPostUseCase,
+	wire.Bind(new(PostUseCase), new(*postUseCase)),
 )
 
 type PostUseCase interface {

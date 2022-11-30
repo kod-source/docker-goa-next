@@ -43,7 +43,7 @@ func main() {
 	app.MountUsersController(service, u)
 	p := NewPostsController(service, pu)
 	app.MountPostsController(service, p)
-	cc := NewCommentsController(service, usecase.NewcommentUsecase(datastore.NewCommentDatastore(db, repository.NewTimeRepositoy())))
+	cc := NewCommentsController(service, usecase.NewCommentUsecase(datastore.NewCommentDatastore(db, repository.NewTimeRepositoy())))
 	app.MountCommentsController(service, cc)
 	l := NewLikesController(service, usecase.NewLikeUsecase(datastore.NewLikeDatastore(db)))
 	app.MountLikesController(service, l)

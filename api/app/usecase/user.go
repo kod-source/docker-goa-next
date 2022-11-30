@@ -3,10 +3,18 @@ package usecase
 import (
 	"context"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"golang.org/x/crypto/bcrypt"
+)
+
+var _ UserUseCase = (*userUseCase)(nil)
+
+var UserUseCaseSet = wire.NewSet(
+	NewUserUseCase,
+	wire.Bind(new(UserUseCase), new(*userUseCase)),
 )
 
 type UserUseCase interface {

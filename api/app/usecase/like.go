@@ -3,9 +3,17 @@ package usecase
 import (
 	"context"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/datastore"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
+)
+
+var _ LikeUsecase = (*likeUsecase)(nil)
+
+var LikeUseCaseSet = wire.NewSet(
+	NewLikeUsecase,
+	wire.Bind(new(LikeUsecase), new(*likeUsecase)),
 )
 
 type LikeUsecase interface {
