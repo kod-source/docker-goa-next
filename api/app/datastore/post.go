@@ -10,25 +10,12 @@ import (
 	"github.com/shogo82148/pointer"
 )
 
-var _ PostDatastore = (*postDatastore)(nil)
+var _ repository.PostRepository = (*postDatastore)(nil)
 
 var PostDatastoreSet = wire.NewSet(
 	NewPostDatastore,
-	wire.Bind(new(PostDatastore), new(*postDatastore)),
+	wire.Bind(new(repository.PostRepository), new(*postDatastore)),
 )
-
-type PostDatastore interface {
-	CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error)
-	ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
-	Delete(ctx context.Context, id int) error
-	Update(ctx context.Context, id int, title string, img *string) (*model.IndexPost, error)
-	Show(ctx context.Context, id int) (*model.ShowPost, error)
-	ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
-	// ShowPostMy 指定したUserIDが投稿したものを取得する
-	ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
-	// ShowPostMedia 指定したUserIDの画像投稿したものを取得する
-	ShowPostMedia(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error)
-}
 
 type postDatastore struct {
 	db *sql.DB
