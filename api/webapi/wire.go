@@ -11,7 +11,6 @@ import (
 	"github.com/kod-source/docker-goa-next/app/external"
 	"github.com/kod-source/docker-goa-next/app/interactor"
 	"github.com/kod-source/docker-goa-next/app/repository"
-	"github.com/kod-source/docker-goa-next/app/schema"
 )
 
 func NewApp(ctx context.Context) (*App, error) {
@@ -19,7 +18,7 @@ func NewApp(ctx context.Context) (*App, error) {
 		// Application
 		newApp, newService,
 		// DB
-		schema.NewDB,
+		datastore.NewDB,
 		// TimeRepostiory
 		repository.TimeRepositorySet,
 		// service (external)
