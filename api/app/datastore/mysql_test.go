@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/caarlos0/env"
 	"github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 )
@@ -18,6 +19,23 @@ import (
 var ctx context.Context
 var testDB *sql.DB
 var jst *time.Location
+
+type dbConfig struct {
+	DatabaseName     string `env:"MYSQL_DATABASE,required"`
+	DatabaseUser     string `env:"MYSQL_USER,required"`
+	DatabasePassword string `env:"MYSQL_PASSWORD,required"`
+	DatabasePort     string `env:"MYSQL_PORT" envDefault:"3306"`
+	DatabaseHost     string `env:"MYSQL_HOST,required"`
+}
+
+func getDBConfig() (*dbConfig, error) {
+	cfg := dbConfig{}
+	if err := env.Parse(&cfg); err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
+}
 
 func TestMain(m *testing.M) {
 	var cleanup func()
@@ -40,17 +58,17 @@ func newTest() (context.Context, *sql.DB, func()) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 
-	dbName := "test_" + os.Getenv("MYSQL_DATABASE")
-	user := os.Getenv("MYSQL_USER")
-	password := os.Getenv("MYSQL_PASSWORD")
-	host := os.Getenv("MYSQL_HOST")
-	port := os.Getenv("MYSQL_PORT")
+	dbConf, err := getDBConfig()
+	if err != nil {
+		panic(err)
+	}
+	dbName := "test_" + dbConf.DatabaseName
 
 	config := mysql.NewConfig()
 	config.Net = "tcp"
-	config.User = user
-	config.Passwd = password
-	config.Addr = net.JoinHostPort(host, port)
+	config.User = dbConf.DatabaseUser
+	config.Passwd = dbConf.DatabasePassword
+	config.Addr = net.JoinHostPort(dbConf.DatabaseHost, dbConf.DatabasePort)
 	config.ParseTime = true
 
 	// テスト用の新規データーベース作成

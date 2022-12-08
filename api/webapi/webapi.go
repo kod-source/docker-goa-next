@@ -27,12 +27,11 @@ type appConfig struct {
 
 func getAppConfig() (*appConfig, error) {
 	cfg := appConfig{}
-	err := env.Parse(&cfg)
-	if err != nil {
+	if err := env.Parse(&cfg); err != nil {
 		return nil, err
 	}
 
-	return &cfg, err
+	return &cfg, nil
 }
 
 func newService() *goa.Service {
