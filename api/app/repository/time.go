@@ -28,3 +28,13 @@ var _ TimeRepository = (*timeRepository)(nil)
 func (t *timeRepository) Now() time.Time {
 	return time.Now()
 }
+
+var _ TimeRepository = (*MockTimeRepository)(nil)
+
+type MockTimeRepository struct {
+	NowFunc func() time.Time
+}
+
+func (m *MockTimeRepository) Now() time.Time {
+	return m.NowFunc()
+}
