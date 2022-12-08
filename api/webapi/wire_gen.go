@@ -18,7 +18,15 @@ import (
 
 func NewApp(ctx context.Context) (*App, error) {
 	service := newService()
-	db, err := datastore.NewDB()
+	mainAppConfig, err := getAppConfig()
+	if err != nil {
+		return nil, err
+	}
+	config, err := newMysqlConfig(mainAppConfig)
+	if err != nil {
+		return nil, err
+	}
+	db, err := datastore.NewDB(config)
 	if err != nil {
 		return nil, err
 	}

@@ -2,12 +2,13 @@ package datastore
 
 import (
 	"database/sql"
-	"os"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 // NewDB mysqlのデータベースを起動する
-func NewDB() (*sql.DB, error) {
-	db, err := sql.Open(os.Getenv("DRIVER"), os.Getenv("DSN")+"?parseTime=true")
+func NewDB(conf *mysql.Config) (*sql.DB, error) {
+	db, err := sql.Open("mysql", conf.FormatDSN())
 	if err != nil {
 		return nil, err
 	}

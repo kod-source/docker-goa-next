@@ -16,7 +16,7 @@ import (
 func NewApp(ctx context.Context) (*App, error) {
 	wire.Build(
 		// Application
-		newApp, newService,
+		getAppConfig, newApp, newService, newMysqlConfig,
 		// DB
 		datastore.NewDB,
 		// TimeRepostiory
