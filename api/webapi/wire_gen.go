@@ -12,14 +12,13 @@ import (
 	"github.com/kod-source/docker-goa-next/app/external"
 	"github.com/kod-source/docker-goa-next/app/interactor"
 	"github.com/kod-source/docker-goa-next/app/repository"
-	"github.com/kod-source/docker-goa-next/app/schema"
 )
 
 // Injectors from wire.go:
 
 func NewApp(ctx context.Context) (*App, error) {
 	service := newService()
-	db, err := schema.NewDB()
+	db, err := datastore.NewDB()
 	if err != nil {
 		return nil, err
 	}
