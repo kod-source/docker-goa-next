@@ -1,4 +1,4 @@
-package schema
+package datastore
 
 import (
 	"database/sql"
