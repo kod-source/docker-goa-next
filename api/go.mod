@@ -14,7 +14,7 @@ require (
 	github.com/shogo82148/myddlmaker v0.0.6
 	github.com/shogo82148/pointer v1.2.0
 	github.com/shogo82148/schemalex-deploy v0.0.7
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.6.1
 	github.com/tanimutomo/sqlfile v1.0.0
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 )
@@ -28,7 +28,7 @@ require (
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/manveru/faker v0.0.0-20171103152722-9fbc68a78c4d // indirect
 	github.com/pkg/errors v0.9.1 // indirect
