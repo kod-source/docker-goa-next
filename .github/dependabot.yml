@@ -9,6 +9,7 @@ updates:
     directory: "api/"
     schedule:
       interval: "daily"
+    target-branch: develop
     ignore:
       # 更新頻度がﾔﾊﾞｲのでminorバージョンアップ毎に更新
       - dependency-name: github.com/aws/aws-sdk-go
@@ -20,6 +21,7 @@ updates:
     directory: "client/"
     schedule:
       interval: "daily"
+    target-branch: develop
     open-pull-requests-limit: 10
     reviewers:
       - kod-source
