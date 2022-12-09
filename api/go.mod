@@ -3,9 +3,12 @@ module github.com/kod-source/docker-goa-next
 go 1.19
 
 require (
+	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-sql-driver/mysql v1.6.0
+	github.com/google/go-cmp v0.5.9
 	github.com/google/wire v0.5.0
+	github.com/joho/godotenv v1.4.0
 	github.com/schemalex/schemalex v0.1.1
 	github.com/shogo82148/goa-v1 v1.5.13
 	github.com/shogo82148/myddlmaker v0.0.2

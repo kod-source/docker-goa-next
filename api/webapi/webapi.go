@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"net"
 
+	"github.com/caarlos0/env"
+	"github.com/go-sql-driver/mysql"
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	"github.com/shogo82148/goa-v1"
@@ -11,6 +14,24 @@ import (
 
 type App struct {
 	srv *goa.Service
+}
+
+type appConfig struct {
+	ApiEndPoint      string `env:"END_POINT"`
+	DatabaseName     string `env:"MYSQL_DATABASE,required"`
+	DatabaseUser     string `env:"MYSQL_USER,required"`
+	DatabasePassword string `env:"MYSQL_PASSWORD,required"`
+	DatabasePort     string `env:"MYSQL_PORT" envDefault:"3306"`
+	DatabaseHost     string `env:"MYSQL_HOST,required"`
+}
+
+func getAppConfig() (*appConfig, error) {
+	cfg := appConfig{}
+	if err := env.Parse(&cfg); err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
 }
 
 func newService() *goa.Service {
@@ -37,6 +58,18 @@ func newApp(ctx context.Context, srv *goa.Service, userCtrl app.UsersController,
 	app.MountLikesController(srv, likeCtrl)
 
 	return &App{srv: srv}, nil
+}
+
+func newMysqlConfig(conf *appConfig) (*mysql.Config, error) {
+	config := mysql.NewConfig()
+	config.Net = "tcp"
+	config.User = conf.DatabaseUser
+	config.Passwd = conf.DatabasePassword
+	config.Addr = net.JoinHostPort(conf.DatabaseHost, conf.DatabasePort)
+	config.DBName = conf.DatabaseName
+	config.ParseTime = true
+
+	return config, nil
 }
 
 // ControllerSet ...
