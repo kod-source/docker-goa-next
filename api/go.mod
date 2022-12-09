@@ -11,7 +11,7 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/schemalex/schemalex v0.1.1
 	github.com/shogo82148/goa-v1 v1.5.13
-	github.com/shogo82148/myddlmaker v0.0.2
+	github.com/shogo82148/myddlmaker v0.0.6
 	github.com/shogo82148/pointer v1.2.0
 	github.com/shogo82148/schemalex-deploy v0.0.7
 	github.com/spf13/cobra v1.4.0
