@@ -16,3 +16,10 @@ updates:
     open-pull-requests-limit: 10
     reviewers:
       - kod-source
+  - package-ecosystem: "npm"
+    directory: "client/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    reviewers:
+      - kod-source
