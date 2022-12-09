@@ -8,7 +8,7 @@ updates:
   - package-ecosystem: "gomod"
     directory: "api/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     target-branch: develop
     ignore:
       # 更新頻度がﾔﾊﾞｲのでminorバージョンアップ毎に更新
@@ -20,7 +20,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "client/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     target-branch: develop
     open-pull-requests-limit: 10
     reviewers:
