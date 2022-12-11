@@ -1,26 +1,31 @@
-package datastore
+package external
 
 import (
 	"context"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/repository"
+	"github.com/kod-source/docker-goa-next/app/service"
 )
 
-type JWTDatastore interface {
-	CreateJWTToken(ctx context.Context, id int, name string) (*string, error)
-}
+var _ service.JWTService = (*jwtExternal)(nil)
 
-type jwtDatastore struct {
+var JWTDatastoreSet = wire.NewSet(
+	NewJWTExternal,
+	wire.Bind(new(service.JWTService), new(*jwtExternal)),
+)
+
+type jwtExternal struct {
 	tr repository.TimeRepository
 }
 
-func NewJWTDatastore(tr repository.TimeRepository) JWTDatastore {
-	return jwtDatastore{tr: tr}
+func NewJWTExternal(tr repository.TimeRepository) *jwtExternal {
+	return &jwtExternal{tr: tr}
 }
 
-func (j jwtDatastore) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
+func (j *jwtExternal) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
 	claims := jwt.MapClaims{
 		"sub":       "auth jwt",
 		"user_id":   id,

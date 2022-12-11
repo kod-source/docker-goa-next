@@ -4,20 +4,23 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
+	"github.com/kod-source/docker-goa-next/app/repository"
 )
 
-type LikeDatastore interface {
-	Create(ctx context.Context, userID, postID int) (*model.Like, error)
-	Delete(ctx context.Context, userID, postID int) error
-	GetPostIDs(ctx context.Context, userID int) ([]int, error)
-}
+var _ repository.LikeRepository = (*likeDatastore)(nil)
+
+var LikeDatastoreSet = wire.NewSet(
+	NewLikeDatastore,
+	wire.Bind(new(repository.LikeRepository), new(*likeDatastore)),
+)
 
 type likeDatastore struct {
 	db *sql.DB
 }
 
-func NewLikeDatastore(db *sql.DB) LikeDatastore {
+func NewLikeDatastore(db *sql.DB) *likeDatastore {
 	return &likeDatastore{db: db}
 }
 

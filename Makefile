@@ -13,3 +13,7 @@ migrate:
 # 初期値の登録
 seed:
 	docker compose exec api go run cmd/sql.go -file_path=app/schema/seed.sql
+
+# apiのテスト
+test_api:
+	cd api && go test -v ./... && cd ../
