@@ -20,7 +20,7 @@ docker compose up -d
 ```
 go install github.com/schemalex/git-schemalex/cmd/git-schemalex
 ```
-マイグレーション実行方法
+### マイグレーション実行方法
 ```
 git schemalex -schema api/app/schema/schema.sql -dsn "$user:$password@tcp($host:$port)/$db_name" -deploy
 ```
