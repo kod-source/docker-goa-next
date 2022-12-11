@@ -15,7 +15,8 @@ docker compose up -d
 ## マイグレーション方法
 使用ツール
 - git-schemalex
-インストール方法
+
+### インストール方法
 ```
 go install github.com/schemalex/git-schemalex/cmd/git-schemalex
 ```
