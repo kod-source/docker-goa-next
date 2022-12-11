@@ -22,10 +22,10 @@ var jst *time.Location
 
 type dbConfig struct {
 	DatabaseName     string `env:"MYSQL_DATABASE,required"`
-	DatabaseUser     string `env:"MYSQL_USER,required"`
-	DatabasePassword string `env:"MYSQL_PASSWORD,required"`
-	DatabasePort     string `env:"MYSQL_PORT" envDefault:"3306"`
-	DatabaseHost     string `env:"MYSQL_HOST,required"`
+	DatabaseUser     string `env:"MYSQL_ROOT_USER,required"`
+	DatabasePassword string `env:"MYSQL_ROOT_PASSWORD,required"`
+	DatabasePort     string `env:"MYSQL_LOCAL_PORT" envDefault:"3306"`
+	DatabaseHost     string `env:"MYSQL_LOCAL_HOST,required"`
 }
 
 func getDBConfig() (*dbConfig, error) {
