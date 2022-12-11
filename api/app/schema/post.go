@@ -28,6 +28,6 @@ func (*Post) ForeignKeys() []*myddlmaker.ForeignKey {
 			[]string{"user_id"},
 			"user",
 			[]string{"id"},
-		).OnUpdate(myddlmaker.ForeignKeyOptionCascade).OnDelete(myddlmaker.ForeignKeyOptionCascade),
+		).OnDelete(myddlmaker.ForeignKeyOptionCascade).OnUpdate(myddlmaker.ForeignKeyOptionCascade),
 	}
 }

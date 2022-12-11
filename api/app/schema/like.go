@@ -23,14 +23,14 @@ func (*Like) ForeignKeys() []*myddlmaker.ForeignKey {
 			[]string{"user_id"},
 			"user",
 			[]string{"id"},
-		).OnUpdate(myddlmaker.ForeignKeyOptionCascade).OnDelete(myddlmaker.ForeignKeyOptionCascade),
+		).OnDelete(myddlmaker.ForeignKeyOptionCascade).OnUpdate(myddlmaker.ForeignKeyOptionCascade),
 
 		myddlmaker.NewForeignKey(
 			"p_id_constraint",
 			[]string{"post_id"},
 			"post",
 			[]string{"id"},
-		).OnUpdate(myddlmaker.ForeignKeyOptionCascade).OnDelete(myddlmaker.ForeignKeyOptionCascade),
+		).OnDelete(myddlmaker.ForeignKeyOptionCascade).OnUpdate(myddlmaker.ForeignKeyOptionCascade),
 	}
 }
 
