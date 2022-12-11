@@ -2,103 +2,77 @@ package interactor
 
 import (
 	"context"
-	"database/sql"
-	"time"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
+	"github.com/kod-source/docker-goa-next/app/repository"
+	"github.com/kod-source/docker-goa-next/app/service"
+	"github.com/kod-source/docker-goa-next/app/usecase"
+	"golang.org/x/crypto/bcrypt"
 )
 
-type UserInteractor interface {
-	GetUser(ctx context.Context, id int) (*model.User, error)
-	GetUserByEmail(ctx context.Context, email string) (*model.User, error)
-	CreateUser(ctx context.Context, name, email, password string, avatar *string) (*model.User, error)
-}
+var _ usecase.UserUseCase = (*userInteractor)(nil)
+
+var UserInteractorSet = wire.NewSet(
+	NewUserInteractor,
+	wire.Bind(new(usecase.UserUseCase), new(*userInteractor)),
+)
 
 type userInteractor struct {
-	db *sql.DB
+	ur repository.UserRepository
+	js service.JWTService
 }
 
-func NewUserInteractor(db *sql.DB) UserInteractor {
-	return userInteractor{
-		db: db,
-	}
+func NewUserInteractor(ur repository.UserRepository, js service.JWTService) *userInteractor {
+	return &userInteractor{ur: ur, js: js}
 }
 
-func (u userInteractor) GetUser(ctx context.Context, id int) (*model.User, error) {
-	var user model.User
-	err := u.db.QueryRow(
-		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `users` WHERE `id` = ?", id,
-	).Scan(
-		&user.ID,
-		&user.Name,
-		&user.Email,
-		&user.Password,
-		&user.CreatedAt,
-		&user.Avatar,
-	)
+func (u *userInteractor) GetUser(ctx context.Context, id int) (*model.User, error) {
+	user, err := u.ur.GetUser(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+
+	return user, nil
 }
 
-func (u userInteractor) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-	var user model.User
-	err := u.db.QueryRow(
-		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `users` WHERE `email` = ?",
-		email,
-	).Scan(
-		&user.ID,
-		&user.Name,
-		&user.Email,
-		&user.Password,
-		&user.CreatedAt,
-		&user.Avatar,
-	)
+func (u *userInteractor) GetUserByEmail(ctx context.Context, email, password string) (*model.User, error) {
+	user, err := u.ur.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
+	if err = compareHashAndPassword(user.Password, password); err != nil {
+		return nil, myerrors.PasswordWorngError
+	}
 
-	return &user, nil
+	return user, nil
 }
 
-func (u userInteractor) CreateUser(ctx context.Context, name, email, passowrd string, avatar *string) (*model.User, error) {
-	tx, err := u.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-	ins, err := tx.Prepare(
-		"INSERT INTO users(`name`,`email`,`password`,`created_at`, `avatar`) VALUES(?,?,?,?,?)",
-	)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	res, err := ins.Exec(name, email, passowrd, time.Now(), avatar)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
-	var user model.User
-	err = tx.QueryRow(
-		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `users` WHERE `id` = ?", lastID,
-	).Scan(
-		&user.ID,
-		&user.Name,
-		&user.Email,
-		&user.Password,
-		&user.CreatedAt,
-		&user.Avatar,
-	)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	tx.Commit()
+func (u *userInteractor) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
+	token, nil := u.js.CreateJWTToken(ctx, id, name)
+	return token, nil
+}
 
-	return &user, nil
+func (u *userInteractor) SignUp(ctx context.Context, name, email, password string, avatar *string) (*model.User, error) {
+	p, err := passwordEncrypt(password)
+	if err != nil {
+		return nil, err
+	}
+	user, err := u.ur.CreateUser(ctx, name, email, p, avatar)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+// 暗号(Hash)化
+func passwordEncrypt(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hash), err
+}
+
+// 暗号(Hash)と入力された平パスワードの比較
+func compareHashAndPassword(hash, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 }

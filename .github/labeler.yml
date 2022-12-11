@@ -1,0 +1,8 @@
+ci:
+  - .github/**/*
+docker:
+  - docker/**/*
+api:
+  - app/**/*
+client:
+  - client/**/*

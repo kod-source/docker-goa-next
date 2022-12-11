@@ -1,61 +1,60 @@
-CREATE TABLE IF NOT EXISTS `users` (
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(50) NOT NULL,
-    `email` VARCHAR(50) NOT NULL,
-    `password` VARCHAR(64) NOT NULL,
-    `created_at` DATETIME NOT NULL,
-    `avatar` TEXT,
-    UNIQUE (`email`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `user`;
 
-CREATE TABLE IF NOT EXISTS `posts` (
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `user_id` INT NOT NULL,
-    `title` VARCHAR(50) NOT NULL DEFAULT "",
-    `img` LONGTEXT,
-    `created_at` DATETIME NOT NULL,
-    `updated_at` DATETIME NOT NULL,
+CREATE TABLE `user` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `name` varchar(50) NOT NULL,
+    `email` varchar(50) NOT NULL,
+    `password` varchar(64) NOT NULL,
+    `created_at` datetime NOT NULL,
+    `avatar` text,
     PRIMARY KEY (`id`),
-    FOREIGN KEY (`user_id`)
-    REFERENCES `users`(`id`)
-    ON UPDATE CASCADE ON DELETE CASCADE
-)  ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+    UNIQUE KEY `idx_email` (`email`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-CREATE TABLE IF NOT EXISTS `comments` (
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `post_id` INT NOT NULL,
-    `user_id` INT NOT NULL,
-    `text` VARCHAR(50) NOT NULL DEFAULT "",
-    `img` LONGTEXT,
-    `created_at` DATETIME NOT NULL,
-    `updated_at` DATETIME NOT NULL,
+DROP TABLE IF EXISTS `post`;
+
+CREATE TABLE `post` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `user_id` int NOT NULL,
+    `title` varchar(50) NOT NULL DEFAULT '',
+    `img` longtext,
+    `created_at` datetime NOT NULL,
+    `updated_at` datetime NOT NULL,
     PRIMARY KEY (`id`),
+    KEY `user_id_constraint` (`user_id`),
+    CONSTRAINT `user_id_constraint` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    FOREIGN KEY (`post_id`)
-    REFERENCES `posts`(`id`)
-    ON UPDATE CASCADE ON DELETE CASCADE,
+DROP TABLE IF EXISTS `comment`;
 
-    FOREIGN KEY (`user_id`)
-    REFERENCES `users`(`id`)
-    ON UPDATE CASCADE ON DELETE CASCADE
-)  ENGINE=InnoDB  DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `likes` (
-    `id` INT NOT NULL AUTO_INCREMENT,
-    `post_id` INT NOT NULL,
-    `user_id` INT NOT NULL,
+CREATE TABLE `comment` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `post_id` int NOT NULL,
+    `text` varchar(50) NOT NULL DEFAULT '',
+    `img` longtext,
+    `created_at` datetime NOT NULL,
+    `updated_at` datetime NOT NULL,
+    `user_id` int NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE `post_user_id_index` (`post_id`, `user_id`),
+    KEY `user_constraint` (`user_id`),
+    KEY `post_id_constraint` (`post_id`),
+    CONSTRAINT `post_id_constraint` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `user_constraint` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    INDEX (`post_id`),
-    INDEX (`user_id`),
+DROP TABLE IF EXISTS `like`;
 
-    FOREIGN KEY (`post_id`)
-    REFERENCES `posts`(`id`)
-    ON UPDATE CASCADE ON DELETE CASCADE,
+CREATE TABLE `like` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `post_id` int NOT NULL,
+    `user_id` int NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `post_user_id_index` (`post_id`,`user_id`),
+    KEY `u_id_constraint` (`user_id`),
+    CONSTRAINT `p_id_constraint` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `u_id_constraint` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=81 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
-    FOREIGN KEY (`user_id`)
-    REFERENCES `users`(`id`)
-    ON UPDATE CASCADE ON DELETE CASCADE
-)  ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+SET FOREIGN_KEY_CHECKS = 1;

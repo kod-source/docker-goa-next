@@ -1,6 +1,7 @@
 .env
 db-goa-next/
 .vscode/
+.DS_Store
 
 # api
 api/tmp/

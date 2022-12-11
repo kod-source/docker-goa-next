@@ -2,167 +2,63 @@ package interactor
 
 import (
 	"context"
-	"database/sql"
 
+	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/repository"
+	"github.com/kod-source/docker-goa-next/app/usecase"
 )
 
-type CommentInteractor interface {
-	Create(ctx context.Context, postID, userID int, text string, img *string) (*model.CommentWithUser, error)
-	ShowByPostID(ctx context.Context, postID int) ([]*model.CommentWithUser, error)
-	Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error)
-	Delete(ctx context.Context, id int) error
-}
+var _ usecase.CommentUsecase = (*commentInteractor)(nil)
+
+var CommentInteractorSet = wire.NewSet(
+	NewCommentInteractor,
+	wire.Bind(new(usecase.CommentUsecase), new(*commentInteractor)),
+)
 
 type commentInteractor struct {
-	db *sql.DB
-	tr repository.TimeRepository
+	cr repository.CommentRepository
 }
 
-func NewCommentInteractor(db *sql.DB, tr repository.TimeRepository) CommentInteractor {
-	return &commentInteractor{db: db, tr: tr}
+func NewCommentInteractor(cr repository.CommentRepository) *commentInteractor {
+	return &commentInteractor{cr: cr}
 }
 
 func (c *commentInteractor) Create(ctx context.Context, postID, userID int, text string, img *string) (*model.CommentWithUser, error) {
-	var commentWithUser model.CommentWithUser
-	tx, err := c.db.Begin()
+	if len(text) == 0 {
+		return nil, myerrors.BadRequestStingError
+	}
+	cu, err := c.cr.Create(ctx, postID, userID, text, img)
 	if err != nil {
 		return nil, err
 	}
-	ins, err := tx.Prepare(
-		"INSERT INTO comments(`post_id`, `user_id`, `text`, `img`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?)",
-	)
-	if err != nil {
-		return nil, err
-	}
-	res, err := ins.Exec(postID, userID, text, img, c.tr.Now(), c.tr.Now())
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	lastID, err := res.LastInsertId()
-	if err != nil {
-		return nil, err
-	}
-	err = tx.QueryRow(`
-		SELECT c.id, c.post_id, c.user_id, c.text, c.img, c.created_at, c.updated_at, u.id, u.name, u.avatar
-		FROM comments as c
-		INNER JOIN users as u
-		ON c.user_id = u.id
-		WHERE c.id = ?
-	`, lastID).Scan(
-		&commentWithUser.Comment.ID,
-		&commentWithUser.Comment.PostID,
-		&commentWithUser.Comment.UserID,
-		&commentWithUser.Comment.Text,
-		&commentWithUser.Comment.Img,
-		&commentWithUser.Comment.CreatedAt,
-		&commentWithUser.Comment.UpdatedAt,
-		&commentWithUser.User.ID,
-		&commentWithUser.User.Name,
-		&commentWithUser.User.Avatar,
-	)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	return &commentWithUser, tx.Commit()
+	return cu, nil
 }
 
 func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*model.CommentWithUser, error) {
-	var commentsWithUsers []*model.CommentWithUser
-	rows, err := c.db.Query(`
-		SELECT c.id, c.post_id, c.user_id, c.text, c.img, c.created_at, c.updated_at, u.id, u.name, u.avatar
-		FROM comments as c
-		INNER JOIN users as u
-		ON c.user_id = u.id
-		WHERE c.post_id = ?
-		ORDER BY c.created_at DESC
-	`, postID)
+	cus, err := c.cr.ShowByPostID(ctx, postID)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var commentWithUser model.CommentWithUser
-
-		err := rows.Scan(
-			&commentWithUser.Comment.ID,
-			&commentWithUser.Comment.PostID,
-			&commentWithUser.Comment.UserID,
-			&commentWithUser.Comment.Text,
-			&commentWithUser.Comment.Img,
-			&commentWithUser.Comment.CreatedAt,
-			&commentWithUser.Comment.UpdatedAt,
-			&commentWithUser.User.ID,
-			&commentWithUser.User.Name,
-			&commentWithUser.User.Avatar,
-		)
-		if err != nil {
-			return nil, err
-		}
-		commentsWithUsers = append(commentsWithUsers, &commentWithUser)
-	}
-	if len(commentsWithUsers) == 0 {
-		return nil, sql.ErrNoRows
-	}
-
-	return commentsWithUsers, nil
+	return cus, nil
 }
 
 func (c *commentInteractor) Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error) {
-	var comment model.Comment
-	tx, err := c.db.Begin()
+	if len(text) == 0 {
+		return nil, myerrors.BadRequestStingError
+	}
+	comment, err := c.cr.Update(ctx, id, text, img)
 	if err != nil {
 		return nil, err
 	}
-	upd, err := tx.Prepare("UPDATE `comments` set `text` = ?, `img` = ?, `updated_at` = ? WHERE `id` = ?")
-	if err != nil {
-		return nil, err
-	}
-	_, err = upd.Exec(text, img, c.tr.Now(), id)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-	err = tx.QueryRow(
-		"SELECT `id`, `post_id`, `user_id`, `text`, `img`, `created_at`, `updated_at` FROM `comments` WHERE `id` = ?", id,
-	).Scan(
-		&comment.ID,
-		&comment.PostID,
-		&comment.UserID,
-		&comment.Text,
-		&comment.Img,
-		&comment.CreatedAt,
-		&comment.UpdatedAt,
-	)
-	if err != nil {
-		tx.Rollback()
-		return nil, err
-	}
-
-	return &comment, tx.Commit()
+	return comment, nil
 }
 
 func (c *commentInteractor) Delete(ctx context.Context, id int) error {
-	stmt, err := c.db.Prepare("DELETE FROM `comments` WHERE `id` = ?")
+	err := c.cr.Delete(ctx, id)
 	if err != nil {
 		return err
 	}
-	r, err := stmt.Exec(id)
-	if err != nil {
-		return err
-	}
-	i, err := r.RowsAffected()
-	if err != nil {
-		return err
-	}
-	if i == 0 {
-		return sql.ErrNoRows
-	}
-
 	return nil
 }
