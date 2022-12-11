@@ -164,7 +164,8 @@ export const CommentEditModal: FC<Props> = (props) => {
               </label>
             </div>
             <div className='my-2'>
-              {(!!props.comment?.img || !!selectPost.img) && (
+              {((props.comment && !!props.comment?.img) ||
+                (!!selectPost.img && !props.comment)) && (
                 <div className='relative'>
                   <Image
                     src={
