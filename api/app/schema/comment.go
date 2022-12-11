@@ -15,7 +15,7 @@ type Comment struct {
 	Text      string
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
-	Img       []byte `ddl:",null"`
+	Img       string `ddl:",null,type=LONGTEXT"`
 }
 
 func (*Comment) PrimaryKey() *myddlmaker.PrimaryKey {
@@ -29,13 +29,13 @@ func (*Comment) ForeignKeys() []*myddlmaker.ForeignKey {
 			[]string{"user_id"},
 			"user",
 			[]string{"id"},
-		).OnUpdate(myddlmaker.ForeignKeyOptionCascade).OnDelete(myddlmaker.ForeignKeyOptionCascade),
+		).OnDelete(myddlmaker.ForeignKeyOptionCascade).OnUpdate(myddlmaker.ForeignKeyOptionCascade),
 
 		myddlmaker.NewForeignKey(
 			"post_id_constraint",
 			[]string{"post_id"},
 			"post",
 			[]string{"id"},
-		).OnUpdate(myddlmaker.ForeignKeyOptionCascade).OnDelete(myddlmaker.ForeignKeyOptionCascade),
+		).OnDelete(myddlmaker.ForeignKeyOptionCascade).OnUpdate(myddlmaker.ForeignKeyOptionCascade),
 	}
 }

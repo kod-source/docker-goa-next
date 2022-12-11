@@ -14,7 +14,7 @@ type Post struct {
 	Title     string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Img       []byte `ddl:",null"`
+	Img       string `ddl:",null,type=LONGTEXT"`
 }
 
 func (*Post) PrimaryKey() *myddlmaker.PrimaryKey {
@@ -28,6 +28,6 @@ func (*Post) ForeignKeys() []*myddlmaker.ForeignKey {
 			[]string{"user_id"},
 			"user",
 			[]string{"id"},
-		).OnUpdate(myddlmaker.ForeignKeyOptionCascade).OnDelete(myddlmaker.ForeignKeyOptionCascade),
+		).OnDelete(myddlmaker.ForeignKeyOptionCascade).OnUpdate(myddlmaker.ForeignKeyOptionCascade),
 	}
 }
