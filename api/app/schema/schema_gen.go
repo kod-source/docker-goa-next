@@ -77,6 +77,26 @@ func SelectUser(ctx context.Context, queryer queryer, primaryKeys *User) (*User,
 	return &v, nil
 }
 
+func SelectAllUser(ctx context.Context, queryer queryer) ([]*User, error) {
+	var ret []*User
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `name`, `email`, `password`, `created_at`, `updated_at`, `avatar` FROM `user` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v User
+		if err := rows.Scan(&v.ID, &v.Name, &v.Email, &v.Password, &v.CreatedAt, &v.UpdatedAt, &v.Avatar); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
 func UpdateUser(ctx context.Context, execer execer, values ...*User) error {
 	stmt, err := execer.PrepareContext(ctx, "UPDATE `user` SET `name` = ?, `email` = ?, `password` = ?, `created_at` = ?, `updated_at` = ?, `avatar` = ? WHERE `id` = ?")
 	if err != nil {
@@ -146,6 +166,26 @@ func SelectPost(ctx context.Context, queryer queryer, primaryKeys *Post) (*Post,
 		return nil, err
 	}
 	return &v, nil
+}
+
+func SelectAllPost(ctx context.Context, queryer queryer) ([]*Post, error) {
+	var ret []*Post
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `user_id`, `title`, `created_at`, `updated_at`, `img` FROM `post` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v Post
+		if err := rows.Scan(&v.ID, &v.UserID, &v.Title, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
 }
 
 func UpdatePost(ctx context.Context, execer execer, values ...*Post) error {
@@ -219,6 +259,26 @@ func SelectComment(ctx context.Context, queryer queryer, primaryKeys *Comment) (
 	return &v, nil
 }
 
+func SelectAllComment(ctx context.Context, queryer queryer) ([]*Comment, error) {
+	var ret []*Comment
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `post_id`, `user_id`, `text`, `created_at`, `updated_at`, `img` FROM `comment` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v Comment
+		if err := rows.Scan(&v.ID, &v.PostID, &v.UserID, &v.Text, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
 func UpdateComment(ctx context.Context, execer execer, values ...*Comment) error {
 	stmt, err := execer.PrepareContext(ctx, "UPDATE `comment` SET `post_id` = ?, `user_id` = ?, `text` = ?, `created_at` = ?, `updated_at` = ?, `img` = ? WHERE `id` = ?")
 	if err != nil {
@@ -288,6 +348,26 @@ func SelectLike(ctx context.Context, queryer queryer, primaryKeys *Like) (*Like,
 		return nil, err
 	}
 	return &v, nil
+}
+
+func SelectAllLike(ctx context.Context, queryer queryer) ([]*Like, error) {
+	var ret []*Like
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `post_id`, `user_id` FROM `like` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v Like
+		if err := rows.Scan(&v.ID, &v.PostID, &v.UserID); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
 }
 
 func UpdateLike(ctx context.Context, execer execer, values ...*Like) error {

@@ -6,8 +6,6 @@ import (
 	"github.com/shogo82148/myddlmaker"
 )
 
-//go:generate go run -tags myddlmaker gen/main.go
-
 type Post struct {
 	ID        uint64 `ddl:",auto"`
 	UserID    uint64
@@ -19,6 +17,12 @@ type Post struct {
 
 func (*Post) PrimaryKey() *myddlmaker.PrimaryKey {
 	return myddlmaker.NewPrimaryKey("id")
+}
+
+func (*Post) Indexes() []*myddlmaker.Index {
+	return []*myddlmaker.Index{
+		myddlmaker.NewIndex("idx_user_id", "user_id"),
+	}
 }
 
 func (*Post) ForeignKeys() []*myddlmaker.ForeignKey {

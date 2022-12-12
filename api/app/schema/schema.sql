@@ -12,7 +12,7 @@ CREATE TABLE `user` (
     `avatar` LONGTEXT NULL,
     UNIQUE `idx_email` (`email`),
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 DEFAULT COLLATE=utf8mb4_bin;
+);
 
 
 DROP TABLE IF EXISTS `post`;
@@ -24,9 +24,10 @@ CREATE TABLE `post` (
     `created_at` DATETIME(6) NOT NULL,
     `updated_at` DATETIME(6) NOT NULL,
     `img` LONGTEXT NULL,
+    INDEX `idx_user_id` (`user_id`),
     CONSTRAINT `user_id_constraint` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 DEFAULT COLLATE=utf8mb4_bin;
+);
 
 
 DROP TABLE IF EXISTS `comment`;
@@ -39,10 +40,12 @@ CREATE TABLE `comment` (
     `created_at` DATETIME(6) NOT NULL,
     `updated_at` DATETIME(6) NOT NULL,
     `img` LONGTEXT NULL,
+    INDEX `idx_post_id` (`post_id`),
+    INDEX `idx_user_id` (`user_id`),
     CONSTRAINT `user_constraint` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `post_id_constraint` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 DEFAULT COLLATE=utf8mb4_bin;
+);
 
 
 DROP TABLE IF EXISTS `like`;
@@ -51,10 +54,12 @@ CREATE TABLE `like` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `post_id` BIGINT UNSIGNED NOT NULL,
     `user_id` BIGINT UNSIGNED NOT NULL,
+    INDEX `idx_user_id` (`user_id`),
+    INDEX `idx_post_id` (`post_id`),
     UNIQUE `post_user_id_index` (`post_id`, `user_id`),
     CONSTRAINT `u_id_constraint` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `p_id_constraint` FOREIGN KEY (`post_id`) REFERENCES `post` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARACTER SET=utf8mb4 DEFAULT COLLATE=utf8mb4_bin;
+);
 
 SET foreign_key_checks=1;

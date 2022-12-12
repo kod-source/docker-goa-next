@@ -4,8 +4,6 @@ import (
 	"github.com/shogo82148/myddlmaker"
 )
 
-//go:generate go run -tags myddlmaker gen/main.go
-
 type Like struct {
 	ID     uint64 `ddl:",auto"`
 	PostID uint64
@@ -14,6 +12,13 @@ type Like struct {
 
 func (*Like) PrimaryKey() *myddlmaker.PrimaryKey {
 	return myddlmaker.NewPrimaryKey("id")
+}
+
+func (*Like) Indexes() []*myddlmaker.Index {
+	return []*myddlmaker.Index{
+		myddlmaker.NewIndex("idx_user_id", "user_id"),
+		myddlmaker.NewIndex("idx_post_id", "post_id"),
+	}
 }
 
 func (*Like) ForeignKeys() []*myddlmaker.ForeignKey {
