@@ -1,6 +1,8 @@
 name: api-test
 on:
   push:
+    branches:
+     - main
   pull_request:
 
 jobs:
@@ -28,5 +30,5 @@ jobs:
           MYSQL_DATABASE: test_db
           MYSQL_ROOT_USER: root
           MYSQL_ROOT_PASSWORD: root_password
-          MYSQL_LOCAL_PORT: 13306
+          MYSQL_LOCAL_PORT: 3306
           MYSQL_LOCAL_HOST: 127.0.0.1
