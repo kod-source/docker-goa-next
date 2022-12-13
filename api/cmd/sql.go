@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	db, err := sql.Open(os.Getenv("DRIVER"), os.Getenv("DSN")+"?parseTime=true")
+	db, err := sql.Open("mysql", os.Getenv("DSN")+"?parseTime=true")
 	if err != nil {
 		panic(err)
 	}
@@ -23,7 +23,9 @@ func main() {
 	}
 
 	s := sqlfile.New()
-	err = s.File(*filePath)
+	if err = s.File(*filePath); err != nil {
+		panic(err)
+	}
 	_, err = s.Exec(db)
 	if err != nil {
 		panic(err)

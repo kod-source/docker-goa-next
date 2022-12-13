@@ -25,7 +25,7 @@ func NewCommentsController(service *goa.Service, cu usecase.CommentUsecase) *Com
 func (c *CommentsController) CreateComment(ctx *app.CreateCommentCommentsContext) error {
 	cu, err := c.cu.Create(ctx, ctx.Payload.PostID, getUserIDCode(ctx), ctx.Payload.Text, ctx.Payload.Img)
 	if err != nil {
-		if err == myerrors.BadRequestStingError {
+		if err == myerrors.ErrBadRequestSting {
 			return ctx.BadRequest()
 		}
 		return ctx.InternalServerError()
@@ -63,7 +63,7 @@ func (c *CommentsController) ShowComment(ctx *app.ShowCommentCommentsContext) er
 func (c *CommentsController) UpdateComment(ctx *app.UpdateCommentCommentsContext) error {
 	comment, err := c.cu.Update(ctx, ctx.ID, ctx.Payload.Text, ctx.Payload.Img)
 	if err != nil {
-		if err == myerrors.BadRequestStingError {
+		if err == myerrors.ErrBadRequestSting {
 			return ctx.BadRequest()
 		}
 		return ctx.InternalServerError()
@@ -90,9 +90,9 @@ func (c *CommentsController) DeleteComment(ctx *app.DeleteCommentCommentsContext
 	return ctx.OK(nil)
 }
 
-func (c *CommentsController) ToCommentJSONCollection(comments_with_user []*model.CommentWithUser) app.CommentWithUserJSONCollection {
-	cus := make(app.CommentWithUserJSONCollection, 0, len(comments_with_user))
-	for _, cu := range comments_with_user {
+func (c *CommentsController) ToCommentJSONCollection(commentsWithUser []*model.CommentWithUser) app.CommentWithUserJSONCollection {
+	cus := make(app.CommentWithUserJSONCollection, 0, len(commentsWithUser))
+	for _, cu := range commentsWithUser {
 		cus = append(cus, &app.CommentWithUserJSON{
 			Comment: &app.CommentJSON{
 				ID:        cu.Comment.ID,

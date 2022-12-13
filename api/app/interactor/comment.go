@@ -27,7 +27,7 @@ func NewCommentInteractor(cr repository.CommentRepository) *commentInteractor {
 
 func (c *commentInteractor) Create(ctx context.Context, postID, userID int, text string, img *string) (*model.CommentWithUser, error) {
 	if len(text) == 0 {
-		return nil, myerrors.BadRequestStingError
+		return nil, myerrors.ErrBadRequestSting
 	}
 	cu, err := c.cr.Create(ctx, postID, userID, text, img)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *commentInteractor) ShowByPostID(ctx context.Context, postID int) ([]*mo
 
 func (c *commentInteractor) Update(ctx context.Context, id int, text string, img *string) (*model.Comment, error) {
 	if len(text) == 0 {
-		return nil, myerrors.BadRequestStingError
+		return nil, myerrors.ErrBadRequestSting
 	}
 	comment, err := c.cr.Update(ctx, id, text, img)
 	if err != nil {

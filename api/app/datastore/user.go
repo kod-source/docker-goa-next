@@ -71,16 +71,16 @@ func (u *userDatastore) CreateUser(ctx context.Context, name, email, passowrd st
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
+
 	ins, err := tx.Prepare(
 		"INSERT INTO user(`name`,`email`,`password`,`created_at`, `updated_at`, `avatar`) VALUES(?,?,?,?,?,?)",
 	)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 	res, err := ins.Exec(name, email, passowrd, u.tr.Now(), u.tr.Now(), avatar)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 	lastID, err := res.LastInsertId()
@@ -99,10 +99,11 @@ func (u *userDatastore) CreateUser(ctx context.Context, name, email, passowrd st
 		&user.Avatar,
 	)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
-	tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
 
 	return &user, nil
 }

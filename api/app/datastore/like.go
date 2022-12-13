@@ -30,6 +30,8 @@ func (l *likeDatastore) Create(ctx context.Context, userID, postID int) (*model.
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
+
 	ins, err := tx.Prepare(
 		"INSERT INTO `like`(`user_id`, `post_id`) VALUES(?, ?)",
 	)
@@ -52,7 +54,6 @@ func (l *likeDatastore) Create(ctx context.Context, userID, postID int) (*model.
 		&like.PostID,
 	)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 

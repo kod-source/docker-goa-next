@@ -24,7 +24,7 @@ func NewLikesController(service *goa.Service, lu usecase.LikeUsecase) *LikesCont
 func (c *LikesController) Create(ctx *app.CreateLikesContext) error {
 	l, err := c.lu.Create(ctx, getUserIDCode(ctx), ctx.Payload.PostID)
 	if err != nil {
-		if err == myerrors.BadRequestIntError {
+		if err == myerrors.ErrBadRequestInt {
 			return ctx.BadRequest(&app.ServiceVerror{
 				Code:    400,
 				Message: "不明なリクエストです",
@@ -51,7 +51,7 @@ func (c *LikesController) Create(ctx *app.CreateLikesContext) error {
 func (c *LikesController) Delete(ctx *app.DeleteLikesContext) error {
 	err := c.lu.Delete(ctx, getUserIDCode(ctx), ctx.Payload.PostID)
 	if err != nil {
-		if err == myerrors.BadRequestIntError {
+		if err == myerrors.ErrBadRequestInt {
 			return ctx.BadRequest()
 		}
 		return ctx.InternalServerError()

@@ -39,12 +39,12 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 				Status:  "404 Not Found",
 			})
 		}
-		if errors.Is(err, myerrors.PasswordWorngError) {
+		if errors.Is(err, myerrors.ErrPasswordWorng) {
 			return ctx.BadRequest(&app.ServiceVerror{
 				Code:    400,
-				Details: myerrors.PasswordWorngError,
+				Details: myerrors.ErrPasswordWorng,
 				Message: "パスワードが間違っています。",
-				Status:  myerrors.PasswordWorngError.Error(),
+				Status:  myerrors.ErrPasswordWorng.Error(),
 			})
 		}
 		return ctx.InternalServerError()
