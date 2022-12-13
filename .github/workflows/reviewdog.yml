@@ -9,9 +9,8 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
-      - name: move directory
-        working-directory: ./api
       - name: golangci-lint
         uses: reviewdog/action-golangci-lint@v2
         with:
-          go_version: "1.19"
+          go_version: '1.19'
+        working-directory: ./api
