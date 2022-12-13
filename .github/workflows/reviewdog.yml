@@ -9,9 +9,11 @@ jobs:
     steps:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
+        working-directory: ./api
 
       - name: run golangci-lint
         uses: reviewdog/action-golangci-lint@v2
         with:
           reporter: github-pr-review
           level: warning
+        working-directory: ./api
