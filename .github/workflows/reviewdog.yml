@@ -16,7 +16,10 @@ jobs:
         run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.33.0
         working-directory: ./api
       - name: check
-        run: golangci-lint --version \ ls -l
+        run: golangci-lint --version
+        working-directory: ./api
+      - name: check ls
+        run: ls -l
         working-directory: ./api
       - name: golangci-lint
         run: golangci-lint run ./...
