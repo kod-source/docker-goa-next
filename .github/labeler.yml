@@ -3,6 +3,6 @@ ci:
 docker:
   - docker/**/*
 api:
-  - app/**/*
+  - api/**/*
 client:
   - client/**/*
