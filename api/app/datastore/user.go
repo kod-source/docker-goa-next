@@ -7,6 +7,7 @@ import (
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
+	"github.com/kod-source/docker-goa-next/app/schema"
 )
 
 var _ repository.UserRepository = (*userDatastore)(nil)
@@ -28,9 +29,9 @@ func NewUserDatastore(db *sql.DB, tr repository.TimeRepository) *userDatastore {
 	}
 }
 
-func (u *userDatastore) GetUser(ctx context.Context, id int) (*model.User, error) {
-	var user model.User
-	err := u.db.QueryRow(
+func (ud *userDatastore) GetUser(ctx context.Context, id int) (*model.User, error) {
+	var user schema.User
+	err := ud.db.QueryRow(
 		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `id` = ?", id,
 	).Scan(
 		&user.ID,
@@ -43,12 +44,12 @@ func (u *userDatastore) GetUser(ctx context.Context, id int) (*model.User, error
 	if err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return ud.convetSchemaToModelUser(&user), nil
 }
 
-func (u *userDatastore) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
-	var user model.User
-	err := u.db.QueryRow(
+func (ud *userDatastore) GetUserByEmail(ctx context.Context, email string) (*model.User, error) {
+	var user schema.User
+	err := ud.db.QueryRow(
 		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `email` = ?",
 		email,
 	).Scan(
@@ -63,11 +64,11 @@ func (u *userDatastore) GetUserByEmail(ctx context.Context, email string) (*mode
 		return nil, err
 	}
 
-	return &user, nil
+	return ud.convetSchemaToModelUser(&user), nil
 }
 
-func (u *userDatastore) CreateUser(ctx context.Context, name, email, passowrd string, avatar *string) (*model.User, error) {
-	tx, err := u.db.Begin()
+func (ud *userDatastore) CreateUser(ctx context.Context, name, email, passowrd string, avatar *string) (*model.User, error) {
+	tx, err := ud.db.Begin()
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +80,7 @@ func (u *userDatastore) CreateUser(ctx context.Context, name, email, passowrd st
 	if err != nil {
 		return nil, err
 	}
-	res, err := ins.Exec(name, email, passowrd, u.tr.Now(), u.tr.Now(), avatar)
+	res, err := ins.Exec(name, email, passowrd, ud.tr.Now(), ud.tr.Now(), avatar)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +88,7 @@ func (u *userDatastore) CreateUser(ctx context.Context, name, email, passowrd st
 	if err != nil {
 		return nil, err
 	}
-	var user model.User
+	var user schema.User
 	err = tx.QueryRow(
 		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `id` = ?", lastID,
 	).Scan(
@@ -105,5 +106,19 @@ func (u *userDatastore) CreateUser(ctx context.Context, name, email, passowrd st
 		return nil, err
 	}
 
-	return &user, nil
+	return ud.convetSchemaToModelUser(&user), nil
+}
+
+func (ud *userDatastore) convetSchemaToModelUser(user *schema.User) *model.User {
+	u := &model.User{
+		ID:        int(user.ID),
+		Name:      user.Name,
+		Email:     user.Email,
+		Password:  user.Password,
+		CreatedAt: user.CreatedAt,
+	}
+	if user.Avatar.Valid {
+		u.Avatar = &user.Avatar.String
+	}
+	return u
 }

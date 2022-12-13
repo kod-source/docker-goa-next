@@ -14,6 +14,7 @@ import (
 	"github.com/caarlos0/env"
 	"github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"github.com/kod-source/docker-goa-next/app/datastore/testdata"
 )
 
 var ctx context.Context
@@ -42,6 +43,9 @@ func TestMain(m *testing.M) {
 	ctx, testDB, cleanup = newTest()
 	defer cleanup()
 
+	if err := testdata.UserSeed(ctx, testDB); err != nil {
+		panic(err)
+	}
 	var err error
 	jst, err = time.LoadLocation("Asia/Tokyo")
 	if err != nil {
