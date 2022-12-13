@@ -7,14 +7,14 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
 	"github.com/shogo82148/pointer"
 )
 
 func TestGetUser(t *testing.T) {
-	tr := repository.NewTimeRepositoy()
-	ud := NewUserDatastore(testDB, tr)
+	ud := NewUserDatastore(testDB, nil)
 
 	t.Run("[OK]ユーザー取得", func(t *testing.T) {
 		want := &model.User{
@@ -62,8 +62,7 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestGetUserByEmail(t *testing.T) {
-	tr := repository.NewTimeRepositoy()
-	ud := NewUserDatastore(testDB, tr)
+	ud := NewUserDatastore(testDB, nil)
 
 	t.Run("[OK]ユーザー取得", func(t *testing.T) {
 		want := &model.User{
@@ -111,7 +110,13 @@ func TestGetUserByEmail(t *testing.T) {
 }
 
 func Test_CreateUser(t *testing.T) {
-	tr := repository.NewTimeRepositoy()
+	tr := &repository.MockTimeRepository{}
+	tr.NowFunc = func() time.Time {
+		return time.Date(2022, 1, 1, 0, 0, 0, 0, jst)
+	}
+	defer func() {
+		tr.NowFunc = nil
+	}()
 	ud := NewUserDatastore(testDB, tr)
 
 	t.Run("[OK]ユーザー作成", func(t *testing.T) {
@@ -161,6 +166,14 @@ func Test_CreateUser(t *testing.T) {
 
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]ユーザー作成 - Emailがユニークインデックスの確認", func(t *testing.T) {
+		// 存在しているメールアドレスを指定する
+		_, err := ud.CreateUser(ctx, "", "test1@gmail.com", "", nil)
+		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorDuplicate.Number {
+			t.Fatal(err)
 		}
 	})
 }
