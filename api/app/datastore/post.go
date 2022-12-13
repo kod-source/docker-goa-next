@@ -49,11 +49,11 @@ func (p *postDatastore) CreatePost(ctx context.Context, userID int, title string
 		return nil, err
 	}
 	err = tx.QueryRow(`
-	SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
-	FROM post as p
-	INNER JOIN user as u
-	ON p.user_id = u.id
-	WHERE p.id = ?
+		SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar
+		FROM post as p
+		INNER JOIN user as u
+		ON p.user_id = u.id
+		WHERE p.id = ?
 	`, lastID).Scan(
 		&indexPost.Post.ID,
 		&indexPost.Post.UserID,
