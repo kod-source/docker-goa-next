@@ -23,7 +23,7 @@ func UserSeed(ctx context.Context, db *sql.DB) error {
 			Password:  "test1_passowrd",
 			CreatedAt: now,
 			UpdatedAt: now,
-			Avatar:    "test1_avatar",
+			Avatar:    sql.NullString{"test1_avatar", true},
 		},
 		{
 			ID:        2,
@@ -32,6 +32,7 @@ func UserSeed(ctx context.Context, db *sql.DB) error {
 			Password:  "test2_passowrd",
 			CreatedAt: now,
 			UpdatedAt: now,
+			Avatar:    sql.NullString{"", false},
 		},
 	}
 	if err := schema.InsertUser(ctx, db, users...); err != nil {

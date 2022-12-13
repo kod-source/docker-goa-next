@@ -13,33 +13,8 @@ import (
 )
 
 func TestGetUser(t *testing.T) {
-	// now := time.Date(2022, 1, 1, 0, 0, 0, 0, jst)
 	tr := repository.NewTimeRepositoy()
 	ud := NewUserDatastore(testDB, tr)
-
-	// 初期データ追加
-	// users := []*schema.User{
-	// 	{
-	// 		ID:        1,
-	// 		Name:      "test1_name",
-	// 		Email:     "test1@gmail.com",
-	// 		Password:  "test1_passowrd",
-	// 		CreatedAt: now,
-	// 		UpdatedAt: now,
-	// 		Avatar:    "test1_avatar",
-	// 	},
-	// 	{
-	// 		ID:        2,
-	// 		Name:      "test2_name",
-	// 		Email:     "test2@gmail.com",
-	// 		Password:  "test2_passowrd",
-	// 		CreatedAt: now,
-	// 		UpdatedAt: now,
-	// 	},
-	// }
-	// if err := schema.InsertUser(ctx, testDB, users...); err != nil {
-	// 	t.Fatal(err)
-	// }
 
 	t.Run("[OK]ユーザー取得", func(t *testing.T) {
 		want := &model.User{
@@ -67,7 +42,7 @@ func TestGetUser(t *testing.T) {
 			Email:     "test2@gmail.com",
 			Password:  "test2_passowrd",
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-			Avatar:    pointer.String(""),
+			Avatar:    nil,
 		}
 		got, err := ud.GetUser(ctx, want.ID)
 		if err != nil {
@@ -116,7 +91,7 @@ func TestGetUserByEmail(t *testing.T) {
 			Email:     "test2@gmail.com",
 			Password:  "test2_passowrd",
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-			Avatar:    pointer.String(""),
+			Avatar:    nil,
 		}
 		got, err := ud.GetUserByEmail(ctx, want.Email)
 		if err != nil {
@@ -156,7 +131,7 @@ func Test_CreateUser(t *testing.T) {
 			Email:     user.Email,
 			Password:  user.Password,
 			CreatedAt: user.CreatedAt,
-			Avatar:    pointer.PtrOrNil(user.Avatar),
+			Avatar:    pointer.PtrOrNil(user.Avatar.String),
 		}
 
 		if diff := cmp.Diff(want, got); diff != "" {
@@ -181,7 +156,7 @@ func Test_CreateUser(t *testing.T) {
 			Email:     user.Email,
 			Password:  user.Password,
 			CreatedAt: user.CreatedAt,
-			Avatar:    pointer.PtrOrNil(user.Avatar),
+			Avatar:    pointer.PtrOrNil(user.Avatar.String),
 		}
 
 		if diff := cmp.Diff(want, got); diff != "" {
