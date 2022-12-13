@@ -67,7 +67,7 @@ func (p *postDatastore) CreatePost(ctx context.Context, userID int, title string
 	if err != nil {
 		return nil, err
 	}
-	if err := tx.Commit(); err == nil {
+	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
