@@ -19,7 +19,7 @@ jobs:
         run: golangci-lint --version
         working-directory: ./api
       - name: check ls
-        run: ls -l
+        run: ls -a
         working-directory: ./api
       - name: golangci-lint
         run: golangci-lint run ./...
