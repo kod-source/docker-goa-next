@@ -31,7 +31,7 @@ jobs:
         working-directory: ./api
 
       - name: check go
-        run: go --version
+        run: go version
         working-directory: ./api
 
       - name: golangci-lint
