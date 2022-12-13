@@ -14,6 +14,7 @@ import (
 )
 
 func TestGetUser(t *testing.T) {
+	now := time.Date(2022, 1, 1, 0, 0, 0, 0, jst)
 	ud := NewUserDatastore(testDB, nil)
 
 	t.Run("[OK]ユーザー取得", func(t *testing.T) {
@@ -22,7 +23,7 @@ func TestGetUser(t *testing.T) {
 			Name:      "test1_name",
 			Email:     "test1@gmail.com",
 			Password:  "test1_passowrd",
-			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			CreatedAt: now,
 			Avatar:    pointer.Ptr("test1_avatar"),
 		}
 		got, err := ud.GetUser(ctx, want.ID)
@@ -41,7 +42,7 @@ func TestGetUser(t *testing.T) {
 			Name:      "test2_name",
 			Email:     "test2@gmail.com",
 			Password:  "test2_passowrd",
-			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			CreatedAt: now,
 			Avatar:    nil,
 		}
 		got, err := ud.GetUser(ctx, want.ID)
@@ -62,6 +63,7 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestGetUserByEmail(t *testing.T) {
+	now := time.Date(2022, 1, 1, 0, 0, 0, 0, jst)
 	ud := NewUserDatastore(testDB, nil)
 
 	t.Run("[OK]ユーザー取得", func(t *testing.T) {
@@ -70,7 +72,7 @@ func TestGetUserByEmail(t *testing.T) {
 			Name:      "test1_name",
 			Email:     "test1@gmail.com",
 			Password:  "test1_passowrd",
-			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			CreatedAt: now,
 			Avatar:    pointer.Ptr("test1_avatar"),
 		}
 		got, err := ud.GetUserByEmail(ctx, want.Email)
@@ -89,7 +91,7 @@ func TestGetUserByEmail(t *testing.T) {
 			Name:      "test2_name",
 			Email:     "test2@gmail.com",
 			Password:  "test2_passowrd",
-			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			CreatedAt: now,
 			Avatar:    nil,
 		}
 		got, err := ud.GetUserByEmail(ctx, want.Email)
