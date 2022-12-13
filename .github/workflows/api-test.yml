@@ -24,7 +24,9 @@ jobs:
         working-directory: ./api
 
       - name: Test
-        run: go test -v ./...
+        run: |
+          go test -v ./...
+          go vet ./...
         working-directory: ./api
         env:
           MYSQL_DATABASE: db
