@@ -17,7 +17,7 @@ type App struct {
 }
 
 type appConfig struct {
-	APIEndPoint      string `env:"END_POINT"`
+	ApiEndPoint      string `env:"END_POINT"`
 	DatabaseName     string `env:"MYSQL_DATABASE,required"`
 	DatabaseUser     string `env:"MYSQL_USER,required"`
 	DatabasePassword string `env:"MYSQL_PASSWORD,required"`
