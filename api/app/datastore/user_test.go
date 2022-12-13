@@ -156,7 +156,7 @@ func Test_CreateUser(t *testing.T) {
 			Email:     user.Email,
 			Password:  user.Password,
 			CreatedAt: user.CreatedAt,
-			Avatar:    pointer.Ptr(user.Avatar.String),
+			Avatar:    pointer.PtrOrNil(user.Avatar.String),
 		}
 
 		if diff := cmp.Diff(want, got); diff != "" {
