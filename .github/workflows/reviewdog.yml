@@ -14,8 +14,6 @@ jobs:
         uses: reviewdog/action-golangci-lint@v2
         with:
           go_version: "1.19"
-          golangci_lint_flags: "--config=.github/.golangci.yml ./testdata"
-          workdir: subdirectory/
 
   # Use golint via golangci-lint binary with "warning" level.
   golint:
