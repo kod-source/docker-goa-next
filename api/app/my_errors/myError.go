@@ -6,12 +6,12 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-// PasswordWorngError パスワードが間違っているときのエラー
-var PasswordWorngError = errors.New("Password is wronging")
-var EmptyStringError = errors.New("Title is empty string")
-var BadRequestStingError = errors.New("Request is empty string")
-// BadRequestIntError 数字の0が来たときにエラー
-var BadRequestIntError = errors.New("Request is empty int")
+// ErrPasswordWorng パスワードが間違っているときのエラー
+var ErrPasswordWorng = errors.New("password is wronging")
+var ErrEmptyString = errors.New("title is empty string")
+var ErrBadRequestSting = errors.New("request is empty string")
+// ErrBadRequestInt 数字の0が来たときにエラー
+var ErrBadRequestInt = errors.New("request is empty int")
 
 var MySQLErrorDuplicate = &mysql.MySQLError{Number: 1062, Message: "duplicate entry"}
 

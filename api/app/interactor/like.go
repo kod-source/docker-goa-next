@@ -27,7 +27,7 @@ func NewLikeInteractor(lr repository.LikeRepository) *likeInteractor {
 
 func (l *likeInteractor) Create(ctx context.Context, userID, postID int) (*model.Like, error) {
 	if userID == 0 || postID == 0 {
-		return nil, myerrors.BadRequestIntError
+		return nil, myerrors.ErrBadRequestInt
 	}
 	like, err := l.lr.Create(ctx, userID, postID)
 	if err != nil {
@@ -39,7 +39,7 @@ func (l *likeInteractor) Create(ctx context.Context, userID, postID int) (*model
 
 func (l *likeInteractor) Delete(ctx context.Context, userID, postID int) error {
 	if userID == 0 || postID == 0 {
-		return myerrors.BadRequestIntError
+		return myerrors.ErrBadRequestInt
 	}
 	err := l.lr.Delete(ctx, userID, postID)
 	if err != nil {

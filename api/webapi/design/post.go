@@ -176,17 +176,6 @@ var post_and_user = MediaType("application/vnd.index_post_json", func() {
 	Required("post", "user_name")
 })
 
-var post_and_all_user = MediaType("application/vnd.post_and_user_json", func() {
-	Description("投稿とユーザーの情報")
-	Attribute("post", post, "post value")
-	Attribute("user", user, "user value")
-	View("default", func() {
-		Attribute("post")
-		Attribute("user")
-	})
-	Required("post", "user")
-})
-
 var show_post = MediaType("application/vnd.show_post_json", func() {
 	Description("投稿とユーザーとコメントの情報")
 	Attribute("post", post, "post value")

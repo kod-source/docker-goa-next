@@ -1,0 +1,23 @@
+# https://golangci-lint.run/usage/configuration/
+
+run:
+  timeout: 5m
+  skip-dirs:
+    - webapi/design
+
+issues:
+  exclude-rules:
+    # defer tx.Rollback() とかを許容する
+    - source: "defer"
+      linters:
+        - errcheck
+    # tx.Commit() を許容する
+    - source: "tx.Commit()"
+      linters:
+        - errcheck
+
+linters:
+  enable:
+    - stylecheck
+    - misspell
+    - thelper

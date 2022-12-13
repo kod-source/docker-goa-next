@@ -43,7 +43,7 @@ func (u *userInteractor) GetUserByEmail(ctx context.Context, email, password str
 		return nil, err
 	}
 	if err = compareHashAndPassword(user.Password, password); err != nil {
-		return nil, myerrors.PasswordWorngError
+		return nil, myerrors.ErrPasswordWorng
 	}
 
 	return user, nil

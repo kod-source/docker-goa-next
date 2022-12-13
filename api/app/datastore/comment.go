@@ -31,6 +31,7 @@ func (c *commentDatastore) Create(ctx context.Context, postID, userID int, text 
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
 	ins, err := tx.Prepare(
 		"INSERT INTO comment(`post_id`, `user_id`, `text`, `img`, `created_at`, `updated_at`) VALUES(?,?,?,?,?,?)",
 	)
@@ -39,7 +40,6 @@ func (c *commentDatastore) Create(ctx context.Context, postID, userID int, text 
 	}
 	res, err := ins.Exec(postID, userID, text, img, c.tr.Now(), c.tr.Now())
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 	lastID, err := res.LastInsertId()
@@ -65,7 +65,6 @@ func (c *commentDatastore) Create(ctx context.Context, postID, userID int, text 
 		&commentWithUser.User.Avatar,
 	)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 
@@ -120,13 +119,14 @@ func (c *commentDatastore) Update(ctx context.Context, id int, text string, img 
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
+
 	upd, err := tx.Prepare("UPDATE `comment` set `text` = ?, `img` = ?, `updated_at` = ? WHERE `id` = ?")
 	if err != nil {
 		return nil, err
 	}
 	_, err = upd.Exec(text, img, c.tr.Now(), id)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 	err = tx.QueryRow(
@@ -141,7 +141,6 @@ func (c *commentDatastore) Update(ctx context.Context, id int, text string, img 
 		&comment.UpdatedAt,
 	)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 

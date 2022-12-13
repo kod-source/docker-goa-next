@@ -27,7 +27,7 @@ func NewPostInteractor(pr repository.PostRepository) *postInteractor {
 
 func (p *postInteractor) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
 	if len(title) == 0 {
-		return nil, myerrors.EmptyStringError
+		return nil, myerrors.ErrEmptyString
 	}
 	indexPost, err := p.pr.CreatePost(ctx, userID, title, img)
 	if err != nil {
