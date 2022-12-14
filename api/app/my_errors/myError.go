@@ -14,6 +14,7 @@ var ErrBadRequestSting = errors.New("request is empty string")
 var ErrBadRequestInt = errors.New("request is empty int")
 
 var MySQLErrorDuplicate = &mysql.MySQLError{Number: 1062, Message: "duplicate entry"}
+var MySQLErrorAddOrUpdateForeignKey = &mysql.MySQLError{Number: 1452, Message: "cannot add or update a child row: a foreign key constraint fails"}
 
 func GetMySQLErrorNumber(err error) uint16 {
 	var myErr *mysql.MySQLError

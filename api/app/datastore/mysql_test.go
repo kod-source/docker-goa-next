@@ -20,6 +20,7 @@ import (
 var ctx context.Context
 var testDB *sql.DB
 var jst *time.Location
+var now time.Time
 
 type dbConfig struct {
 	DatabaseName     string `env:"MYSQL_DATABASE,required"`
@@ -57,6 +58,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		os.Exit(1)
 	}
+	now = time.Date(2022, 1, 1, 0, 0, 0, 0, jst)
 
 	m.Run()
 }

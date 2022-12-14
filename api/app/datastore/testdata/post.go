@@ -3,6 +3,7 @@ package testdata
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/kod-source/docker-goa-next/app/schema"
 )
@@ -21,16 +22,16 @@ func PostSeed(ctx context.Context, db *sql.DB) error {
 			ID:        2,
 			UserID:    1,
 			Title:     "test2_title",
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
 			Img:       sql.NullString{"test1_post_img", true},
 		},
 		{
 			ID:        3,
 			UserID:    2,
 			Title:     "test3_title",
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 			Img:       sql.NullString{"", false},
 		},
 	}
