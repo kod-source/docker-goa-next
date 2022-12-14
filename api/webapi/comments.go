@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
@@ -51,7 +52,7 @@ func (c *CommentsController) CreateComment(ctx *app.CreateCommentCommentsContext
 func (c *CommentsController) ShowComment(ctx *app.ShowCommentCommentsContext) error {
 	cs, err := c.cu.ShowByPostID(ctx, ctx.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound()
 		}
 		return ctx.InternalServerError()
@@ -82,7 +83,7 @@ func (c *CommentsController) UpdateComment(ctx *app.UpdateCommentCommentsContext
 func (c *CommentsController) DeleteComment(ctx *app.DeleteCommentCommentsContext) error {
 	err := c.cu.Delete(ctx, ctx.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound()
 		}
 		return ctx.InternalServerError()

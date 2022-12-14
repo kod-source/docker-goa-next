@@ -32,7 +32,7 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 	password := ctx.Payload.Password
 	user, err := c.uu.GetUserByEmail(ctx, email, password)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound(&app.ServiceVerror{
 				Code:    404,
 				Message: "メールアドレスが間違っています。\n再度ご確認ください。",

@@ -2,6 +2,7 @@ package datastore
 
 import (
 	"database/sql"
+	"errors"
 	"testing"
 	"time"
 
@@ -56,7 +57,7 @@ func TestGetUser(t *testing.T) {
 	})
 
 	t.Run("[NG]ユーザーが存在しないとき", func(t *testing.T) {
-		if _, err := ud.GetUser(ctx, 100); err != sql.ErrNoRows {
+		if _, err := ud.GetUser(ctx, 100); !errors.Is(err, sql.ErrNoRows) {
 			t.Fatal(err)
 		}
 	})
@@ -105,7 +106,7 @@ func TestGetUserByEmail(t *testing.T) {
 	})
 
 	t.Run("[NG]ユーザーが存在しないとき", func(t *testing.T) {
-		if _, err := ud.GetUserByEmail(ctx, "unknow@gmail.com"); err != sql.ErrNoRows {
+		if _, err := ud.GetUserByEmail(ctx, "unknow@gmail.com"); !errors.Is(err, sql.ErrNoRows) {
 			t.Fatal(err)
 		}
 	})

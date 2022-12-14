@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
@@ -71,7 +72,7 @@ func (c *LikesController) GetMyLike(ctx *app.GetMyLikeLikesContext) error {
 func (c *LikesController) GetLikeByUser(ctx *app.GetLikeByUserLikesContext) error {
 	ps, err := c.lu.GetPostIDs(ctx, ctx.UserID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound()
 		}
 		return ctx.InternalServerError()
