@@ -3,18 +3,11 @@ package testdata
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"github.com/kod-source/docker-goa-next/app/schema"
 )
 
 func UserSeed(ctx context.Context, db *sql.DB) error {
-	jst, err := time.LoadLocation("Asia/Tokyo")
-	if err != nil {
-		return err
-	}
-	now := time.Date(2022, 1, 1, 0, 0, 0, 0, jst)
-
 	users := []*schema.User{
 		{
 			ID:        1,

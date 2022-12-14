@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/shogo82148/myddlmaker"
@@ -12,7 +13,7 @@ type Post struct {
 	Title     string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Img       string `ddl:",null,type=LONGTEXT"`
+	Img       sql.NullString `ddl:",null,type=LONGTEXT"`
 }
 
 func (*Post) PrimaryKey() *myddlmaker.PrimaryKey {
