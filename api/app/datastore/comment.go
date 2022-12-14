@@ -201,8 +201,8 @@ func (c *commentDatastore) convertSchemaToModelCommentWithUser(comment *schema.C
 	return cu
 }
 
-func (cd *commentDatastore) convertSchemaToModelComment(comment *schema.Comment) *model.Comment {
-	c := &model.Comment{
+func (c *commentDatastore) convertSchemaToModelComment(comment *schema.Comment) *model.Comment {
+	mc := &model.Comment{
 		ID:        int(comment.ID),
 		PostID:    int(comment.PostID),
 		UserID:    int(comment.UserID),
@@ -211,8 +211,8 @@ func (cd *commentDatastore) convertSchemaToModelComment(comment *schema.Comment)
 		UpdatedAt: pointer.PtrOrNil(comment.UpdatedAt),
 	}
 	if comment.Img.Valid {
-		c.Img = &comment.Img.String
+		mc.Img = &comment.Img.String
 	}
 
-	return c
+	return mc
 }
