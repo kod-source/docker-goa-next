@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/shogo82148/myddlmaker"
@@ -11,9 +12,9 @@ type Comment struct {
 	PostID    uint64
 	UserID    uint64
 	Text      string
-	CreatedAt *time.Time
-	UpdatedAt *time.Time
-	Img       string `ddl:",null,type=LONGTEXT"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Img       sql.NullString `ddl:",null,type=LONGTEXT"`
 }
 
 func (*Comment) PrimaryKey() *myddlmaker.PrimaryKey {
