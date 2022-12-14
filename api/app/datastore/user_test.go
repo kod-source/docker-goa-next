@@ -15,7 +15,6 @@ import (
 )
 
 func TestGetUser(t *testing.T) {
-	now := time.Date(2022, 1, 1, 0, 0, 0, 0, jst)
 	ud := NewUserDatastore(testDB, nil)
 
 	t.Run("[OK]ユーザー取得", func(t *testing.T) {
@@ -64,7 +63,6 @@ func TestGetUser(t *testing.T) {
 }
 
 func TestGetUserByEmail(t *testing.T) {
-	now := time.Date(2022, 1, 1, 0, 0, 0, 0, jst)
 	ud := NewUserDatastore(testDB, nil)
 
 	t.Run("[OK]ユーザー取得", func(t *testing.T) {
