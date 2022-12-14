@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
@@ -24,7 +25,7 @@ func (c *UsersController) GetCurrentUser(ctx *app.GetCurrentUserUsersContext) er
 	id := getUserIDCode(ctx)
 	user, err := c.uu.GetUser(ctx, id)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound()
 		}
 		return ctx.InternalServerError()
@@ -43,7 +44,7 @@ func (c *UsersController) GetCurrentUser(ctx *app.GetCurrentUserUsersContext) er
 func (c *UsersController) ShowUser(ctx *app.ShowUserUsersContext) error {
 	user, err := c.uu.GetUser(ctx, ctx.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound()
 		}
 		return ctx.InternalServerError()
