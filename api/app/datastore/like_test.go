@@ -41,6 +41,20 @@ func Test_CreateLike(t *testing.T) {
 			t.Errorf("want error code %v, but got error code is %v", myerrors.MySQLErrorDuplicate.Number, code)
 		}
 	})
+
+	t.Run("[NG]いいね登録 - 存在しない投稿をいいね", func(t *testing.T) {
+		_, err := ld.Create(ctx, 1, 1000)
+		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
+			t.Errorf("want error code %v, but got error code is %v", myerrors.MySQLErrorAddOrUpdateForeignKey.Number, code)
+		}
+	})
+
+	t.Run("[NG]いいね登録 - 存在しないユーザーでいいね", func(t *testing.T) {
+		_, err := ld.Create(ctx, 1000, 1)
+		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
+			t.Errorf("want error code %v, but got error code is %v", myerrors.MySQLErrorAddOrUpdateForeignKey.Number, code)
+		}
+	})
 }
 
 func Test_DeleteLike(t *testing.T) {
