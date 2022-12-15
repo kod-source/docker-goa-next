@@ -76,7 +76,7 @@ func Test_DeleteLike(t *testing.T) {
 		}
 	})
 
-	t.Run("[NG]いいね削除", func(t *testing.T) {
+	t.Run("[NG]いいね削除 - 存在しないものを選択", func(t *testing.T) {
 		if err := ld.Delete(ctx, 1000, 1000); !errors.Is(err, sql.ErrNoRows) {
 			t.Errorf("want err %v, but got error is %v", sql.ErrNoRows, err)
 		}
