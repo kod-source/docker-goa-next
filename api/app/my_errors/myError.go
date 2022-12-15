@@ -13,7 +13,9 @@ var ErrBadRequestSting = errors.New("request is empty string")
 // ErrBadRequestInt 数字の0が来たときにエラー
 var ErrBadRequestInt = errors.New("request is empty int")
 
+// MySQLErrorDuplicate ユニークインデックスのエラー
 var MySQLErrorDuplicate = &mysql.MySQLError{Number: 1062, Message: "duplicate entry"}
+// MySQLErrorAddOrUpdateForeignKey 外部キー製薬のエラー
 var MySQLErrorAddOrUpdateForeignKey = &mysql.MySQLError{Number: 1452, Message: "cannot add or update a child row: a foreign key constraint fails"}
 
 func GetMySQLErrorNumber(err error) uint16 {
