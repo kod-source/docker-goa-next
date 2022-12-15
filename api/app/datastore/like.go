@@ -7,6 +7,7 @@ import (
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
+	"github.com/kod-source/docker-goa-next/app/schema"
 )
 
 var _ repository.LikeRepository = (*likeDatastore)(nil)
@@ -25,7 +26,6 @@ func NewLikeDatastore(db *sql.DB) *likeDatastore {
 }
 
 func (l *likeDatastore) Create(ctx context.Context, userID, postID int) (*model.Like, error) {
-	var like model.Like
 	tx, err := l.db.Begin()
 	if err != nil {
 		return nil, err
@@ -46,6 +46,7 @@ func (l *likeDatastore) Create(ctx context.Context, userID, postID int) (*model.
 	if err != nil {
 		return nil, err
 	}
+	var like schema.Like
 	err = tx.QueryRow(
 		"SELECT `id`, `user_id`, `post_id` FROM `like` WHERE `id` = ?", id,
 	).Scan(
@@ -57,7 +58,11 @@ func (l *likeDatastore) Create(ctx context.Context, userID, postID int) (*model.
 		return nil, err
 	}
 
-	return &like, tx.Commit()
+	return &model.Like{
+		ID:     int(like.ID),
+		UserID: int(like.UserID),
+		PostID: int(like.PostID),
+	}, tx.Commit()
 }
 
 func (l *likeDatastore) Delete(ctx context.Context, userID, postID int) error {
@@ -65,9 +70,16 @@ func (l *likeDatastore) Delete(ctx context.Context, userID, postID int) error {
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(userID, postID)
+	r, err := stmt.Exec(userID, postID)
 	if err != nil {
 		return err
+	}
+	i, err := r.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if i == 0 {
+		return sql.ErrNoRows
 	}
 
 	return nil
