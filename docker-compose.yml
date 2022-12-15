@@ -51,6 +51,7 @@ services:
       - '8080:3000'
     depends_on:
       - api
+
   schemaspy:
     build:
       context: ./docker/schemaspy/
