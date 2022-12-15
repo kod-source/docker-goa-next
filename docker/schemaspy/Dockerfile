@@ -6,8 +6,6 @@ ARG SCHMASPY_VERSION="6.1.0"
 
 WORKDIR /app
 
-COPY ./schemaspy.properties /app/schemaspy.properties
-
 RUN <<EOF
     apt-get update
     apt-get install -y --no-install-recommends wget=1.21-1+deb11u1

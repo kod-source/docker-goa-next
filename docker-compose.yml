@@ -51,8 +51,7 @@ services:
       - '8080:3000'
     depends_on:
       - api
-
-  schema:
+  schemaspy:
     build:
       context: ./docker/schemaspy/
       dockerfile: Dockerfile
@@ -61,5 +60,14 @@ services:
       - TZ=Asia/Tokyo
     volumes:
       - ./api/schemaspy:/output
+      - ./docker/schemaspy/config/schemaspy.properties:/app/schemaspy.properties:ro
     depends_on:
       - db
+
+  nginx_schemaspy:
+    image: nginx:1.19.5-alpine
+    container_name: 'nginx_schemaspy'
+    ports:
+      - '8083:80'
+    volumes:
+      - ./api/schemaspy:/usr/share/nginx/html:ro

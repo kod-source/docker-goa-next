@@ -3,7 +3,7 @@ help: ## この文章を表示します。
 
 .PHONY: local
 local: ## apiサーバーとクライアントを同時に起動する
-	docker compose up
+	docker compose up -d db api client
 
 .PHONY: desing
 design: ## designファイルの実行 go generate ./...
@@ -16,3 +16,10 @@ seed: ## 初期値の登録
 .PHONY: test_api
 test_api: ## apiのテスト
 
+.PHONY: schemaspy
+schemaspy: ## schemaspyの更新
+	docker compose up schemaspy
+
+.PHONY: view_schemaspy
+view_schemaspy: ## schemaspyをブラウザで確認する
+	docker compose up -d nginx_schemaspy
