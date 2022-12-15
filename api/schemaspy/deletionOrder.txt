@@ -1,5 +1,0 @@
-git_schemalex_version
-like
-comment
-post
-user
