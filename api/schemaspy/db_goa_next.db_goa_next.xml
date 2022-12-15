@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<database name="db_goa_next" schema="db_goa_next" type="MySQL - 8.0.31">
+   <tables>
+      <table catalog="db_goa_next" name="comment" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="post_id" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED" typeCode="-5">
+            <parent catalog="db_goa_next" column="id" foreignKey="post_id_constraint" implied="false" onDeleteCascade="true" table="post"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="user_id" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED" typeCode="-5">
+            <parent catalog="db_goa_next" column="id" foreignKey="user_constraint" implied="false" onDeleteCascade="true" table="user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="text" nullable="false" remarks="" size="191" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="created_at" nullable="false" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="updated_at" nullable="false" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="img" nullable="true" remarks="" size="2147483647" type="LONGTEXT" typeCode="-1"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="idx_post_id" unique="false">
+            <column ascending="true" name="post_id"/>
+         </index>
+         <index name="idx_user_id" unique="false">
+            <column ascending="true" name="user_id"/>
+         </index>
+      </table>
+      <table catalog="db_goa_next" name="git_schemalex_version" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="version" nullable="false" remarks="" size="40" type="VARCHAR" typeCode="12"/>
+      </table>
+      <table catalog="db_goa_next" name="like" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="post_id" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED" typeCode="-5">
+            <parent catalog="db_goa_next" column="id" foreignKey="p_id_constraint" implied="false" onDeleteCascade="true" table="post"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="user_id" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED" typeCode="-5">
+            <parent catalog="db_goa_next" column="id" foreignKey="u_id_constraint" implied="false" onDeleteCascade="true" table="user"/>
+         </column>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="idx_post_id" unique="false">
+            <column ascending="true" name="post_id"/>
+         </index>
+         <index name="idx_user_id" unique="false">
+            <column ascending="true" name="user_id"/>
+         </index>
+         <index name="post_user_id_index" unique="true">
+            <column ascending="true" name="post_id"/>
+            <column ascending="true" name="user_id"/>
+         </index>
+      </table>
+      <table catalog="db_goa_next" name="post" numRows="2" remarks="" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED" typeCode="-5">
+            <child catalog="db_goa_next" column="post_id" foreignKey="post_id_constraint" implied="false" onDeleteCascade="true" table="comment"/>
+            <child catalog="db_goa_next" column="post_id" foreignKey="p_id_constraint" implied="false" onDeleteCascade="true" table="like"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="user_id" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED" typeCode="-5">
+            <parent catalog="db_goa_next" column="id" foreignKey="user_id_constraint" implied="false" onDeleteCascade="true" table="user"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="title" nullable="false" remarks="" size="191" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="created_at" nullable="false" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="updated_at" nullable="false" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="img" nullable="true" remarks="" size="2147483647" type="LONGTEXT" typeCode="-1"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="idx_user_id" unique="false">
+            <column ascending="true" name="user_id"/>
+         </index>
+      </table>
+      <table catalog="db_goa_next" name="user" numRows="0" remarks="" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="20" type="BIGINT UNSIGNED" typeCode="-5">
+            <child catalog="db_goa_next" column="user_id" foreignKey="user_constraint" implied="false" onDeleteCascade="true" table="comment"/>
+            <child catalog="db_goa_next" column="user_id" foreignKey="u_id_constraint" implied="false" onDeleteCascade="true" table="like"/>
+            <child catalog="db_goa_next" column="user_id" foreignKey="user_id_constraint" implied="false" onDeleteCascade="true" table="post"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="name" nullable="false" remarks="" size="191" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="email" nullable="false" remarks="" size="191" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="password" nullable="false" remarks="" size="191" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="created_at" nullable="false" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="updated_at" nullable="false" remarks="" size="26" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="avatar" nullable="true" remarks="" size="2147483647" type="LONGTEXT" typeCode="-1"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="idx_email" unique="true">
+            <column ascending="true" name="email"/>
+         </index>
+      </table>
+   </tables>
+</database>

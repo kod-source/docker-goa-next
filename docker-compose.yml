@@ -49,3 +49,17 @@ services:
     command: sh -c "yarn dev"
     ports:
       - '8080:3000'
+    depends_on:
+      - api
+
+  schema:
+    build:
+      context: ./docker/schemaspy/
+      dockerfile: Dockerfile
+    platform: linux/x86_64
+    environment:
+      - TZ=Asia/Tokyo
+    volumes:
+      - ./api/schemaspy:/output
+    depends_on:
+      - db
