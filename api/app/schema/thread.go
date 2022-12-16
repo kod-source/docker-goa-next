@@ -21,7 +21,7 @@ type Thread struct {
 	CreatedAt time.Time
 	// UpdatedAt ...
 	UpdatedAt time.Time
-	// Img 画像デーだ
+	// Img 画像データ
 	Img sql.NullString `ddl:",null,type=LONGTEXT"`
 }
 
