@@ -18,6 +18,10 @@ func main() {
 	m.AddStructs(&schema.Post{})
 	m.AddStructs(&schema.Comment{})
 	m.AddStructs(&schema.Like{})
+	m.AddStructs(&schema.Room{})
+	m.AddStructs(&schema.UserRoom{})
+	m.AddStructs(&schema.Thread{})
+	m.AddStructs(&schema.Message{})
 
 	// generate an SQL file.
 	if err := m.GenerateFile(); err != nil {

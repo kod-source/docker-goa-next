@@ -215,37 +215,6 @@ func (mt PostAndUserAndCountLikeJSONCollection) Validate() (err error) {
 	return
 }
 
-// 投稿とユーザーの情報 (default view)
-//
-// Identifier: application/vnd.post_and_user_json; view=default
-type PostAndUserJSON struct {
-	// post value
-	Post *PostJSON `form:"post" json:"post" yaml:"post" xml:"post"`
-	// user value
-	User *User `form:"user" json:"user" yaml:"user" xml:"user"`
-}
-
-// Validate validates the PostAndUserJSON media type instance.
-func (mt *PostAndUserJSON) Validate() (err error) {
-	if mt.Post == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "post"))
-	}
-	if mt.User == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "user"))
-	}
-	if mt.Post != nil {
-		if err2 := mt.Post.Validate(); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	if mt.User != nil {
-		if err2 := mt.User.Validate(); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	return
-}
-
 // 投稿 (default view)
 //
 // Identifier: application/vnd.post_json; view=default
