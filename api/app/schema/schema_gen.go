@@ -657,8 +657,8 @@ func UpdateThread(ctx context.Context, execer execer, values ...*Thread) error {
 	return nil
 }
 
-func InsertMessage(ctx context.Context, execer execer, values ...*Message) error {
-	const q = "INSERT INTO `message` (`user_id`, `thread_id`, `text`, `created_at`, `updated_at`, `img`) VALUES (?, ?, ?, ?, ?, ?)" +
+func InsertContent(ctx context.Context, execer execer, values ...*Content) error {
+	const q = "INSERT INTO `content` (`user_id`, `thread_id`, `text`, `created_at`, `updated_at`, `img`) VALUES (?, ?, ?, ?, ?, ?)" +
 		", (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?)"
 	const fieldCount = 6
 	const maxStructCount = 32
@@ -705,24 +705,24 @@ func InsertMessage(ctx context.Context, execer execer, values ...*Message) error
 	return nil
 }
 
-func SelectMessage(ctx context.Context, queryer queryer, primaryKeys *Message) (*Message, error) {
-	var v Message
-	row := queryer.QueryRowContext(ctx, "SELECT `id`, `user_id`, `thread_id`, `text`, `created_at`, `updated_at`, `img` FROM `message` WHERE `id` = ?", primaryKeys.ID)
+func SelectContent(ctx context.Context, queryer queryer, primaryKeys *Content) (*Content, error) {
+	var v Content
+	row := queryer.QueryRowContext(ctx, "SELECT `id`, `user_id`, `thread_id`, `text`, `created_at`, `updated_at`, `img` FROM `content` WHERE `id` = ?", primaryKeys.ID)
 	if err := row.Scan(&v.ID, &v.UserID, &v.ThreadID, &v.Text, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
 		return nil, err
 	}
 	return &v, nil
 }
 
-func SelectAllMessage(ctx context.Context, queryer queryer) ([]*Message, error) {
-	var ret []*Message
-	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `user_id`, `thread_id`, `text`, `created_at`, `updated_at`, `img` FROM `message` ORDER BY `id`")
+func SelectAllContent(ctx context.Context, queryer queryer) ([]*Content, error) {
+	var ret []*Content
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `user_id`, `thread_id`, `text`, `created_at`, `updated_at`, `img` FROM `content` ORDER BY `id`")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var v Message
+		var v Content
 		if err := rows.Scan(&v.ID, &v.UserID, &v.ThreadID, &v.Text, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
 			return nil, err
 		}
@@ -734,8 +734,8 @@ func SelectAllMessage(ctx context.Context, queryer queryer) ([]*Message, error) 
 	return ret, nil
 }
 
-func UpdateMessage(ctx context.Context, execer execer, values ...*Message) error {
-	stmt, err := execer.PrepareContext(ctx, "UPDATE `message` SET `user_id` = ?, `thread_id` = ?, `text` = ?, `created_at` = ?, `updated_at` = ?, `img` = ? WHERE `id` = ?")
+func UpdateContent(ctx context.Context, execer execer, values ...*Content) error {
+	stmt, err := execer.PrepareContext(ctx, "UPDATE `content` SET `user_id` = ?, `thread_id` = ?, `text` = ?, `created_at` = ?, `updated_at` = ?, `img` = ? WHERE `id` = ?")
 	if err != nil {
 		return err
 	}

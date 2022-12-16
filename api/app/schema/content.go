@@ -7,8 +7,8 @@ import (
 	"github.com/shogo82148/myddlmaker"
 )
 
-// Message スレッドの返信
-type Message struct {
+// Content スレッドの返信
+type Content struct {
 	// ID ...
 	ID uint64 `ddl:",auto"`
 	// UserID ...
@@ -25,28 +25,28 @@ type Message struct {
 	Img sql.NullString `ddl:",null,type=LONGTEXT"`
 }
 
-func (*Message) PrimaryKey() *myddlmaker.PrimaryKey {
+func (*Content) PrimaryKey() *myddlmaker.PrimaryKey {
 	return myddlmaker.NewPrimaryKey("id")
 }
 
-func (*Message) Indexes() []*myddlmaker.Index {
+func (*Content) Indexes() []*myddlmaker.Index {
 	return []*myddlmaker.Index{
 		myddlmaker.NewIndex("idx_user_id", "user_id"),
 		myddlmaker.NewIndex("idx_thread_id", "thread_id"),
 	}
 }
 
-func (*Message) ForeignKeys() []*myddlmaker.ForeignKey {
+func (*Content) ForeignKeys() []*myddlmaker.ForeignKey {
 	return []*myddlmaker.ForeignKey{
 		myddlmaker.NewForeignKey(
-			"user_message_id_constraint",
+			"user_content_id_constraint",
 			[]string{"user_id"},
 			"user",
 			[]string{"id"},
 		).OnDelete(myddlmaker.ForeignKeyOptionCascade).OnUpdate(myddlmaker.ForeignKeyOptionCascade),
 
 		myddlmaker.NewForeignKey(
-			"thread_message_id_constraint",
+			"thread_content_id_constraint",
 			[]string{"thread_id"},
 			"thread",
 			[]string{"id"},
@@ -54,7 +54,7 @@ func (*Message) ForeignKeys() []*myddlmaker.ForeignKey {
 	}
 }
 
-func (*Message) UniqueIndexes() []*myddlmaker.UniqueIndex {
+func (*Content) UniqueIndexes() []*myddlmaker.UniqueIndex {
 	return []*myddlmaker.UniqueIndex{
 		myddlmaker.NewUniqueIndex("user_thread_id_index", "user_id", "thread_id"),
 	}

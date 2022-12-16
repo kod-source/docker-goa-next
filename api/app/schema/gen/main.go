@@ -21,7 +21,7 @@ func main() {
 	m.AddStructs(&schema.Room{})
 	m.AddStructs(&schema.UserRoom{})
 	m.AddStructs(&schema.Thread{})
-	m.AddStructs(&schema.Message{})
+	m.AddStructs(&schema.Content{})
 
 	// generate an SQL file.
 	if err := m.GenerateFile(); err != nil {
