@@ -13,6 +13,6 @@ type Room struct {
 }
 
 type RoomUser struct {
-	room  Room
-	users []*ShowUser
+	Room  Room
+	Users []*ShowUser
 }
