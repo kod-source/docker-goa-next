@@ -47,7 +47,7 @@ func Test_Create(t *testing.T) {
 				UpdatedAt: pointer.PtrOrNil(comment.UpdatedAt),
 			},
 			User: model.User{
-				ID:     int(user.ID),
+				ID:     model.UserID(user.ID),
 				Name:   user.Name,
 				Avatar: pointer.PtrOrNil(user.Avatar.String),
 			},
@@ -84,7 +84,7 @@ func Test_Create(t *testing.T) {
 				UpdatedAt: pointer.PtrOrNil(comment.UpdatedAt),
 			},
 			User: model.User{
-				ID:     int(user.ID),
+				ID:     model.UserID(user.ID),
 				Name:   user.Name,
 				Avatar: pointer.PtrOrNil(user.Avatar.String),
 			},

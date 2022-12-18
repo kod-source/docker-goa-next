@@ -20,7 +20,7 @@ func TestGetCurrentUser(t *testing.T) {
 	uu := &mock.MockUserUsecase{}
 	u := NewUsersController(srv, uu)
 
-	wantUserID := 1234
+	wantUserID := model.UserID(1234)
 	ctx = context.WithValue(ctx, userIDCodeKey, int(wantUserID))
 
 	t.Run("[OK] ログインしているユーザー取得", func(t *testing.T) {
@@ -32,7 +32,7 @@ func TestGetCurrentUser(t *testing.T) {
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			Avatar:    pointer.Ptr("test_avatar"),
 		}
-		uu.GetUserFunc = func(ctx context.Context, id int) (*model.User, error) {
+		uu.GetUserFunc = func(ctx context.Context, id model.UserID) (*model.User, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("argument mismasch `user_id` (-want +got)\n%s", diff)
 			}
@@ -58,7 +58,7 @@ func TestGetCurrentUser(t *testing.T) {
 	})
 
 	t.Run("[NG] ユーザーが存在しないとき", func(t *testing.T) {
-		uu.GetUserFunc = func(ctx context.Context, id int) (*model.User, error) {
+		uu.GetUserFunc = func(ctx context.Context, id model.UserID) (*model.User, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("argument mismasch `user_id` (-want +got)\n%s", diff)
 			}
@@ -72,7 +72,7 @@ func TestGetCurrentUser(t *testing.T) {
 	})
 
 	t.Run("[NG] 500エラーのとき", func(t *testing.T) {
-		uu.GetUserFunc = func(ctx context.Context, id int) (*model.User, error) {
+		uu.GetUserFunc = func(ctx context.Context, id model.UserID) (*model.User, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("argument mismasch `user_id` (-want +got)\n%s", diff)
 			}
@@ -90,7 +90,7 @@ func TestShowUser(t *testing.T) {
 	srv := testApp.srv
 	uu := &mock.MockUserUsecase{}
 	u := NewUsersController(srv, uu)
-	wantUserID := 1234
+	wantUserID := model.UserID(1234)
 
 	t.Run("[OK] ユーザー取得", func(t *testing.T) {
 		user := &model.User{
@@ -101,7 +101,7 @@ func TestShowUser(t *testing.T) {
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			Avatar:    pointer.Ptr("test_avatar"),
 		}
-		uu.GetUserFunc = func(ctx context.Context, id int) (*model.User, error) {
+		uu.GetUserFunc = func(ctx context.Context, id model.UserID) (*model.User, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("argument mismasch `user_id` (-want +got)\n%s", diff)
 			}
@@ -118,14 +118,14 @@ func TestShowUser(t *testing.T) {
 			Avatar:    pointer.Ptr("test_avatar"),
 		}
 
-		_, got := test.ShowUserUsersOK(t, ctx, srv, u, wantUserID)
+		_, got := test.ShowUserUsersOK(t, ctx, srv, u, int(wantUserID))
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("response mismach (-want +got)\n%s", diff)
 		}
 	})
 
 	t.Run("[NG] ユーザーが存在しないとき", func(t *testing.T) {
-		uu.GetUserFunc = func(ctx context.Context, id int) (*model.User, error) {
+		uu.GetUserFunc = func(ctx context.Context, id model.UserID) (*model.User, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("argument mismasch `user_id` (-want +got)\n%s", diff)
 			}
@@ -135,11 +135,11 @@ func TestShowUser(t *testing.T) {
 			uu.GetUserFunc = nil
 		}()
 
-		test.ShowUserUsersNotFound(t, ctx, srv, u, wantUserID)
+		test.ShowUserUsersNotFound(t, ctx, srv, u, int(wantUserID))
 	})
 
 	t.Run("[NG] 500エラーのとき", func(t *testing.T) {
-		uu.GetUserFunc = func(ctx context.Context, id int) (*model.User, error) {
+		uu.GetUserFunc = func(ctx context.Context, id model.UserID) (*model.User, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("argument mismasch `user_id` (-want +got)\n%s", diff)
 			}
@@ -149,6 +149,6 @@ func TestShowUser(t *testing.T) {
 			uu.GetUserFunc = nil
 		}()
 
-		test.ShowUserUsersInternalServerError(t, ctx, srv, u, wantUserID)
+		test.ShowUserUsersInternalServerError(t, ctx, srv, u, int(wantUserID))
 	})
 }

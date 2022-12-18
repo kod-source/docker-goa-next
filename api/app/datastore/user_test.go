@@ -132,7 +132,7 @@ func Test_CreateUser(t *testing.T) {
 			t.Fatal(err)
 		}
 		want := &model.User{
-			ID:        int(user.ID),
+			ID:        model.UserID(user.ID),
 			Name:      user.Name,
 			Email:     user.Email,
 			Password:  user.Password,
@@ -157,7 +157,7 @@ func Test_CreateUser(t *testing.T) {
 			t.Fatal(err)
 		}
 		want := &model.User{
-			ID:        int(user.ID),
+			ID:        model.UserID(user.ID),
 			Name:      user.Name,
 			Email:     user.Email,
 			Password:  user.Password,
