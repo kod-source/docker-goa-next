@@ -1310,6 +1310,106 @@ func (ctx *UpdatePostsContext) InternalServerError() error {
 	return nil
 }
 
+// CreateRoomRoomsContext provides the rooms create_room action context.
+type CreateRoomRoomsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *CreateRoomRoomsPayload
+}
+
+// NewCreateRoomRoomsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the rooms controller create_room action.
+func NewCreateRoomRoomsContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateRoomRoomsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreateRoomRoomsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// createRoomRoomsPayload is the rooms create_room action payload.
+type createRoomRoomsPayload struct {
+	// DBかどうか
+	IsGroup *bool `form:"is_group,omitempty" json:"is_group,omitempty" yaml:"is_group,omitempty" xml:"is_group,omitempty"`
+	// ルーム名
+	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
+	// ルームに入れるUserID
+	UserIds []int `form:"user_ids,omitempty" json:"user_ids,omitempty" yaml:"user_ids,omitempty" xml:"user_ids,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *createRoomRoomsPayload) Validate() (err error) {
+	if payload.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "name"))
+	}
+	if payload.IsGroup == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "is_group"))
+	}
+	if payload.UserIds == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "user_ids"))
+	}
+	return
+}
+
+// Publicize creates CreateRoomRoomsPayload from createRoomRoomsPayload
+func (payload *createRoomRoomsPayload) Publicize() *CreateRoomRoomsPayload {
+	var pub CreateRoomRoomsPayload
+	if payload.IsGroup != nil {
+		pub.IsGroup = *payload.IsGroup
+	}
+	if payload.Name != nil {
+		pub.Name = *payload.Name
+	}
+	if payload.UserIds != nil {
+		pub.UserIds = payload.UserIds
+	}
+	return &pub
+}
+
+// CreateRoomRoomsPayload is the rooms create_room action payload.
+type CreateRoomRoomsPayload struct {
+	// DBかどうか
+	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
+	// ルーム名
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// ルームに入れるUserID
+	UserIds []int `form:"user_ids" json:"user_ids" yaml:"user_ids" xml:"user_ids"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *CreateRoomRoomsPayload) Validate() (err error) {
+
+	if payload.UserIds == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "user_ids"))
+	}
+	return
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *CreateRoomRoomsContext) Created(r *IndexRooUser) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.index_roo_user")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreateRoomRoomsContext) BadRequest(r *ServiceVerror) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.service.verror")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *CreateRoomRoomsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // GetCurrentUserUsersContext provides the users get_current_user action context.
 type GetCurrentUserUsersContext struct {
 	context.Context
