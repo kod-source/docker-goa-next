@@ -23,7 +23,7 @@ type UserNil struct {
 }
 
 type ShowUser struct {
-	ID        int
+	ID        UserID
 	Name      string
 	CreatedAt time.Time
 	Avatar    *string
