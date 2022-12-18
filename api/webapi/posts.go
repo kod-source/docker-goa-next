@@ -101,7 +101,7 @@ func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 			UpdatedAt: &sp.IndexPost.Post.UpdatedAt,
 		},
 		User: &app.User{
-			ID:        sp.IndexPost.User.ID,
+			ID:        int(sp.IndexPost.User.ID),
 			Name:      &sp.IndexPost.User.Name,
 			Email:     &sp.IndexPost.User.Email,
 			Avatar:    sp.IndexPost.User.Avatar,

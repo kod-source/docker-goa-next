@@ -29,7 +29,7 @@ func NewUserDatastore(db *sql.DB, tr repository.TimeRepository) *userDatastore {
 	}
 }
 
-func (ud *userDatastore) GetUser(ctx context.Context, id int) (*model.User, error) {
+func (ud *userDatastore) GetUser(ctx context.Context, id model.UserID) (*model.User, error) {
 	var user schema.User
 	err := ud.db.QueryRow(
 		"SELECT `id`, `name`, `email`, `password`, `created_at`, `avatar` FROM `user` WHERE `id` = ?", id,
@@ -111,7 +111,7 @@ func (ud *userDatastore) CreateUser(ctx context.Context, name, email, passowrd s
 
 func (ud *userDatastore) convetSchemaToModelUser(user *schema.User) *model.User {
 	u := &model.User{
-		ID:        int(user.ID),
+		ID:        model.UserID(user.ID),
 		Name:      user.Name,
 		Email:     user.Email,
 		Password:  user.Password,
