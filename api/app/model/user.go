@@ -17,5 +17,12 @@ type UserNil struct {
 	Email     *string    `json:"email"`
 	Password  *string    `json:"password"`
 	CreatedAt *time.Time `json:"created_at"`
-	Avatar    *string   `json:"avatar"`
+	Avatar    *string    `json:"avatar"`
+}
+
+type ShowUser struct {
+	ID        int
+	Name      string
+	CreatedAt time.Time
+	Avatar    *string
 }

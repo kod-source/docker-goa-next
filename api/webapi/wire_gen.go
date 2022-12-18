@@ -46,7 +46,8 @@ func NewApp(ctx context.Context) (*App, error) {
 	commentInteractor := interactor.NewCommentInteractor(commentDatastore)
 	commentsController := NewCommentsController(service, commentInteractor)
 	authController := NewAuthController(service, userInteractor)
-	app, err := newApp(ctx, service, usersController, postsController, operandsController, likesController, commentsController, authController)
+	roomController := NewRoomController(service)
+	app, err := newApp(ctx, service, usersController, postsController, operandsController, likesController, commentsController, authController, roomController)
 	if err != nil {
 		return nil, err
 	}
