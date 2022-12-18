@@ -1,7 +1,11 @@
 package service
 
-import "context"
+import (
+	"context"
+
+	"github.com/kod-source/docker-goa-next/app/model"
+)
 
 type JWTService interface {
-	CreateJWTToken(ctx context.Context, id int, name string) (*string, error)
+	CreateJWTToken(ctx context.Context, id model.UserID, name string) (*string, error)
 }

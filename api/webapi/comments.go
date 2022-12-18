@@ -42,7 +42,7 @@ func (c *CommentsController) CreateComment(ctx *app.CreateCommentCommentsContext
 			UpdatedAt: cu.Comment.UpdatedAt,
 		},
 		User: &app.User{
-			ID:     cu.User.ID,
+			ID:     int(cu.User.ID),
 			Name:   &cu.User.Name,
 			Avatar: cu.User.Avatar,
 		},
@@ -105,7 +105,7 @@ func (c *CommentsController) ToCommentJSONCollection(commentsWithUser []*model.C
 				UpdatedAt: cu.Comment.UpdatedAt,
 			},
 			User: &app.User{
-				ID:        cu.User.ID,
+				ID:        int(cu.User.ID),
 				Name:      &cu.User.Name,
 				Email:     &cu.User.Email,
 				Avatar:    cu.User.Avatar,

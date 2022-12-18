@@ -184,7 +184,7 @@ func (c *commentDatastore) convertSchemaToModelCommentWithUser(comment *schema.C
 			UpdatedAt: pointer.PtrOrNil(comment.UpdatedAt),
 		},
 		User: model.User{
-			ID:        int(user.ID),
+			ID:        model.UserID(user.ID),
 			Name:      user.Name,
 			Email:     user.Email,
 			Password:  user.Password,

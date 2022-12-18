@@ -2,8 +2,10 @@ package model
 
 import "time"
 
+type UserID uint64
+
 type User struct {
-	ID        int       `json:"id"`
+	ID        UserID    `json:"id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	Password  string    `json:"password"`
@@ -17,5 +19,5 @@ type UserNil struct {
 	Email     *string    `json:"email"`
 	Password  *string    `json:"password"`
 	CreatedAt *time.Time `json:"created_at"`
-	Avatar    *string   `json:"avatar"`
+	Avatar    *string    `json:"avatar"`
 }

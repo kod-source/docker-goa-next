@@ -54,7 +54,7 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 		return ctx.InternalServerError()
 	}
 	res := &app.Token{User: &app.User{
-		ID:        user.ID,
+		ID:        int(user.ID),
 		Email:     &user.Email,
 		Name:      &user.Name,
 		Password:  &user.Password,
@@ -85,7 +85,7 @@ func (c *AuthController) SignUp(ctx *app.SignUpAuthContext) error {
 		User: &app.User{
 			CreatedAt: &user.CreatedAt,
 			Email:     &user.Email,
-			ID:        user.ID,
+			ID:        int(user.ID),
 			Name:      &user.Name,
 			Password:  &user.Password,
 			Avatar:    user.Avatar,
