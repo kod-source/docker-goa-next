@@ -12,6 +12,8 @@ var ErrEmptyString = errors.New("title is empty string")
 var ErrBadRequestSting = errors.New("request is empty string")
 // ErrBadRequestInt 数字の0が来たときにエラー
 var ErrBadRequestInt = errors.New("request is empty int")
+// ErrBadRequestEmptyArray 配列のデータが空の時
+var ErrBadRequestEmptyArray = errors.New("request is empty array")
 
 // MySQLErrorDuplicate ユニークインデックスのエラー
 var MySQLErrorDuplicate = &mysql.MySQLError{Number: 1062, Message: "duplicate entry"}
