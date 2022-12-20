@@ -11,10 +11,7 @@ import (
 
 var _ repository.RoomRepository = (*roomDatastore)(nil)
 
-// var RoomDatastoreSet = wire.NewSet(
-// 	NewRoomDatastore,
-// 	wire.Bind(new(repository.RoomRepository), new(*roomDatastore)),
-// )
+// RoomDatastoreSet ...
 var RoomDatastoreSet = wire.NewSet(
 	NewRoomDatastore,
 	wire.Bind(new(repository.RoomRepository), new(*roomDatastore)),
@@ -29,6 +26,7 @@ func NewRoomDatastore(db *sql.DB, tr repository.TimeRepository) *roomDatastore {
 	return &roomDatastore{db: db, tr: tr}
 }
 
+// Create ルームの作成 DB処理
 func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
 	return nil, nil
 }
