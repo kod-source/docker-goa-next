@@ -56,6 +56,9 @@ func Test_Create(t *testing.T) {
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("mismatch (-want +got)\n%s", diff)
 		}
+		if err := cd.Delete(ctx, got.Comment.ID); err != nil {
+			t.Fatal(err)
+		}
 	})
 
 	t.Run("[OK]コメント作成 - 画像がnilの時", func(t *testing.T) {
@@ -92,6 +95,9 @@ func Test_Create(t *testing.T) {
 
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+		if err := cd.Delete(ctx, got.Comment.ID); err != nil {
+			t.Fatal(err)
 		}
 	})
 
@@ -232,7 +238,7 @@ func Test_Delete(t *testing.T) {
 	cd := NewCommentDatastore(testDB, nil)
 
 	t.Run("[OK]コメント削除", func(t *testing.T) {
-		commentID := 4
+		commentID := 8
 		comment := &schema.Comment{
 			ID:        uint64(commentID),
 			PostID:    2,

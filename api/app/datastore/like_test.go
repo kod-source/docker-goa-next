@@ -33,6 +33,9 @@ func Test_CreateLike(t *testing.T) {
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("mismatch (-want +got)\n%s", diff)
 		}
+		if err := ld.Delete(ctx, got.UserID, got.PostID); err != nil {
+			t.Fatal(err)
+		}
 	})
 
 	t.Run("[NG]いいね登録 - ユニークエラー", func(t *testing.T) {
