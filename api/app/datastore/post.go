@@ -82,7 +82,6 @@ func (p *postDatastore) CreatePost(ctx context.Context, userID int, title string
 
 func (p *postDatastore) ShowAll(ctx context.Context, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
-	limitNumber := limit + nextID
 	rows, err := p.db.Query("SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT"+
 		" FROM `post` AS `p`"+
 		" INNER JOIN `user` AS `u`"+
@@ -102,7 +101,7 @@ func (p *postDatastore) ShowAll(ctx context.Context, nextID int) ([]*model.Index
 		" ) AS `c`"+
 		" ON p.id = c.post_id"+
 		" ORDER BY p.created_at DESC"+
-		" LIMIT ?, ?", nextID, limitNumber)
+		" LIMIT ?, ?", nextID, limit)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -160,13 +159,9 @@ func (p *postDatastore) ShowAll(ctx context.Context, nextID int) ([]*model.Index
 		return nil, nil, err
 	}
 	var resNextID *int
-	if len(indexPostsWithCountLike) == 0 {
+	resNextID = pointer.Int(nextID + limit)
+	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		resNextID = nil
-	} else {
-		resNextID = pointer.Ptr(indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID)
-		if *resNextID == lastPostID {
-			resNextID = nil
-		}
 	}
 
 	return indexPostsWithCountLike, resNextID, nil
@@ -308,7 +303,6 @@ func (p *postDatastore) Show(ctx context.Context, id int) (*model.ShowPost, erro
 
 func (p *postDatastore) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
-	limitNumber := 20
 	rows, err := p.db.Query("SELECT p.id, p.user_id, p.title, p.img, p.created_at, p.updated_at, u.name, u.avatar, l.COUNT, c.COUNT"+
 		" FROM `post` AS `p`"+
 		" INNER JOIN ("+
@@ -334,7 +328,7 @@ func (p *postDatastore) ShowMyLike(ctx context.Context, userID, nextID int) ([]*
 		" ) AS `c`"+
 		" ON p.id = c.post_id"+
 		" ORDER BY p.created_at DESC"+
-		" LIMIT ?, ?", userID, nextID, limitNumber)
+		" LIMIT ?, ?", userID, nextID, limit)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -400,13 +394,9 @@ func (p *postDatastore) ShowMyLike(ctx context.Context, userID, nextID int) ([]*
 		return nil, nil, err
 	}
 	var resNextID *int
-	if len(indexPostsWithCountLike) == 0 {
+	resNextID = pointer.Int(nextID + limit)
+	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		resNextID = nil
-	} else {
-		resNextID = pointer.Ptr(indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID)
-		if *resNextID == lastPostID {
-			resNextID = nil
-		}
 	}
 
 	return indexPostsWithCountLike, resNextID, nil
@@ -415,7 +405,6 @@ func (p *postDatastore) ShowMyLike(ctx context.Context, userID, nextID int) ([]*
 // ShowPostMy 指定したUserIDが投稿したものを取得する
 func (p *postDatastore) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
-	limitNumber := 20
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, nil, err
@@ -441,7 +430,7 @@ func (p *postDatastore) ShowPostMy(ctx context.Context, userID, nextID int) ([]*
 		" ON p.id = c.post_id"+
 		" WHERE p.user_id = ?"+
 		" ORDER BY p.created_at DESC"+
-		" LIMIT ?, ?", userID, nextID, limitNumber)
+		" LIMIT ?, ?", userID, nextID, limit)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -493,12 +482,7 @@ func (p *postDatastore) ShowPostMy(ctx context.Context, userID, nextID int) ([]*
 	err = tx.QueryRow(`
 		SELECT p.id
 		FROM post AS p
-		INNER JOIN (
-			SELECT post_id
-			FROM like
-			WHERE user_id = ?
-		) AS l
-		ON p.id = l.post_id
+		WHERE p.user_id = ?
 		ORDER BY p.created_at
 		LIMIT 1
 	`, userID).Scan(
@@ -508,16 +492,9 @@ func (p *postDatastore) ShowPostMy(ctx context.Context, userID, nextID int) ([]*
 		return nil, nil, err
 	}
 	var resNextID *int
-	if len(indexPostsWithCountLike) == 0 {
+	resNextID = pointer.Int(nextID + limit)
+	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		resNextID = nil
-	} else {
-		resNextID = pointer.Ptr(indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID)
-		if *resNextID == lastPostID {
-			resNextID = nil
-		}
-	}
-	if err := tx.Commit(); err != nil {
-		return nil, nil, err
 	}
 
 	return indexPostsWithCountLike, resNextID, nil
@@ -525,7 +502,6 @@ func (p *postDatastore) ShowPostMy(ctx context.Context, userID, nextID int) ([]*
 
 func (p *postDatastore) ShowPostMedia(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	var indexPostsWithCountLike []*model.IndexPostWithCountLike
-	limitNumber := 20
 	tx, err := p.db.Begin()
 	if err != nil {
 		return nil, nil, err
@@ -551,7 +527,7 @@ func (p *postDatastore) ShowPostMedia(ctx context.Context, userID, nextID int) (
 		" ON p.id = c.post_id"+
 		" WHERE p.user_id = ? AND p.img IS NOT NULL AND p.img != ''"+
 		" ORDER BY p.created_at DESC"+
-		" LIMIT ?, ?", userID, nextID, limitNumber)
+		" LIMIT ?, ?", userID, nextID, limit)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -602,12 +578,7 @@ func (p *postDatastore) ShowPostMedia(ctx context.Context, userID, nextID int) (
 	var lastPostID int
 	err = tx.QueryRow("SELECT p.id"+
 		" FROM `post` AS `p`"+
-		" INNER JOIN ("+
-		" SELECT `post_id`"+
-		" FROM `like`"+
-		" WHERE `user_id` = ?"+
-		" ) AS `l`"+
-		" ON p.id = l.post_id"+
+		" WHERE p.user_id = ? AND p.img IS NOT NULL AND p.img != ''"+
 		" ORDER BY p.created_at"+
 		" LIMIT 1", userID).Scan(
 		&lastPostID,
@@ -616,13 +587,9 @@ func (p *postDatastore) ShowPostMedia(ctx context.Context, userID, nextID int) (
 		return nil, nil, err
 	}
 	var resNextID *int
-	if len(indexPostsWithCountLike) == 0 {
+	resNextID = pointer.Int(nextID + limit)
+	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		resNextID = nil
-	} else {
-		resNextID = pointer.Ptr(indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID)
-		if *resNextID == lastPostID {
-			resNextID = nil
-		}
 	}
 	if err := tx.Commit(); err != nil {
 		return nil, nil, err

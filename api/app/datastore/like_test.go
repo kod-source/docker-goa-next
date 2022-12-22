@@ -15,7 +15,7 @@ func Test_CreateLike(t *testing.T) {
 	ld := NewLikeDatastore(testDB)
 
 	t.Run("[OK]いいね登録", func(t *testing.T) {
-		got, err := ld.Create(ctx, 2, 1)
+		got, err := ld.Create(ctx, 2, 2)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -90,7 +90,7 @@ func Test_GetPostIDs(t *testing.T) {
 	ld := NewLikeDatastore(testDB)
 
 	t.Run("[OK]いいねした投稿IDを取得", func(t *testing.T) {
-		want := []int{1, 2}
+		want := []int{1, 2, 3}
 		got, err := ld.GetPostIDs(ctx, 1)
 		if err != nil {
 			t.Fatal(err)

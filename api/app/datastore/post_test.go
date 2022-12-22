@@ -146,7 +146,7 @@ func Test_ShowAll(t *testing.T) {
 						Avatar: nil,
 					},
 				},
-				CountLike:    0,
+				CountLike:    1,
 				CountComment: 0,
 			},
 			{
@@ -164,7 +164,7 @@ func Test_ShowAll(t *testing.T) {
 						Avatar: pointer.Ptr("test1_avatar"),
 					},
 				},
-				CountLike:    1,
+				CountLike:    2,
 				CountComment: 2,
 			},
 		}
@@ -199,7 +199,7 @@ func Test_ShowAll(t *testing.T) {
 						Avatar: pointer.Ptr("test1_avatar"),
 					},
 				},
-				CountLike:    1,
+				CountLike:    2,
 				CountComment: 2,
 			},
 		}
@@ -244,7 +244,7 @@ func Test_ShowAll(t *testing.T) {
 				CreatedAt: time.Date(2022, 3, id, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 3, id, 0, 0, 0, 0, jst),
 				Img: sql.NullString{
-					String: fmt.Sprintf("create_img_%d", id),
+					String: "",
 					Valid:  false,
 				},
 			})
@@ -253,8 +253,8 @@ func Test_ShowAll(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		wantNextID := 7
-		_, nextID, err := pd.ShowAll(ctx, 0)
+		wantNextID := 22
+		_, nextID, err := pd.ShowAll(ctx, 2)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -426,6 +426,615 @@ func Test_UpdatePost(t *testing.T) {
 	t.Run("[NG]投稿の更新 - 存在しないIDを指定した時", func(t *testing.T) {
 		if _, err := pd.Update(ctx, 1000, "update_title", nil); !errors.Is(err, sql.ErrNoRows) {
 			t.Errorf("want error is %v, but got error is %v", sql.ErrNoRows, err)
+		}
+	})
+}
+
+func Test_Show(t *testing.T) {
+	pd := NewPostDatastore(testDB, nil)
+
+	t.Run("[OK]投稿の詳細を取得", func(t *testing.T) {
+		postID := 1
+		want := &model.ShowPost{
+			IndexPost: model.IndexPost{
+				Post: model.Post{
+					ID:        postID,
+					UserID:    1,
+					Title:     "test1_title",
+					Img:       pointer.Ptr("test1_post_img"),
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
+				User: model.User{
+					ID:        1,
+					Name:      "test1_name",
+					Email:     "test1@gmail.com",
+					CreatedAt: now,
+					Avatar:    pointer.Ptr("test1_avatar"),
+				},
+			},
+			CommenstWithUsers: []*model.ShowCommentWithUser{
+				{
+					Comment: model.CommentNil{
+						ID:        pointer.Ptr(2),
+						PostID:    &postID,
+						Text:      pointer.Ptr("test2_comment"),
+						Img:       nil,
+						CreatedAt: pointer.Ptr(time.Date(2022, 2, 1, 0, 0, 0, 0, jst)),
+						UpdatedAt: pointer.Ptr(time.Date(2022, 2, 1, 0, 0, 0, 0, jst)),
+					},
+					User: model.UserNil{
+						ID:     pointer.Ptr(2),
+						Name:   pointer.Ptr("test2_name"),
+						Avatar: nil,
+					},
+				},
+				{
+					Comment: model.CommentNil{
+						ID:        pointer.Ptr(1),
+						PostID:    &postID,
+						Text:      pointer.Ptr("test1_comment"),
+						Img:       pointer.Ptr("test1_comment_img"),
+						CreatedAt: pointer.Ptr(now),
+						UpdatedAt: pointer.Ptr(now),
+					},
+					User: model.UserNil{
+						ID:     pointer.Ptr(1),
+						Name:   pointer.Ptr("test1_name"),
+						Avatar: pointer.Ptr("test1_avatar"),
+					},
+				},
+			},
+			Likes: []*model.Like{
+				{
+					ID:     1,
+					PostID: 1,
+					UserID: 1,
+				},
+				{
+					ID:     4,
+					PostID: 1,
+					UserID: 2,
+				},
+			},
+		}
+
+		got, err := pd.Show(ctx, postID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]投稿の詳細を取得 - 存在しないIDを指定した時", func(t *testing.T) {
+		if _, err := pd.Show(ctx, 1000); !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("want error is %v, but got error is %v", sql.ErrNoRows, err)
+		}
+	})
+}
+
+func Test_ShowMyLike(t *testing.T) {
+	pd := NewPostDatastore(testDB, nil)
+
+	t.Run("[OK]指定したユーザーのいいねした投稿を取得", func(t *testing.T) {
+		want := []*model.IndexPostWithCountLike{
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        2,
+						UserID:    1,
+						Title:     "test2_title",
+						Img:       pointer.Ptr("test2_post_img"),
+						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+					},
+					User: model.User{
+						Name:   "test1_name",
+						Avatar: pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountLike:    1,
+				CountComment: 1,
+			},
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        3,
+						UserID:    2,
+						Title:     "test3_title",
+						Img:       nil,
+						CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					},
+					User: model.User{
+						Name:   "test2_name",
+						Avatar: nil,
+					},
+				},
+				CountLike:    1,
+				CountComment: 0,
+			},
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        1,
+						UserID:    1,
+						Title:     "test1_title",
+						Img:       pointer.Ptr("test1_post_img"),
+						CreatedAt: now,
+						UpdatedAt: now,
+					},
+					User: model.User{
+						Name:   "test1_name",
+						Avatar: pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountLike:    2,
+				CountComment: 2,
+			},
+		}
+
+		got, gotNextID, err := pd.ShowMyLike(ctx, 1, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]指定したユーザーのいいねした投稿を取得 - nextIDを指定", func(t *testing.T) {
+		want := []*model.IndexPostWithCountLike{
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        3,
+						UserID:    2,
+						Title:     "test3_title",
+						Img:       nil,
+						CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					},
+					User: model.User{
+						Name:   "test2_name",
+						Avatar: nil,
+					},
+				},
+				CountLike:    1,
+				CountComment: 0,
+			},
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        1,
+						UserID:    1,
+						Title:     "test1_title",
+						Img:       pointer.Ptr("test1_post_img"),
+						CreatedAt: now,
+						UpdatedAt: now,
+					},
+					User: model.User{
+						Name:   "test1_name",
+						Avatar: pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountLike:    2,
+				CountComment: 2,
+			},
+		}
+
+		got, gotNextID, err := pd.ShowMyLike(ctx, 1, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]指定したユーザーのいいねした投稿を取得 - データがたくさんある時", func(t *testing.T) {
+		var posts []*schema.Post
+		var likes []*schema.Like
+		for i := 0; i < 20; i++ {
+			postID := i + 30
+			posts = append(posts, &schema.Post{
+				ID:        uint64(postID),
+				UserID:    2,
+				Title:     fmt.Sprintf("create_title_%d", postID),
+				CreatedAt: time.Date(2022, 3, postID, 0, 0, 0, 0, jst),
+				UpdatedAt: time.Date(2022, 3, postID, 0, 0, 0, 0, jst),
+				Img: sql.NullString{
+					String: "",
+					Valid:  false,
+				},
+			})
+			likes = append(likes, &schema.Like{
+				ID:     uint64(i),
+				PostID: uint64(postID),
+				UserID: 2,
+			})
+		}
+		if err := schema.InsertPost(ctx, testDB, posts...); err != nil {
+			t.Fatal(err)
+		}
+		if err := schema.InsertLike(ctx, testDB, likes...); err != nil {
+			t.Fatal(err)
+		}
+
+		wantNextID := 20
+		_, nextID, err := pd.ShowMyLike(ctx, 2, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(pointer.Ptr(wantNextID), nextID); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+
+		for _, p := range posts {
+			if err := pd.Delete(ctx, int(p.ID)); err != nil {
+				t.Fatal(err)
+			}
+		}
+	})
+
+	t.Run("[OK]指定したユーザーのいいねした投稿を取得 - データが存在しない時", func(t *testing.T) {
+		var want []*model.IndexPostWithCountLike
+		got, gotNextID, err := pd.ShowMyLike(ctx, 2, 1000)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]指定したユーザーのいいねした投稿を取得 - 存在しないUserIDを指定した時", func(t *testing.T) {
+		_, gotNextID, err := pd.ShowMyLike(ctx, 1000, 0)
+		if !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("want error is %v, but got error is %v", sql.ErrNoRows, err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+	})
+}
+
+func Test_ShowPostMy(t *testing.T) {
+	pd := NewPostDatastore(testDB, nil)
+
+	t.Run("[OK]指定したUserIDが投稿したものを取得する", func(t *testing.T) {
+		want := []*model.IndexPostWithCountLike{
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        2,
+						UserID:    1,
+						Title:     "test2_title",
+						Img:       pointer.Ptr("test2_post_img"),
+						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+					},
+					User: model.User{
+						Name:   "test1_name",
+						Avatar: pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountLike:    1,
+				CountComment: 1,
+			},
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        1,
+						UserID:    1,
+						Title:     "test1_title",
+						Img:       pointer.Ptr("test1_post_img"),
+						CreatedAt: now,
+						UpdatedAt: now,
+					},
+					User: model.User{
+						Name:   "test1_name",
+						Avatar: pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountLike:    2,
+				CountComment: 2,
+			},
+		}
+
+		got, gotNextID, err := pd.ShowPostMy(ctx, 1, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]指定したUserIDが投稿したものを取得する - nextIDを指定する", func(t *testing.T) {
+		want := []*model.IndexPostWithCountLike{
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        1,
+						UserID:    1,
+						Title:     "test1_title",
+						Img:       pointer.Ptr("test1_post_img"),
+						CreatedAt: now,
+						UpdatedAt: now,
+					},
+					User: model.User{
+						Name:   "test1_name",
+						Avatar: pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountLike:    2,
+				CountComment: 2,
+			},
+		}
+
+		got, gotNextID, err := pd.ShowPostMy(ctx, 1, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]指定したユーザーのいいねした投稿を取得 - データがたくさんある時", func(t *testing.T) {
+		var posts []*schema.Post
+		for i := 0; i < 20; i++ {
+			postID := i + 50
+			posts = append(posts, &schema.Post{
+				ID:        uint64(postID),
+				UserID:    1,
+				Title:     fmt.Sprintf("create_title_%d", postID),
+				CreatedAt: time.Date(2022, 3, postID, 0, 0, 0, 0, jst),
+				UpdatedAt: time.Date(2022, 3, postID, 0, 0, 0, 0, jst),
+				Img: sql.NullString{
+					String: "",
+					Valid:  false,
+				},
+			})
+		}
+		if err := schema.InsertPost(ctx, testDB, posts...); err != nil {
+			t.Fatal(err)
+		}
+
+		wantNextID := 21
+		_, nextID, err := pd.ShowPostMy(ctx, 1, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(pointer.Ptr(wantNextID), nextID); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+
+		for _, p := range posts {
+			if err := pd.Delete(ctx, int(p.ID)); err != nil {
+				t.Fatal(err)
+			}
+		}
+	})
+
+	t.Run("[OK]指定したUserIDが投稿したものを取得する - データが存在しない時", func(t *testing.T) {
+		var want []*model.IndexPostWithCountLike
+		got, gotNextID, err := pd.ShowPostMy(ctx, 1, 1000)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]指定したUserIDが投稿したものを取得する - 存在しないUserIDを指定した時", func(t *testing.T) {
+		_, gotNextID, err := pd.ShowPostMy(ctx, 1000, 1)
+		if !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("want error is %v, but got error is %v", sql.ErrNoRows, err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+	})
+}
+
+func Test_ShowPostMedia(t *testing.T) {
+	pd := NewPostDatastore(testDB, nil)
+
+	t.Run("[OK]指定したUserIDの画像付き投稿を取得する", func(t *testing.T) {
+		postID := 70
+		if err := schema.InsertPost(ctx, testDB, &schema.Post{
+			ID:        uint64(postID),
+			UserID:    2,
+			Title:     "test",
+			CreatedAt: now,
+			UpdatedAt: now,
+			Img: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
+		}); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := schema.SelectPost(ctx, testDB, &schema.Post{ID: uint64(postID)}); err != nil {
+			t.Fatal(err)
+		}
+
+		want := []*model.IndexPostWithCountLike{
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        2,
+						UserID:    1,
+						Title:     "test2_title",
+						Img:       pointer.Ptr("test2_post_img"),
+						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+					},
+					User: model.User{
+						Name:   "test1_name",
+						Avatar: pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountLike:    1,
+				CountComment: 1,
+			},
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        1,
+						UserID:    1,
+						Title:     "test1_title",
+						Img:       pointer.Ptr("test1_post_img"),
+						CreatedAt: now,
+						UpdatedAt: now,
+					},
+					User: model.User{
+						Name:   "test1_name",
+						Avatar: pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountLike:    2,
+				CountComment: 2,
+			},
+		}
+
+		got, gotNextID, err := pd.ShowPostMedia(ctx, 1, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+		if err := pd.Delete(ctx, postID); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("[OK]指定したUserIDの画像付き投稿を取得", func(t *testing.T) {
+		want := []*model.IndexPostWithCountLike{
+			{
+				IndexPost: model.IndexPost{
+					Post: model.Post{
+						ID:        1,
+						UserID:    1,
+						Title:     "test1_title",
+						Img:       pointer.Ptr("test1_post_img"),
+						CreatedAt: now,
+						UpdatedAt: now,
+					},
+					User: model.User{
+						Name:   "test1_name",
+						Avatar: pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountLike:    2,
+				CountComment: 2,
+			},
+		}
+
+		got, gotNextID, err := pd.ShowPostMedia(ctx, 1, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]指定したUserIDの画像付き投稿を取得 - データがたくさんある時", func(t *testing.T) {
+		var posts []*schema.Post
+		for i := 0; i < 20; i++ {
+			postID := i + 71
+			posts = append(posts, &schema.Post{
+				ID:        uint64(postID),
+				UserID:    1,
+				Title:     fmt.Sprintf("create_title_%d", postID),
+				CreatedAt: time.Date(2022, 3, postID, 0, 0, 0, 0, jst),
+				UpdatedAt: time.Date(2022, 3, postID, 0, 0, 0, 0, jst),
+				Img: sql.NullString{
+					String: fmt.Sprintf("create_img_%d", postID),
+					Valid:  true,
+				},
+			})
+		}
+		if err := schema.InsertPost(ctx, testDB, posts...); err != nil {
+			t.Fatal(err)
+		}
+
+		wantNextID := 21
+		_, nextID, err := pd.ShowPostMedia(ctx, 1, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(pointer.Ptr(wantNextID), nextID); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+
+		for _, p := range posts {
+			if err := pd.Delete(ctx, int(p.ID)); err != nil {
+				t.Fatal(err)
+			}
+		}
+	})
+
+	t.Run("[OK]指定したUserIDの画像付き投稿を取得 - データが存在しない時", func(t *testing.T) {
+		var want []*model.IndexPostWithCountLike
+		got, gotNextID, err := pd.ShowPostMedia(ctx, 1, 1000)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]指定したUserIDの画像付き投稿を取得 - 存在しないUserIDを指定した時", func(t *testing.T) {
+		_, gotNextID, err := pd.ShowPostMedia(ctx, 1000, 1)
+		if !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("want error is %v, but got error is %v", sql.ErrNoRows, err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
 		}
 	})
 }
