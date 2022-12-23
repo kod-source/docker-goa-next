@@ -1,7 +1,10 @@
 package main
 
 import (
+	"errors"
+
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
@@ -20,8 +23,15 @@ func NewRoomController(service *goa.Service, ru usecase.RoomUseCase) *RoomContro
 
 // CreateRoom ルーム作成
 func (r *RoomController) CreateRoom(ctx *app.CreateRoomRoomsContext) error {
-	ru, err := r.ru.Create(ctx, ctx.Payload.Name, ctx.Payload.IsGroup, nil)
+	ru, err := r.ru.Create(ctx, ctx.Payload.Name, ctx.Payload.IsGroup, r.toUserIDsArray(ctx.Payload.UserIds))
 	if err != nil {
+		if errors.Is(err, myerrors.ErrBadRequestEmptyArray) {
+			return ctx.BadRequest(&app.ServiceVerror{
+				Code:    400,
+				Message: "ユーザーIDを指定してください",
+				Status:  err.Error(),
+			})
+		}
 		return err
 	}
 
@@ -47,4 +57,13 @@ func (r *RoomController) toShowUserCollection(showUsers []*model.ShowUser) []*ap
 	}
 
 	return sus
+}
+
+func (r *RoomController) toUserIDsArray(ids []int) []model.UserID {
+	var userIDs []model.UserID
+	for _, id := range ids {
+		userIDs = append(userIDs, model.UserID(id))
+	}
+
+	return userIDs
 }
