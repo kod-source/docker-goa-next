@@ -32,16 +32,16 @@ func (p *postDatastore) CreatePost(ctx context.Context, userID int, title string
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
+
 	ins, err := tx.Prepare(
 		"INSERT INTO post(`user_id`, `title`, `img`, `created_at`, `updated_at`) VALUES(?,?,?,?,?)",
 	)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 	res, err := ins.Exec(userID, title, img, p.tr.Now(), p.tr.Now())
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 	lastID, err := res.LastInsertId()
@@ -65,10 +65,11 @@ func (p *postDatastore) CreatePost(ctx context.Context, userID int, title string
 		&indexPost.User.Avatar,
 	)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
-	tx.Commit()
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
 
 	return &indexPost, nil
 }
@@ -179,13 +180,14 @@ func (p *postDatastore) Update(ctx context.Context, id int, title string, img *s
 	if err != nil {
 		return nil, err
 	}
+	defer tx.Rollback()
+
 	upd, err := tx.Prepare("UPDATE `post` set `title` = ?, `img` = ?, `updated_at` = ? WHERE id = ?")
 	if err != nil {
 		return nil, err
 	}
 	_, err = upd.Exec(title, img, p.tr.Now(), id)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 	var indexPost model.IndexPost
@@ -206,7 +208,6 @@ func (p *postDatastore) Update(ctx context.Context, id int, title string, img *s
 		&indexPost.User.Avatar,
 	)
 	if err != nil {
-		tx.Rollback()
 		return nil, err
 	}
 
@@ -385,6 +386,9 @@ func (p *postDatastore) ShowMyLike(ctx context.Context, userID, nextID int) ([]*
 		" LIMIT 1", userID).Scan(
 		&lastPostID,
 	)
+	if err != nil {
+		return nil, nil, err
+	}
 	var resNextID *int
 	resNextID = pointer.Int(nextID + limitNumber)
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
@@ -486,6 +490,9 @@ func (p *postDatastore) ShowPostMy(ctx context.Context, userID, nextID int) ([]*
 	`, userID).Scan(
 		&lastPostID,
 	)
+	if err != nil {
+		return nil, nil, err
+	}
 	var resNextID *int
 	resNextID = pointer.Int(nextID + limitNumber)
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
@@ -587,6 +594,9 @@ func (p *postDatastore) ShowPostMedia(ctx context.Context, userID, nextID int) (
 		" LIMIT 1", userID).Scan(
 		&lastPostID,
 	)
+	if err != nil {
+		return nil, nil, err
+	}
 	var resNextID *int
 	resNextID = pointer.Int(nextID + limitNumber)
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {

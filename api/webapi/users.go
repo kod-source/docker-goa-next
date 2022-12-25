@@ -2,7 +2,9 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 
+	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
@@ -22,15 +24,15 @@ func NewUsersController(service *goa.Service, uu usecase.UserUseCase) *UsersCont
 // GetCurrentUser runs the get_current_user action.
 func (c *UsersController) GetCurrentUser(ctx *app.GetCurrentUserUsersContext) error {
 	id := getUserIDCode(ctx)
-	user, err := c.uu.GetUser(ctx, id)
+	user, err := c.uu.GetUser(ctx, model.UserID(id))
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound()
 		}
 		return ctx.InternalServerError()
 	}
 	res := &app.User{
-		ID:        user.ID,
+		ID:        int(user.ID),
 		Email:     &user.Email,
 		Name:      &user.Name,
 		Password:  &user.Password,
@@ -41,16 +43,16 @@ func (c *UsersController) GetCurrentUser(ctx *app.GetCurrentUserUsersContext) er
 }
 
 func (c *UsersController) ShowUser(ctx *app.ShowUserUsersContext) error {
-	user, err := c.uu.GetUser(ctx, ctx.ID)
+	user, err := c.uu.GetUser(ctx, model.UserID(ctx.ID))
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound()
 		}
 		return ctx.InternalServerError()
 	}
 
 	return ctx.OK(&app.ShowUser{
-		ID:        user.ID,
+		ID:        int(user.ID),
 		Name:      user.Name,
 		CreatedAt: user.CreatedAt,
 		Avatar:    user.Avatar,

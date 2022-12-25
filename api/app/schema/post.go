@@ -1,12 +1,11 @@
 package schema
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/shogo82148/myddlmaker"
 )
-
-//go:generate go run -tags myddlmaker gen/main.go
 
 type Post struct {
 	ID        uint64 `ddl:",auto"`
@@ -14,11 +13,17 @@ type Post struct {
 	Title     string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Img       []byte `ddl:",null"`
+	Img       sql.NullString `ddl:",null,type=LONGTEXT"`
 }
 
 func (*Post) PrimaryKey() *myddlmaker.PrimaryKey {
 	return myddlmaker.NewPrimaryKey("id")
+}
+
+func (*Post) Indexes() []*myddlmaker.Index {
+	return []*myddlmaker.Index{
+		myddlmaker.NewIndex("idx_user_id", "user_id"),
+	}
 }
 
 func (*Post) ForeignKeys() []*myddlmaker.ForeignKey {
@@ -28,6 +33,6 @@ func (*Post) ForeignKeys() []*myddlmaker.ForeignKey {
 			[]string{"user_id"},
 			"user",
 			[]string{"id"},
-		).OnUpdate(myddlmaker.ForeignKeyOptionCascade).OnDelete(myddlmaker.ForeignKeyOptionCascade),
+		).OnDelete(myddlmaker.ForeignKeyOptionCascade).OnUpdate(myddlmaker.ForeignKeyOptionCascade),
 	}
 }

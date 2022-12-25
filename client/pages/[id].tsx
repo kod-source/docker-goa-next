@@ -18,6 +18,8 @@ import { ConfirmationModal } from '../lib/components/confirmationModal';
 import { PostRepository } from '../lib/repository/post';
 import { LikeRepository } from '../lib/repository/like';
 import { CommentRepository } from '../lib/repository/comment';
+import { PostEditModal } from '../lib/components/postEditModal';
+import { CommentEditModal } from '../lib/components/commentEditModal';
 
 interface Props {
   id: number;
@@ -361,7 +363,10 @@ const PostShow: NextPage<Props> = ({ id }) => {
       {isShowDetailModal && (
         <DetailModal
           open={isShowDetailModal}
-          handleClose={() => setIsShowDetailModal(false)}
+          handleClose={() => {
+            setSelectComment(undefined);
+            setIsShowDetailModal(false);
+          }}
           widthRate={widthAndHeightRate.width}
           heightRate={widthAndHeightRate.height}
           onUpdateClick={() => {
@@ -383,15 +388,19 @@ const PostShow: NextPage<Props> = ({ id }) => {
           confirmInvoke={() => onDelete()}
         />
       )}
-      {/* {isShowUpdateModal && (
-        <PostEditModal
+      {isShowUpdateModal && (
+        <CommentEditModal
           open={isShowUpdateModal}
-          handleClose={() => setIsShowUpdateModal(false)}
-          post={showPost.post}
-          setPost={}
-          setPostWithUser={setPostsWithUser}
+          handleClose={() => {
+            setSelectComment(undefined)
+            setIsShowUpdateModal(false);
+          }}
+          comment={selectComment}
+          setComment={setSelectComment}
+          showPost={showPost}
+          setShowPost={setShowPost}
         />
-      )} */}
+      )}
     </>
   );
 };

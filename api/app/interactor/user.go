@@ -28,7 +28,7 @@ func NewUserInteractor(ur repository.UserRepository, js service.JWTService) *use
 	return &userInteractor{ur: ur, js: js}
 }
 
-func (u *userInteractor) GetUser(ctx context.Context, id int) (*model.User, error) {
+func (u *userInteractor) GetUser(ctx context.Context, id model.UserID) (*model.User, error) {
 	user, err := u.ur.GetUser(ctx, id)
 	if err != nil {
 		return nil, err
@@ -43,13 +43,13 @@ func (u *userInteractor) GetUserByEmail(ctx context.Context, email, password str
 		return nil, err
 	}
 	if err = compareHashAndPassword(user.Password, password); err != nil {
-		return nil, myerrors.PasswordWorngError
+		return nil, myerrors.ErrPasswordWorng
 	}
 
 	return user, nil
 }
 
-func (u *userInteractor) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
+func (u *userInteractor) CreateJWTToken(ctx context.Context, id model.UserID, name string) (*string, error) {
 	token, nil := u.js.CreateJWTToken(ctx, id, name)
 	return token, nil
 }

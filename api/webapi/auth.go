@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
@@ -32,19 +32,19 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 	password := ctx.Payload.Password
 	user, err := c.uu.GetUserByEmail(ctx, email, password)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound(&app.ServiceVerror{
 				Code:    404,
 				Message: "メールアドレスが間違っています。\n再度ご確認ください。",
 				Status:  "404 Not Found",
 			})
 		}
-		if errors.Is(err, myerrors.PasswordWorngError) {
+		if errors.Is(err, myerrors.ErrPasswordWorng) {
 			return ctx.BadRequest(&app.ServiceVerror{
 				Code:    400,
-				Details: myerrors.PasswordWorngError,
+				Details: myerrors.ErrPasswordWorng,
 				Message: "パスワードが間違っています。",
-				Status:  myerrors.PasswordWorngError.Error(),
+				Status:  myerrors.ErrPasswordWorng.Error(),
 			})
 		}
 		return ctx.InternalServerError()
@@ -54,7 +54,7 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 		return ctx.InternalServerError()
 	}
 	res := &app.Token{User: &app.User{
-		ID:        user.ID,
+		ID:        int(user.ID),
 		Email:     &user.Email,
 		Name:      &user.Name,
 		Password:  &user.Password,
@@ -85,7 +85,7 @@ func (c *AuthController) SignUp(ctx *app.SignUpAuthContext) error {
 		User: &app.User{
 			CreatedAt: &user.CreatedAt,
 			Email:     &user.Email,
-			ID:        user.ID,
+			ID:        int(user.ID),
 			Name:      &user.Name,
 			Password:  &user.Password,
 			Avatar:    user.Avatar,

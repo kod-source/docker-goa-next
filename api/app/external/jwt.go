@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/wire"
+	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/service"
 )
@@ -25,7 +26,7 @@ func NewJWTExternal(tr repository.TimeRepository) *jwtExternal {
 	return &jwtExternal{tr: tr}
 }
 
-func (j *jwtExternal) CreateJWTToken(ctx context.Context, id int, name string) (*string, error) {
+func (j *jwtExternal) CreateJWTToken(ctx context.Context, id model.UserID, name string) (*string, error) {
 	claims := jwt.MapClaims{
 		"sub":       "auth jwt",
 		"user_id":   id,

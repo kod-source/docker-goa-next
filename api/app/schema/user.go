@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/shogo82148/myddlmaker"
@@ -15,7 +16,7 @@ type User struct {
 	Password  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Avatar    []byte `ddl:",null"`
+	Avatar    sql.NullString `ddl:",null,type=LONGTEXT"`
 }
 
 func (*User) PrimaryKey() *myddlmaker.PrimaryKey {

@@ -77,6 +77,26 @@ func SelectUser(ctx context.Context, queryer queryer, primaryKeys *User) (*User,
 	return &v, nil
 }
 
+func SelectAllUser(ctx context.Context, queryer queryer) ([]*User, error) {
+	var ret []*User
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `name`, `email`, `password`, `created_at`, `updated_at`, `avatar` FROM `user` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v User
+		if err := rows.Scan(&v.ID, &v.Name, &v.Email, &v.Password, &v.CreatedAt, &v.UpdatedAt, &v.Avatar); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
 func UpdateUser(ctx context.Context, execer execer, values ...*User) error {
 	stmt, err := execer.PrepareContext(ctx, "UPDATE `user` SET `name` = ?, `email` = ?, `password` = ?, `created_at` = ?, `updated_at` = ?, `avatar` = ? WHERE `id` = ?")
 	if err != nil {
@@ -146,6 +166,26 @@ func SelectPost(ctx context.Context, queryer queryer, primaryKeys *Post) (*Post,
 		return nil, err
 	}
 	return &v, nil
+}
+
+func SelectAllPost(ctx context.Context, queryer queryer) ([]*Post, error) {
+	var ret []*Post
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `user_id`, `title`, `created_at`, `updated_at`, `img` FROM `post` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v Post
+		if err := rows.Scan(&v.ID, &v.UserID, &v.Title, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
 }
 
 func UpdatePost(ctx context.Context, execer execer, values ...*Post) error {
@@ -219,6 +259,26 @@ func SelectComment(ctx context.Context, queryer queryer, primaryKeys *Comment) (
 	return &v, nil
 }
 
+func SelectAllComment(ctx context.Context, queryer queryer) ([]*Comment, error) {
+	var ret []*Comment
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `post_id`, `user_id`, `text`, `created_at`, `updated_at`, `img` FROM `comment` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v Comment
+		if err := rows.Scan(&v.ID, &v.PostID, &v.UserID, &v.Text, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
 func UpdateComment(ctx context.Context, execer execer, values ...*Comment) error {
 	stmt, err := execer.PrepareContext(ctx, "UPDATE `comment` SET `post_id` = ?, `user_id` = ?, `text` = ?, `created_at` = ?, `updated_at` = ?, `img` = ? WHERE `id` = ?")
 	if err != nil {
@@ -290,6 +350,26 @@ func SelectLike(ctx context.Context, queryer queryer, primaryKeys *Like) (*Like,
 	return &v, nil
 }
 
+func SelectAllLike(ctx context.Context, queryer queryer) ([]*Like, error) {
+	var ret []*Like
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `post_id`, `user_id` FROM `like` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v Like
+		if err := rows.Scan(&v.ID, &v.PostID, &v.UserID); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
 func UpdateLike(ctx context.Context, execer execer, values ...*Like) error {
 	stmt, err := execer.PrepareContext(ctx, "UPDATE `like` SET `post_id` = ?, `user_id` = ? WHERE `id` = ?")
 	if err != nil {
@@ -298,6 +378,370 @@ func UpdateLike(ctx context.Context, execer execer, values ...*Like) error {
 	defer stmt.Close()
 	for _, value := range values {
 		if _, err := stmt.ExecContext(ctx, value.PostID, value.UserID, value.ID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func InsertRoom(ctx context.Context, execer execer, values ...*Room) error {
+	const q = "INSERT INTO `room` (`name`, `is_group`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)" +
+		", (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?)"
+	const fieldCount = 4
+	const maxStructCount = 32
+	var args []any
+	if len(values) >= maxStructCount {
+		args = make([]any, 0, maxStructCount*fieldCount)
+		err := func() error {
+			stmt, err := execer.PrepareContext(ctx, q)
+			if err != nil {
+				return err
+			}
+			defer stmt.Close()
+
+			for len(values) >= maxStructCount {
+				vals, rest := values[:maxStructCount], values[maxStructCount:]
+				args = args[:0]
+				for _, v := range vals {
+					args = append(args, v.Name, v.IsGroup, v.CreatedAt, v.UpdatedAt)
+				}
+				if _, err := stmt.ExecContext(ctx, args...); err != nil {
+					return err
+				}
+				values = rest
+			}
+			return nil
+		}()
+		if err != nil {
+			return err
+		}
+	}
+	if len(values) == 0 {
+		return nil
+	}
+	if len(args) == 0 {
+		args = make([]any, 0, len(values)*fieldCount)
+	}
+	args = args[:0]
+	for _, v := range values {
+		args = append(args, v.Name, v.IsGroup, v.CreatedAt, v.UpdatedAt)
+	}
+	if _, err := execer.ExecContext(ctx, q[:len(values)*14+73], args...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func SelectRoom(ctx context.Context, queryer queryer, primaryKeys *Room) (*Room, error) {
+	var v Room
+	row := queryer.QueryRowContext(ctx, "SELECT `id`, `name`, `is_group`, `created_at`, `updated_at` FROM `room` WHERE `id` = ?", primaryKeys.ID)
+	if err := row.Scan(&v.ID, &v.Name, &v.IsGroup, &v.CreatedAt, &v.UpdatedAt); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func SelectAllRoom(ctx context.Context, queryer queryer) ([]*Room, error) {
+	var ret []*Room
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `name`, `is_group`, `created_at`, `updated_at` FROM `room` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v Room
+		if err := rows.Scan(&v.ID, &v.Name, &v.IsGroup, &v.CreatedAt, &v.UpdatedAt); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+func UpdateRoom(ctx context.Context, execer execer, values ...*Room) error {
+	stmt, err := execer.PrepareContext(ctx, "UPDATE `room` SET `name` = ?, `is_group` = ?, `created_at` = ?, `updated_at` = ? WHERE `id` = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	for _, value := range values {
+		if _, err := stmt.ExecContext(ctx, value.Name, value.IsGroup, value.CreatedAt, value.UpdatedAt, value.ID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func InsertUserRoom(ctx context.Context, execer execer, values ...*UserRoom) error {
+	const q = "INSERT INTO `user_room` (`user_id`, `room_id`, `last_read_at`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?, ?)" +
+		", (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)"
+	const fieldCount = 5
+	const maxStructCount = 32
+	var args []any
+	if len(values) >= maxStructCount {
+		args = make([]any, 0, maxStructCount*fieldCount)
+		err := func() error {
+			stmt, err := execer.PrepareContext(ctx, q)
+			if err != nil {
+				return err
+			}
+			defer stmt.Close()
+
+			for len(values) >= maxStructCount {
+				vals, rest := values[:maxStructCount], values[maxStructCount:]
+				args = args[:0]
+				for _, v := range vals {
+					args = append(args, v.UserID, v.RoomID, v.LastReadAt, v.CreatedAt, v.UpdatedAt)
+				}
+				if _, err := stmt.ExecContext(ctx, args...); err != nil {
+					return err
+				}
+				values = rest
+			}
+			return nil
+		}()
+		if err != nil {
+			return err
+		}
+	}
+	if len(values) == 0 {
+		return nil
+	}
+	if len(args) == 0 {
+		args = make([]any, 0, len(values)*fieldCount)
+	}
+	args = args[:0]
+	for _, v := range values {
+		args = append(args, v.UserID, v.RoomID, v.LastReadAt, v.CreatedAt, v.UpdatedAt)
+	}
+	if _, err := execer.ExecContext(ctx, q[:len(values)*17+96], args...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func SelectUserRoom(ctx context.Context, queryer queryer, primaryKeys *UserRoom) (*UserRoom, error) {
+	var v UserRoom
+	row := queryer.QueryRowContext(ctx, "SELECT `id`, `user_id`, `room_id`, `last_read_at`, `created_at`, `updated_at` FROM `user_room` WHERE `id` = ?", primaryKeys.ID)
+	if err := row.Scan(&v.ID, &v.UserID, &v.RoomID, &v.LastReadAt, &v.CreatedAt, &v.UpdatedAt); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func SelectAllUserRoom(ctx context.Context, queryer queryer) ([]*UserRoom, error) {
+	var ret []*UserRoom
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `user_id`, `room_id`, `last_read_at`, `created_at`, `updated_at` FROM `user_room` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v UserRoom
+		if err := rows.Scan(&v.ID, &v.UserID, &v.RoomID, &v.LastReadAt, &v.CreatedAt, &v.UpdatedAt); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+func UpdateUserRoom(ctx context.Context, execer execer, values ...*UserRoom) error {
+	stmt, err := execer.PrepareContext(ctx, "UPDATE `user_room` SET `user_id` = ?, `room_id` = ?, `last_read_at` = ?, `created_at` = ?, `updated_at` = ? WHERE `id` = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	for _, value := range values {
+		if _, err := stmt.ExecContext(ctx, value.UserID, value.RoomID, value.LastReadAt, value.CreatedAt, value.UpdatedAt, value.ID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func InsertThread(ctx context.Context, execer execer, values ...*Thread) error {
+	const q = "INSERT INTO `thread` (`user_id`, `room_id`, `text`, `created_at`, `updated_at`, `img`) VALUES (?, ?, ?, ?, ?, ?)" +
+		", (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?)"
+	const fieldCount = 6
+	const maxStructCount = 32
+	var args []any
+	if len(values) >= maxStructCount {
+		args = make([]any, 0, maxStructCount*fieldCount)
+		err := func() error {
+			stmt, err := execer.PrepareContext(ctx, q)
+			if err != nil {
+				return err
+			}
+			defer stmt.Close()
+
+			for len(values) >= maxStructCount {
+				vals, rest := values[:maxStructCount], values[maxStructCount:]
+				args = args[:0]
+				for _, v := range vals {
+					args = append(args, v.UserID, v.RoomID, v.Text, v.CreatedAt, v.UpdatedAt, v.Img)
+				}
+				if _, err := stmt.ExecContext(ctx, args...); err != nil {
+					return err
+				}
+				values = rest
+			}
+			return nil
+		}()
+		if err != nil {
+			return err
+		}
+	}
+	if len(values) == 0 {
+		return nil
+	}
+	if len(args) == 0 {
+		args = make([]any, 0, len(values)*fieldCount)
+	}
+	args = args[:0]
+	for _, v := range values {
+		args = append(args, v.UserID, v.RoomID, v.Text, v.CreatedAt, v.UpdatedAt, v.Img)
+	}
+	if _, err := execer.ExecContext(ctx, q[:len(values)*20+92], args...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func SelectThread(ctx context.Context, queryer queryer, primaryKeys *Thread) (*Thread, error) {
+	var v Thread
+	row := queryer.QueryRowContext(ctx, "SELECT `id`, `user_id`, `room_id`, `text`, `created_at`, `updated_at`, `img` FROM `thread` WHERE `id` = ?", primaryKeys.ID)
+	if err := row.Scan(&v.ID, &v.UserID, &v.RoomID, &v.Text, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func SelectAllThread(ctx context.Context, queryer queryer) ([]*Thread, error) {
+	var ret []*Thread
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `user_id`, `room_id`, `text`, `created_at`, `updated_at`, `img` FROM `thread` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v Thread
+		if err := rows.Scan(&v.ID, &v.UserID, &v.RoomID, &v.Text, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+func UpdateThread(ctx context.Context, execer execer, values ...*Thread) error {
+	stmt, err := execer.PrepareContext(ctx, "UPDATE `thread` SET `user_id` = ?, `room_id` = ?, `text` = ?, `created_at` = ?, `updated_at` = ?, `img` = ? WHERE `id` = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	for _, value := range values {
+		if _, err := stmt.ExecContext(ctx, value.UserID, value.RoomID, value.Text, value.CreatedAt, value.UpdatedAt, value.Img, value.ID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func InsertContent(ctx context.Context, execer execer, values ...*Content) error {
+	const q = "INSERT INTO `content` (`user_id`, `thread_id`, `text`, `created_at`, `updated_at`, `img`) VALUES (?, ?, ?, ?, ?, ?)" +
+		", (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?), (?, ?, ?, ?, ?, ?)"
+	const fieldCount = 6
+	const maxStructCount = 32
+	var args []any
+	if len(values) >= maxStructCount {
+		args = make([]any, 0, maxStructCount*fieldCount)
+		err := func() error {
+			stmt, err := execer.PrepareContext(ctx, q)
+			if err != nil {
+				return err
+			}
+			defer stmt.Close()
+
+			for len(values) >= maxStructCount {
+				vals, rest := values[:maxStructCount], values[maxStructCount:]
+				args = args[:0]
+				for _, v := range vals {
+					args = append(args, v.UserID, v.ThreadID, v.Text, v.CreatedAt, v.UpdatedAt, v.Img)
+				}
+				if _, err := stmt.ExecContext(ctx, args...); err != nil {
+					return err
+				}
+				values = rest
+			}
+			return nil
+		}()
+		if err != nil {
+			return err
+		}
+	}
+	if len(values) == 0 {
+		return nil
+	}
+	if len(args) == 0 {
+		args = make([]any, 0, len(values)*fieldCount)
+	}
+	args = args[:0]
+	for _, v := range values {
+		args = append(args, v.UserID, v.ThreadID, v.Text, v.CreatedAt, v.UpdatedAt, v.Img)
+	}
+	if _, err := execer.ExecContext(ctx, q[:len(values)*20+95], args...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func SelectContent(ctx context.Context, queryer queryer, primaryKeys *Content) (*Content, error) {
+	var v Content
+	row := queryer.QueryRowContext(ctx, "SELECT `id`, `user_id`, `thread_id`, `text`, `created_at`, `updated_at`, `img` FROM `content` WHERE `id` = ?", primaryKeys.ID)
+	if err := row.Scan(&v.ID, &v.UserID, &v.ThreadID, &v.Text, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func SelectAllContent(ctx context.Context, queryer queryer) ([]*Content, error) {
+	var ret []*Content
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `user_id`, `thread_id`, `text`, `created_at`, `updated_at`, `img` FROM `content` ORDER BY `id`")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v Content
+		if err := rows.Scan(&v.ID, &v.UserID, &v.ThreadID, &v.Text, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
+			return nil, err
+		}
+		ret = append(ret, &v)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+func UpdateContent(ctx context.Context, execer execer, values ...*Content) error {
+	stmt, err := execer.PrepareContext(ctx, "UPDATE `content` SET `user_id` = ?, `thread_id` = ?, `text` = ?, `created_at` = ?, `updated_at` = ?, `img` = ? WHERE `id` = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	for _, value := range values {
+		if _, err := stmt.ExecContext(ctx, value.UserID, value.ThreadID, value.Text, value.CreatedAt, value.UpdatedAt, value.Img, value.ID); err != nil {
 			return err
 		}
 	}

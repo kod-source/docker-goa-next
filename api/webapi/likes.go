@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
@@ -24,7 +25,7 @@ func NewLikesController(service *goa.Service, lu usecase.LikeUsecase) *LikesCont
 func (c *LikesController) Create(ctx *app.CreateLikesContext) error {
 	l, err := c.lu.Create(ctx, getUserIDCode(ctx), ctx.Payload.PostID)
 	if err != nil {
-		if err == myerrors.BadRequestIntError {
+		if err == myerrors.ErrBadRequestInt {
 			return ctx.BadRequest(&app.ServiceVerror{
 				Code:    400,
 				Message: "不明なリクエストです",
@@ -51,7 +52,7 @@ func (c *LikesController) Create(ctx *app.CreateLikesContext) error {
 func (c *LikesController) Delete(ctx *app.DeleteLikesContext) error {
 	err := c.lu.Delete(ctx, getUserIDCode(ctx), ctx.Payload.PostID)
 	if err != nil {
-		if err == myerrors.BadRequestIntError {
+		if err == myerrors.ErrBadRequestInt {
 			return ctx.BadRequest()
 		}
 		return ctx.InternalServerError()
@@ -71,7 +72,7 @@ func (c *LikesController) GetMyLike(ctx *app.GetMyLikeLikesContext) error {
 func (c *LikesController) GetLikeByUser(ctx *app.GetLikeByUserLikesContext) error {
 	ps, err := c.lu.GetPostIDs(ctx, ctx.UserID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound()
 		}
 		return ctx.InternalServerError()

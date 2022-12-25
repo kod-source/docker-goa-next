@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/usecase"
@@ -83,14 +84,14 @@ func (c *PostsController) Update(ctx *app.UpdatePostsContext) error {
 func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 	sp, err := c.pu.Show(ctx, ctx.ID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound()
 		}
 		return ctx.InternalServerError()
 	}
 
 	return ctx.OK(&app.ShowPostJSON{
-		CommentsWithUsers: c.toCommnetJson(sp.CommenstWithUsers),
+		CommentsWithUsers: c.toCommnetJSON(sp.CommenstWithUsers),
 		Post: &app.PostJSON{
 			ID:        sp.IndexPost.Post.ID,
 			UserID:    sp.IndexPost.Post.UserID,
@@ -100,13 +101,13 @@ func (c *PostsController) Show(ctx *app.ShowPostsContext) error {
 			UpdatedAt: &sp.IndexPost.Post.UpdatedAt,
 		},
 		User: &app.User{
-			ID:        sp.IndexPost.User.ID,
+			ID:        int(sp.IndexPost.User.ID),
 			Name:      &sp.IndexPost.User.Name,
 			Email:     &sp.IndexPost.User.Email,
 			Avatar:    sp.IndexPost.User.Avatar,
 			CreatedAt: &sp.IndexPost.User.CreatedAt,
 		},
-		Likes: c.toLikeJson(sp.Likes),
+		Likes: c.toLikeJSON(sp.Likes),
 	})
 }
 
@@ -169,7 +170,7 @@ func (c *PostsController) toPostAllLimit(indexPosts []*model.IndexPostWithCountL
 	}
 }
 
-func (c *PostsController) toCommnetJson(commentsWithUsers []*model.ShowCommentWithUser) app.CommentWithUserJSONCollection {
+func (c *PostsController) toCommnetJSON(commentsWithUsers []*model.ShowCommentWithUser) app.CommentWithUserJSONCollection {
 	cs := make(app.CommentWithUserJSONCollection, 0, len(commentsWithUsers))
 	for _, cu := range commentsWithUsers {
 		if cu.Comment.ID == nil {
@@ -195,7 +196,7 @@ func (c *PostsController) toCommnetJson(commentsWithUsers []*model.ShowCommentWi
 	return cs
 }
 
-func (c *PostsController) toLikeJson(likes []*model.Like) app.LikeJSONCollection {
+func (c *PostsController) toLikeJSON(likes []*model.Like) app.LikeJSONCollection {
 	ls := make(app.LikeJSONCollection, 0, len(likes))
 	for _, l := range likes {
 		ls = append(ls, &app.LikeJSON{

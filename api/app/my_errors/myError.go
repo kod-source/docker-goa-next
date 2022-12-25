@@ -6,14 +6,17 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
-// PasswordWorngError パスワードが間違っているときのエラー
-var PasswordWorngError = errors.New("Password is wronging")
-var EmptyStringError = errors.New("Title is empty string")
-var BadRequestStingError = errors.New("Request is empty string")
-// BadRequestIntError 数字の0が来たときにエラー
-var BadRequestIntError = errors.New("Request is empty int")
+// ErrPasswordWorng パスワードが間違っているときのエラー
+var ErrPasswordWorng = errors.New("password is wronging")
+var ErrEmptyString = errors.New("title is empty string")
+var ErrBadRequestSting = errors.New("request is empty string")
+// ErrBadRequestInt 数字の0が来たときにエラー
+var ErrBadRequestInt = errors.New("request is empty int")
 
+// MySQLErrorDuplicate ユニークインデックスのエラー
 var MySQLErrorDuplicate = &mysql.MySQLError{Number: 1062, Message: "duplicate entry"}
+// MySQLErrorAddOrUpdateForeignKey 外部キー製薬のエラー
+var MySQLErrorAddOrUpdateForeignKey = &mysql.MySQLError{Number: 1452, Message: "cannot add or update a child row: a foreign key constraint fails"}
 
 func GetMySQLErrorNumber(err error) uint16 {
 	var myErr *mysql.MySQLError
