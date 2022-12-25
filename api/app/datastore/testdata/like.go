@@ -15,9 +15,19 @@ func LikeSeed(ctx context.Context, db *sql.DB) error {
 			UserID: 1,
 		},
 		{
-			ID:     1,
+			ID:     2,
 			PostID: 2,
 			UserID: 1,
+		},
+		{
+			ID:     3,
+			PostID: 3,
+			UserID: 1,
+		},
+		{
+			ID:     4,
+			PostID: 1,
+			UserID: 2,
 		},
 	}
 
