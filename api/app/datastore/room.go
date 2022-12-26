@@ -60,14 +60,15 @@ func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, 
 	if err != nil {
 		return nil, err
 	}
+	errChan := make(chan error, len(userIDs))
+	defer close(errChan)
+
 	for _, userID := range userIDs {
-		go func() error {
-			if _, err := stmt.ExecContext(ctx, userID, lastID, rd.tr.Now(), rd.tr.Now()); err != nil {
-				return err
-			}
-			return nil
-		}()
-		if err != nil {
+		go func(errChan chan error) {
+			_, err = stmt.ExecContext(ctx, userID, lastID, rd.tr.Now(), rd.tr.Now())
+			errChan <- err
+		}(errChan)
+		if err := <-errChan; err != nil {
 			return nil, err
 		}
 	}
