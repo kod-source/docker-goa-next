@@ -3,6 +3,8 @@ package datastore
 import (
 	"context"
 	"database/sql"
+	"log"
+	"sync"
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
@@ -60,17 +62,32 @@ func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, 
 	if err != nil {
 		return nil, err
 	}
-	errChan := make(chan error, len(userIDs))
-	defer close(errChan)
 
-	for _, userID := range userIDs {
-		go func(errChan chan error) {
-			_, err = stmt.ExecContext(ctx, userID, lastID, rd.tr.Now(), rd.tr.Now())
-			errChan <- err
-		}(errChan)
-		if err := <-errChan; err != nil {
-			return nil, err
+	var wg sync.WaitGroup
+	var wgError error
+	errChan := make(chan error, len(userIDs))
+
+	wg.Add(len(userIDs))
+	func() {
+		for _, userID := range userIDs {
+			go func(id model.UserID, errChan chan error) {
+				defer func() {
+					if err := <-errChan; err != nil {
+						log.Println(err)
+						wgError = err
+					}
+					wg.Done()
+				}()
+
+				_, err = stmt.ExecContext(ctx, id, lastID, rd.tr.Now(), rd.tr.Now())
+				errChan <- err
+			}(userID, errChan)
 		}
+	}()
+	wg.Wait()
+	close(errChan)
+	if wgError != nil {
+		return nil, wgError
 	}
 
 	var room schema.Room
@@ -83,9 +100,9 @@ func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, 
 	query += "FROM `user_room` AS `ur` "
 	query += "INNER JOIN `user` AS `u` "
 	query += "ON `ur`.`user_id` = `u`.`id` "
-	query += ") AS `u`"
+	query += ") AS `u` "
 	query += "ON `r`.`id` = `u`.`room_id` "
-	query += "WHERE `r`.`id` = ? "
+	query += "WHERE `r`.`id` = ?"
 	rows, err := tx.QueryContext(ctx, query, lastID)
 	if err != nil {
 		return nil, err
