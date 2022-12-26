@@ -1,6 +1,8 @@
 package datastore
 
 import (
+	"database/sql"
+	"errors"
 	"testing"
 	"time"
 
@@ -78,12 +80,78 @@ func Test_CreateRoom(t *testing.T) {
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("mismatch (-want +got\n%s", diff)
 		}
+		if err := rd.Delete(ctx, model.RoomID(room.ID)); err != nil {
+			t.Fatal(err)
+		}
 	})
 
 	t.Run("[NG]ルーム作成 - 存在しないUserIDを指定した時", func(t *testing.T) {
 		_, err := rd.Create(ctx, "test_room", true, []model.UserID{1, 1000})
 		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
 			t.Errorf("want error code is %v, but got error code is %v", myerrors.MySQLErrorAddOrUpdateForeignKey.Number, code)
+		}
+	})
+}
+
+func Test_DeleteRoom(t *testing.T) {
+	rd := NewRoomDatastore(testDB, nil)
+
+	t.Run("[OK]ルームの削除", func(t *testing.T) {
+		roomID := 3
+
+		if err := schema.InsertRoom(ctx, testDB, &schema.Room{
+			ID:        uint64(roomID),
+			Name:      "delete_room",
+			IsGroup:   true,
+			CreatedAt: now,
+			UpdatedAt: now,
+		}); err != nil {
+			t.Fatal(err)
+		}
+		room, err := schema.SelectRoom(ctx, testDB, &schema.Room{ID: uint64(roomID)})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		userRooms := []*schema.UserRoom{
+			{
+				ID:     5,
+				UserID: 1,
+				RoomID: uint64(roomID),
+				LastReadAt: sql.NullTime{
+					Time:  time.Time{},
+					Valid: false,
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			},
+			{
+				ID:     6,
+				UserID: 2,
+				RoomID: uint64(roomID),
+				LastReadAt: sql.NullTime{
+					Time:  now,
+					Valid: true,
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			},
+		}
+		if err := schema.InsertUserRoom(ctx, testDB, userRooms...); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := rd.Delete(ctx, model.RoomID(room.ID)); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := schema.SelectRoom(ctx, testDB, &schema.Room{ID: room.ID}); !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("want error is %v, but got error is %v", sql.ErrNoRows, err)
+		}
+		// ON DELETE CASCADEの確認
+		for _, ur := range userRooms {
+			if _, err := schema.SelectRoom(ctx, testDB, &schema.Room{ID: ur.ID}); !errors.Is(err, sql.ErrNoRows) {
+				t.Errorf("want error is %v, but got error is %v", sql.ErrNoRows, err)
+			}
 		}
 	})
 }

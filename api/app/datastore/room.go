@@ -131,6 +131,20 @@ func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, 
 	return rd.toModelRoomUser(room, users), tx.Commit()
 }
 
+// Delete ルームの削除
+func (rd *roomDatastore) Delete(ctx context.Context, id model.RoomID) error {
+	stmt, err := rd.db.Prepare("DELETE FROM `room` WHERE `id` = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User) *model.RoomUser {
 	var showUsers []*model.ShowUser
 	for _, u := range users {

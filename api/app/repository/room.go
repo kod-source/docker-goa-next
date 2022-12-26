@@ -8,4 +8,5 @@ import (
 
 type RoomRepository interface {
 	Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error)
+	Delete(ctx context.Context, id model.RoomID) error
 }
