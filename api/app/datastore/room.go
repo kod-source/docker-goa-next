@@ -96,7 +96,7 @@ func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, 
 	query += "`u`.`id`, `u`.`name`, `u`.`avatar`, `u`.`created_at` "
 	query += "FROM `room` AS `r` "
 	query += "INNER JOIN ( "
-	query += "SELECT `ur`.`room_id`, `ur`.`user_id`, `u`.`id`, `u`.`name`, `u`.`avatar`, `u`.`created_at` "
+	query += "SELECT `ur`.`room_id`, `u`.`id`, `u`.`name`, `u`.`avatar`, `u`.`created_at` "
 	query += "FROM `user_room` AS `ur` "
 	query += "INNER JOIN `user` AS `u` "
 	query += "ON `ur`.`user_id` = `u`.`id` "

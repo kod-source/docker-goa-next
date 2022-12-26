@@ -85,10 +85,10 @@ func Test_CreateRoom(t *testing.T) {
 		}
 	})
 
-	t.Run("[NG]ルーム作成 - 存在しないUserIDを指定した時", func(t *testing.T) {
-		_, err := rd.Create(ctx, "test_room", true, []model.UserID{1, 1000})
-		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
-			t.Errorf("want error code is %v, but got error code is %v", myerrors.MySQLErrorAddOrUpdateForeignKey.Number, code)
+	t.Run("[NG]ルーム作成 - 同じUserIDを指定した時", func(t *testing.T) {
+		_, err := rd.Create(ctx, "test_room", true, []model.UserID{1, 1, 2})
+		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorDuplicate.Number {
+			t.Errorf("want error code is %v, but got error code is %v", myerrors.MySQLErrorDuplicate.Number, code)
 		}
 	})
 }
