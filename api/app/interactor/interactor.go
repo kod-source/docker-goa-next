@@ -7,4 +7,5 @@ var Set = wire.NewSet(
 	LikeInteractorSet,
 	PostInteractorSet,
 	UserInteractorSet,
+	RoomInteractorSet,
 )

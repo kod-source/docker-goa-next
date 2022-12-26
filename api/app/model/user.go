@@ -21,3 +21,10 @@ type UserNil struct {
 	CreatedAt *time.Time `json:"created_at"`
 	Avatar    *string    `json:"avatar"`
 }
+
+type ShowUser struct {
+	ID        UserID
+	Name      string
+	CreatedAt time.Time
+	Avatar    *string
+}

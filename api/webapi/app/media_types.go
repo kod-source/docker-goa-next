@@ -112,6 +112,36 @@ func (mt *IndexPostJSON) Validate() (err error) {
 	return
 }
 
+// ルーム (default view)
+//
+// Identifier: application/vnd.index_roo_user; view=default
+type IndexRooUser struct {
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// room id
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// グループかDMの判定
+	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
+	// room name
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// 更新日
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+	// ルームいるユーザー
+	Users ShowUserCollection `form:"users" json:"users" yaml:"users" xml:"users"`
+}
+
+// Validate validates the IndexRooUser media type instance.
+func (mt *IndexRooUser) Validate() (err error) {
+
+	if mt.Users == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "users"))
+	}
+	if err2 := mt.Users.Validate(); err2 != nil {
+		err = goa.MergeErrors(err, err2)
+	}
+	return
+}
+
 // いいね (default view)
 //
 // Identifier: application/vnd.like_json; view=default
@@ -323,6 +353,23 @@ type ShowUser struct {
 // Validate validates the ShowUser media type instance.
 func (mt *ShowUser) Validate() (err error) {
 
+	return
+}
+
+// Show_userCollection is the media type for an array of Show_user (default view)
+//
+// Identifier: application/vnd.show_user+json; type=collection; view=default
+type ShowUserCollection []*ShowUser
+
+// Validate validates the ShowUserCollection media type instance.
+func (mt ShowUserCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
 	return
 }
 
