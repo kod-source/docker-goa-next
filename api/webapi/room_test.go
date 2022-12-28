@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"testing"
 	"time"
 
@@ -113,5 +115,307 @@ func Test_CreateRoom(t *testing.T) {
 			Name:    wantRoomName,
 			UserIds: []int{},
 		})
+	})
+}
+
+func Test_IndexRoom(t *testing.T) {
+	srv := testApp.srv
+	ru := &mock.MockRoomUsecase{}
+	r := NewRoomController(srv, ru)
+	wantUserID := model.UserID(1)
+	wantNextID := model.RoomID(10)
+	ctx = context.WithValue(ctx, userIDCodeKey, int(wantUserID))
+
+	t.Run("[OK]ルーム表示", func(t *testing.T) {
+		gotNextID := 20
+		rus := []*model.RoomUser{
+			{
+				Room: model.Room{
+					ID:        1,
+					Name:      "room_1",
+					IsGroup:   true,
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				},
+				Users: []*model.ShowUser{
+					{
+						ID:        1,
+						Name:      "user_1",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Avatar:    pointer.Ptr("test1_avatar"),
+					},
+					{
+						ID:        2,
+						Name:      "user_2",
+						CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+						Avatar:    pointer.Ptr("test2_avatar"),
+					},
+					{
+						ID:        3,
+						Name:      "user_3",
+						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+						Avatar:    nil,
+					},
+				},
+			},
+			{
+				Room: model.Room{
+					ID:        2,
+					Name:      "room_2",
+					IsGroup:   false,
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				},
+				Users: []*model.ShowUser{
+					{
+						ID:        1,
+						Name:      "user_1",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Avatar:    pointer.Ptr("test1_avatar"),
+					},
+					{
+						ID:        3,
+						Name:      "user_3",
+						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+						Avatar:    nil,
+					},
+				},
+			},
+		}
+		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantNextID, nextID); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			return rus, pointer.Ptr(gotNextID), nil
+		}
+		defer func() {
+			ru.IndexFunc = nil
+		}()
+
+		want := &app.AllRoomUser{
+			NextID: pointer.Ptr(gotNextID),
+			Rooms: []*app.RoomUser{
+				{
+					ID:        1,
+					Name:      "room_1",
+					IsGroup:   true,
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Users: []*app.ShowUser{
+						{
+							ID:        1,
+							Name:      "user_1",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Avatar:    pointer.Ptr("test1_avatar"),
+						},
+						{
+							ID:        2,
+							Name:      "user_2",
+							CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+							Avatar:    pointer.Ptr("test2_avatar"),
+						},
+						{
+							ID:        3,
+							Name:      "user_3",
+							CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+							Avatar:    nil,
+						},
+					},
+				},
+				{
+					ID:        2,
+					Name:      "room_2",
+					IsGroup:   false,
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Users: []*app.ShowUser{
+						{
+							ID:        1,
+							Name:      "user_1",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Avatar:    pointer.Ptr("test1_avatar"),
+						},
+						{
+							ID:        3,
+							Name:      "user_3",
+							CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+							Avatar:    nil,
+						},
+					},
+				},
+			},
+		}
+
+		_, got := test.IndexRoomsOK(t, ctx, srv, r, pointer.Ptr(int(wantNextID)))
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]ルーム表示 - NextIDがnilの時", func(t *testing.T) {
+		rus := []*model.RoomUser{
+			{
+				Room: model.Room{
+					ID:        1,
+					Name:      "room_1",
+					IsGroup:   true,
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				},
+				Users: []*model.ShowUser{
+					{
+						ID:        1,
+						Name:      "user_1",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Avatar:    pointer.Ptr("test1_avatar"),
+					},
+					{
+						ID:        2,
+						Name:      "user_2",
+						CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+						Avatar:    pointer.Ptr("test2_avatar"),
+					},
+					{
+						ID:        3,
+						Name:      "user_3",
+						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+						Avatar:    nil,
+					},
+				},
+			},
+			{
+				Room: model.Room{
+					ID:        2,
+					Name:      "room_2",
+					IsGroup:   false,
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				},
+				Users: []*model.ShowUser{
+					{
+						ID:        1,
+						Name:      "user_1",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Avatar:    pointer.Ptr("test1_avatar"),
+					},
+					{
+						ID:        3,
+						Name:      "user_3",
+						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+						Avatar:    nil,
+					},
+				},
+			},
+		}
+		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			if nextID != 0 {
+				t.Errorf("want nextID is 0, got is %d", nextID)
+			}
+			return rus, nil, nil
+		}
+		defer func() {
+			ru.IndexFunc = nil
+		}()
+
+		want := &app.AllRoomUser{
+			NextID: nil,
+			Rooms: []*app.RoomUser{
+				{
+					ID:        1,
+					Name:      "room_1",
+					IsGroup:   true,
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Users: []*app.ShowUser{
+						{
+							ID:        1,
+							Name:      "user_1",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Avatar:    pointer.Ptr("test1_avatar"),
+						},
+						{
+							ID:        2,
+							Name:      "user_2",
+							CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+							Avatar:    pointer.Ptr("test2_avatar"),
+						},
+						{
+							ID:        3,
+							Name:      "user_3",
+							CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+							Avatar:    nil,
+						},
+					},
+				},
+				{
+					ID:        2,
+					Name:      "room_2",
+					IsGroup:   false,
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Users: []*app.ShowUser{
+						{
+							ID:        1,
+							Name:      "user_1",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Avatar:    pointer.Ptr("test1_avatar"),
+						},
+						{
+							ID:        3,
+							Name:      "user_3",
+							CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+							Avatar:    nil,
+						},
+					},
+				},
+			},
+		}
+
+		_, got := test.IndexRoomsOK(t, ctx, srv, r, nil)
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]ルーム表示 - ルームが存在しない時", func(t *testing.T) {
+		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantNextID, nextID); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			return nil, nil, sql.ErrNoRows
+		}
+		defer func() {
+			ru.IndexFunc = nil
+		}()
+
+		test.IndexRoomsNotFound(t, ctx, srv, r, pointer.Ptr(int(wantNextID)))
+	})
+
+	t.Run("[NG]ルーム表示 - 想定外エラー", func(t *testing.T) {
+		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantNextID, nextID); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			return nil, nil, errors.New("test error")
+		}
+		defer func() {
+			ru.IndexFunc = nil
+		}()
+
+		test.IndexRoomsInternalServerError(t, ctx, srv, r, pointer.Ptr(int(wantNextID)))
 	})
 }
