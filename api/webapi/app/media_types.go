@@ -12,6 +12,27 @@ import (
 	"time"
 )
 
+// 全てのルーム (default view)
+//
+// Identifier: application/vnd.all_room_user; view=default
+type AllRoomUser struct {
+	// 次取得するRoomID
+	NextID *int `form:"next_id,omitempty" json:"next_id,omitempty" yaml:"next_id,omitempty" xml:"next_id,omitempty"`
+	// rooms
+	Rooms IndexRooUserCollection `form:"rooms" json:"rooms" yaml:"rooms" xml:"rooms"`
+}
+
+// Validate validates the AllRoomUser media type instance.
+func (mt *AllRoomUser) Validate() (err error) {
+	if mt.Rooms == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "rooms"))
+	}
+	if err2 := mt.Rooms.Validate(); err2 != nil {
+		err = goa.MergeErrors(err, err2)
+	}
+	return
+}
+
 // コメント (default view)
 //
 // Identifier: application/vnd.comment_json; view=default
@@ -138,6 +159,23 @@ func (mt *IndexRooUser) Validate() (err error) {
 	}
 	if err2 := mt.Users.Validate(); err2 != nil {
 		err = goa.MergeErrors(err, err2)
+	}
+	return
+}
+
+// Index_roo_userCollection is the media type for an array of Index_roo_user (default view)
+//
+// Identifier: application/vnd.index_roo_user; type=collection; view=default
+type IndexRooUserCollection []*IndexRooUser
+
+// Validate validates the IndexRooUserCollection media type instance.
+func (mt IndexRooUserCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
 	}
 	return
 }

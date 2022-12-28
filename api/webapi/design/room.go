@@ -30,6 +30,17 @@ var _ = Resource("rooms", func() {
 		Response(BadRequest, MyError)
 		Response(InternalServerError)
 	})
+
+	Action("index", func() {
+		Routing(GET("rooms"))
+		Description("自分が入っている全てのルームを表示")
+		Params(func() {
+			Param("next_id", Integer, "次のID")
+		})
+		Response(OK, allRoomUser)
+		Response(NotFound)
+		Response(InternalServerError)
+	})
 })
 
 var roomUser = MediaType("application/vnd.index_roo_user", func() {
@@ -53,4 +64,15 @@ var roomUser = MediaType("application/vnd.index_roo_user", func() {
 		Attribute("users")
 	})
 	Required("id", "name", "is_group", "created_at", "updated_at", "users")
+})
+
+var allRoomUser = MediaType("application/vnd.all_room_user", func() {
+	Description("全てのルーム")
+	Attribute("rooms", CollectionOf(roomUser), "rooms")
+	Attribute("next_id", Integer, "次取得するRoomID")
+	View("default", func() {
+		Attribute("rooms")
+		Attribute("next_id")
+	})
+	Required("rooms")
 })

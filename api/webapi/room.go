@@ -45,6 +45,10 @@ func (r *RoomController) CreateRoom(ctx *app.CreateRoomRoomsContext) error {
 	})
 }
 
+func (r *RoomController) Index(ctx *app.IndexRoomsContext) error {
+	return ctx.OK(nil)
+}
+
 func (r *RoomController) toShowUserCollection(showUsers []*model.ShowUser) []*app.ShowUser {
 	var sus []*app.ShowUser
 	for _, su := range showUsers {
