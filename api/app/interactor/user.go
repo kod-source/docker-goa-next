@@ -50,7 +50,10 @@ func (u *userInteractor) GetUserByEmail(ctx context.Context, email, password str
 }
 
 func (u *userInteractor) CreateJWTToken(ctx context.Context, id model.UserID, name string) (*string, error) {
-	token, nil := u.js.CreateJWTToken(ctx, id, name)
+	token, err := u.js.CreateJWTToken(ctx, id, name)
+	if err != nil {
+		return nil, err
+	}
 	return token, nil
 }
 

@@ -53,14 +53,17 @@ func (c *AuthController) Login(ctx *app.LoginAuthContext) error {
 	if err != nil {
 		return ctx.InternalServerError()
 	}
-	res := &app.Token{User: &app.User{
-		ID:        int(user.ID),
-		Email:     &user.Email,
-		Name:      &user.Name,
-		Password:  &user.Password,
-		CreatedAt: &user.CreatedAt,
-		Avatar:    user.Avatar,
-	}, Token: *token}
+	res := &app.Token{
+		User: &app.User{
+			ID:        int(user.ID),
+			Email:     &user.Email,
+			Name:      &user.Name,
+			Password:  &user.Password,
+			CreatedAt: &user.CreatedAt,
+			Avatar:    user.Avatar,
+		},
+		Token: *token,
+	}
 	return ctx.OK(res)
 }
 
