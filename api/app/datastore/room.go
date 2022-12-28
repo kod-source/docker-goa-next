@@ -171,3 +171,7 @@ func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User)
 		Users: showUsers,
 	}
 }
+
+func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+	return nil, nil, nil
+}
