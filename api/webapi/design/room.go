@@ -43,7 +43,7 @@ var _ = Resource("rooms", func() {
 	})
 })
 
-var roomUser = MediaType("application/vnd.index_roo_user", func() {
+var roomUser = MediaType("application/vnd.room_user", func() {
 	Description("ルーム")
 	Attribute("id", Integer, "room id")
 	Attribute("name", String, "room name")

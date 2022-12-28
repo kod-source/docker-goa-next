@@ -60,7 +60,7 @@ func Test_CreateRoom(t *testing.T) {
 			return roomUser, nil
 		}
 
-		want := &app.IndexRooUser{
+		want := &app.RoomUser{
 			ID:        1,
 			Name:      wantRoomName,
 			IsGroup:   wantIsGroup,

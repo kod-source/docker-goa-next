@@ -37,16 +37,10 @@ func (r *RoomController) CreateRoom(ctx *app.CreateRoomRoomsContext) error {
 		return err
 	}
 
-	return ctx.Created(&app.IndexRooUser{
-		ID:        int(ru.Room.ID),
-		IsGroup:   ru.Room.IsGroup,
-		Name:      ru.Room.Name,
-		CreatedAt: ru.Room.CreatedAt,
-		UpdatedAt: ru.Room.UpdatedAt,
-		Users:     r.toShowUserCollection(ru.Users),
-	})
+	return ctx.Created(r.toRoomUser(ru))
 }
 
+// Index ルーム取得
 func (r *RoomController) Index(ctx *app.IndexRoomsContext) error {
 	rus, nextID, err := r.ru.Index(ctx, model.UserID(getUserIDCode(ctx)), model.RoomID(pointer.Value(ctx.NextID)))
 	if err != nil {
@@ -59,7 +53,7 @@ func (r *RoomController) Index(ctx *app.IndexRoomsContext) error {
 }
 
 func (r *RoomController) toAllRommUser(rus []*model.RoomUser, nextID *int) *app.AllRoomUser {
-	var iru []*app.IndexRooUser
+	var iru []*app.RoomUser
 	for _, ru := range rus {
 		iru = append(iru, r.toRoomUser(ru))
 	}
@@ -70,8 +64,8 @@ func (r *RoomController) toAllRommUser(rus []*model.RoomUser, nextID *int) *app.
 	}
 }
 
-func (r *RoomController) toRoomUser(ru *model.RoomUser) *app.IndexRooUser {
-	return &app.IndexRooUser{
+func (r *RoomController) toRoomUser(ru *model.RoomUser) *app.RoomUser {
+	return &app.RoomUser{
 		ID:        int(ru.Room.ID),
 		IsGroup:   ru.Room.IsGroup,
 		Name:      ru.Room.Name,

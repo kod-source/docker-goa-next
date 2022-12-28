@@ -113,7 +113,7 @@ func CreateRoomRoomsBadRequest(t testing.TB, ctx context.Context, service *goa.S
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateRoomRoomsCreated(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.RoomsController, payload *app.CreateRoomRoomsPayload) (http.ResponseWriter, *app.IndexRooUser) {
+func CreateRoomRoomsCreated(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.RoomsController, payload *app.CreateRoomRoomsPayload) (http.ResponseWriter, *app.RoomUser) {
 	t.Helper()
 
 	// Setup service
@@ -178,12 +178,12 @@ func CreateRoomRoomsCreated(t testing.TB, ctx context.Context, service *goa.Serv
 	if rw.Code != 201 {
 		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
 	}
-	var mt *app.IndexRooUser
+	var mt *app.RoomUser
 	if resp != nil {
 		var __ok bool
-		mt, __ok = resp.(*app.IndexRooUser)
+		mt, __ok = resp.(*app.RoomUser)
 		if !__ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.IndexRooUser", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.RoomUser", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {

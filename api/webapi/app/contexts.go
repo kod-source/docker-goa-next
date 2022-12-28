@@ -1389,9 +1389,9 @@ func (payload *CreateRoomRoomsPayload) Validate() (err error) {
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *CreateRoomRoomsContext) Created(r *IndexRooUser) error {
+func (ctx *CreateRoomRoomsContext) Created(r *RoomUser) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.index_roo_user")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.room_user")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
