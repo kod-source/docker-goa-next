@@ -145,6 +145,41 @@ func (rd *roomDatastore) Delete(ctx context.Context, id model.RoomID) error {
 	return nil
 }
 
+func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+	tx, err := rd.db.Begin()
+	if err != nil {
+		return nil, nil, err
+	}
+	defer tx.Rollback()
+
+	query := "SELECT `thr`.`id`, `thr`.`name`, `thr`.`is_group`, `thr`.`created_at`, `thr`.`updated_at`, "
+	query += "`thr`.`last_thread_at`, `thr`.`last_text`, `ur`.`last_read_at` "
+	query += "FORM `user_room` AS `ur` "
+	query += "INNER JOIN ( "
+	query += "SELECT `r`.`id`, `r`.`name`, `r`.`is_goup`, `r`.`created_at`, `r`.updated_at`, "
+	query += "`th`.`created_at` AS `last_thread_at`, `th`.`text` AS `last_text` "
+	query += "FROM `room` AS `r` "
+	query += "INNER JOIN `thread` as `th` "
+	query += "ON `r`.`id` = `th`.`room_id` "
+	query += "ORDER BY `th`.`created_at` DESC "
+	query += "LIMIT 1 "
+	query += ") AS `thr` "
+	query += "ON `ur`.`room_id` = `thr`.`id` "
+	query += "WHERE `ur`.`user_id` = ? "
+	query += "ORDER BY `thr`.`last_thread_at` DESC "
+	query += "LIMIT ?, ?"
+	rows, err := tx.QueryContext(ctx, query, id, nextID, LIMIT)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+	}
+
+	return nil, nil, tx.Commit()
+}
+
 func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User) *model.RoomUser {
 	var showUsers []*model.ShowUser
 	for _, u := range users {
@@ -170,8 +205,4 @@ func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User)
 		},
 		Users: showUsers,
 	}
-}
-
-func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
-	return nil, nil, nil
 }
