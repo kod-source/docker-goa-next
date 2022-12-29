@@ -128,7 +128,7 @@ func Test_IndexRoom(t *testing.T) {
 
 	t.Run("[OK]ルーム表示", func(t *testing.T) {
 		gotNextID := 20
-		rus := []*model.RoomUser{
+		irs := []*model.IndexRoom{
 			{
 				Room: model.Room{
 					ID:        1,
@@ -137,26 +137,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				Users: []*model.ShowUser{
-					{
-						ID:        1,
-						Name:      "user_1",
-						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-						Avatar:    pointer.Ptr("test1_avatar"),
-					},
-					{
-						ID:        2,
-						Name:      "user_2",
-						CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
-						Avatar:    pointer.Ptr("test2_avatar"),
-					},
-					{
-						ID:        3,
-						Name:      "user_3",
-						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-						Avatar:    nil,
-					},
-				},
+				IsOpen:   true,
+				LastText: "test_text1",
 			},
 			{
 				Room: model.Room{
@@ -166,30 +148,18 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				Users: []*model.ShowUser{
-					{
-						ID:        1,
-						Name:      "user_1",
-						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-						Avatar:    pointer.Ptr("test1_avatar"),
-					},
-					{
-						ID:        3,
-						Name:      "user_3",
-						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-						Avatar:    nil,
-					},
-				},
+				IsOpen:   false,
+				LastText: "",
 			},
 		}
-		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantNextID, nextID); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
-			return rus, pointer.Ptr(gotNextID), nil
+			return irs, pointer.Ptr(gotNextID), nil
 		}
 		defer func() {
 			ru.IndexFunc = nil
@@ -197,54 +167,28 @@ func Test_IndexRoom(t *testing.T) {
 
 		want := &app.AllRoomUser{
 			NextID: pointer.Ptr(gotNextID),
-			Rooms: []*app.RoomUser{
+			IndexRoom: app.IndexRoomCollection{
 				{
-					ID:        1,
-					Name:      "room_1",
-					IsGroup:   true,
-					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-					Users: []*app.ShowUser{
-						{
-							ID:        1,
-							Name:      "user_1",
-							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-							Avatar:    pointer.Ptr("test1_avatar"),
-						},
-						{
-							ID:        2,
-							Name:      "user_2",
-							CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
-							Avatar:    pointer.Ptr("test2_avatar"),
-						},
-						{
-							ID:        3,
-							Name:      "user_3",
-							CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-							Avatar:    nil,
-						},
+					Room: &app.Room{
+						ID:        1,
+						Name:      "room_1",
+						IsGroup:   true,
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					},
+					IsOpen:   true,
+					LastText: pointer.Ptr("test_text1"),
 				},
 				{
-					ID:        2,
-					Name:      "room_2",
-					IsGroup:   false,
-					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-					Users: []*app.ShowUser{
-						{
-							ID:        1,
-							Name:      "user_1",
-							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-							Avatar:    pointer.Ptr("test1_avatar"),
-						},
-						{
-							ID:        3,
-							Name:      "user_3",
-							CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-							Avatar:    nil,
-						},
+					Room: &app.Room{
+						ID:        2,
+						Name:      "room_2",
+						IsGroup:   false,
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					},
+					IsOpen:   false,
+					LastText: nil,
 				},
 			},
 		}
@@ -257,7 +201,7 @@ func Test_IndexRoom(t *testing.T) {
 	})
 
 	t.Run("[OK]ルーム表示 - NextIDがnilの時", func(t *testing.T) {
-		rus := []*model.RoomUser{
+		irs := []*model.IndexRoom{
 			{
 				Room: model.Room{
 					ID:        1,
@@ -266,26 +210,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				Users: []*model.ShowUser{
-					{
-						ID:        1,
-						Name:      "user_1",
-						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-						Avatar:    pointer.Ptr("test1_avatar"),
-					},
-					{
-						ID:        2,
-						Name:      "user_2",
-						CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
-						Avatar:    pointer.Ptr("test2_avatar"),
-					},
-					{
-						ID:        3,
-						Name:      "user_3",
-						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-						Avatar:    nil,
-					},
-				},
+				IsOpen:   true,
+				LastText: "test_text1",
 			},
 			{
 				Room: model.Room{
@@ -295,30 +221,18 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				Users: []*model.ShowUser{
-					{
-						ID:        1,
-						Name:      "user_1",
-						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-						Avatar:    pointer.Ptr("test1_avatar"),
-					},
-					{
-						ID:        3,
-						Name:      "user_3",
-						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-						Avatar:    nil,
-					},
-				},
+				IsOpen:   false,
+				LastText: "",
 			},
 		}
-		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
 			if nextID != 0 {
 				t.Errorf("want nextID is 0, got is %d", nextID)
 			}
-			return rus, nil, nil
+			return irs, nil, nil
 		}
 		defer func() {
 			ru.IndexFunc = nil
@@ -326,54 +240,28 @@ func Test_IndexRoom(t *testing.T) {
 
 		want := &app.AllRoomUser{
 			NextID: nil,
-			Rooms: []*app.RoomUser{
+			IndexRoom: app.IndexRoomCollection{
 				{
-					ID:        1,
-					Name:      "room_1",
-					IsGroup:   true,
-					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-					Users: []*app.ShowUser{
-						{
-							ID:        1,
-							Name:      "user_1",
-							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-							Avatar:    pointer.Ptr("test1_avatar"),
-						},
-						{
-							ID:        2,
-							Name:      "user_2",
-							CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
-							Avatar:    pointer.Ptr("test2_avatar"),
-						},
-						{
-							ID:        3,
-							Name:      "user_3",
-							CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-							Avatar:    nil,
-						},
+					Room: &app.Room{
+						ID:        1,
+						Name:      "room_1",
+						IsGroup:   true,
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					},
+					IsOpen:   true,
+					LastText: pointer.Ptr("test_text1"),
 				},
 				{
-					ID:        2,
-					Name:      "room_2",
-					IsGroup:   false,
-					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-					Users: []*app.ShowUser{
-						{
-							ID:        1,
-							Name:      "user_1",
-							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-							Avatar:    pointer.Ptr("test1_avatar"),
-						},
-						{
-							ID:        3,
-							Name:      "user_3",
-							CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-							Avatar:    nil,
-						},
+					Room: &app.Room{
+						ID:        2,
+						Name:      "room_2",
+						IsGroup:   false,
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					},
+					IsOpen:   false,
+					LastText: nil,
 				},
 			},
 		}
@@ -386,7 +274,7 @@ func Test_IndexRoom(t *testing.T) {
 	})
 
 	t.Run("[NG]ルーム表示 - ルームが存在しない時", func(t *testing.T) {
-		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
@@ -403,7 +291,7 @@ func Test_IndexRoom(t *testing.T) {
 	})
 
 	t.Run("[NG]ルーム表示 - 想定外エラー", func(t *testing.T) {
-		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}

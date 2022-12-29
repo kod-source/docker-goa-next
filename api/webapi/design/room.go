@@ -43,6 +43,27 @@ var _ = Resource("rooms", func() {
 	})
 })
 
+var room = MediaType("application/vnd.room", func() {
+	Description("ルーム")
+	Attribute("id", Integer, "room id")
+	Attribute("name", String, "room name")
+	Attribute("is_group", Boolean, "グループかDMの判定")
+	Attribute("created_at", DateTime, "作成日", func() {
+		Example(time.Date(2019, 01, 31, 0, 0, 0, 0, loc).Format(time.RFC3339))
+	})
+	Attribute("updated_at", DateTime, "更新日", func() {
+		Example(time.Date(2019, 01, 31, 0, 0, 0, 0, loc).Format(time.RFC3339))
+	})
+	View("default", func() {
+		Attribute("id")
+		Attribute("name")
+		Attribute("is_group")
+		Attribute("created_at")
+		Attribute("updated_at")
+	})
+	Required("id", "name", "is_group", "created_at", "updated_at")
+})
+
 var roomUser = MediaType("application/vnd.room_user", func() {
 	Description("ルーム")
 	Attribute("id", Integer, "room id")
@@ -66,13 +87,26 @@ var roomUser = MediaType("application/vnd.room_user", func() {
 	Required("id", "name", "is_group", "created_at", "updated_at", "users")
 })
 
+var indexRoom = MediaType("application/vnd.index_room", func() {
+	Description("ルームの表示")
+	Attribute("room", room, "room")
+	Attribute("is_open", Boolean, "開いたどうか")
+	Attribute("last_text", String, "最後の内容")
+	View("default", func() {
+		Attribute("room")
+		Attribute("is_open")
+		Attribute("last_text")
+	})
+	Required("room", "is_open")
+})
+
 var allRoomUser = MediaType("application/vnd.all_room_user", func() {
 	Description("全てのルーム")
-	Attribute("rooms", CollectionOf(roomUser), "rooms")
+	Attribute("index_room", CollectionOf(indexRoom), "index_rooms")
 	Attribute("next_id", Integer, "次取得するRoomID")
 	View("default", func() {
-		Attribute("rooms")
+		Attribute("index_room")
 		Attribute("next_id")
 	})
-	Required("rooms")
+	Required("index_room")
 })

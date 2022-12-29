@@ -16,18 +16,18 @@ import (
 //
 // Identifier: application/vnd.all_room_user; view=default
 type AllRoomUser struct {
+	// index_rooms
+	IndexRoom IndexRoomCollection `form:"index_room" json:"index_room" yaml:"index_room" xml:"index_room"`
 	// 次取得するRoomID
 	NextID *int `form:"next_id,omitempty" json:"next_id,omitempty" yaml:"next_id,omitempty" xml:"next_id,omitempty"`
-	// rooms
-	Rooms RoomUserCollection `form:"rooms" json:"rooms" yaml:"rooms" xml:"rooms"`
 }
 
 // Validate validates the AllRoomUser media type instance.
 func (mt *AllRoomUser) Validate() (err error) {
-	if mt.Rooms == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "rooms"))
+	if mt.IndexRoom == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "index_room"))
 	}
-	if err2 := mt.Rooms.Validate(); err2 != nil {
+	if err2 := mt.IndexRoom.Validate(); err2 != nil {
 		err = goa.MergeErrors(err, err2)
 	}
 	return
@@ -128,6 +128,49 @@ func (mt *IndexPostJSON) Validate() (err error) {
 	if mt.Post != nil {
 		if err2 := mt.Post.Validate(); err2 != nil {
 			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ルームの表示 (default view)
+//
+// Identifier: application/vnd.index_room; view=default
+type IndexRoom struct {
+	// 開いたどうか
+	IsOpen bool `form:"is_open" json:"is_open" yaml:"is_open" xml:"is_open"`
+	// 最後の内容
+	LastText *string `form:"last_text,omitempty" json:"last_text,omitempty" yaml:"last_text,omitempty" xml:"last_text,omitempty"`
+	// room
+	Room *Room `form:"room" json:"room" yaml:"room" xml:"room"`
+}
+
+// Validate validates the IndexRoom media type instance.
+func (mt *IndexRoom) Validate() (err error) {
+	if mt.Room == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "room"))
+	}
+
+	if mt.Room != nil {
+		if err2 := mt.Room.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// Index_roomCollection is the media type for an array of Index_room (default view)
+//
+// Identifier: application/vnd.index_room; type=collection; view=default
+type IndexRoomCollection []*IndexRoom
+
+// Validate validates the IndexRoomCollection media type instance.
+func (mt IndexRoomCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
 		}
 	}
 	return
@@ -262,6 +305,28 @@ func (mt *PostJSON) Validate() (err error) {
 
 // ルーム (default view)
 //
+// Identifier: application/vnd.room; view=default
+type Room struct {
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// room id
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// グループかDMの判定
+	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
+	// room name
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// 更新日
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+}
+
+// Validate validates the Room media type instance.
+func (mt *Room) Validate() (err error) {
+
+	return
+}
+
+// ルーム (default view)
+//
 // Identifier: application/vnd.room_user; view=default
 type RoomUser struct {
 	// 作成日
@@ -286,23 +351,6 @@ func (mt *RoomUser) Validate() (err error) {
 	}
 	if err2 := mt.Users.Validate(); err2 != nil {
 		err = goa.MergeErrors(err, err2)
-	}
-	return
-}
-
-// Room_userCollection is the media type for an array of Room_user (default view)
-//
-// Identifier: application/vnd.room_user; type=collection; view=default
-type RoomUserCollection []*RoomUser
-
-// Validate validates the RoomUserCollection media type instance.
-func (mt RoomUserCollection) Validate() (err error) {
-	for _, e := range mt {
-		if e != nil {
-			if err2 := e.Validate(); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
 	}
 	return
 }

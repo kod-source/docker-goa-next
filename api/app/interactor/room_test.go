@@ -110,7 +110,7 @@ func Test_IndexRoom(t *testing.T) {
 
 	t.Run("[OK]全てのルーム取得", func(t *testing.T) {
 		gotNextID := 20
-		want := []*model.RoomUser{
+		want := []*model.IndexRoom{
 			{
 				Room: model.Room{
 					ID:        1,
@@ -119,26 +119,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				Users: []*model.ShowUser{
-					{
-						ID:        1,
-						Name:      "user_1",
-						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-						Avatar:    pointer.Ptr("test1_avatar"),
-					},
-					{
-						ID:        2,
-						Name:      "user_2",
-						CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
-						Avatar:    pointer.Ptr("test2_avatar"),
-					},
-					{
-						ID:        3,
-						Name:      "user_3",
-						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-						Avatar:    nil,
-					},
-				},
+				IsOpen:   true,
+				LastText: "test_text1",
 			},
 			{
 				Room: model.Room{
@@ -148,23 +130,11 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				Users: []*model.ShowUser{
-					{
-						ID:        1,
-						Name:      "user_1",
-						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-						Avatar:    pointer.Ptr("test1_avatar"),
-					},
-					{
-						ID:        3,
-						Name:      "user_3",
-						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-						Avatar:    nil,
-					},
-				},
+				IsOpen:   false,
+				LastText: "test_text2",
 			},
 		}
-		rr.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+		rr.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
@@ -191,7 +161,7 @@ func Test_IndexRoom(t *testing.T) {
 
 	t.Run("[NG]全てのルーム取得 - 想定外エラー", func(t *testing.T) {
 		gotErr := errors.New("test error")
-		rr.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+		rr.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
 			if diff := cmp.Diff(wantUserID, id); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}

@@ -16,3 +16,9 @@ type RoomUser struct {
 	Room  Room
 	Users []*ShowUser
 }
+
+type IndexRoom struct {
+	Room     Room
+	IsOpen   bool
+	LastText string
+}

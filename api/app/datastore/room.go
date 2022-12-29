@@ -145,7 +145,7 @@ func (rd *roomDatastore) Delete(ctx context.Context, id model.RoomID) error {
 	return nil
 }
 
-func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
+func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
 	tx, err := rd.db.Begin()
 	if err != nil {
 		return nil, nil, err

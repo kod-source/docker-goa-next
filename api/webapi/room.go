@@ -42,25 +42,39 @@ func (r *RoomController) CreateRoom(ctx *app.CreateRoomRoomsContext) error {
 
 // Index ルーム取得
 func (r *RoomController) Index(ctx *app.IndexRoomsContext) error {
-	rus, nextID, err := r.ru.Index(ctx, model.UserID(getUserIDCode(ctx)), model.RoomID(pointer.Value(ctx.NextID)))
+	irs, nextID, err := r.ru.Index(ctx, model.UserID(getUserIDCode(ctx)), model.RoomID(pointer.Value(ctx.NextID)))
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ctx.NotFound()
 		}
 		return ctx.InternalServerError()
 	}
-	return ctx.OK(r.toAllRommUser(rus, nextID))
+	return ctx.OK(r.toAllRommUser(irs, nextID))
 }
 
-func (r *RoomController) toAllRommUser(rus []*model.RoomUser, nextID *int) *app.AllRoomUser {
-	var iru []*app.RoomUser
-	for _, ru := range rus {
-		iru = append(iru, r.toRoomUser(ru))
+func (r *RoomController) toAllRommUser(irs []*model.IndexRoom, nextID *int) *app.AllRoomUser {
+	var airs []*app.IndexRoom
+	for _, ir := range irs {
+		airs = append(airs, r.toIndexRoom(ir))
 	}
 
 	return &app.AllRoomUser{
-		NextID: nextID,
-		Rooms:  iru,
+		IndexRoom: airs,
+		NextID:    nextID,
+	}
+}
+
+func (r *RoomController) toIndexRoom(ir *model.IndexRoom) *app.IndexRoom {
+	return &app.IndexRoom{
+		IsOpen:   ir.IsOpen,
+		LastText: pointer.PtrOrNil(ir.LastText),
+		Room: &app.Room{
+			CreatedAt: ir.Room.CreatedAt,
+			ID:        int(ir.Room.ID),
+			IsGroup:   ir.Room.IsGroup,
+			Name:      ir.Room.Name,
+			UpdatedAt: ir.Room.UpdatedAt,
+		},
 	}
 }
 

@@ -37,11 +37,11 @@ func (ri *roomInteractor) Create(ctx context.Context, name string, isGroup bool,
 	return ru, nil
 }
 
-func (ri *roomInteractor) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.RoomUser, *int, error) {
-	rus, nID, err := ri.rr.Index(ctx, id, nextID)
+func (ri *roomInteractor) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
+	irs, nID, err := ri.rr.Index(ctx, id, nextID)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	return rus, nID, nil
+	return irs, nID, nil
 }
