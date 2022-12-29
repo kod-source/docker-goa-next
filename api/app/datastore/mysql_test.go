@@ -56,6 +56,15 @@ func TestMain(m *testing.M) {
 	if err := testdata.LikeSeed(ctx, testDB); err != nil {
 		panic(err)
 	}
+	if err := testdata.RoomSeed(ctx, testDB); err != nil {
+		panic(err)
+	}
+	if err := testdata.UserRoomSeed(ctx, testDB); err != nil {
+		panic(err)
+	}
+	if err := testdata.ThreadSeed(ctx, testDB); err != nil {
+		panic(err)
+	}
 	var err error
 	jst, err = time.LoadLocation("Asia/Tokyo")
 	if err != nil {

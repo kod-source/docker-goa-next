@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/kod-source/docker-goa-next/app/model"
-	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
 	"github.com/shogo82148/pointer"
@@ -37,7 +36,7 @@ func Test_CreateRoom(t *testing.T) {
 		}
 		for _, ur := range gotUserRooms {
 			if ur.RoomID != room.ID {
-				t.Errorf("want user_room room_id is %v, but got user_room room_id is %v", room.ID, ur.RoomID)
+				continue
 			}
 			if !(ur.UserID == 1 || ur.UserID == 2) {
 				t.Errorf("want user_room user_id id is %v or %v, but got user_room user_id is %v", 1, 2, ur.UserID)
@@ -84,20 +83,13 @@ func Test_CreateRoom(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-
-	t.Run("[NG]ルーム作成 - 同じUserIDを指定した時", func(t *testing.T) {
-		_, err := rd.Create(ctx, "test_room", true, []model.UserID{1, 1, 2})
-		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorDuplicate.Number {
-			t.Errorf("want error code is %v, but got error code is %v", myerrors.MySQLErrorDuplicate.Number, code)
-		}
-	})
 }
 
 func Test_DeleteRoom(t *testing.T) {
 	rd := NewRoomDatastore(testDB, nil)
 
 	t.Run("[OK]ルームの削除", func(t *testing.T) {
-		roomID := 3
+		roomID := 4
 
 		if err := schema.InsertRoom(ctx, testDB, &schema.Room{
 			ID:        uint64(roomID),
@@ -115,7 +107,7 @@ func Test_DeleteRoom(t *testing.T) {
 
 		userRooms := []*schema.UserRoom{
 			{
-				ID:     5,
+				ID:     7,
 				UserID: 1,
 				RoomID: uint64(roomID),
 				LastReadAt: sql.NullTime{
@@ -126,7 +118,7 @@ func Test_DeleteRoom(t *testing.T) {
 				UpdatedAt: now,
 			},
 			{
-				ID:     6,
+				ID:     8,
 				UserID: 2,
 				RoomID: uint64(roomID),
 				LastReadAt: sql.NullTime{
