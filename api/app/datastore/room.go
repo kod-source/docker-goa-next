@@ -10,6 +10,7 @@ import (
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
+	"github.com/shogo82148/pointer"
 )
 
 var _ repository.RoomRepository = (*roomDatastore)(nil)
@@ -154,15 +155,23 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 
 	query := "SELECT `thr`.`id`, `thr`.`name`, `thr`.`is_group`, `thr`.`created_at`, `thr`.`updated_at`, "
 	query += "`thr`.`last_thread_at`, `thr`.`last_text`, `ur`.`last_read_at` "
-	query += "FORM `user_room` AS `ur` "
+	query += "FROM `user_room` AS `ur` "
 	query += "INNER JOIN ( "
-	query += "SELECT `r`.`id`, `r`.`name`, `r`.`is_goup`, `r`.`created_at`, `r`.updated_at`, "
+	query += "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, "
 	query += "`th`.`created_at` AS `last_thread_at`, `th`.`text` AS `last_text` "
 	query += "FROM `room` AS `r` "
-	query += "INNER JOIN `thread` as `th` "
+	query += "LEFT JOIN ( "
+	query += "SELECT `th1`.`id`, `th1`.`room_id`, `th1`.`created_at`, `th1`.`text` "
+	query += "FROM `thread` AS `th1` "
+	query += "INNER JOIN ( "
+	query += "SELECT `room_id`, MAX(`created_at`) AS `created_at` "
+	query += "FROM `thread` "
+	query += "GROUP BY `room_id` "
+	query += ") AS `th2` "
+	query += "ON `th1`.`room_id` = `th2`.`room_id` AND `th1`.`created_at` = `th2`.`created_at` "
+	query += ") AS `th` "
 	query += "ON `r`.`id` = `th`.`room_id` "
 	query += "ORDER BY `th`.`created_at` DESC "
-	query += "LIMIT 1 "
 	query += ") AS `thr` "
 	query += "ON `ur`.`room_id` = `thr`.`id` "
 	query += "WHERE `ur`.`user_id` = ? "
@@ -174,10 +183,83 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 	}
 	defer rows.Close()
 
+	var irs []*model.IndexRoom
 	for rows.Next() {
+		var room schema.Room
+		var userRoom schema.UserRoom
+		var lastThreadAt sql.NullTime
+		var lastText sql.NullString
+
+		if err := rows.Scan(
+			&room.ID,
+			&room.Name,
+			&room.IsGroup,
+			&room.CreatedAt,
+			&room.UpdatedAt,
+			&lastThreadAt,
+			&lastText,
+			&userRoom.LastReadAt,
+		); err != nil {
+			return nil, nil, err
+		}
+
+		isOpen := true
+		if userRoom.LastReadAt.Valid && lastThreadAt.Valid {
+			isOpen = userRoom.LastReadAt.Time.After(lastThreadAt.Time)
+		}
+
+		var lt string
+		if lastText.Valid {
+			lt = lastText.String
+		}
+		irs = append(irs, &model.IndexRoom{
+			Room: model.Room{
+				ID:        model.RoomID(room.ID),
+				Name:      room.Name,
+				IsGroup:   room.IsGroup,
+				CreatedAt: room.CreatedAt,
+				UpdatedAt: room.UpdatedAt,
+			},
+			IsOpen:   isOpen,
+			LastText: lt,
+		})
 	}
 
-	return nil, nil, tx.Commit()
+	var roomID uint64
+	getLastRoomIDQuery := "SELECT `thr`.`id` "
+	getLastRoomIDQuery += "FROM `user_room` AS `ur` "
+	getLastRoomIDQuery += "INNER JOIN ( "
+	getLastRoomIDQuery += "SELECT `r`.`id`, `th`.`created_at` AS `last_thread_at` "
+	getLastRoomIDQuery += "FROM `room` AS `r` "
+	getLastRoomIDQuery += "LEFT JOIN ( "
+	getLastRoomIDQuery += "SELECT `th1`.`id`, `th1`.`room_id`, `th1`.`created_at` "
+	getLastRoomIDQuery += "FROM `thread` AS `th1` "
+	getLastRoomIDQuery += "INNER JOIN ( "
+	getLastRoomIDQuery += "SELECT `room_id`, MAX(`created_at`) AS `created_at` "
+	getLastRoomIDQuery += "FROM `thread` "
+	getLastRoomIDQuery += "GROUP BY `room_id` "
+	getLastRoomIDQuery += ") AS `th2` "
+	getLastRoomIDQuery += "ON `th1`.`room_id` = `th2`.`room_id` AND `th1`.`created_at` = `th2`.`created_at` "
+	getLastRoomIDQuery += ") AS `th` "
+	getLastRoomIDQuery += "ON `r`.`id` = `th`.`room_id` "
+	getLastRoomIDQuery += "ORDER BY `th`.`created_at` "
+	getLastRoomIDQuery += ") AS `thr` "
+	getLastRoomIDQuery += "ON `ur`.`room_id` = `thr`.`id` "
+	getLastRoomIDQuery += "WHERE `ur`.`user_id` = ? "
+	getLastRoomIDQuery += "ORDER BY `thr`.`last_thread_at` "
+	getLastRoomIDQuery += "LIMIT 1"
+	if err := tx.QueryRowContext(ctx, getLastRoomIDQuery, id).Scan(
+		&roomID,
+	); err != nil {
+		return nil, nil, err
+	}
+
+	var resNextID *int
+	resNextID = pointer.Int(int(nextID) + LIMIT)
+	if len(irs) == 0 || irs[len(irs)-1].Room.ID == model.RoomID(roomID) {
+		resNextID = nil
+	}
+	return irs, resNextID, tx.Commit()
 }
 
 func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User) *model.RoomUser {

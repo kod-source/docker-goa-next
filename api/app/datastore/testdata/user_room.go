@@ -3,6 +3,7 @@ package testdata
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/kod-source/docker-goa-next/app/schema"
 )
@@ -25,33 +26,33 @@ func UserRoomSeed(ctx context.Context, db *sql.DB) error {
 			UserID: 2,
 			RoomID: 1,
 			LastReadAt: sql.NullTime{
-				Time:  now,
+				Time:  time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 				Valid: false,
 			},
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 		},
 		{
 			ID:     3,
 			UserID: 1,
 			RoomID: 2,
 			LastReadAt: sql.NullTime{
-				Time:  now,
+				Time:  time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
 				Valid: false,
 			},
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
 		},
 		{
 			ID:     4,
 			UserID: 2,
 			RoomID: 2,
 			LastReadAt: sql.NullTime{
-				Time:  now,
+				Time:  time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
 				Valid: true,
 			},
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
 		},
 	}
 	if err := schema.InsertUserRoom(ctx, db, userRooms...); err != nil {

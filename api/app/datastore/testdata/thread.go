@@ -3,6 +3,7 @@ package testdata
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/kod-source/docker-goa-next/app/schema"
 )
@@ -26,8 +27,8 @@ func ThreadSeed(ctx context.Context, db *sql.DB) error {
 			UserID:    1,
 			RoomID:    1,
 			Text:      "thread2",
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 			Img: sql.NullString{
 				String: "",
 				Valid:  false,
@@ -38,8 +39,8 @@ func ThreadSeed(ctx context.Context, db *sql.DB) error {
 			UserID:    2,
 			RoomID:    1,
 			Text:      "thread3",
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
 			Img: sql.NullString{
 				String: "image3",
 				Valid:  true,
@@ -50,8 +51,8 @@ func ThreadSeed(ctx context.Context, db *sql.DB) error {
 			UserID:    1,
 			RoomID:    2,
 			Text:      "thread4",
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 4, 1, 0, 0, 0, 0, jst),
 			Img: sql.NullString{
 				String: "image4",
 				Valid:  true,
@@ -62,8 +63,8 @@ func ThreadSeed(ctx context.Context, db *sql.DB) error {
 			UserID:    2,
 			RoomID:    2,
 			Text:      "thread5",
-			CreatedAt: now,
-			UpdatedAt: now,
+			CreatedAt: time.Date(2022, 5, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 5, 1, 0, 0, 0, 0, jst),
 			Img: sql.NullString{
 				String: "",
 				Valid:  false,
