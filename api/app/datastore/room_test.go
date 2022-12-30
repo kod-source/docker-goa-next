@@ -3,6 +3,7 @@ package datastore
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -343,5 +344,205 @@ func Test_IndexRoom(t *testing.T) {
 		}
 	})
 
-	t.Run("[OK]ルーム表示 - 既読つきがある時", func(t *testing.T) {})
+	t.Run("[OK]ルーム表示 - NextIDを指定", func(t *testing.T) {
+		want := []*model.IndexRoom{
+			{
+				Room: model.Room{
+					ID:        1,
+					Name:      "test1_room",
+					IsGroup:   true,
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
+				IsOpen:   false,
+				LastText: "thread3",
+			},
+		}
+		got, gotNextID, err := rd.Index(ctx, 1, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]ルーム表示 - 既読つきがある時", func(t *testing.T) {
+		roomID := 7
+		if err := schema.InsertRoom(ctx, testDB, &schema.Room{
+			ID:        uint64(roomID),
+			Name:      "test_is_opoen_room",
+			IsGroup:   false,
+			CreatedAt: now,
+			UpdatedAt: now,
+		}); err != nil {
+			t.Fatal(err)
+		}
+		if err := schema.InsertUserRoom(ctx, testDB, &schema.UserRoom{
+			ID:     7,
+			UserID: 1,
+			RoomID: uint64(roomID),
+			LastReadAt: sql.NullTime{
+				Time:  time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+				Valid: true,
+			},
+			CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+		}); err != nil {
+			t.Fatal(err)
+		}
+		if err := schema.InsertThread(ctx, testDB, &schema.Thread{
+			ID:        6,
+			UserID:    1,
+			RoomID:    uint64(roomID),
+			Text:      "test_thread",
+			CreatedAt: now,
+			UpdatedAt: now,
+			Img: sql.NullString{
+				String: "test_img",
+				Valid:  true,
+			},
+		}); err != nil {
+			t.Fatal(err)
+		}
+		want := []*model.IndexRoom{
+			{
+				Room: model.Room{
+					ID:        2,
+					Name:      "test2_room",
+					IsGroup:   false,
+					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+				},
+				IsOpen:   false,
+				LastText: "thread5",
+			},
+			{
+				Room: model.Room{
+					ID:        1,
+					Name:      "test1_room",
+					IsGroup:   true,
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
+				IsOpen:   false,
+				LastText: "thread3",
+			},
+			{
+				Room: model.Room{
+					ID:        model.RoomID(roomID),
+					Name:      "test_is_opoen_room",
+					IsGroup:   false,
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
+				IsOpen:   true,
+				LastText: "test_thread",
+			},
+		}
+		got, gotNextID, err := rd.Index(ctx, 1, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+		if err := rd.Delete(ctx, model.RoomID(roomID)); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("[OK]ルーム表示 - データがたくさんある時", func(t *testing.T) {
+		var rooms []*schema.Room
+		var userRooms []*schema.UserRoom
+		var threads []*schema.Thread
+		for i := 0; i < 30; i++ {
+			roomID := i + 8
+			rooms = append(rooms, &schema.Room{
+				ID:        uint64(roomID),
+				Name:      fmt.Sprintf("create_room_%d", roomID),
+				IsGroup:   false,
+				CreatedAt: time.Date(2023, 3, roomID, 0, 0, 0, 0, jst),
+				UpdatedAt: time.Date(2023, 3, roomID, 0, 0, 0, 0, jst),
+			})
+			userRooms = append(userRooms, &schema.UserRoom{
+				ID:     uint64(i),
+				UserID: 1,
+				RoomID: uint64(roomID),
+				LastReadAt: sql.NullTime{
+					Time:  time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+					Valid: false,
+				},
+				CreatedAt: time.Date(2023, 3, roomID, 0, 0, 0, 0, jst),
+				UpdatedAt: time.Date(2023, 3, roomID, 0, 0, 0, 0, jst),
+			})
+			threads = append(threads, &schema.Thread{
+				ID:        uint64(i),
+				UserID:    1,
+				RoomID:    uint64(roomID),
+				Text:      fmt.Sprintf("thread_%d", roomID),
+				CreatedAt: time.Date(2023, 3, roomID, 0, 0, 0, 0, jst),
+				UpdatedAt: time.Date(2023, 3, roomID, 0, 0, 0, 0, jst),
+				Img: sql.NullString{
+					String: "",
+					Valid:  false,
+				},
+			})
+		}
+		if err := schema.InsertRoom(ctx, testDB, rooms...); err != nil {
+			t.Fatal(err)
+		}
+		if err := schema.InsertUserRoom(ctx, testDB, userRooms...); err != nil {
+			t.Fatal(err)
+		}
+		if err := schema.InsertThread(ctx, testDB, threads...); err != nil {
+			t.Fatal(err)
+		}
+
+		wantNextID := 25
+		_, gotNextID, err := rd.Index(ctx, 1, 5)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(pointer.Ptr(wantNextID), gotNextID); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+		for _, r := range rooms {
+			if err := rd.Delete(ctx, model.RoomID(r.ID)); err != nil {
+				t.Fatal(err)
+			}
+		}
+	})
+
+	t.Run("[OK]ルーム表示 - データが存在しない時", func(t *testing.T) {
+		var want []*model.IndexRoom
+		got, gotNextID, err := rd.Index(ctx, 1, 1000)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %v", *gotNextID)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]ルーム表示 - 存在しないUserIDを指定した時", func(t *testing.T) {
+		_, gotNextID, err := rd.Index(ctx, 1000, 0)
+		if !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("want error is %v, but got error is %v", sql.ErrNoRows, err)
+		}
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %v", *gotNextID)
+		}
+	})
 }
