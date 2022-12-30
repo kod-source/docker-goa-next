@@ -225,7 +225,7 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   true,
+				IsOpen:   false,
 				LastText: "thread5",
 			},
 			{
@@ -301,7 +301,7 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   true,
+				IsOpen:   false,
 				LastText: "thread5",
 			},
 			{
@@ -342,4 +342,6 @@ func Test_IndexRoom(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
+
+	t.Run("[OK]ルーム表示 - 既読つきがある時", func(t *testing.T) {})
 }

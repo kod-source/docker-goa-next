@@ -203,8 +203,12 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 		}
 
 		isOpen := true
-		if userRoom.LastReadAt.Valid && lastThreadAt.Valid {
-			isOpen = userRoom.LastReadAt.Time.After(lastThreadAt.Time)
+		if lastThreadAt.Valid {
+			if userRoom.LastReadAt.Valid {
+				isOpen = userRoom.LastReadAt.Time.After(lastThreadAt.Time)
+			} else {
+				isOpen = false
+			}
 		}
 
 		var lt string
