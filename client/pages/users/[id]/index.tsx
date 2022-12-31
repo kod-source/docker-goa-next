@@ -15,6 +15,7 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { LikeRepository } from '../../../lib/repository/like';
 import { ShowPostMy } from '../../../lib/components/showPostMy';
+import EmailIcon from '@mui/icons-material/Email';
 
 interface Props {
   id: number;
@@ -45,7 +46,11 @@ const ShowUser: NextPage<Props> = ({ id }) => {
     setValue(newValue);
   };
 
-  if (!showUser) return <Loading />;
+  const createDirectMessageRoom = (id: number, myUserId: number) => {
+    
+  };
+
+  if (!showUser || !user) return <Loading />;
   return (
     <>
       <div className='mx-auto w-3/5'>
@@ -63,6 +68,14 @@ const ShowUser: NextPage<Props> = ({ id }) => {
             className='mx-auto'
             src={showUser.avatar ? showUser.avatar : '/avatar.png'}
           />
+          {user.id != id && (
+            <div className='text-right'>
+              <EmailIcon
+                className='hover:opacity-70 cursor-pointer'
+                onClick={() => console.log('click')}
+              />
+            </div>
+          )}
         </div>
         <Box sx={{ width: '100%', typography: 'body1' }}>
           <TabContext value={value}>
