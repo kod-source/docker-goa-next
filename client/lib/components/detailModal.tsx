@@ -1,6 +1,6 @@
-import React, { FC } from 'react';
-import Box from '@mui/material/Box';
-import { Button, Modal } from '@mui/material';
+import { Button, Modal } from "@mui/material";
+import Box from "@mui/material/Box";
+import React, { FC } from "react";
 
 interface Props {
   open: boolean;
@@ -14,13 +14,13 @@ interface Props {
 
 export const DetailModal: FC<Props> = (props) => {
   const style = {
-    position: 'absolute' as 'absolute',
+    position: "absolute" as "absolute",
     top: props.heightRate,
     left: props.widthRate,
-    transform: 'translate(-50%, -50%)',
+    transform: "translate(-50%, -50%)",
     width: 200,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
+    bgcolor: "background.paper",
+    border: "2px solid #000",
     boxShadow: 24,
     p: 4,
   };

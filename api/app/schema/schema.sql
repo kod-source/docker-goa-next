@@ -105,7 +105,6 @@ CREATE TABLE `thread` (
     `img` LONGTEXT NULL,
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_room_id` (`room_id`),
-    UNIQUE `user_room_id_index` (`user_id`, `room_id`),
     CONSTRAINT `user_thread_id_constraint` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `thread_room_id_constraint` FOREIGN KEY (`room_id`) REFERENCES `room` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     PRIMARY KEY (`id`)

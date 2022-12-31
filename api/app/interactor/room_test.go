@@ -101,3 +101,81 @@ func Test_CreateRoom(t *testing.T) {
 		}
 	})
 }
+
+func Test_IndexRoom(t *testing.T) {
+	rr := &mock.MockRoomRepository{}
+	ri := NewRoomInterractor(rr)
+	wantUserID := model.UserID(1)
+	wantNextID := model.RoomID(10)
+
+	t.Run("[OK]全てのルーム取得", func(t *testing.T) {
+		gotNextID := 20
+		want := []*model.IndexRoom{
+			{
+				Room: model.Room{
+					ID:        1,
+					Name:      "room_1",
+					IsGroup:   true,
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				},
+				IsOpen:   true,
+				LastText: "test_text1",
+			},
+			{
+				Room: model.Room{
+					ID:        2,
+					Name:      "room_2",
+					IsGroup:   false,
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				},
+				IsOpen:   false,
+				LastText: "test_text2",
+			},
+		}
+		rr.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantNextID, nextID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return want, &gotNextID, nil
+		}
+		defer func() {
+			rr.IndexFunc = nil
+		}()
+
+		got, nextID, err := ri.Index(ctx, wantUserID, wantNextID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(&gotNextID, nextID); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]全てのルーム取得 - 想定外エラー", func(t *testing.T) {
+		gotErr := errors.New("test error")
+		rr.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantNextID, nextID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return nil, nil, gotErr
+		}
+		defer func() {
+			rr.IndexFunc = nil
+		}()
+
+		if _, _, err := ri.Index(ctx, wantUserID, wantNextID); !errors.Is(err, gotErr) {
+			t.Errorf("want error is %v, but got error is %v", gotErr, err)
+		}
+	})
+}

@@ -757,6 +757,7 @@ func unmarshalUpdatePostsPayload(ctx context.Context, service *goa.Service, req 
 type RoomsController interface {
 	goa.Muxer
 	CreateRoom(*CreateRoomRoomsContext) error
+	Index(*IndexRoomsContext) error
 }
 
 // MountRoomsController "mounts" a Rooms resource controller on the given service.
@@ -787,6 +788,23 @@ func MountRoomsController(service *goa.Service, ctrl RoomsController) {
 	h = handleRoomsOrigin(h)
 	service.Mux.Handle("POST", "/rooms", ctrl.MuxHandler("create_room", h, unmarshalCreateRoomRoomsPayload))
 	service.LogInfo("mount", "ctrl", "Rooms", "action", "CreateRoom", "route", "POST /rooms", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewIndexRoomsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Index(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleRoomsOrigin(h)
+	service.Mux.Handle("GET", "/rooms", ctrl.MuxHandler("index", h, nil))
+	service.LogInfo("mount", "ctrl", "Rooms", "action", "Index", "route", "GET /rooms", "security", "jwt")
 }
 
 // handleRoomsOrigin applies the CORS response headers corresponding to the origin.

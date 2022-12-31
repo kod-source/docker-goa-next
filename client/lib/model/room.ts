@@ -1,4 +1,4 @@
-import { User } from './user';
+import { User } from "./user";
 
 export class Room {
   constructor(
@@ -6,13 +6,13 @@ export class Room {
     public name: string,
     public isGroup: boolean,
     public createdAt: Date,
-    public updatedAt: Date
+    public updatedAt: Date,
   ) {}
 }
 
 export interface ShowRoom {
   room: Room;
-  users: Omit<User, 'email' | 'password' | 'createdAt'>[];
+  users: Omit<User, "email" | "password" | "createdAt">[];
 }
 
 export interface IndexRoom {
