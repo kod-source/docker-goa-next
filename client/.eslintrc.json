@@ -1,8 +1,7 @@
 {
-  // "extends": "next/core-web-vitals"
   "extends": [
     "next/core-web-vitals",
-    // "plugin:import/recommended",
+    "plugin:import/recommended",
     "plugin:import/warnings",
     "prettier"
   ],
