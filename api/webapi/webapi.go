@@ -49,13 +49,14 @@ func newService() *goa.Service {
 	return srv
 }
 
-func newApp(ctx context.Context, srv *goa.Service, userCtrl app.UsersController, postCtrl app.PostsController, opeCtrl app.OperandsController, likeCtrl app.LikesController, commentCtrl app.CommentsController, authCtrl app.AuthController) (*App, error) {
+func newApp(ctx context.Context, srv *goa.Service, userCtrl app.UsersController, postCtrl app.PostsController, opeCtrl app.OperandsController, likeCtrl app.LikesController, commentCtrl app.CommentsController, authCtrl app.AuthController, roomCtrl app.RoomsController) (*App, error) {
 	app.MountOperandsController(srv, opeCtrl)
 	app.MountAuthController(srv, authCtrl)
 	app.MountUsersController(srv, userCtrl)
 	app.MountPostsController(srv, postCtrl)
 	app.MountCommentsController(srv, commentCtrl)
 	app.MountLikesController(srv, likeCtrl)
+	app.MountRoomsController(srv, roomCtrl)
 
 	return &App{srv: srv}, nil
 }
@@ -80,4 +81,5 @@ var ControllerSet = wire.NewSet(
 	NewLikesController, wire.Bind(new(app.LikesController), new(*LikesController)),
 	NewCommentsController, wire.Bind(new(app.CommentsController), new(*CommentsController)),
 	NewAuthController, wire.Bind(new(app.AuthController), new(*AuthController)),
+	NewRoomController, wire.Bind(new(app.RoomsController), new(*RoomController)),
 )

@@ -24,7 +24,7 @@ func PostSeed(ctx context.Context, db *sql.DB) error {
 			Title:     "test2_title",
 			CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
 			UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
-			Img:       sql.NullString{"test1_post_img", true},
+			Img:       sql.NullString{"test2_post_img", true},
 		},
 		{
 			ID:        3,

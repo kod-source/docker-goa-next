@@ -7,7 +7,7 @@ local: ## apiサーバーとクライアントを同時に起動する
 
 .PHONY: desing
 design: ## designファイルの実行 go generate ./...
-	cd api && go get github.com/shogo82148/goa-v1/...@v1 && go generate ./... && go mod tidy && cd ../
+	cd api && go get github.com/google/wire/cmd/wire@latest && go get github.com/shogo82148/goa-v1/...@v1 && go generate ./... && go mod tidy && cd ../
 
 .PHONY: seed
 seed: ## 初期値の登録

@@ -8,4 +8,5 @@ var Set = wire.NewSet(
 	PostDatastoreSet,
 	LikeDatastoreSet,
 	CommentDatastoreSet,
+	RoomDatastoreSet,
 )
