@@ -20,4 +20,5 @@ jobs:
           node-version: '14.x'
       - run: yarn
       - run: yarn lint
-      - run: yarn check
+      - run: yarn check_pages
+      - run: yarn check_lib
