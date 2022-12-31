@@ -1,4 +1,4 @@
-name: Prettier
+name: code-check
 
 on:
   push:
@@ -19,4 +19,4 @@ jobs:
         with:
           node-version: '14.x'
       - run: yarn lint
-      - run: yarn format
+      - run: yarn check
