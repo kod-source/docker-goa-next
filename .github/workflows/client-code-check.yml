@@ -1,4 +1,4 @@
-name: code-check
+name: client-code-check
 
 on:
   push:
