@@ -1389,9 +1389,9 @@ func (payload *CreateRoomRoomsPayload) Validate() (err error) {
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *CreateRoomRoomsContext) Created(r *IndexRooUser) error {
+func (ctx *CreateRoomRoomsContext) Created(r *RoomUser) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.index_roo_user")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.room_user")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
@@ -1406,6 +1406,57 @@ func (ctx *CreateRoomRoomsContext) BadRequest(r *ServiceVerror) error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *CreateRoomRoomsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
+// IndexRoomsContext provides the rooms index action context.
+type IndexRoomsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	NextID *int
+}
+
+// NewIndexRoomsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the rooms controller index action.
+func NewIndexRoomsContext(ctx context.Context, r *http.Request, service *goa.Service) (*IndexRoomsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := IndexRoomsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramNextID := req.Params["next_id"]
+	if len(paramNextID) > 0 {
+		rawNextID := paramNextID[0]
+		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
+			tmp24 := nextID
+			tmp23 := &tmp24
+			rctx.NextID = tmp23
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *IndexRoomsContext) OK(r *AllRoomUser) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.all_room_user")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *IndexRoomsContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *IndexRoomsContext) InternalServerError() error {
 	ctx.ResponseData.WriteHeader(500)
 	return nil
 }
