@@ -7,68 +7,17 @@ on:
   pull_request:
 
 jobs:
-  lint:
-    name: Static code analysis
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Cache .yarn/cache
-        uses: actions/cache@v3
-        env:
-          cache-name: yarn-cache
-        with:
-          path: .yarn/cache
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.cache-name }}
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: yarn --immutable
-        env:
-          HUSKY: 0
-
-      - name: Run tests
-        run: yarn lint
-
-  prettier:
-    name: Prettier
+  test:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./client
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Cache .yarn/cache
-        uses: actions/cache@v3
-        env:
-          cache-name: yarn-cache
+      - uses: actions/checkout@v1
+      - name: Install Node.js
+        uses: actions/setup-node@v1
         with:
-          path: .yarn/cache
-          key: ${{ runner.os }}-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.cache-name }}
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: yarn --immutable
-        env:
-          HUSKY: 0
-
-      - name: Prettier
-        run: yarn prettier
+          node-version: '12.x'
+      - run: yarn
+      - run: yarn lint
+      - run: yarn check
