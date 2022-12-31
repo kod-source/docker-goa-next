@@ -1,24 +1,21 @@
-import React, { FC, useState } from 'react';
-import { PostWithUser } from '../model/post';
-import { Avatar, Button } from '@mui/material';
-import { DateTime } from 'luxon';
-import { toStringlinefeed } from './text';
-import Image from 'next/image';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import CommentIcon from '@mui/icons-material/Comment';
-import ShareIcon from '@mui/icons-material/Share';
-import { PostModal } from './postModal';
-import { useRouter } from 'next/router';
+import CommentIcon from "@mui/icons-material/Comment";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import ShareIcon from "@mui/icons-material/Share";
+import { Avatar, Button } from "@mui/material";
+import { DateTime } from "luxon";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import React, { FC, useState } from "react";
+import { PostWithUser } from "../model/post";
+import { PostModal } from "./postModal";
+import { toStringlinefeed } from "./text";
 
 interface Props {
   postWithUser: PostWithUser;
   setPostsWithUser: React.Dispatch<React.SetStateAction<PostWithUser[]>>;
   myLikePostIds: number[];
   clickLikeButton: (postId: number) => Promise<void>;
-  onClickDetail: (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    p: PostWithUser
-  ) => void;
+  onClickDetail: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, p: PostWithUser) => void;
   onRouter: () => void;
 }
 
@@ -50,11 +47,7 @@ export const ShowPost: FC<Props> = ({
             <Avatar
               sx={{ width: 80, height: 80 }}
               alt='投稿者'
-              src={
-                postWithUser.user.avatar
-                  ? postWithUser.user.avatar
-                  : '/avatar.png'
-              }
+              src={postWithUser.user.avatar ? postWithUser.user.avatar : "/avatar.png"}
             />
           </div>
           <div className='pt-5 mx-3'>
@@ -62,17 +55,12 @@ export const ShowPost: FC<Props> = ({
             <div className='flex'>
               <p>
                 投稿日：
-                {DateTime.fromJSDate(postWithUser.post.createdAt).toFormat(
-                  'yyyy年MM月dd日'
-                )}
+                {DateTime.fromJSDate(postWithUser.post.createdAt).toFormat("yyyy年MM月dd日")}
               </p>
-              {postWithUser.post.createdAt.getTime() !==
-                postWithUser.post.updatedAt.getTime() && (
+              {postWithUser.post.createdAt.getTime() !== postWithUser.post.updatedAt.getTime() && (
                 <p className='mx-5'>
                   更新日：
-                  {DateTime.fromJSDate(postWithUser.post.updatedAt).toFormat(
-                    'yyyy年MM月dd日'
-                  )}
+                  {DateTime.fromJSDate(postWithUser.post.updatedAt).toFormat("yyyy年MM月dd日")}
                 </p>
               )}
             </div>
@@ -96,7 +84,7 @@ export const ShowPost: FC<Props> = ({
               src={postWithUser.post.img}
               width={500}
               height={500}
-              alt={postWithUser.post.title + 'picture'}
+              alt={postWithUser.post.title + "picture"}
             />
           )}
         </div>
@@ -120,11 +108,7 @@ export const ShowPost: FC<Props> = ({
           >
             <FavoriteIcon
               className='mr-3'
-              color={
-                myLikePostIds.includes(postWithUser.post.id)
-                  ? 'error'
-                  : 'inherit'
-              }
+              color={myLikePostIds.includes(postWithUser.post.id) ? "error" : "inherit"}
             />
             {postWithUser.countLike}
           </div>

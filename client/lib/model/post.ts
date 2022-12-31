@@ -1,6 +1,6 @@
-import { CommentWithUser } from './comment';
-import { Like } from './like';
-import { User } from './user';
+import { CommentWithUser } from "./comment";
+import { Like } from "./like";
+import { User } from "./user";
 export class Post {
   constructor(
     public id: number,
@@ -8,7 +8,7 @@ export class Post {
     public title: string,
     public createdAt: Date,
     public updatedAt: Date,
-    public img?: string
+    public img?: string,
   ) {}
 }
 
@@ -20,14 +20,14 @@ export interface SelectPost {
 
 export interface PostWithUser {
   post: Post;
-  user: Omit<User, 'id' | 'email' | 'email' | 'password' | 'createdAt'>;
+  user: Omit<User, "id" | "email" | "email" | "password" | "createdAt">;
   countLike: number;
   countComment: number;
 }
 
 export interface ShowPost {
   post: Post;
-  user: Omit<User, 'email' | 'password' | 'createdAt'>;
+  user: Omit<User, "email" | "password" | "createdAt">;
   likes: Like[];
   commentsWithUsers: CommentWithUser[];
 }

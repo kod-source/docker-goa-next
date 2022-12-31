@@ -1,6 +1,3 @@
-import { NextPage } from 'next';
-import Head from 'next/head';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {
   Grid,
   Typography,
@@ -11,28 +8,26 @@ import {
   CssBaseline,
   Button,
   IconButton,
-} from '@mui/material';
-import { FormEvent, useContext, useState } from 'react';
-import { useRouter } from 'next/router';
-import { AppContext } from './_app';
-import Avatar from '@mui/material/Avatar';
-import { isAxiosError, MyAxiosError } from '../lib/axios';
-import { AuthRepository } from '../lib/repository/auth';
+} from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { NextPage } from "next";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { FormEvent, useContext, useState } from "react";
+import { isAxiosError, MyAxiosError } from "../lib/axios";
+import { AuthRepository } from "../lib/repository/auth";
+import { AppContext } from "./_app";
 
 function Copyright(props: any) {
   return (
-    <Typography
-      variant='body2'
-      color='text.secondary'
-      align='center'
-      {...props}
-    >
-      {'Copyright © '}
+    <Typography variant='body2' color='text.secondary' align='center' {...props}>
+      {"Copyright © "}
       <Link color='inherit' href='https://mui.com/'>
         Your Website
-      </Link>{' '}
+      </Link>{" "}
       {new Date().getFullYear()}
-      {'.'}
+      {"."}
     </Typography>
   );
 }
@@ -41,23 +36,18 @@ const SignUp: NextPage = () => {
   const { setUser } = useContext(AppContext);
   const theme = createTheme();
   const router = useRouter();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [avatarPath, setAvatarPath] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [avatarPath, setAvatarPath] = useState("");
 
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const auth = await AuthRepository.signUp(
-        name,
-        email,
-        password,
-        avatarPath
-      );
-      localStorage.setItem('token', auth.token);
+      const auth = await AuthRepository.signUp(name, email, password, avatarPath);
+      localStorage.setItem("token", auth.token);
       setUser(auth.user);
-      router.push('/');
+      router.push("/");
     } catch (e) {
       if (isAxiosError(e)) {
         const myAxiosError = e.response?.data as MyAxiosError;
@@ -90,7 +80,7 @@ const SignUp: NextPage = () => {
       </Head>
 
       <ThemeProvider theme={theme}>
-        <Grid container component='main' sx={{ height: '100vh' }}>
+        <Grid container component='main' sx={{ height: "100vh" }}>
           <CssBaseline />
           <Grid
             item
@@ -98,32 +88,22 @@ const SignUp: NextPage = () => {
             sm={4}
             md={7}
             sx={{
-              backgroundImage: 'url(https://source.unsplash.com/random)',
-              backgroundRepeat: 'no-repeat',
+              backgroundImage: "url(https://source.unsplash.com/random)",
+              backgroundRepeat: "no-repeat",
               backgroundColor: (t) =>
-                t.palette.mode === 'light'
-                  ? t.palette.grey[50]
-                  : t.palette.grey[900],
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
+                t.palette.mode === "light" ? t.palette.grey[50] : t.palette.grey[900],
+              backgroundSize: "cover",
+              backgroundPosition: "center",
             }}
           />
-          <Grid
-            item
-            xs={12}
-            sm={8}
-            md={5}
-            component={Paper}
-            elevation={6}
-            square
-          >
+          <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
             <Box
               sx={{
                 my: 8,
                 mx: 4,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
               }}
             >
               <Typography component='h1' variant='h5'>
@@ -136,7 +116,7 @@ const SignUp: NextPage = () => {
                       <Avatar
                         sx={{ width: 100, height: 100 }}
                         alt='My Profile Image'
-                        src={avatarPath ? avatarPath : '/avatar.png'}
+                        src={avatarPath ? avatarPath : "/avatar.png"}
                       />
                       <input
                         type='file'
@@ -188,9 +168,7 @@ const SignUp: NextPage = () => {
                 >
                   Sign Up
                 </Button>
-                <Button onClick={() => router.push('/login')}>
-                  ログインに戻る
-                </Button>
+                <Button onClick={() => router.push("/login")}>ログインに戻る</Button>
                 <Copyright sx={{ mt: 5 }} />
               </form>
             </Box>

@@ -1,5 +1,5 @@
-import axios, { AxiosError } from 'axios';
-import { getEndPoint, getToken } from './token';
+import axios, { AxiosError } from "axios";
+import { getEndPoint, getToken } from "./token";
 
 export interface MyAxiosError {
   code: string;
@@ -16,10 +16,10 @@ export const asyncApiClient = {
   create: async () => {
     return axios.create({
       baseURL: getEndPoint(),
-      responseType: 'json',
+      responseType: "json",
       headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        "Content-Type": "application/json",
+        Accept: "application/json",
         Authorization: `Bearer ${getToken()}`,
       },
     });
