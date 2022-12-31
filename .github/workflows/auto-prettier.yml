@@ -1,4 +1,4 @@
-name: test
+name: Prettier
 
 on:
   push:
@@ -9,6 +9,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./client
     steps:
       - uses: actions/checkout@v1
       - name: Install Node.js
