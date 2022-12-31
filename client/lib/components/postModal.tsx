@@ -13,7 +13,7 @@ import { PostRepository } from "../repository/post";
 import { ConfirmationModal } from "./confirmationModal";
 import { DetailModal } from "./detailModal";
 import { Loading } from "./loading";
-import { toStringlinefeed } from "./text"
+import { toStringlinefeed } from "./text";
 
 interface Props {
   open: boolean;
