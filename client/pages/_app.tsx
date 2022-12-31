@@ -1,16 +1,16 @@
-import '../styles/globals.css';
-import type { AppProps } from 'next/app';
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { User } from '../lib/model/user';
-import 'tailwindcss/tailwind.css';
-import { UserRepostiory } from '../lib/repository/user';
+import "../styles/globals.css";
+import type { AppProps } from "next/app";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import { User } from "../lib/model/user";
+import "tailwindcss/tailwind.css";
+import { UserRepostiory } from "../lib/repository/user";
 
 export const AppContext = React.createContext(
   {} as {
     user: User | null;
     setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  }
+  },
 );
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -20,21 +20,21 @@ function MyApp({ Component, pageProps }: AppProps) {
   let isFirst = true;
 
   const fetchData = async () => {
-    if (path === '/login' || path === '/sign_up') {
+    if (path === "/login" || path === "/sign_up") {
       return;
     }
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      return router.push('/login');
+      return router.push("/login");
     }
     try {
       const user = await UserRepostiory.currentUser();
       setUser(user);
     } catch {
       if (isFirst) {
-        alert('tokenの認証が切れました。再度ログインしてください。');
-        localStorage.removeItem('token');
-        router.push('/login');
+        alert("tokenの認証が切れました。再度ログインしてください。");
+        localStorage.removeItem("token");
+        router.push("/login");
       }
     }
     isFirst = false;

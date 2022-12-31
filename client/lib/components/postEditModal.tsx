@@ -1,10 +1,10 @@
-import React, { FC, FormEvent, useState } from 'react';
-import Box from '@mui/material/Box';
-import { Button, Modal } from '@mui/material';
-import Avatar from '@mui/material/Avatar';
-import Image from 'next/image';
-import { PostWithUser, SelectPost } from '../model/post';
-import { PostRepository } from '../repository/post';
+import { Button, Modal } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Image from "next/image";
+import React, { FC, FormEvent, useState } from "react";
+import { PostWithUser, SelectPost } from "../model/post";
+import { PostRepository } from "../repository/post";
 
 interface Props {
   open: boolean;
@@ -16,13 +16,13 @@ interface Props {
 
 export const PostEditModal: FC<Props> = (props) => {
   const style = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
     width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
+    bgcolor: "background.paper",
+    border: "2px solid #000",
     boxShadow: 24,
     p: 4,
   };
@@ -31,11 +31,7 @@ export const PostEditModal: FC<Props> = (props) => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsUpdating(true);
-    const post = await PostRepository.update(
-      props.post.id,
-      props.post.title,
-      props.post.img
-    );
+    const post = await PostRepository.update(props.post.id, props.post.title, props.post.img);
     props.setPostsWithUsers((old) => {
       const newPosts = old.map((p) => {
         if (p.post.id === props.post.id) {
@@ -99,19 +95,14 @@ export const PostEditModal: FC<Props> = (props) => {
             <div className='my-2'>
               {!!props.post.img && (
                 <div className='relative'>
-                  <Image
-                    src={props.post.img}
-                    width={500}
-                    height={500}
-                    alt={'post picture'}
-                  />
+                  <Image src={props.post.img} width={500} height={500} alt={"post picture"} />
                   <div className='absolute left-[35%] bottom-[90%]'>
                     <Button
                       onClick={() =>
                         props.setPost((old) => ({
                           id: old.id,
                           title: old.title,
-                          img: '',
+                          img: "",
                         }))
                       }
                     >
@@ -133,7 +124,7 @@ export const PostEditModal: FC<Props> = (props) => {
               </label>
               <div className='text-right'>
                 <Button type='submit' disabled={isUpdating}>
-                  {isUpdating ? '更新中' : '更新する'}
+                  {isUpdating ? "更新中" : "更新する"}
                 </Button>
               </div>
             </div>

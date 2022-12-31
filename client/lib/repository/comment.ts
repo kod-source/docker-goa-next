@@ -1,14 +1,10 @@
-import { asyncApiClient } from '../axios';
-import { Comment, CommentWithUser } from '../model/comment';
+import { asyncApiClient } from "../axios";
+import { Comment, CommentWithUser } from "../model/comment";
 
 export const CommentRepository = {
-  create: async (
-    postID: number,
-    text: string,
-    img?: string
-  ): Promise<CommentWithUser> => {
+  create: async (postID: number, text: string, img?: string): Promise<CommentWithUser> => {
     const apiClient = await asyncApiClient.create();
-    const res = await apiClient.post('comments', {
+    const res = await apiClient.post("comments", {
       post_id: postID,
       text: text,
       img: img,
@@ -23,7 +19,7 @@ export const CommentRepository = {
         comment.text,
         new Date(comment.created_at),
         new Date(comment.updated_at),
-        comment.img
+        comment.img,
       ),
       user: {
         id: res.data.user.id,
@@ -44,7 +40,7 @@ export const CommentRepository = {
         d.comment.text,
         new Date(d.comment.created_at),
         new Date(d.comment.updated_at),
-        d.comment.img
+        d.comment.img,
       );
       return {
         comment: comment,
@@ -69,7 +65,7 @@ export const CommentRepository = {
       res.data.text,
       new Date(res.data.created_at),
       new Date(res.data.updated_at),
-      res.data.img
+      res.data.img,
     );
   },
 
