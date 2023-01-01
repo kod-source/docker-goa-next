@@ -307,3 +307,74 @@ func Test_IndexRoom(t *testing.T) {
 		test.IndexRoomsInternalServerError(t, ctx, srv, r, pointer.Ptr(int(wantNextID)))
 	})
 }
+
+func Test_Exists(t *testing.T) {
+	srv := testApp.srv
+	ru := &mock.MockRoomUsecase{}
+	r := NewRoomController(srv, ru)
+	wantMyUserID := model.UserID(1)
+	wantUserID := model.UserID(2)
+	ctx = context.WithValue(ctx, userIDCodeKey, int(wantMyUserID))
+
+	t.Run("[OK]DMの存在を確認する", func(t *testing.T) {
+		ru.ExistsFunc = func(ctx context.Context, myID, id model.UserID) (*model.Room, error) {
+			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+
+			return &model.Room{
+				ID:        1,
+				Name:      "DB room",
+				IsGroup:   false,
+				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			}, nil
+		}
+
+		want := &app.Room{
+			ID:        1,
+			Name:      "DB room",
+			IsGroup:   false,
+			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+		}
+
+		_, got := test.ExistsRoomsOK(t, ctx, srv, r, int(wantUserID))
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]DMの存在を確認する - 404エラーの時", func(t *testing.T) {
+		ru.ExistsFunc = func(ctx context.Context, myID, id model.UserID) (*model.Room, error) {
+			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+
+			return nil, sql.ErrNoRows
+		}
+
+		test.ExistsRoomsNotFound(t, ctx, srv, r, int(wantUserID))
+	})
+
+	t.Run("[NG]DMの存在を確認する - 想定外エラー発生", func(t *testing.T) {
+		ru.ExistsFunc = func(ctx context.Context, myID, id model.UserID) (*model.Room, error) {
+			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+
+			return nil, errors.New("test error")
+		}
+
+		test.ExistsRoomsInternalServerError(t, ctx, srv, r, int(wantUserID))
+	})
+}
