@@ -194,7 +194,7 @@ func Test_ExistsRoom(t *testing.T) {
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 		}
-		rr.ExistsFunc = func(ctx context.Context, myID, id model.UserID) (*model.Room, error) {
+		rr.GetNoneGroupFunc = func(ctx context.Context, myID, id model.UserID) (*model.Room, error) {
 			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
@@ -215,7 +215,7 @@ func Test_ExistsRoom(t *testing.T) {
 
 	t.Run("[NG]DMの存在を確認 - 何かエラー発生", func(t *testing.T) {
 		wantErr := errors.New("test error")
-		rr.ExistsFunc = func(ctx context.Context, myID, id model.UserID) (*model.Room, error) {
+		rr.GetNoneGroupFunc = func(ctx context.Context, myID, id model.UserID) (*model.Room, error) {
 			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}

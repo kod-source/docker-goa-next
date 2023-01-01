@@ -546,3 +546,37 @@ func Test_IndexRoom(t *testing.T) {
 		}
 	})
 }
+
+func Test_GetNoneGroup(t *testing.T) {
+	rd := NewRoomDatastore(testDB, nil)
+
+	t.Run("[OK]DMのルームを取得", func(t *testing.T) {
+		want := &model.Room{
+			ID:        2,
+			Name:      "test2_room",
+			IsGroup:   false,
+			CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+		}
+		got, err := rd.GetNoneGroup(ctx, 1, 2)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]DMのルームを取得 - ルームが存在しない時", func(t *testing.T) {
+		if _, err := rd.GetNoneGroup(ctx, 1, 1000); !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("error is want %v, got %v", sql.ErrNoRows, err)
+		}
+	})
+
+	t.Run("[NG]DMのルームを取得 - ルームが存在しない時②", func(t *testing.T) {
+		if _, err := rd.GetNoneGroup(ctx, 1000, 2); !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("error is want %v, got %v", sql.ErrNoRows, err)
+		}
+	})
+}
