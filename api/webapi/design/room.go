@@ -41,6 +41,18 @@ var _ = Resource("rooms", func() {
 		Response(NotFound)
 		Response(InternalServerError)
 	})
+
+	Action("exists", func() {
+		Routing(GET("rooms/exists"))
+		Description("DMの存在を確認する")
+		Params(func() {
+			Param("user_id", Integer, "ユーザーID")
+			Required("user_id")
+		})
+		Response(OK, room)
+		Response(NotFound)
+		Response(InternalServerError)
+	})
 })
 
 var room = MediaType("application/vnd.room", func() {

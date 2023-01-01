@@ -1410,6 +1410,57 @@ func (ctx *CreateRoomRoomsContext) InternalServerError() error {
 	return nil
 }
 
+// ExistsRoomsContext provides the rooms exists action context.
+type ExistsRoomsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	UserID int
+}
+
+// NewExistsRoomsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the rooms controller exists action.
+func NewExistsRoomsContext(ctx context.Context, r *http.Request, service *goa.Service) (*ExistsRoomsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ExistsRoomsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramUserID := req.Params["user_id"]
+	if len(paramUserID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("user_id"))
+	} else {
+		rawUserID := paramUserID[0]
+		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
+			rctx.UserID = userID
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("user_id", rawUserID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ExistsRoomsContext) OK(r *Room) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.room")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ExistsRoomsContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ExistsRoomsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // IndexRoomsContext provides the rooms index action context.
 type IndexRoomsContext struct {
 	context.Context
@@ -1431,9 +1482,9 @@ func NewIndexRoomsContext(ctx context.Context, r *http.Request, service *goa.Ser
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp24 := nextID
-			tmp23 := &tmp24
-			rctx.NextID = tmp23
+			tmp25 := nextID
+			tmp24 := &tmp25
+			rctx.NextID = tmp24
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}

@@ -52,6 +52,11 @@ func (r *RoomController) Index(ctx *app.IndexRoomsContext) error {
 	return ctx.OK(r.toAllRommUser(irs, nextID))
 }
 
+// Exists DMの存在しているか確認
+func (r *RoomController) Exists(ctx *app.ExistsRoomsContext) error {
+	return ctx.OK(nil)
+}
+
 func (r *RoomController) toAllRommUser(irs []*model.IndexRoom, nextID *int) *app.AllRoomUser {
 	var airs []*app.IndexRoom
 	for _, ir := range irs {

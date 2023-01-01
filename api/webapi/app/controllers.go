@@ -757,6 +757,7 @@ func unmarshalUpdatePostsPayload(ctx context.Context, service *goa.Service, req 
 type RoomsController interface {
 	goa.Muxer
 	CreateRoom(*CreateRoomRoomsContext) error
+	Exists(*ExistsRoomsContext) error
 	Index(*IndexRoomsContext) error
 }
 
@@ -765,6 +766,7 @@ func MountRoomsController(service *goa.Service, ctrl RoomsController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/rooms", ctrl.MuxHandler("preflight", handleRoomsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/rooms/exists", ctrl.MuxHandler("preflight", handleRoomsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -788,6 +790,23 @@ func MountRoomsController(service *goa.Service, ctrl RoomsController) {
 	h = handleRoomsOrigin(h)
 	service.Mux.Handle("POST", "/rooms", ctrl.MuxHandler("create_room", h, unmarshalCreateRoomRoomsPayload))
 	service.LogInfo("mount", "ctrl", "Rooms", "action", "CreateRoom", "route", "POST /rooms", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewExistsRoomsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Exists(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleRoomsOrigin(h)
+	service.Mux.Handle("GET", "/rooms/exists", ctrl.MuxHandler("exists", h, nil))
+	service.LogInfo("mount", "ctrl", "Rooms", "action", "Exists", "route", "GET /rooms/exists", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
