@@ -19,8 +19,6 @@ import { LikeRepository } from "lib/repository/like";
 import { PostRepository } from "lib/repository/post";
 import styles from "styles/Home.module.css";
 
-
-
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
   const router = useRouter();
