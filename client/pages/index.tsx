@@ -5,6 +5,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { FormEvent, useCallback, useContext, useEffect, useState } from "react";
+
 import { isAxiosError, MyAxiosError } from "../lib/axios";
 import { PostWithUser, SelectPost } from "../lib/model/post";
 import { getEndPoint, getToken } from "../lib/token";
@@ -17,6 +18,8 @@ import { ShowPost } from "lib/components/showPost";
 import { LikeRepository } from "lib/repository/like";
 import { PostRepository } from "lib/repository/post";
 import styles from "styles/Home.module.css";
+
+
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);

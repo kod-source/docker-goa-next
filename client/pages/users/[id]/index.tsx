@@ -1,21 +1,22 @@
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import EmailIcon from "@mui/icons-material/Email";
+import TabContext from "@mui/lab/TabContext";
+import TabList from "@mui/lab/TabList";
+import TabPanel from "@mui/lab/TabPanel";
 import { Avatar, Box, Button } from "@mui/material";
+import Tab from "@mui/material/Tab";
 import { DateTime } from "luxon";
 import { NextPage, GetServerSideProps } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { FormEvent, useContext, useEffect, useState } from "react";
+
+import { Loading } from "../../../lib/components/loading";
+import { ShowPostMy } from "../../../lib/components/showPostMy";
 import { User, UserPostSelection } from "../../../lib/model/user";
+import { LikeRepository } from "../../../lib/repository/like";
 import { UserRepostiory } from "../../../lib/repository/user";
 import { AppContext } from "../../_app";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Loading } from "../../../lib/components/loading";
-import Tab from "@mui/material/Tab";
-import TabContext from "@mui/lab/TabContext";
-import TabList from "@mui/lab/TabList";
-import TabPanel from "@mui/lab/TabPanel";
-import { LikeRepository } from "../../../lib/repository/like";
-import { ShowPostMy } from "../../../lib/components/showPostMy";
-import EmailIcon from "@mui/icons-material/Email";
 
 interface Props {
   id: number;

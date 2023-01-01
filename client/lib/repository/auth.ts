@@ -1,4 +1,5 @@
 import axios from "axios";
+
 import { Auth } from "../model/auth";
 import { User } from "../model/user";
 import { getEndPoint } from "../token";
