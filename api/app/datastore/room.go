@@ -264,6 +264,10 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 	return irs, resNextID, tx.Commit()
 }
 
+func (rd *roomDatastore) Exists(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error) {
+	return nil, nil
+}
+
 func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User) *model.RoomUser {
 	var showUsers []*model.ShowUser
 	for _, u := range users {

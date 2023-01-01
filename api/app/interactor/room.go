@@ -47,5 +47,9 @@ func (ri *roomInteractor) Index(ctx context.Context, id model.UserID, nextID mod
 }
 
 func (ri *roomInteractor) Exists(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error) {
-	return nil, nil
+	room, err := ri.rr.Exists(ctx, myID, id)
+	if err != nil {
+		return nil, err
+	}
+	return room, nil
 }

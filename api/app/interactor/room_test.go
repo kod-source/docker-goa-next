@@ -179,3 +179,54 @@ func Test_IndexRoom(t *testing.T) {
 		}
 	})
 }
+
+func Test_ExistsRoom(t *testing.T) {
+	rr := &mock.MockRoomRepository{}
+	ri := NewRoomInterractor(rr)
+	wantMyUserID := model.UserID(1)
+	wantUserID := model.UserID(2)
+
+	t.Run("[OK]DMの存在を確認", func(t *testing.T) {
+		want := &model.Room{
+			ID:        1,
+			Name:      "DM room",
+			IsGroup:   false,
+			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+		}
+		rr.ExistsFunc = func(ctx context.Context, myID, id model.UserID) (*model.Room, error) {
+			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			return want, nil
+		}
+
+		got, err := ri.Exists(ctx, wantMyUserID, wantUserID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want, +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]DMの存在を確認 - 何かエラー発生", func(t *testing.T) {
+		wantErr := errors.New("test error")
+		rr.ExistsFunc = func(ctx context.Context, myID, id model.UserID) (*model.Room, error) {
+			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantUserID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			return nil, wantErr
+		}
+
+		if _, err := ri.Exists(ctx, wantMyUserID, wantUserID); !errors.Is(err, wantErr) {
+			t.Errorf("want error is %v, but got error %v", wantErr, err)
+		}
+	})
+}

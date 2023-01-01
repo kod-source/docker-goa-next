@@ -10,4 +10,5 @@ type RoomRepository interface {
 	Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error)
 	Delete(ctx context.Context, id model.RoomID) error
 	Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error)
+	Exists(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error)
 }
