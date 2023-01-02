@@ -137,8 +137,9 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   true,
-				LastText: "test_text1",
+				IsOpen:    true,
+				LastText:  "test_text1",
+				CountUser: 10,
 			},
 			{
 				Room: model.Room{
@@ -148,8 +149,9 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   false,
-				LastText: "",
+				IsOpen:    false,
+				LastText:  "",
+				CountUser: 2,
 			},
 		}
 		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
@@ -176,8 +178,9 @@ func Test_IndexRoom(t *testing.T) {
 						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					},
-					IsOpen:   true,
-					LastText: pointer.Ptr("test_text1"),
+					IsOpen:    true,
+					LastText:  pointer.Ptr("test_text1"),
+					CountUser: 10,
 				},
 				{
 					Room: &app.Room{
@@ -187,8 +190,9 @@ func Test_IndexRoom(t *testing.T) {
 						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					},
-					IsOpen:   false,
-					LastText: nil,
+					IsOpen:    false,
+					LastText:  nil,
+					CountUser: 2,
 				},
 			},
 		}
@@ -210,8 +214,9 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   true,
-				LastText: "test_text1",
+				IsOpen:    true,
+				LastText:  "test_text1",
+				CountUser: 20,
 			},
 			{
 				Room: model.Room{
@@ -221,8 +226,9 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   false,
-				LastText: "",
+				IsOpen:    false,
+				LastText:  "",
+				CountUser: 2,
 			},
 		}
 		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
@@ -249,8 +255,9 @@ func Test_IndexRoom(t *testing.T) {
 						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					},
-					IsOpen:   true,
-					LastText: pointer.Ptr("test_text1"),
+					IsOpen:    true,
+					LastText:  pointer.Ptr("test_text1"),
+					CountUser: 20,
 				},
 				{
 					Room: &app.Room{
@@ -260,8 +267,9 @@ func Test_IndexRoom(t *testing.T) {
 						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					},
-					IsOpen:   false,
-					LastText: nil,
+					IsOpen:    false,
+					LastText:  nil,
+					CountUser: 2,
 				},
 			},
 		}

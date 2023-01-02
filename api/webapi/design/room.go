@@ -104,12 +104,14 @@ var indexRoom = MediaType("application/vnd.index_room", func() {
 	Attribute("room", room, "room")
 	Attribute("is_open", Boolean, "開いたどうか")
 	Attribute("last_text", String, "最後の内容")
+	Attribute("count_user", Integer, "ルームに入っているユーザー数")
 	View("default", func() {
 		Attribute("room")
 		Attribute("is_open")
 		Attribute("last_text")
+		Attribute("count_user")
 	})
-	Required("room", "is_open")
+	Required("room", "is_open", "count_user")
 })
 
 var allRoomUser = MediaType("application/vnd.all_room_user", func() {
