@@ -39,6 +39,9 @@ func Test_InviteRoom(t *testing.T) {
 				UpdatedAt:  time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			}, nil
 		}
+		defer func() {
+			uru.InviteRoomFunc = nil
+		}()
 
 		want := &app.UserRoom{
 			ID:         1,
@@ -74,6 +77,9 @@ func Test_InviteRoom(t *testing.T) {
 				UpdatedAt:  time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			}, nil
 		}
+		defer func() {
+			uru.InviteRoomFunc = nil
+		}()
 
 		want := &app.UserRoom{
 			ID:         1,
@@ -96,6 +102,9 @@ func Test_InviteRoom(t *testing.T) {
 		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
 			return nil, myerrors.ErrBadRequestInt
 		}
+		defer func() {
+			uru.InviteRoomFunc = nil
+		}()
 
 		test.InviteRoomUserRoomsBadRequest(t, ctx, srv, ur, &app.InviteRoomUserRoomsPayload{
 			RoomID: 0,
@@ -113,6 +122,9 @@ func Test_InviteRoom(t *testing.T) {
 			}
 			return nil, errors.New("test error")
 		}
+		defer func() {
+			uru.InviteRoomFunc = nil
+		}()
 
 		test.InviteRoomUserRoomsInternalServerError(t, ctx, srv, ur, &app.InviteRoomUserRoomsPayload{
 			RoomID: int(wantRoomID),
