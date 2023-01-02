@@ -508,3 +508,27 @@ func (mt *User) Validate() (err error) {
 
 	return
 }
+
+// user room (default view)
+//
+// Identifier: application/vnd.user_room+json; view=default
+type UserRoom struct {
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// ID
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 最後に開いた日時
+	LastReadAt *time.Time `form:"last_read_at,omitempty" json:"last_read_at,omitempty" yaml:"last_read_at,omitempty" xml:"last_read_at,omitempty"`
+	// ルームID
+	RoomID int `form:"room_id" json:"room_id" yaml:"room_id" xml:"room_id"`
+	// 更新日
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+	// ユーザーID
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+}
+
+// Validate validates the UserRoom media type instance.
+func (mt *UserRoom) Validate() (err error) {
+
+	return
+}
