@@ -274,20 +274,11 @@ func (rd *roomDatastore) GetNoneGroup(ctx context.Context, myID model.UserID, id
 	var room schema.Room
 	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at` "
 	query += "FROM `room` AS `r` "
-	query += "INNER JOIN ( "
-	query += "SELECT `ur1`.`room_id` "
-	query += "FROM `user_room` AS `ur1` "
-	query += "INNER JOIN ("
-	query += "SELECT `room_id` "
-	query += "FROM `user_room` "
-	query += "WHERE `user_id` = ? "
-	query += ") AS `ur2` "
+	query += "INNER JOIN `user_room` AS `ur1` "
+	query += "ON `r`.`id` = `ur1`.`room_id` "
+	query += "INNER JOIN `user_room` AS `ur2` "
 	query += "ON `ur1`.`room_id` = `ur2`.`room_id` "
-	query += "WHERE `user_id` = ? "
-	query += ") AS `ur` "
-	query += "ON `r`.id = `ur`.`room_id` "
-	query += "WHERE `r`.`is_group` = 0 "
-	query += "LIMIT 1"
+	query += "WHERE `r`.`is_group` = 0 AND `ur1`.`user_id` = ? AND `ur2`.`user_id` = ? "
 	if err := tx.QueryRowContext(ctx, query, myID, id).Scan(
 		&room.ID,
 		&room.Name,
