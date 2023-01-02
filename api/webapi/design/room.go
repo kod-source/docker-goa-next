@@ -16,9 +16,9 @@ var _ = Resource("rooms", func() {
 		Description("ルームの作成")
 		Payload(func() {
 			Attribute("name", String, "ルーム名", func() {
-				Example("DBルーム")
+				Example("DMルーム")
 			})
-			Attribute("is_group", Boolean, "DBかどうか", func() {
+			Attribute("is_group", Boolean, "DMかどうか", func() {
 				Example(true)
 			})
 			Attribute("user_ids", ArrayOf(Integer), "ルームに入れるUserID", func() {

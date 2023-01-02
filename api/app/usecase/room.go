@@ -11,6 +11,6 @@ type RoomUseCase interface {
 	Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error)
 	// Index 自分が入っているルームの一覧
 	Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error)
-	// Exists DBのルームが存在しているか確認
+	// Exists DMのルームが存在しているか確認
 	Exists(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error)
 }
