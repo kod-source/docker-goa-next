@@ -83,3 +83,42 @@ func Test_InviteRoom(t *testing.T) {
 		}
 	})
 }
+
+func Test_Delete(t *testing.T) {
+	urr := &mock.MockUserRoomRepository{}
+	uru := NewUserRoomUsecase(urr)
+	wantUserRoomID := model.UserRoomID(1)
+
+	t.Run("[OK]UserRoomの削除", func(t *testing.T) {
+		urr.DeleteFunc = func(ctx context.Context, id model.UserRoomID) error {
+			if diff := cmp.Diff(wantUserRoomID, id); diff != "" {
+				t.Errorf("mismatch (-want, +got)\n%s", diff)
+			}
+			return nil
+		}
+		defer func() {
+			urr.DeleteFunc = nil
+		}()
+
+		if err := uru.Delete(ctx, wantUserRoomID); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("[NG]UserRoomの削除 - 想定外エラー発生", func(t *testing.T) {
+		wantErr := errors.New("test error")
+		urr.DeleteFunc = func(ctx context.Context, id model.UserRoomID) error {
+			if diff := cmp.Diff(wantUserRoomID, id); diff != "" {
+				t.Errorf("mismatch (-want, +got)\n%s", diff)
+			}
+			return wantErr
+		}
+		defer func() {
+			urr.DeleteFunc = nil
+		}()
+
+		if err := uru.Delete(ctx, wantUserRoomID); !errors.Is(err, wantErr) {
+			t.Errorf("error is want %v, got %v", wantErr, err)
+		}
+	})
+}

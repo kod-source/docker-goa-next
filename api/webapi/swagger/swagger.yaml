@@ -707,7 +707,7 @@ definitions:
     description: my error (default view)
     example:
       code: 404
-      details: bdf02106-bcab-4d8b-afd3-3c8cf466dea6
+      details: ca5e6137-fd04-420a-9cf2-3a4317b3cd63
       message: record not found
       status: unauthenticated
     properties:
@@ -718,7 +718,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: bdf02106-bcab-4d8b-afd3-3c8cf466dea6
+        example: ca5e6137-fd04-420a-9cf2-3a4317b3cd63
       message:
         description: エラーメッセージ
         example: record not found
@@ -1841,6 +1841,35 @@ paths:
       - jwt:
         - api:access
       summary: invite_room user_rooms
+      tags:
+      - user_rooms
+  /user_room/{id}:
+    delete:
+      description: |-
+        ルームから除外する
+
+        Required security scopes:
+          * `api:access`
+      operationId: user_rooms#delete
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: delete user_rooms
       tags:
       - user_rooms
   /users/{id}:

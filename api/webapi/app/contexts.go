@@ -1512,6 +1512,51 @@ func (ctx *IndexRoomsContext) InternalServerError() error {
 	return nil
 }
 
+// DeleteUserRoomsContext provides the user_rooms delete action context.
+type DeleteUserRoomsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID int
+}
+
+// NewDeleteUserRoomsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user_rooms controller delete action.
+func NewDeleteUserRoomsContext(ctx context.Context, r *http.Request, service *goa.Service) (*DeleteUserRoomsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := DeleteUserRoomsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *DeleteUserRoomsContext) OK(resp []byte) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+	}
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *DeleteUserRoomsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // InviteRoomUserRoomsContext provides the user_rooms invite_room action context.
 type InviteRoomUserRoomsContext struct {
 	context.Context

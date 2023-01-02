@@ -870,6 +870,7 @@ func unmarshalCreateRoomRoomsPayload(ctx context.Context, service *goa.Service, 
 // UserRoomsController is the controller interface for the UserRooms actions.
 type UserRoomsController interface {
 	goa.Muxer
+	Delete(*DeleteUserRoomsContext) error
 	InviteRoom(*InviteRoomUserRoomsContext) error
 }
 
@@ -877,7 +878,25 @@ type UserRoomsController interface {
 func MountUserRoomsController(service *goa.Service, ctrl UserRoomsController) {
 	initService(service)
 	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/user_room/:id", ctrl.MuxHandler("preflight", handleUserRoomsOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/user_room", ctrl.MuxHandler("preflight", handleUserRoomsOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewDeleteUserRoomsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Delete(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleUserRoomsOrigin(h)
+	service.Mux.Handle("DELETE", "/user_room/:id", ctrl.MuxHandler("delete", h, nil))
+	service.LogInfo("mount", "ctrl", "UserRooms", "action", "Delete", "route", "DELETE /user_room/:id", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

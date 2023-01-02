@@ -68,6 +68,19 @@ func (urd *userRoomDatastore) Create(ctx context.Context, roomID model.RoomID, u
 	return urd.toModelUserRoom(userRoom), tx.Commit()
 }
 
+func (urd *userRoomDatastore) Delete(ctx context.Context, id model.UserRoomID) error {
+	stmt, err := urd.db.PrepareContext(ctx, "DELETE FROM `user_room` WHERE `id` = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.ExecContext(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (urd *userRoomDatastore) toModelUserRoom(sur schema.UserRoom) *model.UserRoom {
 	ur := &model.UserRoom{
 		ID:        model.UserRoomID(sur.ID),

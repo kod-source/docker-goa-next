@@ -152,3 +152,38 @@ func Test_InviteRoom(t *testing.T) {
 		})
 	})
 }
+
+func Test_DeleteUserRoom(t *testing.T) {
+	srv := testApp.srv
+	uru := &mock.MockUserRoomUsecase{}
+	ur := NewUserRoomController(srv, uru)
+	wantUserRoomID := model.UserRoomID(1)
+
+	t.Run("[OK]UserRoomの削除", func(t *testing.T) {
+		uru.DeleteFunc = func(ctx context.Context, id model.UserRoomID) error {
+			if diff := cmp.Diff(wantUserRoomID, id); diff != "" {
+				t.Errorf("mismatch (-want, +got)\n%s", diff)
+			}
+			return nil
+		}
+		defer func() {
+			uru.DeleteFunc = nil
+		}()
+
+		test.DeleteUserRoomsOK(t, ctx, srv, ur, int(wantUserRoomID))
+	})
+
+	t.Run("[NG]UserRoomの削除 - 想定外エラー発生", func(t *testing.T) {
+		uru.DeleteFunc = func(ctx context.Context, id model.UserRoomID) error {
+			if diff := cmp.Diff(wantUserRoomID, id); diff != "" {
+				t.Errorf("mismatch (-want, +got)\n%s", diff)
+			}
+			return errors.New("test error")
+		}
+		defer func() {
+			uru.DeleteFunc = nil
+		}()
+
+		test.DeleteUserRoomsInternalServerError(t, ctx, srv, ur, int(wantUserRoomID))
+	})
+}
