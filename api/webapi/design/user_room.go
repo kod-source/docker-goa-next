@@ -27,6 +27,16 @@ var _ = Resource("user_rooms", func() {
 		Response(BadRequest)
 		Response(InternalServerError)
 	})
+
+	Action("delete", func() {
+		Routing(DELETE("user_room/:id"))
+		Description("ルームから除外する")
+		Params(func() {
+			Param("id", Integer, "ID")
+		})
+		Response(OK)
+		Response(InternalServerError)
+	})
 })
 
 var userRoom = MediaType("application/vnd.user_room+json", func() {

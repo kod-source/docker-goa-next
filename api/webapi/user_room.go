@@ -41,3 +41,8 @@ func (ur *UserRoomController) InviteRoom(ctx *app.InviteRoomUserRoomsContext) er
 		UpdatedAt:  userRoom.UpdatedAt,
 	})
 }
+
+// Delete ルームから除外する
+func (ur *UserRoomController) Delete(ctx *app.DeleteUserRoomsContext) error {
+	return ctx.OK(nil)
+}
