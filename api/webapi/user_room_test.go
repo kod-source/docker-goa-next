@@ -9,6 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/kod-source/docker-goa-next/app/interactor/mock"
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	"github.com/kod-source/docker-goa-next/webapi/app/test"
 	"github.com/shogo82148/pointer"
@@ -91,16 +92,13 @@ func Test_InviteRoom(t *testing.T) {
 		}
 	})
 
-	t.Run("[NG]ルームに招待 - ルームIDが0の時", func(t *testing.T) {
+	t.Run("[NG]ルームに招待 - 数字が0の時", func(t *testing.T) {
+		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
+			return nil, myerrors.ErrBadRequestInt
+		}
+
 		test.InviteRoomUserRoomsBadRequest(t, ctx, srv, ur, &app.InviteRoomUserRoomsPayload{
 			RoomID: 0,
-			UserID: int(wantUserID),
-		})
-	})
-
-	t.Run("[NG]ルームに招待 - ユーザーIDが0の時", func(t *testing.T) {
-		test.InviteRoomUserRoomsBadRequest(t, ctx, srv, ur, &app.InviteRoomUserRoomsPayload{
-			RoomID: int(wantRoomID),
 			UserID: 0,
 		})
 	})

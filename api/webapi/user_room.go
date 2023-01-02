@@ -1,7 +1,10 @@
 package main
 
 import (
+	"errors"
+
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
@@ -22,12 +25,11 @@ func NewUserRoomController(service *goa.Service, uru usecase.UserRoomUseCase) *U
 func (ur *UserRoomController) InviteRoom(ctx *app.InviteRoomUserRoomsContext) error {
 	roomID := ctx.Payload.RoomID
 	userID := ctx.Payload.UserID
-	if roomID == 0 || userID == 0 {
-		return ctx.BadRequest()
-	}
-
 	userRoom, err := ur.uru.InviteRoom(ctx, model.RoomID(roomID), model.UserID(userID))
 	if err != nil {
+		if errors.Is(err, myerrors.ErrBadRequestInt) {
+			return ctx.BadRequest()
+		}
 		return ctx.InternalServerError()
 	}
 	return ctx.Created(&app.UserRoom{
