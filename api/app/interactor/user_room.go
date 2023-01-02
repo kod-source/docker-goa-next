@@ -26,7 +26,7 @@ func NewUserRoomUsecase(urr repository.UserRoomRepository) *userRoomInteractor {
 }
 
 func (uri *userRoomInteractor) InviteRoom(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
-	if roomID == 0 || userID == 0 {
+	if int(roomID) == 0 || int(userID) == 0 {
 		return nil, myerrors.ErrBadRequestInt
 	}
 	ur, err := uri.urr.Create(ctx, roomID, userID)

@@ -51,13 +51,13 @@ func Test_InviteRoom(t *testing.T) {
 	})
 
 	t.Run("[NG]ルームに招待 - ルームIDが0の時", func(t *testing.T) {
-		if _, err := uru.InviteRoom(ctx, 0, wantUserID); !errors.Is(err, myerrors.ErrBadRequestInt) {
+		if _, err := uru.InviteRoom(ctx, model.RoomID(0), wantUserID); !errors.Is(err, myerrors.ErrBadRequestInt) {
 			t.Errorf("error is want %v, got %v", myerrors.ErrBadRequestInt, err)
 		}
 	})
 
 	t.Run("[NG]ルームに招待 - ユーザーIDが0の時", func(t *testing.T) {
-		if _, err := uru.InviteRoom(ctx, wantRoomID, 0); !errors.Is(err, myerrors.ErrBadRequestInt) {
+		if _, err := uru.InviteRoom(ctx, wantRoomID, model.UserID(0)); !errors.Is(err, myerrors.ErrBadRequestInt) {
 			t.Errorf("error is want %v, got %v", myerrors.ErrBadRequestInt, err)
 		}
 	})
