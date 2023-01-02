@@ -707,7 +707,7 @@ definitions:
     description: my error (default view)
     example:
       code: 404
-      details: 8846d25c-4470-45f9-ae73-170c18f8f30d
+      details: bdf02106-bcab-4d8b-afd3-3c8cf466dea6
       message: record not found
       status: unauthenticated
     properties:
@@ -718,7 +718,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: 8846d25c-4470-45f9-ae73-170c18f8f30d
+        example: bdf02106-bcab-4d8b-afd3-3c8cf466dea6
       message:
         description: エラーメッセージ
         example: record not found

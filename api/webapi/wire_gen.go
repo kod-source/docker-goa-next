@@ -49,7 +49,7 @@ func NewApp(ctx context.Context) (*App, error) {
 	roomDatastore := datastore.NewRoomDatastore(db, timeRepository)
 	roomInteractor := interactor.NewRoomInterractor(roomDatastore)
 	roomController := NewRoomController(service, roomInteractor)
-	userRoomDatastore := datastore.NewUserRoomRepository(timeRepository)
+	userRoomDatastore := datastore.NewUserRoomRepository(db, timeRepository)
 	userRoomInteractor := interactor.NewUserRoomUsecase(userRoomDatastore)
 	userRoomController := NewUserRoomController(service, userRoomInteractor)
 	app, err := newApp(ctx, service, usersController, postsController, operandsController, likesController, commentsController, authController, roomController, userRoomController)
