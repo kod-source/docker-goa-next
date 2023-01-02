@@ -235,18 +235,18 @@ definitions:
   CreateRoomRoomsPayload:
     example:
       is_group: true
-      name: DBルーム
+      name: DMルーム
       user_ids:
       - 1
       - 2
     properties:
       is_group:
-        description: DBかどうか
+        description: DMかどうか
         example: true
         type: boolean
       name:
         description: ルーム名
-        example: DBルーム
+        example: DMルーム
         type: string
       user_ids:
         description: ルームに入れるUserID
@@ -676,7 +676,7 @@ definitions:
     description: my error (default view)
     example:
       code: 404
-      details: 12a938f6-e3c4-41b7-8dc1-815674299c44
+      details: 6fc3733e-2f6c-4f25-b051-649c5bbb8bcf
       message: record not found
       status: unauthenticated
     properties:
@@ -687,7 +687,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: 12a938f6-e3c4-41b7-8dc1-815674299c44
+        example: 6fc3733e-2f6c-4f25-b051-649c5bbb8bcf
       message:
         description: エラーメッセージ
         example: record not found
@@ -1667,6 +1667,39 @@ paths:
       - jwt:
         - api:access
       summary: create_room rooms
+      tags:
+      - rooms
+  /rooms/exists:
+    get:
+      description: |-
+        DMの存在を確認する
+
+        Required security scopes:
+          * `api:access`
+      operationId: rooms#exists
+      parameters:
+      - description: ユーザーID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/vnd.room
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Room'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: exists rooms
       tags:
       - rooms
   /sign_up:

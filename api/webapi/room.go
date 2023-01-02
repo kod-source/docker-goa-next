@@ -52,6 +52,25 @@ func (r *RoomController) Index(ctx *app.IndexRoomsContext) error {
 	return ctx.OK(r.toAllRommUser(irs, nextID))
 }
 
+// Exists DMの存在しているか確認
+func (r *RoomController) Exists(ctx *app.ExistsRoomsContext) error {
+	room, err := r.ru.Exists(ctx, model.UserID(getUserIDCode(ctx)), model.UserID(ctx.UserID))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
+	}
+
+	return ctx.OK(&app.Room{
+		ID:        int(room.ID),
+		IsGroup:   room.IsGroup,
+		Name:      room.Name,
+		CreatedAt: room.CreatedAt,
+		UpdatedAt: room.UpdatedAt,
+	})
+}
+
 func (r *RoomController) toAllRommUser(irs []*model.IndexRoom, nextID *int) *app.AllRoomUser {
 	var airs []*app.IndexRoom
 	for _, ir := range irs {

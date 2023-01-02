@@ -16,9 +16,9 @@ var _ = Resource("rooms", func() {
 		Description("ルームの作成")
 		Payload(func() {
 			Attribute("name", String, "ルーム名", func() {
-				Example("DBルーム")
+				Example("DMルーム")
 			})
-			Attribute("is_group", Boolean, "DBかどうか", func() {
+			Attribute("is_group", Boolean, "DMかどうか", func() {
 				Example(true)
 			})
 			Attribute("user_ids", ArrayOf(Integer), "ルームに入れるUserID", func() {
@@ -38,6 +38,18 @@ var _ = Resource("rooms", func() {
 			Param("next_id", Integer, "次のID")
 		})
 		Response(OK, allRoomUser)
+		Response(NotFound)
+		Response(InternalServerError)
+	})
+
+	Action("exists", func() {
+		Routing(GET("rooms/exists"))
+		Description("DMの存在を確認する")
+		Params(func() {
+			Param("user_id", Integer, "ユーザーID")
+			Required("user_id")
+		})
+		Response(OK, room)
 		Response(NotFound)
 		Response(InternalServerError)
 	})

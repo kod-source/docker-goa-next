@@ -45,3 +45,11 @@ func (ri *roomInteractor) Index(ctx context.Context, id model.UserID, nextID mod
 
 	return irs, nID, nil
 }
+
+func (ri *roomInteractor) Exists(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error) {
+	room, err := ri.rr.GetNoneGroup(ctx, myID, id)
+	if err != nil {
+		return nil, err
+	}
+	return room, nil
+}
