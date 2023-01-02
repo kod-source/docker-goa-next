@@ -10,9 +10,9 @@ import (
 var _ usecase.UserRoomUseCase = (*MockUserRoomUsecase)(nil)
 
 type MockUserRoomUsecase struct {
-	InviteRoomFunc func(ctx context.Context, roomID model.RoomID, userID model.UserID) (model.UserRoom, error)
+	InviteRoomFunc func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error)
 }
 
 func (m *MockUserRoomUsecase) InviteRoom(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
-	return m.InviteRoom(ctx, roomID, userID)
+	return m.InviteRoomFunc(ctx, roomID, userID)
 }

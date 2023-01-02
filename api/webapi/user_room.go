@@ -22,7 +22,7 @@ func NewUserRoomController(service *goa.Service, uru usecase.UserRoomUseCase) *U
 func (ur *UserRoomController) InviteRoom(ctx *app.InviteRoomUserRoomsContext) error {
 	userRoom, err := ur.uru.InviteRoom(ctx, model.RoomID(ctx.Payload.RoomID), model.UserID(ctx.Payload.UserID))
 	if err != nil {
-		ctx.InternalServerError()
+		return ctx.InternalServerError()
 	}
 	return ctx.Created(&app.UserRoom{
 		ID:         int(userRoom.ID),
