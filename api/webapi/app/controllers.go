@@ -867,6 +867,83 @@ func unmarshalCreateRoomRoomsPayload(ctx context.Context, service *goa.Service, 
 	return nil
 }
 
+// UserRoomsController is the controller interface for the UserRooms actions.
+type UserRoomsController interface {
+	goa.Muxer
+	InviteRoom(*InviteRoomUserRoomsContext) error
+}
+
+// MountUserRoomsController "mounts" a UserRooms resource controller on the given service.
+func MountUserRoomsController(service *goa.Service, ctrl UserRoomsController) {
+	initService(service)
+	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/user_room", ctrl.MuxHandler("preflight", handleUserRoomsOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewInviteRoomUserRoomsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*InviteRoomUserRoomsPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.InviteRoom(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleUserRoomsOrigin(h)
+	service.Mux.Handle("POST", "/user_room", ctrl.MuxHandler("invite_room", h, unmarshalInviteRoomUserRoomsPayload))
+	service.LogInfo("mount", "ctrl", "UserRooms", "action", "InviteRoom", "route", "POST /user_room", "security", "jwt")
+}
+
+// handleUserRoomsOrigin applies the CORS response headers corresponding to the origin.
+func handleUserRoomsOrigin(h goa.Handler) goa.Handler {
+	spec0 := regexp.MustCompile(".*localhost.*")
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOriginRegexp(origin, spec0) {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Vary", "Origin")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+				rw.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
+}
+
+// unmarshalInviteRoomUserRoomsPayload unmarshals the request body into the context request data Payload field.
+func unmarshalInviteRoomUserRoomsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &inviteRoomUserRoomsPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
 // UsersController is the controller interface for the Users actions.
 type UsersController interface {
 	goa.Muxer
