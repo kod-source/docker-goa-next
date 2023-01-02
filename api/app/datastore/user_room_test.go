@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
 	"github.com/shogo82148/pointer"
@@ -56,6 +57,20 @@ func Test_CreateUserRoom(t *testing.T) {
 
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("mismatch (-want +got)\n %s", diff)
+		}
+	})
+
+	t.Run("[NG]UserRoomの作成 - 存在しないルームIDを指定", func(t *testing.T) {
+		_, err := urr.Create(ctx, 1000, 1)
+		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
+			t.Errorf("want error %v, but got error is %v", myerrors.MySQLErrorAddOrUpdateForeignKey.Number, code)
+		}
+	})
+
+	t.Run("[NG]UserRoomの作成 - 存在しないユーザーIDを指定", func(t *testing.T) {
+		_, err := urr.Create(ctx, model.RoomID(wantRoomID), 1000)
+		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
+			t.Errorf("want error %v, but got error is %v", myerrors.MySQLErrorAddOrUpdateForeignKey.Number, code)
 		}
 	})
 }

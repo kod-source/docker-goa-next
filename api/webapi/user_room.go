@@ -27,7 +27,7 @@ func (ur *UserRoomController) InviteRoom(ctx *app.InviteRoomUserRoomsContext) er
 	userID := ctx.Payload.UserID
 	userRoom, err := ur.uru.InviteRoom(ctx, model.RoomID(roomID), model.UserID(userID))
 	if err != nil {
-		if errors.Is(err, myerrors.ErrBadRequestInt) {
+		if errors.Is(err, myerrors.ErrBadRequestInt) || errors.Is(err, myerrors.MySQLErrorAddOrUpdateForeignKey) {
 			return ctx.BadRequest()
 		}
 		return ctx.InternalServerError()
