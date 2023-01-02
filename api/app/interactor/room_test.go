@@ -121,6 +121,7 @@ func Test_IndexRoom(t *testing.T) {
 				},
 				IsOpen:   true,
 				LastText: "test_text1",
+				CountUser: 10,
 			},
 			{
 				Room: model.Room{
@@ -132,6 +133,7 @@ func Test_IndexRoom(t *testing.T) {
 				},
 				IsOpen:   false,
 				LastText: "test_text2",
+				CountUser: 2,
 			},
 		}
 		rr.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {

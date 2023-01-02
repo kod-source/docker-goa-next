@@ -137,6 +137,8 @@ func (mt *IndexPostJSON) Validate() (err error) {
 //
 // Identifier: application/vnd.index_room; view=default
 type IndexRoom struct {
+	// ルームに入っているユーザー数
+	CountUser int `form:"count_user" json:"count_user" yaml:"count_user" xml:"count_user"`
 	// 開いたどうか
 	IsOpen bool `form:"is_open" json:"is_open" yaml:"is_open" xml:"is_open"`
 	// 最後の内容
