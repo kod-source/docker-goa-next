@@ -304,8 +304,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   false,
-				LastText: "thread5",
+				IsOpen:    false,
+				LastText:  "thread5",
 				CountUser: 2,
 			},
 			{
@@ -316,8 +316,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: now,
 					UpdatedAt: now,
 				},
-				IsOpen:   false,
-				LastText: "thread3",
+				IsOpen:    false,
+				LastText:  "thread3",
 				CountUser: 2,
 			},
 			{
@@ -328,8 +328,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: now,
 					UpdatedAt: now,
 				},
-				IsOpen:   true,
-				LastText: "",
+				IsOpen:    true,
+				LastText:  "",
 				CountUser: 2,
 			},
 		}
@@ -359,8 +359,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: now,
 					UpdatedAt: now,
 				},
-				IsOpen:   false,
-				LastText: "thread3",
+				IsOpen:    false,
+				LastText:  "thread3",
 				CountUser: 2,
 			},
 		}
@@ -424,8 +424,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   false,
-				LastText: "thread5",
+				IsOpen:    false,
+				LastText:  "thread5",
 				CountUser: 2,
 			},
 			{
@@ -436,8 +436,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: now,
 					UpdatedAt: now,
 				},
-				IsOpen:   false,
-				LastText: "thread3",
+				IsOpen:    false,
+				LastText:  "thread3",
 				CountUser: 2,
 			},
 			{
@@ -448,8 +448,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: now,
 					UpdatedAt: now,
 				},
-				IsOpen:   true,
-				LastText: "test_thread",
+				IsOpen:    true,
+				LastText:  "test_thread",
 				CountUser: 1,
 			},
 		}
@@ -528,6 +528,138 @@ func Test_IndexRoom(t *testing.T) {
 			if err := rd.Delete(ctx, model.RoomID(r.ID)); err != nil {
 				t.Fatal(err)
 			}
+		}
+	})
+
+	t.Run("[OK]ルーム表示 - CountUserが多い時", func(t *testing.T) {
+		roomID := 38
+		if err := schema.InsertRoom(ctx, testDB, &schema.Room{
+			ID:        uint64(roomID),
+			Name:      "count_user_room",
+			IsGroup:   false,
+			CreatedAt: now,
+			UpdatedAt: now,
+		}); err != nil {
+			t.Fatal(err)
+		}
+		countUserID := 3
+		if err := schema.InsertUser(ctx, testDB, &schema.User{
+			ID:        uint64(countUserID),
+			Name:      "count_user",
+			Email:     "count@gmail.com",
+			Password:  "count_pass",
+			CreatedAt: now,
+			UpdatedAt: now,
+			Avatar: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
+		}); err != nil {
+			t.Fatal(err)
+		}
+		userRooms := []*schema.UserRoom{
+			{
+				ID:     8,
+				UserID: 1,
+				RoomID: uint64(roomID),
+				LastReadAt: sql.NullTime{
+					Time:  now,
+					Valid: false,
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			},
+			{
+				ID:     8,
+				UserID: 2,
+				RoomID: uint64(roomID),
+				LastReadAt: sql.NullTime{
+					Time:  now,
+					Valid: false,
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			},
+			{
+				ID:     9,
+				UserID: uint64(countUserID),
+				RoomID: uint64(roomID),
+				LastReadAt: sql.NullTime{
+					Time:  now,
+					Valid: false,
+				},
+				CreatedAt: now,
+				UpdatedAt: now,
+			},
+		}
+		if err := schema.InsertUserRoom(ctx, testDB, userRooms...); err != nil {
+			t.Fatal(err)
+		}
+		if err := schema.InsertThread(ctx, testDB, &schema.Thread{
+			ID:        7,
+			UserID:    1,
+			RoomID:    uint64(roomID),
+			Text:      "test_thread",
+			CreatedAt: now,
+			UpdatedAt: now,
+			Img: sql.NullString{
+				String: "test_img",
+				Valid:  true,
+			},
+		}); err != nil {
+			t.Fatal(err)
+		}
+		want := []*model.IndexRoom{
+			{
+				Room: model.Room{
+					ID:        2,
+					Name:      "test2_room",
+					IsGroup:   false,
+					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+				},
+				IsOpen:    false,
+				LastText:  "thread5",
+				CountUser: 2,
+			},
+			{
+				Room: model.Room{
+					ID:        1,
+					Name:      "test1_room",
+					IsGroup:   true,
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
+				IsOpen:    false,
+				LastText:  "thread3",
+				CountUser: 2,
+			},
+			{
+				Room: model.Room{
+					ID:        model.RoomID(roomID),
+					Name:      "count_user_room",
+					IsGroup:   false,
+					CreatedAt: now,
+					UpdatedAt: now,
+				},
+				IsOpen:    false,
+				LastText:  "test_thread",
+				CountUser: 3,
+			},
+		}
+		got, gotNextID, err := rd.Index(ctx, 1, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if gotNextID != nil {
+			t.Errorf("want nextID is nil but got is %d", *gotNextID)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+		if err := rd.Delete(ctx, model.RoomID(roomID)); err != nil {
+			t.Fatal(err)
 		}
 	})
 
