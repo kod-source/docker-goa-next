@@ -20,7 +20,13 @@ func NewUserRoomController(service *goa.Service, uru usecase.UserRoomUseCase) *U
 
 // InviteRoom ルームに招待する
 func (ur *UserRoomController) InviteRoom(ctx *app.InviteRoomUserRoomsContext) error {
-	userRoom, err := ur.uru.InviteRoom(ctx, model.RoomID(ctx.Payload.RoomID), model.UserID(ctx.Payload.UserID))
+	roomID := ctx.Payload.RoomID
+	userID := ctx.Payload.UserID
+	if roomID == 0 || userID == 0 {
+		return ctx.BadRequest()
+	}
+
+	userRoom, err := ur.uru.InviteRoom(ctx, model.RoomID(roomID), model.UserID(userID))
 	if err != nil {
 		return ctx.InternalServerError()
 	}
