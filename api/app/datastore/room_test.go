@@ -226,8 +226,9 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   false,
-				LastText: "thread5",
+				IsOpen:    false,
+				LastText:  "thread5",
+				CountUser: 2,
 			},
 			{
 				Room: model.Room{
@@ -237,8 +238,9 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: now,
 					UpdatedAt: now,
 				},
-				IsOpen:   false,
-				LastText: "thread3",
+				IsOpen:    false,
+				LastText:  "thread3",
+				CountUser: 2,
 			},
 		}
 		got, gotNextID, err := rd.Index(ctx, 1, 0)
@@ -304,6 +306,7 @@ func Test_IndexRoom(t *testing.T) {
 				},
 				IsOpen:   false,
 				LastText: "thread5",
+				CountUser: 2,
 			},
 			{
 				Room: model.Room{
@@ -315,6 +318,7 @@ func Test_IndexRoom(t *testing.T) {
 				},
 				IsOpen:   false,
 				LastText: "thread3",
+				CountUser: 2,
 			},
 			{
 				Room: model.Room{
@@ -326,6 +330,7 @@ func Test_IndexRoom(t *testing.T) {
 				},
 				IsOpen:   true,
 				LastText: "",
+				CountUser: 2,
 			},
 		}
 		got, gotNextID, err := rd.Index(ctx, 1, 0)
@@ -356,6 +361,7 @@ func Test_IndexRoom(t *testing.T) {
 				},
 				IsOpen:   false,
 				LastText: "thread3",
+				CountUser: 2,
 			},
 		}
 		got, gotNextID, err := rd.Index(ctx, 1, 1)
@@ -420,6 +426,7 @@ func Test_IndexRoom(t *testing.T) {
 				},
 				IsOpen:   false,
 				LastText: "thread5",
+				CountUser: 2,
 			},
 			{
 				Room: model.Room{
@@ -431,6 +438,7 @@ func Test_IndexRoom(t *testing.T) {
 				},
 				IsOpen:   false,
 				LastText: "thread3",
+				CountUser: 2,
 			},
 			{
 				Room: model.Room{
@@ -442,6 +450,7 @@ func Test_IndexRoom(t *testing.T) {
 				},
 				IsOpen:   true,
 				LastText: "test_thread",
+				CountUser: 1,
 			},
 		}
 		got, gotNextID, err := rd.Index(ctx, 1, 0)

@@ -155,12 +155,18 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 	defer tx.Rollback()
 
 	query := "SELECT `thr`.`id`, `thr`.`name`, `thr`.`is_group`, `thr`.`created_at`, `thr`.`updated_at`, "
-	query += "`thr`.`last_thread_at`, `thr`.`last_text`, `ur`.`last_read_at` "
+	query += "`thr`.`last_thread_at`, `thr`.`last_text`, `thr`.`user_count`,`ur`.`last_read_at` "
 	query += "FROM `user_room` AS `ur` "
 	query += "INNER JOIN ( "
 	query += "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, "
-	query += "`th`.`created_at` AS `last_thread_at`, `th`.`text` AS `last_text` "
+	query += "`th`.`created_at` AS `last_thread_at`, `th`.`text` AS `last_text`, `ur`.`user_count` "
 	query += "FROM `room` AS `r` "
+	query += "INNER JOIN ( "
+	query += "SELECT `room_id`, COUNT(`id`) AS `user_count` "
+	query += "FROM `user_room` "
+	query += "GROUP BY `room_id` "
+	query += ") AS `ur` "
+	query += "ON `r`.`id` = `ur`.`room_id` "
 	query += "LEFT JOIN ( "
 	query += "SELECT `th1`.`id`, `th1`.`room_id`, `th1`.`created_at`, `th1`.`text` "
 	query += "FROM `thread` AS `th1` "
@@ -189,6 +195,7 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 		var userRoom schema.UserRoom
 		var lastThreadAt sql.NullTime
 		var lastText sql.NullString
+		var userCount int
 
 		if err := rows.Scan(
 			&room.ID,
@@ -198,6 +205,7 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 			&room.UpdatedAt,
 			&lastThreadAt,
 			&lastText,
+			&userCount,
 			&userRoom.LastReadAt,
 		); err != nil {
 			return nil, nil, err
@@ -226,6 +234,7 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 			},
 			IsOpen:   isOpen,
 			LastText: lt,
+			CountUser: userCount,
 		})
 	}
 
