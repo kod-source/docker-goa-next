@@ -44,5 +44,9 @@ func (ur *UserRoomController) InviteRoom(ctx *app.InviteRoomUserRoomsContext) er
 
 // Delete ルームから除外する
 func (ur *UserRoomController) Delete(ctx *app.DeleteUserRoomsContext) error {
+	if err := ur.uru.Delete(ctx, model.UserRoomID(ctx.ID)); err != nil {
+		return ctx.InternalServerError()
+	}
+
 	return ctx.OK(nil)
 }

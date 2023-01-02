@@ -35,3 +35,11 @@ func (uri *userRoomInteractor) InviteRoom(ctx context.Context, roomID model.Room
 	}
 	return ur, nil
 }
+
+func (uri *userRoomInteractor) Delete(ctx context.Context, id model.UserRoomID) error {
+	if err := uri.urr.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	return nil
+}
