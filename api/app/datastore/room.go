@@ -146,6 +146,7 @@ func (rd *roomDatastore) Delete(ctx context.Context, id model.RoomID) error {
 	return nil
 }
 
+// Index ルームの一覧を返す
 func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
 	tx, err := rd.db.Begin()
 	if err != nil {
@@ -264,6 +265,7 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 	return irs, resNextID, tx.Commit()
 }
 
+// GetNoneGroup 指定したUserのDMのルームを取得する
 func (rd *roomDatastore) GetNoneGroup(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error) {
 	tx, err := rd.db.Begin()
 	if err != nil {
