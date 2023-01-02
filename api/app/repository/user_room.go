@@ -8,4 +8,5 @@ import (
 
 type UserRoomRepository interface {
 	Create(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error)
+	Delete(ctx context.Context, id model.UserRoomID) error
 }

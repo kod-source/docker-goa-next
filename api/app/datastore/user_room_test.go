@@ -1,6 +1,8 @@
 package datastore
 
 import (
+	"database/sql"
+	"errors"
 	"testing"
 	"time"
 
@@ -41,6 +43,11 @@ func Test_CreateUserRoom(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer func() {
+			if err := urr.Delete(ctx, got.ID); err != nil {
+				t.Fatal(err)
+			}
+		}()
 
 		ur, err := schema.SelectUserRoom(ctx, testDB, &schema.UserRoom{ID: uint64(got.ID)})
 		if err != nil {
@@ -71,6 +78,51 @@ func Test_CreateUserRoom(t *testing.T) {
 		_, err := urr.Create(ctx, model.RoomID(wantRoomID), 1000)
 		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
 			t.Errorf("want error %v, but got error is %v", myerrors.MySQLErrorAddOrUpdateForeignKey.Number, code)
+		}
+	})
+}
+
+func Test_DeleteUserRoom(t *testing.T) {
+	urr := NewUserRoomRepository(testDB, nil)
+
+	wantRoomID := 40
+	if err := schema.InsertRoom(ctx, testDB, &schema.Room{
+		ID:        uint64(wantRoomID),
+		Name:      "test create room",
+		IsGroup:   true,
+		CreatedAt: now,
+		UpdatedAt: now,
+	}); err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		rr := NewRoomDatastore(testDB, nil)
+		if err := rr.Delete(ctx, model.RoomID(wantRoomID)); err != nil {
+			t.Fatal(err)
+		}
+	}()
+
+	t.Run("[OK]UserRoomの削除", func(t *testing.T) {
+		userRoomID := 50
+		if err := schema.InsertUserRoom(ctx, testDB, &schema.UserRoom{
+			ID:     uint64(userRoomID),
+			UserID: 1,
+			RoomID: uint64(wantRoomID),
+			LastReadAt: sql.NullTime{
+				Time:  now,
+				Valid: false,
+			},
+			CreatedAt: now,
+			UpdatedAt: now,
+		}); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := urr.Delete(ctx, model.UserRoomID(userRoomID)); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := schema.SelectUserRoom(ctx, testDB, &schema.UserRoom{ID: uint64(userRoomID)}); !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("error is want %v, got %v", sql.ErrNoRows, err)
 		}
 	})
 }
