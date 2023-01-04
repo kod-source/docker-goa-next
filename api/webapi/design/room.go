@@ -62,6 +62,7 @@ var _ = Resource("rooms", func() {
 		})
 		Response(OK, roomUser)
 		Response(NotFound)
+		Response(BadRequest)
 		Response(InternalServerError)
 	})
 })

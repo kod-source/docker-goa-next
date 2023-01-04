@@ -707,7 +707,7 @@ definitions:
     description: my error (default view)
     example:
       code: 404
-      details: 89c8ab48-43c0-4620-bebc-e06253478d8f
+      details: 480017d6-2708-4088-af9c-ae3c807beb48
       message: record not found
       status: unauthenticated
     properties:
@@ -718,7 +718,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: 89c8ab48-43c0-4620-bebc-e06253478d8f
+        example: 480017d6-2708-4088-af9c-ae3c807beb48
       message:
         description: エラーメッセージ
         example: record not found
@@ -1769,6 +1769,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Room_user'
+        "400":
+          description: Bad Request
         "404":
           description: Not Found
         "500":

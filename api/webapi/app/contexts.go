@@ -1549,6 +1549,12 @@ func (ctx *ShowRoomsContext) OK(r *RoomUser) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ShowRoomsContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
 // NotFound sends a HTTP response with status code 404.
 func (ctx *ShowRoomsContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)

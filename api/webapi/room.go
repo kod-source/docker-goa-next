@@ -71,6 +71,22 @@ func (r *RoomController) Exists(ctx *app.ExistsRoomsContext) error {
 	})
 }
 
+// Show ルームの詳細を取得
+func (r *RoomController) Show(ctx *app.ShowRoomsContext) error {
+	ru, err := r.ru.Show(ctx, model.RoomID(ctx.ID))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
+	}
+	if !r.isFineRoom(model.UserID(getUserIDCode(ctx)), ru.Users) {
+		return ctx.BadRequest()
+	}
+
+	return ctx.OK(r.toRoomUser(ru))
+}
+
 func (r *RoomController) toAllRommUser(irs []*model.IndexRoom, nextID *int) *app.AllRoomUser {
 	var airs []*app.IndexRoom
 	for _, ir := range irs {
@@ -130,4 +146,13 @@ func (r *RoomController) toUserIDsArray(ids []int) []model.UserID {
 	}
 
 	return userIDs
+}
+
+func (r *RoomController) isFineRoom(id model.UserID, users []*model.ShowUser) bool {
+	for _, u := range users {
+		if u.ID == id {
+			return true
+		}
+	}
+	return false
 }

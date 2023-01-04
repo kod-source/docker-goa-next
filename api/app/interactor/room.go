@@ -53,3 +53,7 @@ func (ri *roomInteractor) Exists(ctx context.Context, myID model.UserID, id mode
 	}
 	return room, nil
 }
+
+func (ri *roomInteractor) Show(ctx context.Context, id model.RoomID) (*model.RoomUser, error) {
+	return nil, nil
+}
