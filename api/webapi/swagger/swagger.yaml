@@ -707,7 +707,7 @@ definitions:
     description: my error (default view)
     example:
       code: 404
-      details: ca5e6137-fd04-420a-9cf2-3a4317b3cd63
+      details: 89c8ab48-43c0-4620-bebc-e06253478d8f
       message: record not found
       status: unauthenticated
     properties:
@@ -718,7 +718,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: ca5e6137-fd04-420a-9cf2-3a4317b3cd63
+        example: 89c8ab48-43c0-4620-bebc-e06253478d8f
       message:
         description: エラーメッセージ
         example: record not found
@@ -1746,6 +1746,39 @@ paths:
       - jwt:
         - api:access
       summary: create_room rooms
+      tags:
+      - rooms
+  /rooms/{id}:
+    get:
+      description: |-
+        ルームの詳細を取得する
+
+        Required security scopes:
+          * `api:access`
+      operationId: rooms#show
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/vnd.room_user
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Room_user'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: show rooms
       tags:
       - rooms
   /rooms/exists:

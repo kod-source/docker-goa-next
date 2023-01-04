@@ -759,6 +759,7 @@ type RoomsController interface {
 	CreateRoom(*CreateRoomRoomsContext) error
 	Exists(*ExistsRoomsContext) error
 	Index(*IndexRoomsContext) error
+	Show(*ShowRoomsContext) error
 }
 
 // MountRoomsController "mounts" a Rooms resource controller on the given service.
@@ -767,6 +768,7 @@ func MountRoomsController(service *goa.Service, ctrl RoomsController) {
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/rooms", ctrl.MuxHandler("preflight", handleRoomsOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/rooms/exists", ctrl.MuxHandler("preflight", handleRoomsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/rooms/:id", ctrl.MuxHandler("preflight", handleRoomsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -824,6 +826,23 @@ func MountRoomsController(service *goa.Service, ctrl RoomsController) {
 	h = handleRoomsOrigin(h)
 	service.Mux.Handle("GET", "/rooms", ctrl.MuxHandler("index", h, nil))
 	service.LogInfo("mount", "ctrl", "Rooms", "action", "Index", "route", "GET /rooms", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowRoomsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Show(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleRoomsOrigin(h)
+	service.Mux.Handle("GET", "/rooms/:id", ctrl.MuxHandler("show", h, nil))
+	service.LogInfo("mount", "ctrl", "Rooms", "action", "Show", "route", "GET /rooms/:id", "security", "jwt")
 }
 
 // handleRoomsOrigin applies the CORS response headers corresponding to the origin.
