@@ -78,7 +78,7 @@ func (r *RoomController) Show(ctx *app.ShowRoomsContext) error {
 		switch err {
 		case sql.ErrNoRows:
 			return ctx.NotFound()
-		case myerrors.ErrBadRequesNoPermission:
+		case myerrors.ErrBadRequestNoPermission:
 			return ctx.BadRequest()
 		default:
 			return ctx.InternalServerError()

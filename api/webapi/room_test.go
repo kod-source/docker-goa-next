@@ -604,7 +604,7 @@ func Test_Show(t *testing.T) {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
 
-			return nil, myerrors.ErrBadRequesNoPermission
+			return nil, myerrors.ErrBadRequestNoPermission
 		}
 		defer func() {
 			ru.ShowFunc = nil

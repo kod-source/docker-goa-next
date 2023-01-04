@@ -62,7 +62,7 @@ func (ri *roomInteractor) Show(ctx context.Context, id model.RoomID, userID mode
 
 	// DMの際は自分が存在しているルームかチェックする
 	if !ru.Room.IsGroup && !ri.isFineRoom(userID, ru.Users) {
-		return nil, myerrors.ErrBadRequesNoPermission
+		return nil, myerrors.ErrBadRequestNoPermission
 	}
 
 	return ru, nil

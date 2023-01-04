@@ -353,8 +353,8 @@ func Test_Show(t *testing.T) {
 			return want, nil
 		}
 
-		if _, err := ri.Show(ctx, wantRoomID, wantMyUserID); !errors.Is(err, myerrors.ErrBadRequesNoPermission) {
-			t.Errorf("error is -want %v, +got %v", myerrors.ErrBadRequesNoPermission, err)
+		if _, err := ri.Show(ctx, wantRoomID, wantMyUserID); !errors.Is(err, myerrors.ErrBadRequestNoPermission) {
+			t.Errorf("error is -want %v, +got %v", myerrors.ErrBadRequestNoPermission, err)
 		}
 	})
 
