@@ -80,7 +80,9 @@ func (r *RoomController) Show(ctx *app.ShowRoomsContext) error {
 		}
 		return ctx.InternalServerError()
 	}
-	if !r.isFineRoom(model.UserID(getUserIDCode(ctx)), ru.Users) {
+
+	// DMの際は自分が存在しているルームかチェックする
+	if !ru.Room.IsGroup && !r.isFineRoom(model.UserID(getUserIDCode(ctx)), ru.Users) {
 		return ctx.BadRequest()
 	}
 
