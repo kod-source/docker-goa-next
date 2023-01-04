@@ -66,6 +66,22 @@ func Test_CreateRoom(t *testing.T) {
 		}
 	})
 
+	t.Run("[NG]ルーム作成 - DM作成時にUserIDの数が違う時", func(t *testing.T) {
+		rr.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+			if diff := cmp.Diff(wantRoomName, name); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(false, isGroup); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return nil, nil
+		}
+
+		if _, err := ri.Create(ctx, wantRoomName, false, []model.UserID{1, 2, 3, 4}); !errors.Is(err, myerrors.ErrBadRequestSting) {
+			t.Errorf("want error is %v, but got error is %v", myerrors.ErrBadRequestSting, err)
+		}
+	})
+
 	t.Run("[NG]ルーム作成 - UserIDがない時", func(t *testing.T) {
 		rr.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomName, name); diff != "" {
@@ -119,8 +135,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   true,
-				LastText: "test_text1",
+				IsOpen:    true,
+				LastText:  "test_text1",
 				CountUser: 10,
 			},
 			{
@@ -131,8 +147,8 @@ func Test_IndexRoom(t *testing.T) {
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				},
-				IsOpen:   false,
-				LastText: "test_text2",
+				IsOpen:    false,
+				LastText:  "test_text2",
 				CountUser: 2,
 			},
 		}
