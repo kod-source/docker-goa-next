@@ -309,6 +309,11 @@ func (rd *roomDatastore) GetNoneGroup(ctx context.Context, myID model.UserID, id
 	}, tx.Commit()
 }
 
+// Show ...
+func (rd *roomDatastore) Show(ctx context.Context, id model.RoomID) (*model.RoomUser, error) {
+	return nil, nil
+}
+
 func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User) *model.RoomUser {
 	var showUsers []*model.ShowUser
 	for _, u := range users {

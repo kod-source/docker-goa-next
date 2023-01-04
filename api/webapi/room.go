@@ -73,17 +73,16 @@ func (r *RoomController) Exists(ctx *app.ExistsRoomsContext) error {
 
 // Show ルームの詳細を取得
 func (r *RoomController) Show(ctx *app.ShowRoomsContext) error {
-	ru, err := r.ru.Show(ctx, model.RoomID(ctx.ID))
+	ru, err := r.ru.Show(ctx, model.RoomID(ctx.ID), model.UserID(getUserIDCode(ctx)))
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		switch err {
+		case sql.ErrNoRows:
 			return ctx.NotFound()
+		case myerrors.ErrBadRequesNoPermission:
+			return ctx.BadRequest()
+		default:
+			return ctx.InternalServerError()
 		}
-		return ctx.InternalServerError()
-	}
-
-	// DMの際は自分が存在しているルームかチェックする
-	if !ru.Room.IsGroup && !r.isFineRoom(model.UserID(getUserIDCode(ctx)), ru.Users) {
-		return ctx.BadRequest()
 	}
 
 	return ctx.OK(r.toRoomUser(ru))
@@ -148,13 +147,4 @@ func (r *RoomController) toUserIDsArray(ids []int) []model.UserID {
 	}
 
 	return userIDs
-}
-
-func (r *RoomController) isFineRoom(id model.UserID, users []*model.ShowUser) bool {
-	for _, u := range users {
-		if u.ID == id {
-			return true
-		}
-	}
-	return false
 }
