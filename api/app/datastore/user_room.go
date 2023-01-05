@@ -82,7 +82,7 @@ func (urd *userRoomDatastore) Create(ctx context.Context, roomID model.RoomID, u
 		return nil, err
 	}
 
-	if !room.IsGroup && userCount > 2 {
+	if !room.IsGroup && userCount > DMMaxCount {
 		return nil, myerrors.ErrBadRequestNoPermission
 	}
 
