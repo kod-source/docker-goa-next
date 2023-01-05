@@ -21,4 +21,5 @@ type IndexRoom struct {
 	Room     Room
 	IsOpen   bool
 	LastText string
+	CountUser int
 }

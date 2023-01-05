@@ -146,6 +146,7 @@ func (rd *roomDatastore) Delete(ctx context.Context, id model.RoomID) error {
 	return nil
 }
 
+// Index ルームの一覧を返す
 func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
 	tx, err := rd.db.Begin()
 	if err != nil {
@@ -154,12 +155,18 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 	defer tx.Rollback()
 
 	query := "SELECT `thr`.`id`, `thr`.`name`, `thr`.`is_group`, `thr`.`created_at`, `thr`.`updated_at`, "
-	query += "`thr`.`last_thread_at`, `thr`.`last_text`, `ur`.`last_read_at` "
+	query += "`thr`.`last_thread_at`, `thr`.`last_text`, `thr`.`user_count`,`ur`.`last_read_at` "
 	query += "FROM `user_room` AS `ur` "
 	query += "INNER JOIN ( "
 	query += "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, "
-	query += "`th`.`created_at` AS `last_thread_at`, `th`.`text` AS `last_text` "
+	query += "`th`.`created_at` AS `last_thread_at`, `th`.`text` AS `last_text`, `ur`.`user_count` "
 	query += "FROM `room` AS `r` "
+	query += "INNER JOIN ( "
+	query += "SELECT `room_id`, COUNT(`id`) AS `user_count` "
+	query += "FROM `user_room` "
+	query += "GROUP BY `room_id` "
+	query += ") AS `ur` "
+	query += "ON `r`.`id` = `ur`.`room_id` "
 	query += "LEFT JOIN ( "
 	query += "SELECT `th1`.`id`, `th1`.`room_id`, `th1`.`created_at`, `th1`.`text` "
 	query += "FROM `thread` AS `th1` "
@@ -188,6 +195,7 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 		var userRoom schema.UserRoom
 		var lastThreadAt sql.NullTime
 		var lastText sql.NullString
+		var userCount int
 
 		if err := rows.Scan(
 			&room.ID,
@@ -197,6 +205,7 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 			&room.UpdatedAt,
 			&lastThreadAt,
 			&lastText,
+			&userCount,
 			&userRoom.LastReadAt,
 		); err != nil {
 			return nil, nil, err
@@ -225,6 +234,7 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 			},
 			IsOpen:   isOpen,
 			LastText: lt,
+			CountUser: userCount,
 		})
 	}
 
@@ -262,6 +272,41 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 		resNextID = nil
 	}
 	return irs, resNextID, tx.Commit()
+}
+
+// GetNoneGroup 指定したUserのDMのルームを取得する
+func (rd *roomDatastore) GetNoneGroup(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error) {
+	tx, err := rd.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	var room schema.Room
+	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at` "
+	query += "FROM `room` AS `r` "
+	query += "INNER JOIN `user_room` AS `ur1` "
+	query += "ON `r`.`id` = `ur1`.`room_id` "
+	query += "INNER JOIN `user_room` AS `ur2` "
+	query += "ON `ur1`.`room_id` = `ur2`.`room_id` "
+	query += "WHERE `r`.`is_group` = 0 AND `ur1`.`user_id` = ? AND `ur2`.`user_id` = ? "
+	if err := tx.QueryRowContext(ctx, query, myID, id).Scan(
+		&room.ID,
+		&room.Name,
+		&room.IsGroup,
+		&room.CreatedAt,
+		&room.UpdatedAt,
+	); err != nil {
+		return nil, err
+	}
+
+	return &model.Room{
+		ID:        model.RoomID(room.ID),
+		Name:      room.Name,
+		IsGroup:   room.IsGroup,
+		CreatedAt: room.CreatedAt,
+		UpdatedAt: room.UpdatedAt,
+	}, tx.Commit()
 }
 
 func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User) *model.RoomUser {

@@ -137,6 +137,8 @@ func (mt *IndexPostJSON) Validate() (err error) {
 //
 // Identifier: application/vnd.index_room; view=default
 type IndexRoom struct {
+	// ルームに入っているユーザー数
+	CountUser int `form:"count_user" json:"count_user" yaml:"count_user" xml:"count_user"`
 	// 開いたどうか
 	IsOpen bool `form:"is_open" json:"is_open" yaml:"is_open" xml:"is_open"`
 	// 最後の内容
@@ -503,6 +505,30 @@ type User struct {
 
 // Validate validates the User media type instance.
 func (mt *User) Validate() (err error) {
+
+	return
+}
+
+// user room (default view)
+//
+// Identifier: application/vnd.user_room+json; view=default
+type UserRoom struct {
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// ID
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 最後に開いた日時
+	LastReadAt *time.Time `form:"last_read_at,omitempty" json:"last_read_at,omitempty" yaml:"last_read_at,omitempty" xml:"last_read_at,omitempty"`
+	// ルームID
+	RoomID int `form:"room_id" json:"room_id" yaml:"room_id" xml:"room_id"`
+	// 更新日
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+	// ユーザーID
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+}
+
+// Validate validates the UserRoom media type instance.
+func (mt *UserRoom) Validate() (err error) {
 
 	return
 }

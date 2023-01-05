@@ -29,6 +29,9 @@ func (ri *roomInteractor) Create(ctx context.Context, name string, isGroup bool,
 	if len(userIDs) == 0 {
 		return nil, myerrors.ErrBadRequestEmptyArray
 	}
+	if !isGroup && len(userIDs) != 2 {
+		return nil, myerrors.ErrBadRequestSting
+	}
 
 	ru, err := ri.rr.Create(ctx, name, isGroup, userIDs)
 	if err != nil {
@@ -44,4 +47,12 @@ func (ri *roomInteractor) Index(ctx context.Context, id model.UserID, nextID mod
 	}
 
 	return irs, nID, nil
+}
+
+func (ri *roomInteractor) Exists(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error) {
+	room, err := ri.rr.GetNoneGroup(ctx, myID, id)
+	if err != nil {
+		return nil, err
+	}
+	return room, nil
 }
