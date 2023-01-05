@@ -232,8 +232,8 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 				CreatedAt: room.CreatedAt,
 				UpdatedAt: room.UpdatedAt,
 			},
-			IsOpen:   isOpen,
-			LastText: lt,
+			IsOpen:    isOpen,
+			LastText:  lt,
 			CountUser: userCount,
 		})
 	}
@@ -311,7 +311,50 @@ func (rd *roomDatastore) GetNoneGroup(ctx context.Context, myID model.UserID, id
 
 // Show ...
 func (rd *roomDatastore) Show(ctx context.Context, id model.RoomID) (*model.RoomUser, error) {
-	return nil, nil
+	tx, err := rd.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, "
+	query += "`u`.`id`, `u`.`name`, `u`.`created_at`, `u`.`avatar` "
+	query += "FROM `room` AS `r` "
+	query += "INNER JOIN `user_room` AS `ur` "
+	query += "ON `r`.`id` = `ur`.`room_id` "
+	query += "INNER JOIN `user` AS `u` "
+	query += "ON `ur`.`user_id` = `u`.`id` "
+	query += "WHERE `r`.`id` = ?"
+	rows, err := tx.QueryContext(ctx, query, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var room schema.Room
+	var users []*schema.User
+	for rows.Next() {
+		var user schema.User
+		if err := rows.Scan(
+			&room.ID,
+			&room.Name,
+			&room.IsGroup,
+			&room.CreatedAt,
+			&room.UpdatedAt,
+			&user.ID,
+			&user.Name,
+			&user.CreatedAt,
+			&user.Avatar,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+	if room.ID == 0 {
+		return nil, sql.ErrNoRows
+	}
+
+	return rd.toModelRoomUser(room, users), tx.Commit()
 }
 
 func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User) *model.RoomUser {
