@@ -14,5 +14,5 @@ type RoomUseCase interface {
 	// Exists DMのルームが存在しているか確認
 	Exists(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error)
 	// Show ルームの詳細を返す
-	Show(ctx context.Context, id model.RoomID, userID model.UserID) (*model.RoomUser, error)
+	Show(ctx context.Context, id model.RoomID, myID model.UserID) (*model.RoomUser, error)
 }

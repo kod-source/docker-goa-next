@@ -419,11 +419,11 @@ func Test_Show(t *testing.T) {
 				},
 			},
 		}
-		ru.ShowFunc = func(ctx context.Context, id model.RoomID, userID model.UserID) (*model.RoomUser, error) {
+		ru.ShowFunc = func(ctx context.Context, id model.RoomID, myID model.UserID) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomID, id); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantMyUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
 
@@ -510,11 +510,11 @@ func Test_Show(t *testing.T) {
 				},
 			},
 		}
-		ru.ShowFunc = func(ctx context.Context, id model.RoomID, userID model.UserID) (*model.RoomUser, error) {
+		ru.ShowFunc = func(ctx context.Context, id model.RoomID, myID model.UserID) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomID, id); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantMyUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
 
@@ -578,11 +578,11 @@ func Test_Show(t *testing.T) {
 	})
 
 	t.Run("[NG]ルームの詳細を取得 - ルームが存在しない時", func(t *testing.T) {
-		ru.ShowFunc = func(ctx context.Context, id model.RoomID, userID model.UserID) (*model.RoomUser, error) {
+		ru.ShowFunc = func(ctx context.Context, id model.RoomID, myID model.UserID) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomID, id); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantMyUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
 
@@ -596,11 +596,11 @@ func Test_Show(t *testing.T) {
 	})
 
 	t.Run("[NG]ルームの詳細を取得 - ルームの閲覧権限がない時", func(t *testing.T) {
-		ru.ShowFunc = func(ctx context.Context, id model.RoomID, userID model.UserID) (*model.RoomUser, error) {
+		ru.ShowFunc = func(ctx context.Context, id model.RoomID, myID model.UserID) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomID, id); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantMyUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
 
@@ -614,11 +614,11 @@ func Test_Show(t *testing.T) {
 	})
 
 	t.Run("[NG]ルームの詳細を取得 - 想定外エラー発生", func(t *testing.T) {
-		ru.ShowFunc = func(ctx context.Context, id model.RoomID, userID model.UserID) (*model.RoomUser, error) {
+		ru.ShowFunc = func(ctx context.Context, id model.RoomID, myID model.UserID) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomID, id); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantMyUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want got)\n%s", diff)
 			}
 			return nil, errors.New("test error")
