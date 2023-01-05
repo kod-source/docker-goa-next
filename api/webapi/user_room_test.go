@@ -132,6 +132,26 @@ func Test_InviteRoom(t *testing.T) {
 		})
 	})
 
+	t.Run("[NG]ルームに招待 - 数字が0の時", func(t *testing.T) {
+		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
+			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return nil, myerrors.ErrBadRequestNoPermission
+		}
+		defer func() {
+			uru.InviteRoomFunc = nil
+		}()
+
+		test.InviteRoomUserRoomsBadRequest(t, ctx, srv, ur, &app.InviteRoomUserRoomsPayload{
+			RoomID: int(wantRoomID),
+			UserID: int(wantUserID),
+		})
+	})
+
 	t.Run("[NG]ルームに招待 - エラー発生", func(t *testing.T) {
 		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
