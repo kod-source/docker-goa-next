@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
 )
@@ -50,9 +51,23 @@ func (urd *userRoomDatastore) Create(ctx context.Context, roomID model.RoomID, u
 	}
 
 	var userRoom schema.UserRoom
+	var room schema.Room
+	var userCount int
+	query := "SELECT `ur`.`id`, `ur`.`user_id`, `ur`.`room_id`, `ur`.`last_read_at`, `ur`.`created_at`, `ur`.`updated_at`, "
+	query += "`r`.`is_group`, `cur`.`user_count` "
+	query += "FROM `user_room` AS `ur` "
+	query += "INNER JOIN `room` AS `r` "
+	query += "ON `ur`.`room_id` = `r`.`id` "
+	query += "INNER JOIN ( "
+	query += "SELECT `room_id`, COUNT(`id`) AS `user_count` "
+	query += "FROM `user_room` "
+	query += "GROUP BY `room_id` "
+	query += ") AS `cur` "
+	query += "ON `ur`.`room_id` = `cur`.`room_id` "
+	query += "WHERE `ur`.`id` = ?"
 	if err := tx.QueryRowContext(
 		ctx,
-		"SELECT `id`, `user_id`, `room_id`, `last_read_at`, `created_at`, `updated_at` FROM `user_room` WHERE `id` = ?",
+		query,
 		lastID,
 	).Scan(
 		&userRoom.ID,
@@ -61,8 +76,14 @@ func (urd *userRoomDatastore) Create(ctx context.Context, roomID model.RoomID, u
 		&userRoom.LastReadAt,
 		&userRoom.CreatedAt,
 		&userRoom.UpdatedAt,
+		&room.IsGroup,
+		&userCount,
 	); err != nil {
 		return nil, err
+	}
+
+	if !room.IsGroup && userCount > 2 {
+		return nil, myerrors.ErrBadRequestNoPermission
 	}
 
 	return urd.toModelUserRoom(userRoom), tx.Commit()
