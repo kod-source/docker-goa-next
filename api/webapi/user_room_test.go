@@ -132,7 +132,7 @@ func Test_InviteRoom(t *testing.T) {
 		})
 	})
 
-	t.Run("[NG]ルームに招待 - 数字が0の時", func(t *testing.T) {
+	t.Run("[NG]ルームに招待 - 権限がないとき", func(t *testing.T) {
 		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
