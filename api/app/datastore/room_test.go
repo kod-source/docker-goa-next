@@ -721,3 +721,48 @@ func Test_GetNoneGroup(t *testing.T) {
 		}
 	})
 }
+
+func Test_ShowRoom(t *testing.T) {
+	rd := NewRoomDatastore(testDB, nil)
+	wantRoomID := model.RoomID(1)
+
+	t.Run("[OK]ルームの詳細を取得する", func(t *testing.T) {
+		want := &model.RoomUser{
+			Room: model.Room{
+				ID:        wantRoomID,
+				Name:      "test1_room",
+				IsGroup:   true,
+				CreatedAt: now,
+				UpdatedAt: now,
+			},
+			Users: []*model.ShowUser{
+				{
+					ID:        1,
+					Name:      "test1_name",
+					CreatedAt: now,
+					Avatar:    pointer.Ptr("test1_avatar"),
+				},
+				{
+					ID:        2,
+					Name:      "test2_name",
+					CreatedAt: now,
+					Avatar:    nil,
+				},
+			},
+		}
+		got, err := rd.Show(ctx, wantRoomID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]ルームの詳細を取得する - ルームが存在しないケース", func(t *testing.T) {
+		if _, err := rd.Show(ctx, 1000); !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("error is (-want %v, got %v)", sql.ErrNoRows, err)
+		}
+	})
+}

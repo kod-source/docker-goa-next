@@ -17,3 +17,9 @@ func PostsHref(id interface{}) string {
 	paramid := strings.TrimLeftFunc(fmt.Sprintf("%v", id), func(r rune) bool { return r == '/' })
 	return fmt.Sprintf("/posts/%v", paramid)
 }
+
+// RoomsHref returns the resource href.
+func RoomsHref(id interface{}) string {
+	paramid := strings.TrimLeftFunc(fmt.Sprintf("%v", id), func(r rune) bool { return r == '/' })
+	return fmt.Sprintf("/rooms/%v", paramid)
+}

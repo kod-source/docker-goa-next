@@ -56,3 +56,26 @@ func (ri *roomInteractor) Exists(ctx context.Context, myID model.UserID, id mode
 	}
 	return room, nil
 }
+
+func (ri *roomInteractor) Show(ctx context.Context, id model.RoomID, myID model.UserID) (*model.RoomUser, error) {
+	ru, err := ri.rr.Show(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// DMの際は自分が存在しているルームかチェックする
+	if !ru.Room.IsGroup && !ri.isFineRoom(myID, ru.Users) {
+		return nil, myerrors.ErrBadRequestNoPermission
+	}
+
+	return ru, nil
+}
+
+func (ri *roomInteractor) isFineRoom(id model.UserID, users []*model.ShowUser) bool {
+	for _, u := range users {
+		if u.ID == id {
+			return true
+		}
+	}
+	return false
+}

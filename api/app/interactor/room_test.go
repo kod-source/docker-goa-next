@@ -248,3 +248,143 @@ func Test_ExistsRoom(t *testing.T) {
 		}
 	})
 }
+
+func Test_Show(t *testing.T) {
+	rr := &mock.MockRoomRepository{}
+	ri := NewRoomInterractor(rr)
+	wantMyUserID := model.UserID(1)
+	wantRoomID := model.RoomID(2)
+
+	t.Run("[OK]ルームの詳細を返す", func(t *testing.T) {
+		want := &model.RoomUser{
+			Room: model.Room{
+				ID:        wantRoomID,
+				Name:      "test room",
+				IsGroup:   false,
+				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			},
+			Users: []*model.ShowUser{
+				{
+					ID:        wantMyUserID,
+					Name:      "test user 1",
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Avatar:    pointer.Ptr("test avatar"),
+				},
+				{
+					ID:        3,
+					Name:      "test user 3",
+					CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, jst),
+					Avatar:    pointer.Ptr("test3 avatar"),
+				},
+			},
+		}
+		rr.ShowFunc = func(ctx context.Context, id model.RoomID) (*model.RoomUser, error) {
+			if diff := cmp.Diff(wantRoomID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+
+			return want, nil
+		}
+
+		got, err := ri.Show(ctx, wantRoomID, wantMyUserID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]ルームの詳細を返す - グループで自分が存在しない時", func(t *testing.T) {
+		want := &model.RoomUser{
+			Room: model.Room{
+				ID:        wantRoomID,
+				Name:      "test room",
+				IsGroup:   true,
+				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			},
+			Users: []*model.ShowUser{
+				{
+					ID:        2,
+					Name:      "test user 2",
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Avatar:    pointer.Ptr("test avatar"),
+				},
+				{
+					ID:        3,
+					Name:      "test user 3",
+					CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, jst),
+					Avatar:    pointer.Ptr("test3 avatar"),
+				},
+			},
+		}
+		rr.ShowFunc = func(ctx context.Context, id model.RoomID) (*model.RoomUser, error) {
+			if diff := cmp.Diff(wantRoomID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+
+			return want, nil
+		}
+
+		got, err := ri.Show(ctx, wantRoomID, wantMyUserID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]ルームの詳細を返す - ルームの閲覧権限がない時", func(t *testing.T) {
+		want := &model.RoomUser{
+			Room: model.Room{
+				ID:        wantRoomID,
+				Name:      "test room",
+				IsGroup:   false,
+				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			},
+			Users: []*model.ShowUser{
+				{
+					ID:        2,
+					Name:      "test user 2",
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Avatar:    pointer.Ptr("test avatar"),
+				},
+				{
+					ID:        3,
+					Name:      "test user 3",
+					CreatedAt: time.Date(2021, 1, 1, 0, 0, 0, 0, jst),
+					Avatar:    pointer.Ptr("test3 avatar"),
+				},
+			},
+		}
+		rr.ShowFunc = func(ctx context.Context, id model.RoomID) (*model.RoomUser, error) {
+			if diff := cmp.Diff(wantRoomID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+
+			return want, nil
+		}
+
+		if _, err := ri.Show(ctx, wantRoomID, wantMyUserID); !errors.Is(err, myerrors.ErrBadRequestNoPermission) {
+			t.Errorf("error is -want %v, +got %v", myerrors.ErrBadRequestNoPermission, err)
+		}
+	})
+
+	t.Run("[NG]ルームの詳細を返す - 想定外エラー発生", func(t *testing.T) {
+		wantErr := errors.New("test err")
+		rr.ShowFunc = func(ctx context.Context, id model.RoomID) (*model.RoomUser, error) {
+			if diff := cmp.Diff(wantRoomID, id); diff != "" {
+				t.Errorf("mismatch (-want got)\n%s", diff)
+			}
+			return nil, wantErr
+		}
+
+		if _, err := ri.Show(ctx, wantRoomID, wantMyUserID); !errors.Is(err, wantErr) {
+			t.Errorf("error is -want %v, +got %v", wantErr, err)
+		}
+	})
+}

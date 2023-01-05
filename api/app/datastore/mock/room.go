@@ -10,10 +10,11 @@ import (
 var _ repository.RoomRepository = (*MockRoomRepository)(nil)
 
 type MockRoomRepository struct {
-	CreateFunc func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error)
-	DeleteFunc func(ctx context.Context, id model.RoomID) error
-	IndexFunc  func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error)
+	CreateFunc       func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error)
+	DeleteFunc       func(ctx context.Context, id model.RoomID) error
+	IndexFunc        func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error)
 	GetNoneGroupFunc func(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error)
+	ShowFunc         func(ctx context.Context, id model.RoomID) (*model.RoomUser, error)
 }
 
 func (m *MockRoomRepository) Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
@@ -30,4 +31,8 @@ func (m *MockRoomRepository) Index(ctx context.Context, id model.UserID, nextID 
 
 func (m *MockRoomRepository) GetNoneGroup(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error) {
 	return m.GetNoneGroupFunc(ctx, myID, id)
+}
+
+func (m *MockRoomRepository) Show(ctx context.Context, id model.RoomID) (*model.RoomUser, error) {
+	return m.ShowFunc(ctx, id)
 }
