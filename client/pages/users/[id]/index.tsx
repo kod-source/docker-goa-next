@@ -17,8 +17,8 @@ import { User, UserPostSelection } from "../../../lib/model/user";
 import { LikeRepository } from "../../../lib/repository/like";
 import { UserRepostiory } from "../../../lib/repository/user";
 import { AppContext } from "../../_app";
-import { RoomRepository } from "lib/repository/room";
 import { isAxiosError } from "lib/axios";
+import { RoomRepository } from "lib/repository/room";
 
 interface Props {
   id: number;
@@ -55,8 +55,11 @@ const ShowUser: NextPage<Props> = ({ id }) => {
       if (isAxiosError(e)) {
         const myAxiosError = e.response;
         if (myAxiosError?.status === 404) {
-          const showRoom = await RoomRepository.create(`${user.name}/${showUser.name}`, false, [myUserId, id]);
-          router.push(`message/${showRoom.room.id}`)
+          const showRoom = await RoomRepository.create(`${user.name}/${showUser.name}`, false, [
+            myUserId,
+            id,
+          ]);
+          router.push(`message/${showRoom.room.id}`);
           return;
         }
         return alert(myAxiosError?.statusText);
