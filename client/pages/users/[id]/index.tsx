@@ -5,8 +5,6 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { Avatar, Box, Button } from "@mui/material";
 import Tab from "@mui/material/Tab";
-import { isAxiosError } from "lib/axios";
-import { RoomRepository } from "lib/repository/room";
 import { DateTime } from "luxon";
 import { NextPage, GetServerSideProps } from "next";
 import Image from "next/image";
@@ -19,6 +17,8 @@ import { User, UserPostSelection } from "../../../lib/model/user";
 import { LikeRepository } from "../../../lib/repository/like";
 import { UserRepostiory } from "../../../lib/repository/user";
 import { AppContext } from "../../_app";
+import { RoomRepository } from "lib/repository/room";
+import { isAxiosError } from "lib/axios";
 
 interface Props {
   id: number;
