@@ -5,6 +5,8 @@ import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
 import { Avatar, Box, Button } from "@mui/material";
 import Tab from "@mui/material/Tab";
+import { isAxiosError } from "lib/axios";
+import { RoomRepository } from "lib/repository/room";
 import { DateTime } from "luxon";
 import { NextPage, GetServerSideProps } from "next";
 import Image from "next/image";
@@ -44,7 +46,23 @@ const ShowUser: NextPage<Props> = ({ id }) => {
     setValue(newValue);
   };
 
-  const createDirectMessageRoom = (id: number, myUserId: number) => {};
+  const createDirectMessageRoom = async (myUserId: number, id: number) => {
+    if (!showUser || !user) return;
+    try {
+      const room = await RoomRepository.exists(id);
+      router.push(`/message/${room.id}`);
+    } catch (e) {
+      if (isAxiosError(e)) {
+        const myAxiosError = e.response;
+        if (myAxiosError?.status === 404) {
+          const showRoom = await RoomRepository.create(`${user.name}/${showUser.name}`, false, [myUserId, id]);
+          router.push(`message/${showRoom.room.id}`)
+          return;
+        }
+        return alert(myAxiosError?.statusText);
+      }
+    }
+  };
 
   if (!showUser || !user) return <Loading />;
   return (
@@ -68,7 +86,7 @@ const ShowUser: NextPage<Props> = ({ id }) => {
             <div className='text-right'>
               <EmailIcon
                 className='hover:opacity-70 cursor-pointer'
-                onClick={() => console.log("click")}
+                onClick={() => createDirectMessageRoom(user.id, showUser.id)}
               />
             </div>
           )}

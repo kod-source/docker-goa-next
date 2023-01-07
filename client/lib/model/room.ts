@@ -19,4 +19,10 @@ export interface IndexRoom {
   room: Room;
   lastText: string;
   isOpen: boolean;
+  countUser: number;
+}
+
+export interface AllRoom {
+  indexRooms: IndexRoom[];
+  nextID: number | null;
 }

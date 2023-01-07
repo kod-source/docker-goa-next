@@ -707,7 +707,13 @@ definitions:
     description: my error (default view)
     example:
       code: 404
+<<<<<<< Updated upstream
       details: ca5e6137-fd04-420a-9cf2-3a4317b3cd63
+||||||| Stash base
+      details: 12a938f6-e3c4-41b7-8dc1-815674299c44
+=======
+      details: 20b688df-2e06-41b5-a97e-01df63cc6248
+>>>>>>> Stashed changes
       message: record not found
       status: unauthenticated
     properties:
@@ -718,7 +724,13 @@ definitions:
         type: integer
       details:
         description: Details
+<<<<<<< Updated upstream
         example: ca5e6137-fd04-420a-9cf2-3a4317b3cd63
+||||||| Stash base
+        example: 12a938f6-e3c4-41b7-8dc1-815674299c44
+=======
+        example: 20b688df-2e06-41b5-a97e-01df63cc6248
+>>>>>>> Stashed changes
       message:
         description: エラーメッセージ
         example: record not found

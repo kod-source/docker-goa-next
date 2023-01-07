@@ -1,15 +1,15 @@
 import { Button } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
+import EmailIcon from "@mui/icons-material/Email";
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { FormEvent, useCallback, useContext, useEffect, useState } from "react";
 
-import { isAxiosError, MyAxiosError } from "../lib/axios";
-import { PostWithUser, SelectPost } from "../lib/model/post";
-import { getEndPoint, getToken } from "../lib/token";
-import { AppContext } from "./_app";
+import { isAxiosError, MyAxiosError } from "lib/axios";
+import { PostWithUser, SelectPost } from "lib/model/post";
+import { getEndPoint, getToken } from "lib/token";
 import { ConfirmationModal } from "lib/components/confirmationModal";
 import { DetailModal } from "lib/components/detailModal";
 import { Loading } from "lib/components/loading";
@@ -18,6 +18,7 @@ import { ShowPost } from "lib/components/showPost";
 import { LikeRepository } from "lib/repository/like";
 import { PostRepository } from "lib/repository/post";
 import styles from "styles/Home.module.css";
+import { AppContext } from "./_app";
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
@@ -255,6 +256,12 @@ const Home: NextPage = () => {
             </label>
             <div className='text-right'>
               <Button type='submit'>投稿する</Button>
+            </div>
+            <div className='text-right my-5'>
+              <EmailIcon
+                className='hover:opacity-70 cursor-pointer'
+                onClick={() => router.push("/message")}
+              />
             </div>
           </div>
         </form>
