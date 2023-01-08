@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/shogo82148/myddlmaker"
@@ -17,6 +18,8 @@ type Room struct {
 	CreatedAt time.Time
 	// UpdatedAt ...
 	UpdatedAt time.Time
+	// Img 画像データ
+	Img sql.NullString `ddl:",null,type=LONGTEXT"`
 }
 
 func (*Room) PrimaryKey() *myddlmaker.PrimaryKey {
