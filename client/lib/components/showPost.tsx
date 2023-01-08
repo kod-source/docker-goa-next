@@ -6,6 +6,7 @@ import { DateTime } from "luxon";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { FC, useState } from "react";
+
 import { PostWithUser } from "../model/post";
 import { PostModal } from "./postModal";
 import { toStringlinefeed } from "./text";

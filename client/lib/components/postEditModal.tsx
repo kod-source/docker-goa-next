@@ -3,6 +3,7 @@ import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Image from "next/image";
 import React, { FC, FormEvent, useState } from "react";
+
 import { PostWithUser, SelectPost } from "../model/post";
 import { PostRepository } from "../repository/post";
 

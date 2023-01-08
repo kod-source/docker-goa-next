@@ -1,7 +1,9 @@
 import "../styles/globals.css";
 import type { AppProps } from "next/app";
+
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
+
 import { User } from "../lib/model/user";
 import "tailwindcss/tailwind.css";
 import { UserRepostiory } from "../lib/repository/user";

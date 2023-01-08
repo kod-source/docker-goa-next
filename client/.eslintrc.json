@@ -1,17 +1,12 @@
 {
-  "extends": [
-    "next/core-web-vitals",
-    "plugin:import/recommended",
-    "plugin:import/warnings",
-    "prettier"
-  ],
+  "extends": ["next/core-web-vitals", "plugin:import/warnings", "prettier"],
   "rules": {
-    "import/order": [
+    "no-console": "off",
+    "no-restricted-syntax": [
       "error",
       {
-        "alphabetize": {
-          "order": "asc"
-        }
+        "selector": "CallExpression[callee.object.name='console'][callee.property.name!=/^(log|warn|error|info|trace)$/]",
+        "message": "Unexpected property on console object was called"
       }
     ]
   }

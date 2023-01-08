@@ -1,4 +1,5 @@
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import EmailIcon from "@mui/icons-material/Email";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
@@ -9,12 +10,15 @@ import { NextPage, GetServerSideProps } from "next";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { FormEvent, useContext, useEffect, useState } from "react";
+
 import { Loading } from "../../../lib/components/loading";
 import { ShowPostMy } from "../../../lib/components/showPostMy";
 import { User, UserPostSelection } from "../../../lib/model/user";
 import { LikeRepository } from "../../../lib/repository/like";
 import { UserRepostiory } from "../../../lib/repository/user";
 import { AppContext } from "../../_app";
+import { isAxiosError } from "lib/axios";
+import { RoomRepository } from "lib/repository/room";
 
 interface Props {
   id: number;
@@ -42,7 +46,34 @@ const ShowUser: NextPage<Props> = ({ id }) => {
     setValue(newValue);
   };
 
-  if (!showUser) return <Loading />;
+  const createDirectMessageRoom = async (myUserId: number, id: number) => {
+    if (!showUser || !user) return;
+    try {
+      const room = await RoomRepository.exists(id);
+      router.push(`/message/${room.id}`);
+    } catch (e) {
+      if (isAxiosError(e)) {
+        const myAxiosError = e.response;
+        if (myAxiosError?.status === 404) {
+          try {
+            const showRoom = await RoomRepository.create(`${user.name}/${showUser.name}`, false, [
+              myUserId,
+              id,
+            ]);
+            router.push(`message/${showRoom.room.id}`);
+          } catch (e) {
+            if (e instanceof Error) {
+              return alert(e.message);
+            }
+          }
+          return;
+        }
+        return alert(myAxiosError?.statusText);
+      }
+    }
+  };
+
+  if (!showUser || !user) return <Loading />;
   return (
     <>
       <div className='mx-auto w-3/5'>
@@ -60,6 +91,14 @@ const ShowUser: NextPage<Props> = ({ id }) => {
             className='mx-auto'
             src={showUser.avatar ? showUser.avatar : "/avatar.png"}
           />
+          {user.id != id && (
+            <div className='text-right'>
+              <EmailIcon
+                className='hover:opacity-70 cursor-pointer'
+                onClick={() => createDirectMessageRoom(user.id, showUser.id)}
+              />
+            </div>
+          )}
         </div>
         <Box sx={{ width: "100%", typography: "body1" }}>
           <TabContext value={value}>
