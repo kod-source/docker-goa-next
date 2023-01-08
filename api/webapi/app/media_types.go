@@ -12,6 +12,27 @@ import (
 	"time"
 )
 
+// 全てのルーム (default view)
+//
+// Identifier: application/vnd.all_room_user; view=default
+type AllRoomUser struct {
+	// index_rooms
+	IndexRoom IndexRoomCollection `form:"index_room" json:"index_room" yaml:"index_room" xml:"index_room"`
+	// 次取得するRoomID
+	NextID *int `form:"next_id,omitempty" json:"next_id,omitempty" yaml:"next_id,omitempty" xml:"next_id,omitempty"`
+}
+
+// Validate validates the AllRoomUser media type instance.
+func (mt *AllRoomUser) Validate() (err error) {
+	if mt.IndexRoom == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "index_room"))
+	}
+	if err2 := mt.IndexRoom.Validate(); err2 != nil {
+		err = goa.MergeErrors(err, err2)
+	}
+	return
+}
+
 // コメント (default view)
 //
 // Identifier: application/vnd.comment_json; view=default
@@ -112,32 +133,47 @@ func (mt *IndexPostJSON) Validate() (err error) {
 	return
 }
 
-// ルーム (default view)
+// ルームの表示 (default view)
 //
-// Identifier: application/vnd.index_roo_user; view=default
-type IndexRooUser struct {
-	// 作成日
-	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
-	// room id
-	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
-	// グループかDMの判定
-	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
-	// room name
-	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
-	// 更新日
-	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
-	// ルームいるユーザー
-	Users ShowUserCollection `form:"users" json:"users" yaml:"users" xml:"users"`
+// Identifier: application/vnd.index_room; view=default
+type IndexRoom struct {
+	// ルームに入っているユーザー数
+	CountUser int `form:"count_user" json:"count_user" yaml:"count_user" xml:"count_user"`
+	// 開いたどうか
+	IsOpen bool `form:"is_open" json:"is_open" yaml:"is_open" xml:"is_open"`
+	// 最後の内容
+	LastText *string `form:"last_text,omitempty" json:"last_text,omitempty" yaml:"last_text,omitempty" xml:"last_text,omitempty"`
+	// room
+	Room *Room `form:"room" json:"room" yaml:"room" xml:"room"`
 }
 
-// Validate validates the IndexRooUser media type instance.
-func (mt *IndexRooUser) Validate() (err error) {
-
-	if mt.Users == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "users"))
+// Validate validates the IndexRoom media type instance.
+func (mt *IndexRoom) Validate() (err error) {
+	if mt.Room == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "room"))
 	}
-	if err2 := mt.Users.Validate(); err2 != nil {
-		err = goa.MergeErrors(err, err2)
+
+	if mt.Room != nil {
+		if err2 := mt.Room.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// Index_roomCollection is the media type for an array of Index_room (default view)
+//
+// Identifier: application/vnd.index_room; type=collection; view=default
+type IndexRoomCollection []*IndexRoom
+
+// Validate validates the IndexRoomCollection media type instance.
+func (mt IndexRoomCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
 	}
 	return
 }
@@ -266,6 +302,58 @@ type PostJSON struct {
 // Validate validates the PostJSON media type instance.
 func (mt *PostJSON) Validate() (err error) {
 
+	return
+}
+
+// ルーム (default view)
+//
+// Identifier: application/vnd.room; view=default
+type Room struct {
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// room id
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// グループかDMの判定
+	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
+	// room name
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// 更新日
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+}
+
+// Validate validates the Room media type instance.
+func (mt *Room) Validate() (err error) {
+
+	return
+}
+
+// ルーム (default view)
+//
+// Identifier: application/vnd.room_user; view=default
+type RoomUser struct {
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// room id
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// グループかDMの判定
+	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
+	// room name
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// 更新日
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+	// ルームいるユーザー
+	Users ShowUserCollection `form:"users" json:"users" yaml:"users" xml:"users"`
+}
+
+// Validate validates the RoomUser media type instance.
+func (mt *RoomUser) Validate() (err error) {
+
+	if mt.Users == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "users"))
+	}
+	if err2 := mt.Users.Validate(); err2 != nil {
+		err = goa.MergeErrors(err, err2)
+	}
 	return
 }
 
@@ -417,6 +505,30 @@ type User struct {
 
 // Validate validates the User media type instance.
 func (mt *User) Validate() (err error) {
+
+	return
+}
+
+// user room (default view)
+//
+// Identifier: application/vnd.user_room+json; view=default
+type UserRoom struct {
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// ID
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 最後に開いた日時
+	LastReadAt *time.Time `form:"last_read_at,omitempty" json:"last_read_at,omitempty" yaml:"last_read_at,omitempty" xml:"last_read_at,omitempty"`
+	// ルームID
+	RoomID int `form:"room_id" json:"room_id" yaml:"room_id" xml:"room_id"`
+	// 更新日
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+	// ユーザーID
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+}
+
+// Validate validates the UserRoom media type instance.
+func (mt *UserRoom) Validate() (err error) {
 
 	return
 }

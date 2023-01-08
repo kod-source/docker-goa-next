@@ -26,11 +26,6 @@ func NewPostDatastore(db *sql.DB, tr repository.TimeRepository) *postDatastore {
 	return &postDatastore{db: db, tr: tr}
 }
 
-const (
-	// 投稿を取得する上限数
-	limit = 20
-)
-
 func (p *postDatastore) CreatePost(ctx context.Context, userID int, title string, img *string) (*model.IndexPost, error) {
 	var indexPost model.IndexPost
 	tx, err := p.db.Begin()
@@ -101,7 +96,7 @@ func (p *postDatastore) ShowAll(ctx context.Context, nextID int) ([]*model.Index
 		" ) AS `c`"+
 		" ON p.id = c.post_id"+
 		" ORDER BY p.created_at DESC"+
-		" LIMIT ?, ?", nextID, limit)
+		" LIMIT ?, ?", nextID, LIMIT)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -159,7 +154,7 @@ func (p *postDatastore) ShowAll(ctx context.Context, nextID int) ([]*model.Index
 		return nil, nil, err
 	}
 	var resNextID *int
-	resNextID = pointer.Int(nextID + limit)
+	resNextID = pointer.Int(nextID + LIMIT)
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		resNextID = nil
 	}
@@ -328,7 +323,7 @@ func (p *postDatastore) ShowMyLike(ctx context.Context, userID, nextID int) ([]*
 		" ) AS `c`"+
 		" ON p.id = c.post_id"+
 		" ORDER BY p.created_at DESC"+
-		" LIMIT ?, ?", userID, nextID, limit)
+		" LIMIT ?, ?", userID, nextID, LIMIT)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -394,7 +389,7 @@ func (p *postDatastore) ShowMyLike(ctx context.Context, userID, nextID int) ([]*
 		return nil, nil, err
 	}
 	var resNextID *int
-	resNextID = pointer.Int(nextID + limit)
+	resNextID = pointer.Int(nextID + LIMIT)
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		resNextID = nil
 	}
@@ -430,7 +425,7 @@ func (p *postDatastore) ShowPostMy(ctx context.Context, userID, nextID int) ([]*
 		" ON p.id = c.post_id"+
 		" WHERE p.user_id = ?"+
 		" ORDER BY p.created_at DESC"+
-		" LIMIT ?, ?", userID, nextID, limit)
+		" LIMIT ?, ?", userID, nextID, LIMIT)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -492,7 +487,7 @@ func (p *postDatastore) ShowPostMy(ctx context.Context, userID, nextID int) ([]*
 		return nil, nil, err
 	}
 	var resNextID *int
-	resNextID = pointer.Int(nextID + limit)
+	resNextID = pointer.Int(nextID + LIMIT)
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		resNextID = nil
 	}
@@ -527,7 +522,7 @@ func (p *postDatastore) ShowPostMedia(ctx context.Context, userID, nextID int) (
 		" ON p.id = c.post_id"+
 		" WHERE p.user_id = ? AND p.img IS NOT NULL AND p.img != ''"+
 		" ORDER BY p.created_at DESC"+
-		" LIMIT ?, ?", userID, nextID, limit)
+		" LIMIT ?, ?", userID, nextID, LIMIT)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -587,7 +582,7 @@ func (p *postDatastore) ShowPostMedia(ctx context.Context, userID, nextID int) (
 		return nil, nil, err
 	}
 	var resNextID *int
-	resNextID = pointer.Int(nextID + limit)
+	resNextID = pointer.Int(nextID + LIMIT)
 	if len(indexPostsWithCountLike) == 0 || indexPostsWithCountLike[len(indexPostsWithCountLike)-1].IndexPost.Post.ID == lastPostID {
 		resNextID = nil
 	}

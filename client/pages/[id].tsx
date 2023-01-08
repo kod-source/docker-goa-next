@@ -1,25 +1,26 @@
-import { Avatar, Button } from '@mui/material';
-import { DateTime } from 'luxon';
-import { NextPage, GetServerSideProps } from 'next';
-import Image from 'next/image';
-import { useRouter } from 'next/router';
-import { FormEvent, useContext, useEffect, useState } from 'react';
-import { Loading } from '../lib/components/loading';
-import { Comment } from '../lib/model/comment';
-import { ShowPost } from '../lib/model/post';
-import { toStringlinefeed } from '../lib/components/text';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import CommentIcon from '@mui/icons-material/Comment';
-import ShareIcon from '@mui/icons-material/Share';
-import { AppContext } from './_app';
-import { DetailModal } from '../lib/components/detailModal';
-import { ConfirmationModal } from '../lib/components/confirmationModal';
-import { PostRepository } from '../lib/repository/post';
-import { LikeRepository } from '../lib/repository/like';
-import { CommentRepository } from '../lib/repository/comment';
-import { PostEditModal } from '../lib/components/postEditModal';
-import { CommentEditModal } from '../lib/components/commentEditModal';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CommentIcon from "@mui/icons-material/Comment";
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import ShareIcon from "@mui/icons-material/Share";
+import { Avatar, Button } from "@mui/material";
+import { DateTime } from "luxon";
+import { NextPage, GetServerSideProps } from "next";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { FormEvent, useContext, useEffect, useState } from "react";
+
+import { CommentEditModal } from "../lib/components/commentEditModal";
+import { ConfirmationModal } from "../lib/components/confirmationModal";
+import { DetailModal } from "../lib/components/detailModal";
+import { Loading } from "../lib/components/loading";
+import { PostEditModal } from "../lib/components/postEditModal";
+import { toStringlinefeed } from "../lib/components/text";
+import { Comment } from "../lib/model/comment";
+import { ShowPost } from "../lib/model/post";
+import { CommentRepository } from "../lib/repository/comment";
+import { LikeRepository } from "../lib/repository/like";
+import { PostRepository } from "../lib/repository/post";
+import { AppContext } from "./_app";
 
 interface Props {
   id: number;
@@ -29,12 +30,12 @@ const PostShow: NextPage<Props> = ({ id }) => {
   const router = useRouter();
   const { user } = useContext(AppContext);
   const [showPost, setShowPost] = useState<ShowPost>();
-  const [text, setText] = useState('');
-  const [imagePath, setImagePath] = useState('');
+  const [text, setText] = useState("");
+  const [imagePath, setImagePath] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [widthAndHeightRate, setWidthAndHeightRate] = useState({
-    width: '',
-    height: '',
+    width: "",
+    height: "",
   });
   const [isShowDetailModal, setIsShowDetailModal] = useState(false);
   const [isShowConfirmModal, setIsShowConfirmModal] = useState(false);
@@ -54,11 +55,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>, postId: number) => {
     setIsLoading(true);
     e.preventDefault();
-    const commentWithUser = await CommentRepository.create(
-      postId,
-      text,
-      imagePath
-    );
+    const commentWithUser = await CommentRepository.create(postId, text, imagePath);
     setShowPost((old) => {
       if (!old) return;
       return {
@@ -68,8 +65,8 @@ const PostShow: NextPage<Props> = ({ id }) => {
         commentsWithUsers: [commentWithUser, ...old.commentsWithUsers],
       };
     });
-    setText('');
-    setImagePath('');
+    setText("");
+    setImagePath("");
     setIsLoading(false);
   };
 
@@ -80,7 +77,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
         setShowPost((old) => {
           if (!old) return;
           const filterLikes = old.likes.filter(
-            (l) => !(l.userId === user?.id && l.postId === postId)
+            (l) => !(l.userId === user?.id && l.postId === postId),
           );
           return {
             post: old.post,
@@ -92,7 +89,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
       } else {
         const like = await LikeRepository.create(postId);
         if (like.postId !== postId) {
-          throw new Error('post_id unknow');
+          throw new Error("post_id unknow");
         }
         setShowPost((old) => {
           if (!old) return;
@@ -123,14 +120,12 @@ const PostShow: NextPage<Props> = ({ id }) => {
     }
   };
 
-  const onClickDetail = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
+  const onClickDetail = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     const currentWidth = e.clientX;
     const currentHeight = e.clientY;
     setWidthAndHeightRate({
-      width: String((currentWidth / window.innerWidth) * 100) + '%',
-      height: String((currentHeight / window.innerHeight) * 100) + '%',
+      width: String((currentWidth / window.innerWidth) * 100) + "%",
+      height: String((currentHeight / window.innerHeight) * 100) + "%",
     });
     setIsShowDetailModal(true);
   };
@@ -141,7 +136,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
       setShowPost((old) => {
         if (!old) return;
         const newCommentsWithUser = old.commentsWithUsers.filter(
-          (cu) => cu.comment.id !== selectComment.id
+          (cu) => cu.comment.id !== selectComment.id,
         );
         return {
           post: old.post,
@@ -152,7 +147,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
       });
     } else {
       await PostRepository.delete(id);
-      router.push('/');
+      router.push("/");
     }
     setIsShowConfirmModal(false);
   };
@@ -164,7 +159,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
         <div className='my-5 flex'>
           <ArrowBackIcon
             className='mr-5 cursor-pointer hover:opacity-60'
-            onClick={() => router.push('/')}
+            onClick={() => router.push("/")}
           />
           <h2>投稿</h2>
         </div>
@@ -174,9 +169,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
               <Avatar
                 sx={{ width: 80, height: 80 }}
                 alt='投稿者'
-                src={
-                  showPost.user.avatar ? showPost.user.avatar : '/avatar.png'
-                }
+                src={showPost.user.avatar ? showPost.user.avatar : "/avatar.png"}
               />
             </div>
             <div className='pt-5 mx-3'>
@@ -184,17 +177,12 @@ const PostShow: NextPage<Props> = ({ id }) => {
               <div className='flex'>
                 <p>
                   投稿日：
-                  {DateTime.fromJSDate(showPost.post.createdAt).toFormat(
-                    'yyyy年MM月dd日'
-                  )}
+                  {DateTime.fromJSDate(showPost.post.createdAt).toFormat("yyyy年MM月dd日")}
                 </p>
-                {showPost.post.createdAt.getTime() !==
-                  showPost.post.updatedAt.getTime() && (
+                {showPost.post.createdAt.getTime() !== showPost.post.updatedAt.getTime() && (
                   <p className='mx-5'>
                     更新日：
-                    {DateTime.fromJSDate(showPost.post.updatedAt).toFormat(
-                      'yyyy年MM月dd日'
-                    )}
+                    {DateTime.fromJSDate(showPost.post.updatedAt).toFormat("yyyy年MM月dd日")}
                   </p>
                 )}
               </div>
@@ -218,7 +206,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
                 src={showPost.post.img}
                 width={500}
                 height={500}
-                alt={showPost.post.title + 'picture'}
+                alt={showPost.post.title + "picture"}
               />
             )}
           </div>
@@ -241,11 +229,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
             >
               <FavoriteIcon
                 className='mr-3'
-                color={
-                  showPost.likes.some((l) => l.userId === user?.id)
-                    ? 'error'
-                    : 'inherit'
-                }
+                color={showPost.likes.some((l) => l.userId === user?.id) ? "error" : "inherit"}
               />
               {showPost.likes.length}
             </div>
@@ -270,14 +254,9 @@ const PostShow: NextPage<Props> = ({ id }) => {
             <div className='my-2'>
               {!!imagePath && (
                 <div className='relative'>
-                  <Image
-                    src={imagePath}
-                    width={500}
-                    height={500}
-                    alt={'post picture'}
-                  />
+                  <Image src={imagePath} width={500} height={500} alt={"post picture"} />
                   <div className='absolute left-[35%] bottom-[90%]'>
-                    <Button onClick={() => setImagePath('')}>❌</Button>
+                    <Button onClick={() => setImagePath("")}>❌</Button>
                   </div>
                 </div>
               )}
@@ -294,7 +273,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
               </label>
               <div className='text-right'>
                 <Button type='submit' disabled={isLoading}>
-                  {isLoading ? 'アップロード中' : '返信'}
+                  {isLoading ? "アップロード中" : "返信"}
                 </Button>
               </div>
             </div>
@@ -302,32 +281,24 @@ const PostShow: NextPage<Props> = ({ id }) => {
         </div>
         <div>
           {showPost.commentsWithUsers.map((cu) => (
-            <div
-              key={cu.comment.id}
-              className='my-2 border border-slate-600 p-5 rounded-md'
-            >
+            <div key={cu.comment.id} className='my-2 border border-slate-600 p-5 rounded-md'>
               <div className='flex justify-center'>
                 <Avatar
                   sx={{ width: 80, height: 80 }}
                   alt='投稿者'
-                  src={cu.user.avatar ? cu.user.avatar : '/avatar.png'}
+                  src={cu.user.avatar ? cu.user.avatar : "/avatar.png"}
                 />
                 <div className='pt-5 mx-3'>
                   <p>{cu.user.name}</p>
                   <div className='flex'>
                     <p>
                       投稿日：
-                      {DateTime.fromJSDate(cu.comment.createdAt).toFormat(
-                        'yyyy年MM月dd日'
-                      )}
+                      {DateTime.fromJSDate(cu.comment.createdAt).toFormat("yyyy年MM月dd日")}
                     </p>
-                    {cu.comment.createdAt.getTime() !==
-                      cu.comment.updatedAt.getTime() && (
+                    {cu.comment.createdAt.getTime() !== cu.comment.updatedAt.getTime() && (
                       <p className='mx-5'>
                         更新日：
-                        {DateTime.fromJSDate(cu.comment.updatedAt).toFormat(
-                          'yyyy年MM月dd日'
-                        )}
+                        {DateTime.fromJSDate(cu.comment.updatedAt).toFormat("yyyy年MM月dd日")}
                       </p>
                     )}
                   </div>
@@ -352,7 +323,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
                     src={cu.comment.img}
                     width={500}
                     height={500}
-                    alt={cu.comment.text + 'picture'}
+                    alt={cu.comment.text + "picture"}
                   />
                 )}
               </div>
@@ -392,7 +363,7 @@ const PostShow: NextPage<Props> = ({ id }) => {
         <CommentEditModal
           open={isShowUpdateModal}
           handleClose={() => {
-            setSelectComment(undefined)
+            setSelectComment(undefined);
             setIsShowUpdateModal(false);
           }}
           comment={selectComment}

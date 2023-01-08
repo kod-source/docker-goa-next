@@ -1332,7 +1332,7 @@ func NewCreateRoomRoomsContext(ctx context.Context, r *http.Request, service *go
 
 // createRoomRoomsPayload is the rooms create_room action payload.
 type createRoomRoomsPayload struct {
-	// DBかどうか
+	// DMかどうか
 	IsGroup *bool `form:"is_group,omitempty" json:"is_group,omitempty" yaml:"is_group,omitempty" xml:"is_group,omitempty"`
 	// ルーム名
 	Name *string `form:"name,omitempty" json:"name,omitempty" yaml:"name,omitempty" xml:"name,omitempty"`
@@ -1371,7 +1371,7 @@ func (payload *createRoomRoomsPayload) Publicize() *CreateRoomRoomsPayload {
 
 // CreateRoomRoomsPayload is the rooms create_room action payload.
 type CreateRoomRoomsPayload struct {
-	// DBかどうか
+	// DMかどうか
 	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
 	// ルーム名
 	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
@@ -1389,9 +1389,9 @@ func (payload *CreateRoomRoomsPayload) Validate() (err error) {
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *CreateRoomRoomsContext) Created(r *IndexRooUser) error {
+func (ctx *CreateRoomRoomsContext) Created(r *RoomUser) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.index_roo_user")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.room_user")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }
@@ -1406,6 +1406,293 @@ func (ctx *CreateRoomRoomsContext) BadRequest(r *ServiceVerror) error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *CreateRoomRoomsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
+// ExistsRoomsContext provides the rooms exists action context.
+type ExistsRoomsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	UserID int
+}
+
+// NewExistsRoomsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the rooms controller exists action.
+func NewExistsRoomsContext(ctx context.Context, r *http.Request, service *goa.Service) (*ExistsRoomsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ExistsRoomsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramUserID := req.Params["user_id"]
+	if len(paramUserID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("user_id"))
+	} else {
+		rawUserID := paramUserID[0]
+		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
+			rctx.UserID = userID
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("user_id", rawUserID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ExistsRoomsContext) OK(r *Room) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.room")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ExistsRoomsContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ExistsRoomsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
+// IndexRoomsContext provides the rooms index action context.
+type IndexRoomsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	NextID *int
+}
+
+// NewIndexRoomsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the rooms controller index action.
+func NewIndexRoomsContext(ctx context.Context, r *http.Request, service *goa.Service) (*IndexRoomsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := IndexRoomsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramNextID := req.Params["next_id"]
+	if len(paramNextID) > 0 {
+		rawNextID := paramNextID[0]
+		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
+			tmp25 := nextID
+			tmp24 := &tmp25
+			rctx.NextID = tmp24
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *IndexRoomsContext) OK(r *AllRoomUser) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.all_room_user")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *IndexRoomsContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *IndexRoomsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
+// ShowRoomsContext provides the rooms show action context.
+type ShowRoomsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID int
+}
+
+// NewShowRoomsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the rooms controller show action.
+func NewShowRoomsContext(ctx context.Context, r *http.Request, service *goa.Service) (*ShowRoomsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ShowRoomsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ShowRoomsContext) OK(r *RoomUser) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.room_user")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *ShowRoomsContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ShowRoomsContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ShowRoomsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
+// DeleteUserRoomsContext provides the user_rooms delete action context.
+type DeleteUserRoomsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID int
+}
+
+// NewDeleteUserRoomsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user_rooms controller delete action.
+func NewDeleteUserRoomsContext(ctx context.Context, r *http.Request, service *goa.Service) (*DeleteUserRoomsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := DeleteUserRoomsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *DeleteUserRoomsContext) OK(resp []byte) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+	}
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *DeleteUserRoomsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
+// InviteRoomUserRoomsContext provides the user_rooms invite_room action context.
+type InviteRoomUserRoomsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *InviteRoomUserRoomsPayload
+}
+
+// NewInviteRoomUserRoomsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user_rooms controller invite_room action.
+func NewInviteRoomUserRoomsContext(ctx context.Context, r *http.Request, service *goa.Service) (*InviteRoomUserRoomsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := InviteRoomUserRoomsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// inviteRoomUserRoomsPayload is the user_rooms invite_room action payload.
+type inviteRoomUserRoomsPayload struct {
+	// ルームID
+	RoomID *int `form:"room_id,omitempty" json:"room_id,omitempty" yaml:"room_id,omitempty" xml:"room_id,omitempty"`
+	// ユーザーID
+	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" yaml:"user_id,omitempty" xml:"user_id,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *inviteRoomUserRoomsPayload) Validate() (err error) {
+	if payload.RoomID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "room_id"))
+	}
+	if payload.UserID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "user_id"))
+	}
+	return
+}
+
+// Publicize creates InviteRoomUserRoomsPayload from inviteRoomUserRoomsPayload
+func (payload *inviteRoomUserRoomsPayload) Publicize() *InviteRoomUserRoomsPayload {
+	var pub InviteRoomUserRoomsPayload
+	if payload.RoomID != nil {
+		pub.RoomID = *payload.RoomID
+	}
+	if payload.UserID != nil {
+		pub.UserID = *payload.UserID
+	}
+	return &pub
+}
+
+// InviteRoomUserRoomsPayload is the user_rooms invite_room action payload.
+type InviteRoomUserRoomsPayload struct {
+	// ルームID
+	RoomID int `form:"room_id" json:"room_id" yaml:"room_id" xml:"room_id"`
+	// ユーザーID
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *InviteRoomUserRoomsPayload) Validate() (err error) {
+
+	return
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *InviteRoomUserRoomsContext) Created(r *UserRoom) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.user_room+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *InviteRoomUserRoomsContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *InviteRoomUserRoomsContext) InternalServerError() error {
 	ctx.ResponseData.WriteHeader(500)
 	return nil
 }

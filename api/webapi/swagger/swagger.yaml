@@ -4,6 +4,50 @@ consumes:
 - application/gob
 - application/x-gob
 definitions:
+  All_room_user:
+    description: 全てのルーム (default view)
+    example:
+      index_room:
+      - count_user: 5117110471024515774
+        is_open: true
+        last_text: Ipsa autem voluptatem et voluptatum.
+        room:
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 8344770141791658714
+          is_group: true
+          name: Exercitationem hic quos distinctio architecto.
+          updated_at: "2019-01-31T00:00:00+09:00"
+      - count_user: 5117110471024515774
+        is_open: true
+        last_text: Ipsa autem voluptatem et voluptatum.
+        room:
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 8344770141791658714
+          is_group: true
+          name: Exercitationem hic quos distinctio architecto.
+          updated_at: "2019-01-31T00:00:00+09:00"
+      - count_user: 5117110471024515774
+        is_open: true
+        last_text: Ipsa autem voluptatem et voluptatum.
+        room:
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 8344770141791658714
+          is_group: true
+          name: Exercitationem hic quos distinctio architecto.
+          updated_at: "2019-01-31T00:00:00+09:00"
+      next_id: 4595735464451318446
+    properties:
+      index_room:
+        $ref: '#/definitions/Index_roomCollection'
+      next_id:
+        description: 次取得するRoomID
+        example: 4595735464451318446
+        format: int64
+        type: integer
+    required:
+    - index_room
+    title: 'Mediatype identifier: application/vnd.all_room_user; view=default'
+    type: object
   Comment_json:
     description: コメント (default view)
     example:
@@ -117,6 +161,21 @@ definitions:
         id: 1
         name: 佐藤　太郎
         password: pas
+    - comment:
+        created_at: "2019-01-31T00:00:00+09:00"
+        id: 1
+        img: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/
+        post_id: 1
+        text: やっほー
+        updated_at: "2019-01-31T00:00:00+09:00"
+        user_id: 1
+      user:
+        avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+        created_at: "2019-01-31T00:00:00+09:00"
+        email: test@exmaple.com
+        id: 1
+        name: 佐藤　太郎
+        password: pas
     items:
       $ref: '#/definitions/Comment_with_user_json'
     title: 'Mediatype identifier: application/vnd.comment_with_user_json; type=collection;
@@ -179,18 +238,18 @@ definitions:
   CreateRoomRoomsPayload:
     example:
       is_group: true
-      name: DBルーム
+      name: DMルーム
       user_ids:
       - 1
       - 2
     properties:
       is_group:
-        description: DBかどうか
+        description: DMかどうか
         example: true
         type: boolean
       name:
         description: ルーム名
-        example: DBルーム
+        example: DMルーム
         type: string
       user_ids:
         description: ルームに入れるUserID
@@ -198,7 +257,7 @@ definitions:
         - 1
         - 2
         items:
-          example: 7844833579972435122
+          example: 8078525975769237791
           format: int64
           type: integer
         type: array
@@ -249,78 +308,97 @@ definitions:
     - user_name
     title: 'Mediatype identifier: application/vnd.index_post_json; view=default'
     type: object
-  Index_roo_user:
-    description: ルーム (default view)
+  Index_room:
+    description: ルームの表示 (default view)
     example:
-      created_at: "2019-01-31T00:00:00+09:00"
-      id: 5117110471024515774
-      is_group: true
-      name: Ipsa autem voluptatem et voluptatum.
-      updated_at: "2019-01-31T00:00:00+09:00"
-      users:
-      - avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+      count_user: 5117110471024515774
+      is_open: true
+      last_text: Ipsa autem voluptatem et voluptatum.
+      room:
         created_at: "2019-01-31T00:00:00+09:00"
-        id: 1
-        name: 佐藤　太郎
-      - avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
-        created_at: "2019-01-31T00:00:00+09:00"
-        id: 1
-        name: 佐藤　太郎
+        id: 8344770141791658714
+        is_group: true
+        name: Exercitationem hic quos distinctio architecto.
+        updated_at: "2019-01-31T00:00:00+09:00"
     properties:
-      created_at:
-        description: 作成日
-        example: "2019-01-31T00:00:00+09:00"
-        format: date-time
-        type: string
-      id:
-        description: room id
+      count_user:
+        description: ルームに入っているユーザー数
         example: 5117110471024515774
         format: int64
         type: integer
-      is_group:
-        description: グループかDMの判定
+      is_open:
+        description: 開いたどうか
         example: true
         type: boolean
-      name:
-        description: room name
+      last_text:
+        description: 最後の内容
         example: Ipsa autem voluptatem et voluptatum.
         type: string
-      updated_at:
-        description: 更新日
-        example: "2019-01-31T00:00:00+09:00"
-        format: date-time
-        type: string
-      users:
-        $ref: '#/definitions/Show_userCollection'
+      room:
+        $ref: '#/definitions/Room'
     required:
-    - id
-    - name
-    - is_group
-    - created_at
-    - updated_at
-    - users
-    title: 'Mediatype identifier: application/vnd.index_roo_user; view=default'
+    - room
+    - is_open
+    - count_user
+    title: 'Mediatype identifier: application/vnd.index_room; view=default'
     type: object
-  Like_json:
-    description: いいね (default view)
+  Index_roomCollection:
+    description: Index_roomCollection is the media type for an array of Index_room
+      (default view)
     example:
-      id: 2224177664605477496
-      post_id: 5488656147069650234
-      user_id: 5392227299044856429
+    - count_user: 5117110471024515774
+      is_open: true
+      last_text: Ipsa autem voluptatem et voluptatum.
+      room:
+        created_at: "2019-01-31T00:00:00+09:00"
+        id: 8344770141791658714
+        is_group: true
+        name: Exercitationem hic quos distinctio architecto.
+        updated_at: "2019-01-31T00:00:00+09:00"
+    items:
+      $ref: '#/definitions/Index_room'
+    title: 'Mediatype identifier: application/vnd.index_room; type=collection; view=default'
+    type: array
+  InviteRoomUserRoomsPayload:
+    example:
+      room_id: 2
+      user_id: 3
     properties:
-      id:
-        description: ID
-        example: 2224177664605477496
-        format: int64
-        type: integer
-      post_id:
-        description: 投稿ID
-        example: 5488656147069650234
+      room_id:
+        description: ルームID
+        example: 2
         format: int64
         type: integer
       user_id:
         description: ユーザーID
-        example: 5392227299044856429
+        example: 3
+        format: int64
+        type: integer
+    required:
+    - room_id
+    - user_id
+    title: InviteRoomUserRoomsPayload
+    type: object
+  Like_json:
+    description: いいね (default view)
+    example:
+      id: 8896170223861216170
+      post_id: 3206944467172563124
+      user_id: 7421852682474456458
+    properties:
+      id:
+        description: ID
+        example: 8896170223861216170
+        format: int64
+        type: integer
+      post_id:
+        description: 投稿ID
+        example: 3206944467172563124
+        format: int64
+        type: integer
+      user_id:
+        description: ユーザーID
+        example: 7421852682474456458
         format: int64
         type: integer
     required:
@@ -333,9 +411,9 @@ definitions:
     description: Like_jsonCollection is the media type for an array of Like_json (default
       view)
     example:
-    - id: 2224177664605477496
-      post_id: 5488656147069650234
-      user_id: 5392227299044856429
+    - id: 8896170223861216170
+      post_id: 3206944467172563124
+      user_id: 7421852682474456458
     items:
       $ref: '#/definitions/Like_json'
     title: 'Mediatype identifier: application/vnd.like_json; type=collection; view=default'
@@ -361,7 +439,7 @@ definitions:
   Post_all_limit:
     description: 投稿とnext_idに情報 (default view)
     example:
-      next_id: 1372357508884079010
+      next_id: 5403692490912142882
       show_posts:
       - avatar: data:image/jpg
         count_comment: 10
@@ -399,7 +477,7 @@ definitions:
     properties:
       next_id:
         description: 次取得するPostID
-        example: 1372357508884079010
+        example: 5403692490912142882
         format: int64
         type: integer
       show_posts:
@@ -537,11 +615,99 @@ definitions:
     - title
     title: 'Mediatype identifier: application/vnd.post_json; view=default'
     type: object
+  Room:
+    description: ルーム (default view)
+    example:
+      created_at: "2019-01-31T00:00:00+09:00"
+      id: 8344770141791658714
+      is_group: true
+      name: Exercitationem hic quos distinctio architecto.
+      updated_at: "2019-01-31T00:00:00+09:00"
+    properties:
+      created_at:
+        description: 作成日
+        example: "2019-01-31T00:00:00+09:00"
+        format: date-time
+        type: string
+      id:
+        description: room id
+        example: 8344770141791658714
+        format: int64
+        type: integer
+      is_group:
+        description: グループかDMの判定
+        example: true
+        type: boolean
+      name:
+        description: room name
+        example: Exercitationem hic quos distinctio architecto.
+        type: string
+      updated_at:
+        description: 更新日
+        example: "2019-01-31T00:00:00+09:00"
+        format: date-time
+        type: string
+    required:
+    - id
+    - name
+    - is_group
+    - created_at
+    - updated_at
+    title: 'Mediatype identifier: application/vnd.room; view=default'
+    type: object
+  Room_user:
+    description: ルーム (default view)
+    example:
+      created_at: "2019-01-31T00:00:00+09:00"
+      id: 692815334602008802
+      is_group: false
+      name: Fugit dolorem sunt aut.
+      updated_at: "2019-01-31T00:00:00+09:00"
+      users:
+      - avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+        created_at: "2019-01-31T00:00:00+09:00"
+        id: 1
+        name: 佐藤　太郎
+    properties:
+      created_at:
+        description: 作成日
+        example: "2019-01-31T00:00:00+09:00"
+        format: date-time
+        type: string
+      id:
+        description: room id
+        example: 692815334602008802
+        format: int64
+        type: integer
+      is_group:
+        description: グループかDMの判定
+        example: false
+        type: boolean
+      name:
+        description: room name
+        example: Fugit dolorem sunt aut.
+        type: string
+      updated_at:
+        description: 更新日
+        example: "2019-01-31T00:00:00+09:00"
+        format: date-time
+        type: string
+      users:
+        $ref: '#/definitions/Show_userCollection'
+    required:
+    - id
+    - name
+    - is_group
+    - created_at
+    - updated_at
+    - users
+    title: 'Mediatype identifier: application/vnd.room_user; view=default'
+    type: object
   ServiceVerror:
     description: my error (default view)
     example:
       code: 404
-      details: 8626963791446443131
+      details: 480017d6-2708-4088-af9c-ae3c807beb48
       message: record not found
       status: unauthenticated
     properties:
@@ -552,7 +718,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: 8626963791446443131
+        example: 480017d6-2708-4088-af9c-ae3c807beb48
       message:
         description: エラーメッセージ
         example: record not found
@@ -602,15 +768,12 @@ definitions:
           name: 佐藤　太郎
           password: pas
       likes:
-      - id: 2224177664605477496
-        post_id: 5488656147069650234
-        user_id: 5392227299044856429
-      - id: 2224177664605477496
-        post_id: 5488656147069650234
-        user_id: 5392227299044856429
-      - id: 2224177664605477496
-        post_id: 5488656147069650234
-        user_id: 5392227299044856429
+      - id: 8896170223861216170
+        post_id: 3206944467172563124
+        user_id: 7421852682474456458
+      - id: 8896170223861216170
+        post_id: 3206944467172563124
+        user_id: 7421852682474456458
       post:
         created_at: "2019-01-31T00:00:00+09:00"
         id: 1
@@ -677,10 +840,6 @@ definitions:
     description: Show_userCollection is the media type for an array of Show_user (default
       view)
     example:
-    - avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
-      created_at: "2019-01-31T00:00:00+09:00"
-      id: 1
-      name: 佐藤　太郎
     - avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
       created_at: "2019-01-31T00:00:00+09:00"
       id: 1
@@ -815,6 +974,54 @@ definitions:
     required:
     - id
     title: 'Mediatype identifier: application/vnd.user+json; view=default'
+    type: object
+  User_room:
+    description: user room (default view)
+    example:
+      created_at: "2019-01-31T00:00:00+09:00"
+      id: 1
+      last_read_at: "2019-01-31T00:00:00+09:00"
+      room_id: 2
+      updated_at: "2019-01-31T00:00:00+09:00"
+      user_id: 3
+    properties:
+      created_at:
+        description: 作成日
+        example: "2019-01-31T00:00:00+09:00"
+        format: date-time
+        type: string
+      id:
+        description: ID
+        example: 1
+        format: int64
+        type: integer
+      last_read_at:
+        description: 最後に開いた日時
+        example: "2019-01-31T00:00:00+09:00"
+        format: date-time
+        type: string
+      room_id:
+        description: ルームID
+        example: 2
+        format: int64
+        type: integer
+      updated_at:
+        description: 更新日
+        example: "2019-01-31T00:00:00+09:00"
+        format: date-time
+        type: string
+      user_id:
+        description: ユーザーID
+        example: 3
+        format: int64
+        type: integer
+    required:
+    - id
+    - room_id
+    - user_id
+    - created_at
+    - updated_at
+    title: 'Mediatype identifier: application/vnd.user_room+json; view=default'
     type: object
 host: localhost:3000
 info:
@@ -1474,6 +1681,38 @@ paths:
       tags:
       - posts
   /rooms:
+    get:
+      description: |-
+        自分が入っている全てのルームを表示
+
+        Required security scopes:
+          * `api:access`
+      operationId: rooms#index
+      parameters:
+      - description: 次のID
+        in: query
+        name: next_id
+        required: false
+        type: integer
+      produces:
+      - application/vnd.all_room_user
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/All_room_user'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: index rooms
+      tags:
+      - rooms
     post:
       description: |-
         ルームの作成
@@ -1488,13 +1727,13 @@ paths:
         schema:
           $ref: '#/definitions/CreateRoomRoomsPayload'
       produces:
-      - application/vnd.index_roo_user
+      - application/vnd.room_user
       - application/vnd.service.verror
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/Index_roo_user'
+            $ref: '#/definitions/Room_user'
         "400":
           description: Bad Request
           schema:
@@ -1507,6 +1746,74 @@ paths:
       - jwt:
         - api:access
       summary: create_room rooms
+      tags:
+      - rooms
+  /rooms/{id}:
+    get:
+      description: |-
+        ルームの詳細を取得する
+
+        Required security scopes:
+          * `api:access`
+      operationId: rooms#show
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/vnd.room_user
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Room_user'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: show rooms
+      tags:
+      - rooms
+  /rooms/exists:
+    get:
+      description: |-
+        DMの存在を確認する
+
+        Required security scopes:
+          * `api:access`
+      operationId: rooms#exists
+      parameters:
+      - description: ユーザーID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/vnd.room
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Room'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: exists rooms
       tags:
       - rooms
   /sign_up:
@@ -1538,6 +1845,68 @@ paths:
       summary: sign_up auth
       tags:
       - auth
+  /user_room:
+    post:
+      description: |-
+        ルームに招待する
+
+        Required security scopes:
+          * `api:access`
+      operationId: user_rooms#invite_room
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/InviteRoomUserRoomsPayload'
+      produces:
+      - application/vnd.user_room+json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/User_room'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: invite_room user_rooms
+      tags:
+      - user_rooms
+  /user_room/{id}:
+    delete:
+      description: |-
+        ルームから除外する
+
+        Required security scopes:
+          * `api:access`
+      operationId: user_rooms#delete
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: delete user_rooms
+      tags:
+      - user_rooms
   /users/{id}:
     get:
       description: |-

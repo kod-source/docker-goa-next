@@ -757,6 +757,9 @@ func unmarshalUpdatePostsPayload(ctx context.Context, service *goa.Service, req 
 type RoomsController interface {
 	goa.Muxer
 	CreateRoom(*CreateRoomRoomsContext) error
+	Exists(*ExistsRoomsContext) error
+	Index(*IndexRoomsContext) error
+	Show(*ShowRoomsContext) error
 }
 
 // MountRoomsController "mounts" a Rooms resource controller on the given service.
@@ -764,6 +767,8 @@ func MountRoomsController(service *goa.Service, ctrl RoomsController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/rooms", ctrl.MuxHandler("preflight", handleRoomsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/rooms/exists", ctrl.MuxHandler("preflight", handleRoomsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/rooms/:id", ctrl.MuxHandler("preflight", handleRoomsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -787,6 +792,57 @@ func MountRoomsController(service *goa.Service, ctrl RoomsController) {
 	h = handleRoomsOrigin(h)
 	service.Mux.Handle("POST", "/rooms", ctrl.MuxHandler("create_room", h, unmarshalCreateRoomRoomsPayload))
 	service.LogInfo("mount", "ctrl", "Rooms", "action", "CreateRoom", "route", "POST /rooms", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewExistsRoomsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Exists(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleRoomsOrigin(h)
+	service.Mux.Handle("GET", "/rooms/exists", ctrl.MuxHandler("exists", h, nil))
+	service.LogInfo("mount", "ctrl", "Rooms", "action", "Exists", "route", "GET /rooms/exists", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewIndexRoomsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Index(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleRoomsOrigin(h)
+	service.Mux.Handle("GET", "/rooms", ctrl.MuxHandler("index", h, nil))
+	service.LogInfo("mount", "ctrl", "Rooms", "action", "Index", "route", "GET /rooms", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewShowRoomsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Show(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleRoomsOrigin(h)
+	service.Mux.Handle("GET", "/rooms/:id", ctrl.MuxHandler("show", h, nil))
+	service.LogInfo("mount", "ctrl", "Rooms", "action", "Show", "route", "GET /rooms/:id", "security", "jwt")
 }
 
 // handleRoomsOrigin applies the CORS response headers corresponding to the origin.
@@ -818,6 +874,102 @@ func handleRoomsOrigin(h goa.Handler) goa.Handler {
 // unmarshalCreateRoomRoomsPayload unmarshals the request body into the context request data Payload field.
 func unmarshalCreateRoomRoomsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &createRoomRoomsPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// UserRoomsController is the controller interface for the UserRooms actions.
+type UserRoomsController interface {
+	goa.Muxer
+	Delete(*DeleteUserRoomsContext) error
+	InviteRoom(*InviteRoomUserRoomsContext) error
+}
+
+// MountUserRoomsController "mounts" a UserRooms resource controller on the given service.
+func MountUserRoomsController(service *goa.Service, ctrl UserRoomsController) {
+	initService(service)
+	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/user_room/:id", ctrl.MuxHandler("preflight", handleUserRoomsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/user_room", ctrl.MuxHandler("preflight", handleUserRoomsOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewDeleteUserRoomsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Delete(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleUserRoomsOrigin(h)
+	service.Mux.Handle("DELETE", "/user_room/:id", ctrl.MuxHandler("delete", h, nil))
+	service.LogInfo("mount", "ctrl", "UserRooms", "action", "Delete", "route", "DELETE /user_room/:id", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewInviteRoomUserRoomsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*InviteRoomUserRoomsPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.InviteRoom(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleUserRoomsOrigin(h)
+	service.Mux.Handle("POST", "/user_room", ctrl.MuxHandler("invite_room", h, unmarshalInviteRoomUserRoomsPayload))
+	service.LogInfo("mount", "ctrl", "UserRooms", "action", "InviteRoom", "route", "POST /user_room", "security", "jwt")
+}
+
+// handleUserRoomsOrigin applies the CORS response headers corresponding to the origin.
+func handleUserRoomsOrigin(h goa.Handler) goa.Handler {
+	spec0 := regexp.MustCompile(".*localhost.*")
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOriginRegexp(origin, spec0) {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Vary", "Origin")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+				rw.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
+}
+
+// unmarshalInviteRoomUserRoomsPayload unmarshals the request body into the context request data Payload field.
+func unmarshalInviteRoomUserRoomsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &inviteRoomUserRoomsPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}

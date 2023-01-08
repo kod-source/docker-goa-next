@@ -1,43 +1,45 @@
-import { Button } from '@mui/material';
-import type { NextPage } from 'next';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { FormEvent, useCallback, useContext, useEffect, useState } from 'react';
-import styles from '../styles/Home.module.css';
-import { AppContext } from './_app';
-import Avatar from '@mui/material/Avatar';
-import { PostWithUser, SelectPost } from '../lib/model/post';
-import { isAxiosError, MyAxiosError } from '../lib/axios';
-import Image from 'next/image';
-import { Loading } from '../lib/components/loading';
-import { DetailModal } from '../lib/components/detailModal';
-import { ConfirmationModal } from '../lib/components/confirmationModal';
-import { PostEditModal } from '../lib/components/postEditModal';
-import { getEndPoint, getToken } from '../lib/token';
-import { ShowPost } from '../lib/components/showPost';
-import { PostRepository } from '../lib/repository/post';
-import { LikeRepository } from '../lib/repository/like';
+import { Button } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import EmailIcon from "@mui/icons-material/Email";
+import type { NextPage } from "next";
+import Head from "next/head";
+import Image from "next/image";
+import { useRouter } from "next/router";
+import { FormEvent, useCallback, useContext, useEffect, useState } from "react";
+
+import { AppContext } from "./_app";
+import { isAxiosError, MyAxiosError } from "lib/axios";
+import { PostWithUser, SelectPost } from "lib/model/post";
+import { getEndPoint, getToken } from "lib/token";
+import { ConfirmationModal } from "lib/components/confirmationModal";
+import { DetailModal } from "lib/components/detailModal";
+import { Loading } from "lib/components/loading";
+import { PostEditModal } from "lib/components/postEditModal";
+import { ShowPost } from "lib/components/showPost";
+import { LikeRepository } from "lib/repository/like";
+import { PostRepository } from "lib/repository/post";
+import styles from "styles/Home.module.css";
 
 const Home: NextPage = () => {
   const { user } = useContext(AppContext);
   const router = useRouter();
   const [postsWithUser, setPostsWithUser] = useState<PostWithUser[]>([]);
   const [post, setPost] = useState<{ title: string; img: string }>({
-    title: '',
-    img: '',
+    title: "",
+    img: "",
   });
   const [isShowDetailModal, setIsShowDetailModal] = useState(false);
   const [widthAndHeightRate, setWidthAndHeightRate] = useState({
-    width: '',
-    height: '',
+    width: "",
+    height: "",
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isMyPost, setIsMyPost] = useState(false);
   const [showPostEditModal, setShowPostEditModal] = useState(false);
   const [selectPost, setSelectPost] = useState<SelectPost>({
     id: 0,
-    title: '',
-    img: '',
+    title: "",
+    img: "",
   });
   const [againFetch, setAgainFetch] = useState(true);
   const [nextID, setNextID] = useState<number | null>(0);
@@ -45,8 +47,8 @@ const Home: NextPage = () => {
   const [myLikePostIds, setMyLikePostIds] = useState<number[]>([]);
 
   const logout = () => {
-    localStorage.removeItem('token');
-    router.push('/login');
+    localStorage.removeItem("token");
+    router.push("/login");
   };
 
   const fetchPostData = async () => {
@@ -72,8 +74,8 @@ const Home: NextPage = () => {
     if (againFetch) {
       fetchPostData();
     }
-    window.addEventListener('scroll', changeBottom);
-    return () => window.removeEventListener('scroll', changeBottom);
+    window.addEventListener("scroll", changeBottom);
+    return () => window.removeEventListener("scroll", changeBottom);
   }, [againFetch]);
 
   useEffect(() => {
@@ -81,8 +83,7 @@ const Home: NextPage = () => {
   }, []);
 
   const changeBottom = useCallback(() => {
-    const bottomPosition =
-      document.body.offsetHeight - (window.scrollY + window.innerHeight);
+    const bottomPosition = document.body.offsetHeight - (window.scrollY + window.innerHeight);
     if (bottomPosition < 0) {
       setAgainFetch(true);
       return;
@@ -109,7 +110,7 @@ const Home: NextPage = () => {
     e.preventDefault();
     try {
       const postWithUser = await PostRepository.create(post.title, post.img);
-      setPost({ title: '', img: '' });
+      setPost({ title: "", img: "" });
       setPostsWithUser((old) => [postWithUser, ...old]);
     } catch (e) {
       if (isAxiosError(e)) {
@@ -126,9 +127,7 @@ const Home: NextPage = () => {
     try {
       await PostRepository.delete(selectPost.id);
       setShowConfirmModal(false);
-      setPostsWithUser(
-        postsWithUser?.filter((p) => p.post.id !== selectPost.id)
-      );
+      setPostsWithUser(postsWithUser?.filter((p) => p.post.id !== selectPost.id));
     } catch (e) {
       if (e instanceof Error) {
         alert(e.message);
@@ -160,7 +159,7 @@ const Home: NextPage = () => {
       } else {
         const like = await LikeRepository.create(postId);
         if (like.postId !== postId) {
-          throw new Error('post_id unknow');
+          throw new Error("post_id unknow");
         }
         setMyLikePostIds((old) => [...old, postId]);
         setPostsWithUser((old) => {
@@ -185,15 +184,12 @@ const Home: NextPage = () => {
     }
   };
 
-  const onClickDetail = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    p: PostWithUser
-  ) => {
+  const onClickDetail = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, p: PostWithUser) => {
     const currentWidth = e.clientX;
     const currentHeight = e.clientY;
     setWidthAndHeightRate({
-      width: String((currentWidth / window.innerWidth) * 100) + '%',
-      height: String((currentHeight / window.innerHeight) * 100) + '%',
+      width: String((currentWidth / window.innerWidth) * 100) + "%",
+      height: String((currentHeight / window.innerHeight) * 100) + "%",
     });
     setIsShowDetailModal(true);
     setIsMyPost(p.post.userId === user?.id);
@@ -228,7 +224,7 @@ const Home: NextPage = () => {
                 sx={{ width: 80, height: 80 }}
                 className='mx-5'
                 alt='投稿者'
-                src={user.avatar ? user.avatar : '/avatar.png'}
+                src={user.avatar ? user.avatar : "/avatar.png"}
               />
             </div>
             <label className='cursor-pointer'>
@@ -237,27 +233,16 @@ const Home: NextPage = () => {
                 autoFocus
                 required
                 value={post.title}
-                onChange={(e) =>
-                  setPost((old) => ({ title: e.target.value, img: old.img }))
-                }
+                onChange={(e) => setPost((old) => ({ title: e.target.value, img: old.img }))}
               />
             </label>
           </div>
           <div className='my-2'>
             {!!post.img && (
               <div className='relative'>
-                <Image
-                  src={post.img}
-                  width={500}
-                  height={500}
-                  alt={'post picture'}
-                />
+                <Image src={post.img} width={500} height={500} alt={"post picture"} />
                 <div className='absolute left-[35%] bottom-[90%]'>
-                  <Button
-                    onClick={() =>
-                      setPost((old) => ({ title: old.title, img: '' }))
-                    }
-                  >
+                  <Button onClick={() => setPost((old) => ({ title: old.title, img: "" }))}>
                     ❌
                   </Button>
                 </div>
@@ -267,15 +252,16 @@ const Home: NextPage = () => {
           <div className='mr-36'>
             <label className='cursor-pointer'>
               <Avatar src='/add_photo.jpg' className='m-auto' />
-              <input
-                type='file'
-                className='hidden'
-                accept='image/*'
-                onChange={onChangeInputFile}
-              />
+              <input type='file' className='hidden' accept='image/*' onChange={onChangeInputFile} />
             </label>
             <div className='text-right'>
               <Button type='submit'>投稿する</Button>
+            </div>
+            <div className='text-right my-5'>
+              <EmailIcon
+                className='hover:opacity-70 cursor-pointer'
+                onClick={() => router.push("/message")}
+              />
             </div>
           </div>
         </form>

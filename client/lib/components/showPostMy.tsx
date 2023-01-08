@@ -1,17 +1,18 @@
-import React, { FC, useCallback, useContext, useEffect, useState } from 'react';
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
-import { User, UserPostSelection } from '../model/user';
-import { AppContext } from '../../pages/_app';
-import { PostRepository } from '../repository/post';
-import { PostWithUser, SelectPost } from '../model/post';
-import { Loading } from './loading';
-import { ShowPost } from './showPost';
-import { LikeRepository } from '../repository/like';
-import { useRouter } from 'next/router';
-import { DetailModal } from './detailModal';
-import { ConfirmationModal } from './confirmationModal';
-import { PostEditModal } from './postEditModal';
+import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useRouter } from "next/router";
+import React, { FC, useCallback, useContext, useEffect, useState } from "react";
+
+import { AppContext } from "../../pages/_app";
+import { PostWithUser, SelectPost } from "../model/post";
+import { User, UserPostSelection } from "../model/user";
+import { LikeRepository } from "../repository/like";
+import { PostRepository } from "../repository/post";
+import { ConfirmationModal } from "./confirmationModal";
+import { DetailModal } from "./detailModal";
+import { Loading } from "./loading";
+import { PostEditModal } from "./postEditModal";
+import { ShowPost } from "./showPost";
 
 interface Props {
   value: UserPostSelection;
@@ -38,14 +39,14 @@ export const ShowPostMy: FC<Props> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isShowDetailModal, setIsShowDetailModal] = useState(false);
   const [widthAndHeightRate, setWidthAndHeightRate] = useState({
-    width: '',
-    height: '',
+    width: "",
+    height: "",
   });
   const [isMyPost, setIsMyPost] = useState(false);
   const [selectPost, setSelectPost] = useState<SelectPost>({
     id: 0,
-    title: '',
-    img: '',
+    title: "",
+    img: "",
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showPostEditModal, setShowPostEditModal] = useState(false);
@@ -73,13 +74,12 @@ export const ShowPostMy: FC<Props> = ({
     if (againFetch) {
       fetchData();
     }
-    window.addEventListener('scroll', changeBottom);
-    return () => window.removeEventListener('scroll', changeBottom);
+    window.addEventListener("scroll", changeBottom);
+    return () => window.removeEventListener("scroll", changeBottom);
   }, [value, againFetch, showUser, nextID]);
 
   const changeBottom = useCallback(() => {
-    const bottomPosition =
-      document.body.offsetHeight - (window.scrollY + window.innerHeight);
+    const bottomPosition = document.body.offsetHeight - (window.scrollY + window.innerHeight);
     if (bottomPosition < 0) {
       setAgainFetch(true);
       return;
@@ -111,7 +111,7 @@ export const ShowPostMy: FC<Props> = ({
       } else {
         const like = await LikeRepository.create(postID);
         if (like.postId !== postID) {
-          throw new Error('post_id unknow');
+          throw new Error("post_id unknow");
         }
         setMyLikePostIds((old) => [...old, postID]);
         setPostsWithUser((old) => {
@@ -136,15 +136,12 @@ export const ShowPostMy: FC<Props> = ({
     }
   };
 
-  const onClickDetail = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    p: PostWithUser
-  ) => {
+  const onClickDetail = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, p: PostWithUser) => {
     const currentWidth = e.clientX;
     const currentHeight = e.clientY;
     setWidthAndHeightRate({
-      width: String((currentWidth / window.innerWidth) * 100) + '%',
-      height: String((currentHeight / window.innerHeight) * 100) + '%',
+      width: String((currentWidth / window.innerWidth) * 100) + "%",
+      height: String((currentHeight / window.innerHeight) * 100) + "%",
     });
     setIsShowDetailModal(true);
     setIsMyPost(p.post.userId === user?.id);
@@ -159,9 +156,7 @@ export const ShowPostMy: FC<Props> = ({
     try {
       await PostRepository.delete(selectPost.id);
       setShowConfirmModal(false);
-      setPostsWithUser(
-        postsWithUser?.filter((p) => p.post.id !== selectPost.id)
-      );
+      setPostsWithUser(postsWithUser?.filter((p) => p.post.id !== selectPost.id));
     } catch (e) {
       if (e instanceof Error) {
         alert(e.message);
@@ -193,7 +188,7 @@ export const ShowPostMy: FC<Props> = ({
                   p.user.name,
                   old.email,
                   old.createdAt,
-                  p.user.avatar
+                  p.user.avatar,
                 );
               });
               router.push(`${p.post.userId}`);

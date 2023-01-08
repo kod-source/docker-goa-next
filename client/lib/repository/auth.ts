@@ -1,7 +1,8 @@
-import axios from 'axios';
-import { Auth } from '../model/auth';
-import { User } from '../model/user';
-import { getEndPoint } from '../token';
+import axios from "axios";
+
+import { Auth } from "../model/auth";
+import { User } from "../model/user";
+import { getEndPoint } from "../token";
 
 export const AuthRepository = {
   login: async (email: string, password: string): Promise<Auth> => {
@@ -16,7 +17,7 @@ export const AuthRepository = {
         res.data.user.name,
         res.data.user.email,
         new Date(res.data.user.created_at),
-        res.data.user.avatar
+        res.data.user.avatar,
       ),
     };
   },
@@ -25,7 +26,7 @@ export const AuthRepository = {
     name: string,
     email: string,
     password: string,
-    avatarPath?: string
+    avatarPath?: string,
   ): Promise<Auth> => {
     const res = await axios.post(`${getEndPoint()}/sign_up`, {
       name: name,
@@ -40,7 +41,7 @@ export const AuthRepository = {
         res.data.user.name,
         res.data.user.email,
         new Date(res.data.user.created_at),
-        res.data.user.avatar
+        res.data.user.avatar,
       ),
     };
   },

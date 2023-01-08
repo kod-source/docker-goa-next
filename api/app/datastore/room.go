@@ -10,6 +10,7 @@ import (
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
+	"github.com/shogo82148/pointer"
 )
 
 var _ repository.RoomRepository = (*roomDatastore)(nil)
@@ -143,6 +144,217 @@ func (rd *roomDatastore) Delete(ctx context.Context, id model.RoomID) error {
 	}
 
 	return nil
+}
+
+// Index ルームの一覧を返す
+func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
+	tx, err := rd.db.Begin()
+	if err != nil {
+		return nil, nil, err
+	}
+	defer tx.Rollback()
+
+	query := "SELECT `thr`.`id`, `thr`.`name`, `thr`.`is_group`, `thr`.`created_at`, `thr`.`updated_at`, "
+	query += "`thr`.`last_thread_at`, `thr`.`last_text`, `thr`.`user_count`,`ur`.`last_read_at` "
+	query += "FROM `user_room` AS `ur` "
+	query += "INNER JOIN ( "
+	query += "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, "
+	query += "`th`.`created_at` AS `last_thread_at`, `th`.`text` AS `last_text`, `ur`.`user_count` "
+	query += "FROM `room` AS `r` "
+	query += "INNER JOIN ( "
+	query += "SELECT `room_id`, COUNT(`id`) AS `user_count` "
+	query += "FROM `user_room` "
+	query += "GROUP BY `room_id` "
+	query += ") AS `ur` "
+	query += "ON `r`.`id` = `ur`.`room_id` "
+	query += "LEFT JOIN ( "
+	query += "SELECT `th1`.`id`, `th1`.`room_id`, `th1`.`created_at`, `th1`.`text` "
+	query += "FROM `thread` AS `th1` "
+	query += "INNER JOIN ( "
+	query += "SELECT `room_id`, MAX(`created_at`) AS `created_at` "
+	query += "FROM `thread` "
+	query += "GROUP BY `room_id` "
+	query += ") AS `th2` "
+	query += "ON `th1`.`room_id` = `th2`.`room_id` AND `th1`.`created_at` = `th2`.`created_at` "
+	query += ") AS `th` "
+	query += "ON `r`.`id` = `th`.`room_id` "
+	query += ") AS `thr` "
+	query += "ON `ur`.`room_id` = `thr`.`id` "
+	query += "WHERE `ur`.`user_id` = ? "
+	query += "ORDER BY `thr`.`last_thread_at` DESC "
+	query += "LIMIT ?, ?"
+	rows, err := tx.QueryContext(ctx, query, id, nextID, LIMIT)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+
+	var irs []*model.IndexRoom
+	for rows.Next() {
+		var room schema.Room
+		var userRoom schema.UserRoom
+		var lastThreadAt sql.NullTime
+		var lastText sql.NullString
+		var userCount int
+
+		if err := rows.Scan(
+			&room.ID,
+			&room.Name,
+			&room.IsGroup,
+			&room.CreatedAt,
+			&room.UpdatedAt,
+			&lastThreadAt,
+			&lastText,
+			&userCount,
+			&userRoom.LastReadAt,
+		); err != nil {
+			return nil, nil, err
+		}
+
+		isOpen := true
+		if lastThreadAt.Valid {
+			if userRoom.LastReadAt.Valid {
+				isOpen = userRoom.LastReadAt.Time.After(lastThreadAt.Time)
+			} else {
+				isOpen = false
+			}
+		}
+
+		var lt string
+		if lastText.Valid {
+			lt = lastText.String
+		}
+		irs = append(irs, &model.IndexRoom{
+			Room: model.Room{
+				ID:        model.RoomID(room.ID),
+				Name:      room.Name,
+				IsGroup:   room.IsGroup,
+				CreatedAt: room.CreatedAt,
+				UpdatedAt: room.UpdatedAt,
+			},
+			IsOpen:    isOpen,
+			LastText:  lt,
+			CountUser: userCount,
+		})
+	}
+
+	var roomID uint64
+	getLastRoomIDQuery := "SELECT `thr`.`id` "
+	getLastRoomIDQuery += "FROM `user_room` AS `ur` "
+	getLastRoomIDQuery += "INNER JOIN ( "
+	getLastRoomIDQuery += "SELECT `r`.`id`, `th`.`created_at` AS `last_thread_at` "
+	getLastRoomIDQuery += "FROM `room` AS `r` "
+	getLastRoomIDQuery += "LEFT JOIN ( "
+	getLastRoomIDQuery += "SELECT `th1`.`id`, `th1`.`room_id`, `th1`.`created_at` "
+	getLastRoomIDQuery += "FROM `thread` AS `th1` "
+	getLastRoomIDQuery += "INNER JOIN ( "
+	getLastRoomIDQuery += "SELECT `room_id`, MAX(`created_at`) AS `created_at` "
+	getLastRoomIDQuery += "FROM `thread` "
+	getLastRoomIDQuery += "GROUP BY `room_id` "
+	getLastRoomIDQuery += ") AS `th2` "
+	getLastRoomIDQuery += "ON `th1`.`room_id` = `th2`.`room_id` AND `th1`.`created_at` = `th2`.`created_at` "
+	getLastRoomIDQuery += ") AS `th` "
+	getLastRoomIDQuery += "ON `r`.`id` = `th`.`room_id` "
+	getLastRoomIDQuery += ") AS `thr` "
+	getLastRoomIDQuery += "ON `ur`.`room_id` = `thr`.`id` "
+	getLastRoomIDQuery += "WHERE `ur`.`user_id` = ? "
+	getLastRoomIDQuery += "ORDER BY `thr`.`last_thread_at` "
+	getLastRoomIDQuery += "LIMIT 1"
+	if err := tx.QueryRowContext(ctx, getLastRoomIDQuery, id).Scan(
+		&roomID,
+	); err != nil {
+		return nil, nil, err
+	}
+
+	var resNextID *int
+	resNextID = pointer.Int(int(nextID) + LIMIT)
+	if len(irs) == 0 || irs[len(irs)-1].Room.ID == model.RoomID(roomID) {
+		resNextID = nil
+	}
+	return irs, resNextID, tx.Commit()
+}
+
+// GetNoneGroup 指定したUserのDMのルームを取得する
+func (rd *roomDatastore) GetNoneGroup(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error) {
+	tx, err := rd.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	var room schema.Room
+	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at` "
+	query += "FROM `room` AS `r` "
+	query += "INNER JOIN `user_room` AS `ur1` "
+	query += "ON `r`.`id` = `ur1`.`room_id` "
+	query += "INNER JOIN `user_room` AS `ur2` "
+	query += "ON `ur1`.`room_id` = `ur2`.`room_id` "
+	query += "WHERE `r`.`is_group` = 0 AND `ur1`.`user_id` = ? AND `ur2`.`user_id` = ? "
+	if err := tx.QueryRowContext(ctx, query, myID, id).Scan(
+		&room.ID,
+		&room.Name,
+		&room.IsGroup,
+		&room.CreatedAt,
+		&room.UpdatedAt,
+	); err != nil {
+		return nil, err
+	}
+
+	return &model.Room{
+		ID:        model.RoomID(room.ID),
+		Name:      room.Name,
+		IsGroup:   room.IsGroup,
+		CreatedAt: room.CreatedAt,
+		UpdatedAt: room.UpdatedAt,
+	}, tx.Commit()
+}
+
+// Show ...
+func (rd *roomDatastore) Show(ctx context.Context, id model.RoomID) (*model.RoomUser, error) {
+	tx, err := rd.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, "
+	query += "`u`.`id`, `u`.`name`, `u`.`created_at`, `u`.`avatar` "
+	query += "FROM `room` AS `r` "
+	query += "INNER JOIN `user_room` AS `ur` "
+	query += "ON `r`.`id` = `ur`.`room_id` "
+	query += "INNER JOIN `user` AS `u` "
+	query += "ON `ur`.`user_id` = `u`.`id` "
+	query += "WHERE `r`.`id` = ?"
+	rows, err := tx.QueryContext(ctx, query, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var room schema.Room
+	var users []*schema.User
+	for rows.Next() {
+		var user schema.User
+		if err := rows.Scan(
+			&room.ID,
+			&room.Name,
+			&room.IsGroup,
+			&room.CreatedAt,
+			&room.UpdatedAt,
+			&user.ID,
+			&user.Name,
+			&user.CreatedAt,
+			&user.Avatar,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+	if room.ID == 0 {
+		return nil, sql.ErrNoRows
+	}
+
+	return rd.toModelRoomUser(room, users), tx.Commit()
 }
 
 func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User) *model.RoomUser {

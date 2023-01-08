@@ -1,12 +1,13 @@
-import React, { FC, FormEvent, useState } from 'react';
-import Box from '@mui/material/Box';
-import { Button, Modal, selectClasses } from '@mui/material';
-import Avatar from '@mui/material/Avatar';
-import Image from 'next/image';
-import { Post, ShowPost } from '../model/post';
-import { Comment } from '../model/comment';
-import { CommentRepository } from '../repository/comment';
-import { PostRepository } from '../repository/post';
+import { Button, Modal, selectClasses } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import Image from "next/image";
+import React, { FC, FormEvent, useState } from "react";
+
+import { Comment } from "../model/comment";
+import { Post, ShowPost } from "../model/post";
+import { CommentRepository } from "../repository/comment";
+import { PostRepository } from "../repository/post";
 
 interface Props {
   open: boolean;
@@ -19,13 +20,13 @@ interface Props {
 
 export const CommentEditModal: FC<Props> = (props) => {
   const style = {
-    position: 'absolute' as 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
     width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
+    bgcolor: "background.paper",
+    border: "2px solid #000",
     boxShadow: 24,
     p: 4,
   };
@@ -36,11 +37,7 @@ export const CommentEditModal: FC<Props> = (props) => {
     e.preventDefault();
     setIsUpdating(true);
     if (!props.comment) {
-      const post = await PostRepository.update(
-        selectPost.id,
-        selectPost.title,
-        selectPost.img
-      );
+      const post = await PostRepository.update(selectPost.id, selectPost.title, selectPost.img);
       props.setShowPost((old) => {
         if (!old) return;
         return {
@@ -54,7 +51,7 @@ export const CommentEditModal: FC<Props> = (props) => {
       const comment = await CommentRepository.update(
         props.comment.id,
         props.comment.text,
-        props.comment.img
+        props.comment.img,
       );
       props.setComment(comment);
       props.setShowPost((old) => {
@@ -95,8 +92,8 @@ export const CommentEditModal: FC<Props> = (props) => {
                 old.title,
                 old.createdAt,
                 old.updatedAt,
-                e.target?.result as string
-              )
+                e.target?.result as string,
+              ),
           );
         } else {
           props.setComment((old) => {
@@ -143,8 +140,8 @@ export const CommentEditModal: FC<Props> = (props) => {
                             e.target.value,
                             old.createdAt,
                             old.updatedAt,
-                            old.img
-                          )
+                            old.img,
+                          ),
                       );
                     }
                     props.setComment((old) => {
@@ -172,14 +169,14 @@ export const CommentEditModal: FC<Props> = (props) => {
                       props.comment
                         ? props.comment.img
                           ? props.comment.img
-                          : ''
+                          : ""
                         : selectPost.img
                         ? selectPost.img
-                        : ''
+                        : ""
                     }
                     width={500}
                     height={500}
-                    alt={'picture'}
+                    alt={"picture"}
                   />
                   <div className='absolute left-[35%] bottom-[90%]'>
                     <Button
@@ -193,8 +190,8 @@ export const CommentEditModal: FC<Props> = (props) => {
                                 old.title,
                                 old.createdAt,
                                 old.updatedAt,
-                                ''
-                              )
+                                "",
+                              ),
                           );
                         }
                         props.setComment((old) => {
@@ -206,7 +203,7 @@ export const CommentEditModal: FC<Props> = (props) => {
                             text: old.text,
                             createdAt: old.createdAt,
                             updatedAt: old.updatedAt,
-                            img: '',
+                            img: "",
                           };
                         });
                       }}
@@ -229,7 +226,7 @@ export const CommentEditModal: FC<Props> = (props) => {
               </label>
               <div className='text-right'>
                 <Button type='submit' disabled={isUpdating}>
-                  {isUpdating ? '更新中' : '更新する'}
+                  {isUpdating ? "更新中" : "更新する"}
                 </Button>
               </div>
             </div>
