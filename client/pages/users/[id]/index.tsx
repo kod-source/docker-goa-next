@@ -55,11 +55,17 @@ const ShowUser: NextPage<Props> = ({ id }) => {
       if (isAxiosError(e)) {
         const myAxiosError = e.response;
         if (myAxiosError?.status === 404) {
-          const showRoom = await RoomRepository.create(`${user.name}/${showUser.name}`, false, [
-            myUserId,
-            id,
-          ]);
-          router.push(`message/${showRoom.room.id}`);
+          try {
+            const showRoom = await RoomRepository.create(`${user.name}/${showUser.name}`, false, [
+              myUserId,
+              id,
+            ]);
+            router.push(`message/${showRoom.room.id}`);
+          } catch (e) {
+            if (e instanceof Error) {
+              return alert(e.message);
+            }
+          }
           return;
         }
         return alert(myAxiosError?.statusText);
