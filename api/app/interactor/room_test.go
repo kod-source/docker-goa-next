@@ -28,6 +28,7 @@ func Test_CreateRoom(t *testing.T) {
 				IsGroup:   wantIsGroup,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       pointer.Ptr("test img"),
 			},
 			Users: []*model.ShowUser{
 				{
@@ -134,6 +135,7 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   true,
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Img:       pointer.Ptr("test img"),
 				},
 				IsOpen:    true,
 				LastText:  "test_text1",
@@ -146,6 +148,7 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   false,
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
 				},
 				IsOpen:    false,
 				LastText:  "test_text2",
@@ -211,6 +214,7 @@ func Test_ExistsRoom(t *testing.T) {
 			IsGroup:   false,
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			Img:       nil,
 		}
 		rr.GetNoneGroupFunc = func(ctx context.Context, myID, id model.UserID) (*model.Room, error) {
 			if diff := cmp.Diff(wantMyUserID, myID); diff != "" {
@@ -263,6 +267,7 @@ func Test_Show(t *testing.T) {
 				IsGroup:   false,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       nil,
 			},
 			Users: []*model.ShowUser{
 				{
@@ -304,6 +309,7 @@ func Test_Show(t *testing.T) {
 				IsGroup:   true,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       pointer.Ptr("test img"),
 			},
 			Users: []*model.ShowUser{
 				{
@@ -345,6 +351,7 @@ func Test_Show(t *testing.T) {
 				IsGroup:   false,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       nil,
 			},
 			Users: []*model.ShowUser{
 				{

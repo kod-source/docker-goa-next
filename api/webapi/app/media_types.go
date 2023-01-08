@@ -313,6 +313,8 @@ type Room struct {
 	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
 	// room id
 	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
 	// グループかDMの判定
 	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
 	// room name
@@ -335,6 +337,8 @@ type RoomUser struct {
 	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
 	// room id
 	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
 	// グループかDMの判定
 	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
 	// room name

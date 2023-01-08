@@ -10,6 +10,7 @@ type Room struct {
 	IsGroup   bool
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	Img       *string
 }
 
 type RoomUser struct {
@@ -18,8 +19,8 @@ type RoomUser struct {
 }
 
 type IndexRoom struct {
-	Room     Room
-	IsOpen   bool
-	LastText string
+	Room      Room
+	IsOpen    bool
+	LastText  string
 	CountUser int
 }
