@@ -19,6 +19,7 @@ func Test_CreateRoom(t *testing.T) {
 	wantRoomName := "test_room"
 	wantIsGroup := true
 	wantUserIDs := []model.UserID{1, 2}
+	wantImg := pointer.Ptr("test img")
 
 	t.Run("[OK]ルーム作成", func(t *testing.T) {
 		want := &model.RoomUser{
@@ -45,7 +46,7 @@ func Test_CreateRoom(t *testing.T) {
 				},
 			},
 		}
-		rr.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+		rr.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomName, name); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
@@ -55,10 +56,13 @@ func Test_CreateRoom(t *testing.T) {
 			if diff := cmp.Diff(wantUserIDs, userIDs); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
+			if diff := cmp.Diff(wantImg, img); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
 			return want, nil
 		}
 
-		got, err := ri.Create(ctx, wantRoomName, wantIsGroup, wantUserIDs)
+		got, err := ri.Create(ctx, wantRoomName, wantIsGroup, wantUserIDs, wantImg)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -68,39 +72,45 @@ func Test_CreateRoom(t *testing.T) {
 	})
 
 	t.Run("[NG]ルーム作成 - DM作成時にUserIDの数が違う時", func(t *testing.T) {
-		rr.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+		rr.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomName, name); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(false, isGroup); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
+			if img != nil {
+				t.Errorf("img (want nil, got %s)", *img)
+			}
 			return nil, nil
 		}
 
-		if _, err := ri.Create(ctx, wantRoomName, false, []model.UserID{1, 2, 3, 4}); !errors.Is(err, myerrors.ErrBadRequestSting) {
+		if _, err := ri.Create(ctx, wantRoomName, false, []model.UserID{1, 2, 3, 4}, nil); !errors.Is(err, myerrors.ErrBadRequestSting) {
 			t.Errorf("want error is %v, but got error is %v", myerrors.ErrBadRequestSting, err)
 		}
 	})
 
 	t.Run("[NG]ルーム作成 - UserIDがない時", func(t *testing.T) {
-		rr.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+		rr.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomName, name); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantIsGroup, isGroup); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
+			if diff := cmp.Diff(wantImg, img); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
 			return nil, nil
 		}
 
-		if _, err := ri.Create(ctx, wantRoomName, wantIsGroup, []model.UserID{}); !errors.Is(err, myerrors.ErrBadRequestEmptyArray) {
+		if _, err := ri.Create(ctx, wantRoomName, wantIsGroup, []model.UserID{}, wantImg); !errors.Is(err, myerrors.ErrBadRequestEmptyArray) {
 			t.Errorf("want error is %v, but got error is %v", myerrors.ErrBadRequestEmptyArray, err)
 		}
 	})
 
 	t.Run("[NG]ルーム作成 - Datastoreでエラー発生", func(t *testing.T) {
-		rr.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+		rr.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomName, name); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
@@ -110,10 +120,13 @@ func Test_CreateRoom(t *testing.T) {
 			if diff := cmp.Diff(wantUserIDs, userIDs); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
+			if diff := cmp.Diff(wantImg, img); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
 			return nil, myerrors.MySQLErrorDuplicate
 		}
 
-		if _, err := ri.Create(ctx, wantRoomName, wantIsGroup, wantUserIDs); !errors.Is(err, myerrors.MySQLErrorDuplicate) {
+		if _, err := ri.Create(ctx, wantRoomName, wantIsGroup, wantUserIDs, wantImg); !errors.Is(err, myerrors.MySQLErrorDuplicate) {
 			t.Errorf("want error is %v, but got error is %v", myerrors.MySQLErrorDuplicate, err)
 		}
 	})

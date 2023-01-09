@@ -24,6 +24,9 @@ var _ = Resource("rooms", func() {
 			Attribute("user_ids", ArrayOf(Integer), "ルームに入れるUserID", func() {
 				Example([]int{1, 2})
 			})
+			Attribute("img", String, "画像データ", func() {
+				Example("img.com")
+			})
 			Required("name", "is_group", "user_ids")
 		})
 		Response(Created, roomUser)

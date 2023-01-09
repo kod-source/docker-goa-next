@@ -7,7 +7,7 @@ import (
 )
 
 type RoomRepository interface {
-	Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error)
+	Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error)
 	Delete(ctx context.Context, id model.RoomID) error
 	Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error)
 	// DMのグループを取得する

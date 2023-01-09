@@ -210,12 +210,17 @@ definitions:
     type: object
   CreateRoomRoomsPayload:
     example:
+      img: img.com
       is_group: true
       name: DMルーム
       user_ids:
       - 1
       - 2
     properties:
+      img:
+        description: 画像データ
+        example: img.com
+        type: string
       is_group:
         description: DMかどうか
         example: true

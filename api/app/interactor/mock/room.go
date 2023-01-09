@@ -10,14 +10,14 @@ import (
 var _ usecase.RoomUseCase = (*MockRoomUsecase)(nil)
 
 type MockRoomUsecase struct {
-	CreateFunc func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error)
+	CreateFunc func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error)
 	IndexFunc  func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error)
 	ExistsFunc func(ctx context.Context, myID model.UserID, id model.UserID) (*model.Room, error)
 	ShowFunc   func(ctx context.Context, id model.RoomID, myID model.UserID) (*model.RoomUser, error)
 }
 
-func (m *MockRoomUsecase) Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
-	return m.CreateFunc(ctx, name, isGroup, userIDs)
+func (m *MockRoomUsecase) Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
+	return m.CreateFunc(ctx, name, isGroup, userIDs, img)
 }
 
 func (m *MockRoomUsecase) Index(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {

@@ -25,7 +25,7 @@ func NewRoomController(service *goa.Service, ru usecase.RoomUseCase) *RoomContro
 
 // CreateRoom ルーム作成
 func (r *RoomController) CreateRoom(ctx *app.CreateRoomRoomsContext) error {
-	ru, err := r.ru.Create(ctx, ctx.Payload.Name, ctx.Payload.IsGroup, r.toUserIDsArray(ctx.Payload.UserIds))
+	ru, err := r.ru.Create(ctx, ctx.Payload.Name, ctx.Payload.IsGroup, r.toUserIDsArray(ctx.Payload.UserIds), ctx.Payload.Img)
 	if err != nil {
 		if errors.Is(err, myerrors.ErrBadRequestEmptyArray) {
 			return ctx.BadRequest(&app.ServiceVerror{

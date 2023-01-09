@@ -25,7 +25,7 @@ func NewRoomInterractor(rr repository.RoomRepository) *roomInteractor {
 	return &roomInteractor{rr: rr}
 }
 
-func (ri *roomInteractor) Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+func (ri *roomInteractor) Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
 	if len(userIDs) == 0 {
 		return nil, myerrors.ErrBadRequestEmptyArray
 	}
@@ -33,7 +33,7 @@ func (ri *roomInteractor) Create(ctx context.Context, name string, isGroup bool,
 		return nil, myerrors.ErrBadRequestSting
 	}
 
-	ru, err := ri.rr.Create(ctx, name, isGroup, userIDs)
+	ru, err := ri.rr.Create(ctx, name, isGroup, userIDs, img)
 	if err != nil {
 		return nil, err
 	}

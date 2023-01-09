@@ -20,9 +20,10 @@ func Test_CreateRoom(t *testing.T) {
 		return time.Date(2022, 1, 1, 0, 0, 0, 0, jst)
 	}
 	rd := NewRoomDatastore(testDB, tr)
+	wantImg := pointer.Ptr("test img")
 
 	t.Run("[OK]ルーム作成", func(t *testing.T) {
-		got, err := rd.Create(ctx, "test_room", false, []model.UserID{1, 2})
+		got, err := rd.Create(ctx, "test_room", false, []model.UserID{1, 2}, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -86,7 +87,7 @@ func Test_CreateRoom(t *testing.T) {
 	})
 
 	t.Run("[OK]ルーム作成 - グループ作成", func(t *testing.T) {
-		got, err := rd.Create(ctx, "test_group_room", true, []model.UserID{1, 2})
+		got, err := rd.Create(ctx, "test_group_room", true, []model.UserID{1, 2}, wantImg)
 		if err != nil {
 			t.Fatal(err)
 		}

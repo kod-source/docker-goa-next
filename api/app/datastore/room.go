@@ -31,7 +31,7 @@ func NewRoomDatastore(db *sql.DB, tr repository.TimeRepository) *roomDatastore {
 }
 
 // Create ルームの作成 DB処理
-func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
 	tx, err := rd.db.Begin()
 	if err != nil {
 		return nil, nil

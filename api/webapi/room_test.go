@@ -23,6 +23,7 @@ func Test_CreateRoom(t *testing.T) {
 	wantRoomName := "room_name"
 	wantUserIDs := []model.UserID{1, 2}
 	wantIsGroup := true
+	wantImg := "test img"
 
 	t.Run("[OK]ルーム作成", func(t *testing.T) {
 		roomUser := &model.RoomUser{
@@ -32,7 +33,7 @@ func Test_CreateRoom(t *testing.T) {
 				IsGroup:   wantIsGroup,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-				Img:       pointer.Ptr("test img"),
+				Img:       &wantImg,
 			},
 			Users: []*model.ShowUser{
 				{
@@ -49,7 +50,7 @@ func Test_CreateRoom(t *testing.T) {
 				},
 			},
 		}
-		ru.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+		ru.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomName, name); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
@@ -57,6 +58,9 @@ func Test_CreateRoom(t *testing.T) {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantIsGroup, isGroup); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(&wantImg, img); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 
@@ -90,6 +94,7 @@ func Test_CreateRoom(t *testing.T) {
 			IsGroup: wantIsGroup,
 			Name:    wantRoomName,
 			UserIds: []int{1, 2},
+			Img:     &wantImg,
 		})
 
 		if diff := cmp.Diff(want, got); diff != "" {
@@ -98,11 +103,14 @@ func Test_CreateRoom(t *testing.T) {
 	})
 
 	t.Run("[NG]ルーム作成 - UserIDが空のケース", func(t *testing.T) {
-		ru.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+		ru.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomName, name); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantIsGroup, isGroup); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(&wantImg, img); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if len(userIDs) != 0 {
@@ -116,6 +124,7 @@ func Test_CreateRoom(t *testing.T) {
 			IsGroup: wantIsGroup,
 			Name:    wantRoomName,
 			UserIds: []int{},
+			Img:     &wantImg,
 		})
 	})
 }
