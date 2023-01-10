@@ -61,6 +61,7 @@ func Test_CreateRoom(t *testing.T) {
 				IsGroup:   false,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       nil,
 			},
 			Users: []*model.ShowUser{
 				{
@@ -125,6 +126,7 @@ func Test_CreateRoom(t *testing.T) {
 				IsGroup:   true,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       wantImg,
 			},
 			Users: []*model.ShowUser{
 				{

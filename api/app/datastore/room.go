@@ -41,12 +41,12 @@ func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, 
 	// Roomの作成
 	ins, err := tx.PrepareContext(
 		ctx,
-		"INSERT INTO `room`(`name`, `is_group`, `created_at`, `updated_at`) VALUES(?,?,?,?)",
+		"INSERT INTO `room`(`name`, `is_group`, `created_at`, `updated_at` , `img`) VALUES(?,?,?,?,?)",
 	)
 	if err != nil {
 		return nil, err
 	}
-	res, err := ins.ExecContext(ctx, name, isGroup, rd.tr.Now(), rd.tr.Now())
+	res, err := ins.ExecContext(ctx, name, isGroup, rd.tr.Now(), rd.tr.Now(), img)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, 
 
 	var room schema.Room
 	var users []*schema.User
-	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, "
+	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, `r`.`img`, "
 	query += "`u`.`id`, `u`.`name`, `u`.`avatar`, `u`.`created_at` "
 	query += "FROM `room` AS `r` "
 	query += "INNER JOIN ( "
@@ -119,6 +119,7 @@ func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, 
 			&room.IsGroup,
 			&room.CreatedAt,
 			&room.UpdatedAt,
+			&room.Img,
 			&user.ID,
 			&user.Name,
 			&user.Avatar,
@@ -371,15 +372,19 @@ func (rd *roomDatastore) toModelRoomUser(room schema.Room, users []*schema.User)
 
 		showUsers = append(showUsers, showUser)
 	}
+	r := model.Room{
+		ID:        model.RoomID(room.ID),
+		Name:      room.Name,
+		IsGroup:   room.IsGroup,
+		CreatedAt: room.CreatedAt,
+		UpdatedAt: room.UpdatedAt,
+	}
+	if room.Img.Valid {
+		r.Img = &room.Img.String
+	}
 
 	return &model.RoomUser{
-		Room: model.Room{
-			ID:        model.RoomID(room.ID),
-			Name:      room.Name,
-			IsGroup:   room.IsGroup,
-			CreatedAt: room.CreatedAt,
-			UpdatedAt: room.UpdatedAt,
-		},
+		Room:  r,
 		Users: showUsers,
 	}
 }
