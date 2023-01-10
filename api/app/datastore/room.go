@@ -155,11 +155,11 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 	}
 	defer tx.Rollback()
 
-	query := "SELECT `thr`.`id`, `thr`.`name`, `thr`.`is_group`, `thr`.`created_at`, `thr`.`updated_at`, "
+	query := "SELECT `thr`.`id`, `thr`.`name`, `thr`.`is_group`, `thr`.`created_at`, `thr`.`updated_at`, `thr`.`img`, "
 	query += "`thr`.`last_thread_at`, `thr`.`last_text`, `thr`.`user_count`,`ur`.`last_read_at` "
 	query += "FROM `user_room` AS `ur` "
 	query += "INNER JOIN ( "
-	query += "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, "
+	query += "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, `r`.`img`, "
 	query += "`th`.`created_at` AS `last_thread_at`, `th`.`text` AS `last_text`, `ur`.`user_count` "
 	query += "FROM `room` AS `r` "
 	query += "INNER JOIN ( "
@@ -204,6 +204,7 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 			&room.IsGroup,
 			&room.CreatedAt,
 			&room.UpdatedAt,
+			&room.Img,
 			&lastThreadAt,
 			&lastText,
 			&userCount,
@@ -225,14 +226,19 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 		if lastText.Valid {
 			lt = lastText.String
 		}
+		r := model.Room{
+			ID:        model.RoomID(room.ID),
+			Name:      room.Name,
+			IsGroup:   room.IsGroup,
+			CreatedAt: room.CreatedAt,
+			UpdatedAt: room.UpdatedAt,
+		}
+		if room.Img.Valid {
+			r.Img = &room.Img.String
+		}
+
 		irs = append(irs, &model.IndexRoom{
-			Room: model.Room{
-				ID:        model.RoomID(room.ID),
-				Name:      room.Name,
-				IsGroup:   room.IsGroup,
-				CreatedAt: room.CreatedAt,
-				UpdatedAt: room.UpdatedAt,
-			},
+			Room: r,
 			IsOpen:    isOpen,
 			LastText:  lt,
 			CountUser: userCount,
@@ -284,7 +290,7 @@ func (rd *roomDatastore) GetNoneGroup(ctx context.Context, myID model.UserID, id
 	defer tx.Rollback()
 
 	var room schema.Room
-	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at` "
+	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, `r`.`img` "
 	query += "FROM `room` AS `r` "
 	query += "INNER JOIN `user_room` AS `ur1` "
 	query += "ON `r`.`id` = `ur1`.`room_id` "
@@ -297,17 +303,22 @@ func (rd *roomDatastore) GetNoneGroup(ctx context.Context, myID model.UserID, id
 		&room.IsGroup,
 		&room.CreatedAt,
 		&room.UpdatedAt,
+		&room.Img,
 	); err != nil {
 		return nil, err
 	}
 
-	return &model.Room{
+	r := &model.Room{
 		ID:        model.RoomID(room.ID),
 		Name:      room.Name,
 		IsGroup:   room.IsGroup,
 		CreatedAt: room.CreatedAt,
 		UpdatedAt: room.UpdatedAt,
-	}, tx.Commit()
+	}
+	if room.Img.Valid {
+		r.Img = &room.Img.String
+	}
+	return r, tx.Commit()
 }
 
 // Show ...
@@ -318,7 +329,7 @@ func (rd *roomDatastore) Show(ctx context.Context, id model.RoomID) (*model.Room
 	}
 	defer tx.Rollback()
 
-	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, "
+	query := "SELECT `r`.`id`, `r`.`name`, `r`.`is_group`, `r`.`created_at`, `r`.`updated_at`, `r`.`img`, "
 	query += "`u`.`id`, `u`.`name`, `u`.`created_at`, `u`.`avatar` "
 	query += "FROM `room` AS `r` "
 	query += "INNER JOIN `user_room` AS `ur` "
@@ -342,6 +353,7 @@ func (rd *roomDatastore) Show(ctx context.Context, id model.RoomID) (*model.Room
 			&room.IsGroup,
 			&room.CreatedAt,
 			&room.UpdatedAt,
+			&room.Img,
 			&user.ID,
 			&user.Name,
 			&user.CreatedAt,
