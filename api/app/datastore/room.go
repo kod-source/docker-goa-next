@@ -228,9 +228,9 @@ func (rd *roomDatastore) Index(ctx context.Context, id model.UserID, nextID mode
 			}
 		}
 
-		var lt string
+		var lt *string
 		if lastText.Valid {
-			lt = lastText.String
+			lt = &lastText.String
 		}
 		r := model.Room{
 			ID:        model.RoomID(room.ID),

@@ -21,7 +21,7 @@ type RoomUser struct {
 type IndexRoom struct {
 	Room      Room
 	IsOpen    bool
-	LastText  string
+	LastText  *string
 	CountUser int
 	ShowImg   *string
 }

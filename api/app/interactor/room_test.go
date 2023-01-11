@@ -151,7 +151,7 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       pointer.Ptr("test img"),
 				},
 				IsOpen:    true,
-				LastText:  "test_text1",
+				LastText:  pointer.Ptr("test_text1"),
 				CountUser: 10,
 			},
 			{
@@ -164,7 +164,7 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "test_text2",
+				LastText:  pointer.Ptr("test_text2"),
 				CountUser: 2,
 			},
 		}
