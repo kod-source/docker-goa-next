@@ -105,6 +105,7 @@ func (r *RoomController) toIndexRoom(ir *model.IndexRoom) *app.IndexRoom {
 		IsOpen:    ir.IsOpen,
 		LastText:  ir.LastText,
 		CountUser: ir.CountUser,
+		ShowImg: ir.ShowImg,
 		Room: &app.Room{
 			CreatedAt: ir.Room.CreatedAt,
 			ID:        int(ir.Room.ID),

@@ -153,6 +153,7 @@ func Test_IndexRoom(t *testing.T) {
 				IsOpen:    true,
 				LastText:  pointer.Ptr("test_text1"),
 				CountUser: 10,
+				ShowImg:   pointer.Ptr("test1_show_img"),
 			},
 			{
 				Room: model.Room{
@@ -166,6 +167,7 @@ func Test_IndexRoom(t *testing.T) {
 				IsOpen:    false,
 				LastText:  pointer.Ptr("test_text2"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
 		rr.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {

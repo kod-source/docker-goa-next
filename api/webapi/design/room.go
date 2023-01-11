@@ -124,11 +124,13 @@ var indexRoom = MediaType("application/vnd.index_room", func() {
 	Attribute("is_open", Boolean, "開いたどうか")
 	Attribute("last_text", String, "最後の内容")
 	Attribute("count_user", Integer, "ルームに入っているユーザー数")
+	Attribute("show_img", String, "DMの際に相手のプロフィール画像のパス")
 	View("default", func() {
 		Attribute("room")
 		Attribute("is_open")
 		Attribute("last_text")
 		Attribute("count_user")
+		Attribute("show_img")
 	})
 	Required("room", "is_open", "count_user")
 })
