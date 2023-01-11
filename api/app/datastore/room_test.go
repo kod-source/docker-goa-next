@@ -235,8 +235,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "thread5",
+				LastText:  pointer.Ptr("thread5"),
 				CountUser: 2,
+				ShowImg:   pointer.Ptr("test1_avatar"),
 			},
 			{
 				Room: model.Room{
@@ -248,11 +249,12 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       pointer.Ptr("test1_img"),
 				},
 				IsOpen:    false,
-				LastText:  "thread3",
+				LastText:  pointer.Ptr("thread3"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
-		got, gotNextID, err := rd.Index(ctx, 1, 0)
+		got, gotNextID, err := rd.Index(ctx, 2, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -319,8 +321,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "thread5",
+				LastText:  pointer.Ptr("thread5"),
 				CountUser: 2,
+				ShowImg:   pointer.Ptr("test1_avatar"),
 			},
 			{
 				Room: model.Room{
@@ -332,8 +335,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       pointer.Ptr("test1_img"),
 				},
 				IsOpen:    false,
-				LastText:  "thread3",
+				LastText:  pointer.Ptr("thread3"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 			{
 				Room: model.Room{
@@ -345,11 +349,12 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       pointer.Ptr("test_create_img"),
 				},
 				IsOpen:    true,
-				LastText:  "",
+				LastText:  nil,
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
-		got, gotNextID, err := rd.Index(ctx, 1, 0)
+		got, gotNextID, err := rd.Index(ctx, 2, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -377,8 +382,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       pointer.Ptr("test1_img"),
 				},
 				IsOpen:    false,
-				LastText:  "thread3",
+				LastText:  pointer.Ptr("thread3"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
 		got, gotNextID, err := rd.Index(ctx, 1, 1)
@@ -447,8 +453,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "thread5",
+				LastText:  pointer.Ptr("thread5"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 			{
 				Room: model.Room{
@@ -460,8 +467,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       pointer.Ptr("test1_img"),
 				},
 				IsOpen:    false,
-				LastText:  "thread3",
+				LastText:  pointer.Ptr("thread3"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 			{
 				Room: model.Room{
@@ -473,8 +481,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       nil,
 				},
 				IsOpen:    true,
-				LastText:  "test_thread",
+				LastText:  pointer.Ptr("test_thread"),
 				CountUser: 1,
+				ShowImg:   nil,
 			},
 		}
 		got, gotNextID, err := rd.Index(ctx, 1, 0)
@@ -564,7 +573,7 @@ func Test_IndexRoom(t *testing.T) {
 		if err := schema.InsertRoom(ctx, testDB, &schema.Room{
 			ID:        uint64(roomID),
 			Name:      "count_user_room",
-			IsGroup:   false,
+			IsGroup:   true,
 			CreatedAt: now,
 			UpdatedAt: now,
 			Img: sql.NullString{
@@ -652,8 +661,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "thread5",
+				LastText:  pointer.Ptr("thread5"),
 				CountUser: 2,
+				ShowImg:   pointer.Ptr("test1_avatar"),
 			},
 			{
 				Room: model.Room{
@@ -665,24 +675,26 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       pointer.Ptr("test1_img"),
 				},
 				IsOpen:    false,
-				LastText:  "thread3",
+				LastText:  pointer.Ptr("thread3"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 			{
 				Room: model.Room{
 					ID:        model.RoomID(roomID),
 					Name:      "count_user_room",
-					IsGroup:   false,
+					IsGroup:   true,
 					CreatedAt: now,
 					UpdatedAt: now,
 					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "test_thread",
+				LastText:  pointer.Ptr("test_thread"),
 				CountUser: 3,
+				ShowImg:   nil,
 			},
 		}
-		got, gotNextID, err := rd.Index(ctx, 1, 0)
+		got, gotNextID, err := rd.Index(ctx, 2, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -770,7 +782,7 @@ func Test_ShowRoom(t *testing.T) {
 				IsGroup:   true,
 				CreatedAt: now,
 				UpdatedAt: now,
-				Img: pointer.Ptr("test1_img"),
+				Img:       pointer.Ptr("test1_img"),
 			},
 			Users: []*model.ShowUser{
 				{

@@ -150,8 +150,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       pointer.Ptr("test img"),
 				},
 				IsOpen:    true,
-				LastText:  "test_text1",
+				LastText:  pointer.Ptr("test_text1"),
 				CountUser: 10,
+				ShowImg:   pointer.Ptr("test1_show_img"),
 			},
 			{
 				Room: model.Room{
@@ -163,8 +164,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "",
+				LastText:  nil,
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
 		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
@@ -195,6 +197,7 @@ func Test_IndexRoom(t *testing.T) {
 					IsOpen:    true,
 					LastText:  pointer.Ptr("test_text1"),
 					CountUser: 10,
+					ShowImg:   pointer.Ptr("test1_show_img"),
 				},
 				{
 					Room: &app.Room{
@@ -208,6 +211,7 @@ func Test_IndexRoom(t *testing.T) {
 					IsOpen:    false,
 					LastText:  nil,
 					CountUser: 2,
+					ShowImg:   nil,
 				},
 			},
 		}
@@ -231,8 +235,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       pointer.Ptr("test img"),
 				},
 				IsOpen:    true,
-				LastText:  "test_text1",
+				LastText:  pointer.Ptr("test_text1"),
 				CountUser: 20,
+				ShowImg:   pointer.Ptr("test1_show_img"),
 			},
 			{
 				Room: model.Room{
@@ -244,8 +249,9 @@ func Test_IndexRoom(t *testing.T) {
 					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "",
+				LastText:  nil,
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
 		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
@@ -276,6 +282,7 @@ func Test_IndexRoom(t *testing.T) {
 					IsOpen:    true,
 					LastText:  pointer.Ptr("test_text1"),
 					CountUser: 20,
+					ShowImg:   pointer.Ptr("test1_show_img"),
 				},
 				{
 					Room: &app.Room{
@@ -289,6 +296,7 @@ func Test_IndexRoom(t *testing.T) {
 					IsOpen:    false,
 					LastText:  nil,
 					CountUser: 2,
+					ShowImg:   nil,
 				},
 			},
 		}

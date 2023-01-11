@@ -103,8 +103,9 @@ func (r *RoomController) toAllRoomUser(irs []*model.IndexRoom, nextID *int) *app
 func (r *RoomController) toIndexRoom(ir *model.IndexRoom) *app.IndexRoom {
 	return &app.IndexRoom{
 		IsOpen:    ir.IsOpen,
-		LastText:  pointer.PtrOrNil(ir.LastText),
+		LastText:  ir.LastText,
 		CountUser: ir.CountUser,
+		ShowImg: ir.ShowImg,
 		Room: &app.Room{
 			CreatedAt: ir.Room.CreatedAt,
 			ID:        int(ir.Room.ID),
