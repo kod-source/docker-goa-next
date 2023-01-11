@@ -23,4 +23,5 @@ type IndexRoom struct {
 	IsOpen    bool
 	LastText  string
 	CountUser int
+	ShowImg   *string
 }
