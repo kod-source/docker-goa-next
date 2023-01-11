@@ -71,6 +71,7 @@ CREATE TABLE `room` (
     `is_group` TINYINT(1) NOT NULL,
     `created_at` DATETIME(6) NOT NULL,
     `updated_at` DATETIME(6) NOT NULL,
+    `img` LONGTEXT NULL,
     PRIMARY KEY (`id`)
 );
 

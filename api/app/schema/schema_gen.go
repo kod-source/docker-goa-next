@@ -385,9 +385,9 @@ func UpdateLike(ctx context.Context, execer execer, values ...*Like) error {
 }
 
 func InsertRoom(ctx context.Context, execer execer, values ...*Room) error {
-	const q = "INSERT INTO `room` (`name`, `is_group`, `created_at`, `updated_at`) VALUES (?, ?, ?, ?)" +
-		", (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?), (?, ?, ?, ?)"
-	const fieldCount = 4
+	const q = "INSERT INTO `room` (`name`, `is_group`, `created_at`, `updated_at`, `img`) VALUES (?, ?, ?, ?, ?)" +
+		", (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?), (?, ?, ?, ?, ?)"
+	const fieldCount = 5
 	const maxStructCount = 32
 	var args []any
 	if len(values) >= maxStructCount {
@@ -403,7 +403,7 @@ func InsertRoom(ctx context.Context, execer execer, values ...*Room) error {
 				vals, rest := values[:maxStructCount], values[maxStructCount:]
 				args = args[:0]
 				for _, v := range vals {
-					args = append(args, v.Name, v.IsGroup, v.CreatedAt, v.UpdatedAt)
+					args = append(args, v.Name, v.IsGroup, v.CreatedAt, v.UpdatedAt, v.Img)
 				}
 				if _, err := stmt.ExecContext(ctx, args...); err != nil {
 					return err
@@ -424,9 +424,9 @@ func InsertRoom(ctx context.Context, execer execer, values ...*Room) error {
 	}
 	args = args[:0]
 	for _, v := range values {
-		args = append(args, v.Name, v.IsGroup, v.CreatedAt, v.UpdatedAt)
+		args = append(args, v.Name, v.IsGroup, v.CreatedAt, v.UpdatedAt, v.Img)
 	}
-	if _, err := execer.ExecContext(ctx, q[:len(values)*14+73], args...); err != nil {
+	if _, err := execer.ExecContext(ctx, q[:len(values)*17+80], args...); err != nil {
 		return err
 	}
 	return nil
@@ -434,8 +434,8 @@ func InsertRoom(ctx context.Context, execer execer, values ...*Room) error {
 
 func SelectRoom(ctx context.Context, queryer queryer, primaryKeys *Room) (*Room, error) {
 	var v Room
-	row := queryer.QueryRowContext(ctx, "SELECT `id`, `name`, `is_group`, `created_at`, `updated_at` FROM `room` WHERE `id` = ?", primaryKeys.ID)
-	if err := row.Scan(&v.ID, &v.Name, &v.IsGroup, &v.CreatedAt, &v.UpdatedAt); err != nil {
+	row := queryer.QueryRowContext(ctx, "SELECT `id`, `name`, `is_group`, `created_at`, `updated_at`, `img` FROM `room` WHERE `id` = ?", primaryKeys.ID)
+	if err := row.Scan(&v.ID, &v.Name, &v.IsGroup, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
 		return nil, err
 	}
 	return &v, nil
@@ -443,14 +443,14 @@ func SelectRoom(ctx context.Context, queryer queryer, primaryKeys *Room) (*Room,
 
 func SelectAllRoom(ctx context.Context, queryer queryer) ([]*Room, error) {
 	var ret []*Room
-	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `name`, `is_group`, `created_at`, `updated_at` FROM `room` ORDER BY `id`")
+	rows, err := queryer.QueryContext(ctx, "SELECT `id`, `name`, `is_group`, `created_at`, `updated_at`, `img` FROM `room` ORDER BY `id`")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var v Room
-		if err := rows.Scan(&v.ID, &v.Name, &v.IsGroup, &v.CreatedAt, &v.UpdatedAt); err != nil {
+		if err := rows.Scan(&v.ID, &v.Name, &v.IsGroup, &v.CreatedAt, &v.UpdatedAt, &v.Img); err != nil {
 			return nil, err
 		}
 		ret = append(ret, &v)
@@ -462,13 +462,13 @@ func SelectAllRoom(ctx context.Context, queryer queryer) ([]*Room, error) {
 }
 
 func UpdateRoom(ctx context.Context, execer execer, values ...*Room) error {
-	stmt, err := execer.PrepareContext(ctx, "UPDATE `room` SET `name` = ?, `is_group` = ?, `created_at` = ?, `updated_at` = ? WHERE `id` = ?")
+	stmt, err := execer.PrepareContext(ctx, "UPDATE `room` SET `name` = ?, `is_group` = ?, `created_at` = ?, `updated_at` = ?, `img` = ? WHERE `id` = ?")
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 	for _, value := range values {
-		if _, err := stmt.ExecContext(ctx, value.Name, value.IsGroup, value.CreatedAt, value.UpdatedAt, value.ID); err != nil {
+		if _, err := stmt.ExecContext(ctx, value.Name, value.IsGroup, value.CreatedAt, value.UpdatedAt, value.Img, value.ID); err != nil {
 			return err
 		}
 	}
