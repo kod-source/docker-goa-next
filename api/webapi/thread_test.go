@@ -108,7 +108,7 @@ func Test_CreateThread(t *testing.T) {
 				ID:        wantUserID,
 				Name:      "test_user",
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-				Avatar:    pointer.Ptr("test_avatar"),
+				Avatar:    nil,
 			},
 		}
 		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
@@ -145,7 +145,7 @@ func Test_CreateThread(t *testing.T) {
 				ID:        int(wantUserID),
 				Name:      "test_user",
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-				Avatar:    pointer.Ptr("test_avatar"),
+				Avatar:    nil,
 			},
 		}
 
