@@ -467,6 +467,61 @@ func (mt ShowUserCollection) Validate() (err error) {
 	return
 }
 
+// スレッド (default view)
+//
+// Identifier: application/vnd.thread; view=default
+type Thread struct {
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// room id
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// グループかDMの判定
+	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
+	// room name
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// 更新日
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+}
+
+// Validate validates the Thread media type instance.
+func (mt *Thread) Validate() (err error) {
+
+	return
+}
+
+// スレッドとユーザー情報 (default view)
+//
+// Identifier: application/vnd.thread_user; view=default
+type ThreadUser struct {
+	// スレッド
+	Thread *Thread `form:"thread" json:"thread" yaml:"thread" xml:"thread"`
+	// ユーザー
+	User *ShowUser `form:"user" json:"user" yaml:"user" xml:"user"`
+}
+
+// Validate validates the ThreadUser media type instance.
+func (mt *ThreadUser) Validate() (err error) {
+	if mt.Thread == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "thread"))
+	}
+	if mt.User == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "user"))
+	}
+	if mt.Thread != nil {
+		if err2 := mt.Thread.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if mt.User != nil {
+		if err2 := mt.User.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
 // token (default view)
 //
 // Identifier: application/vnd.token+json; view=default
