@@ -477,12 +477,14 @@ type Thread struct {
 	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
 	// 画像
 	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
-	// グループかDMの判定
-	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
-	// room name
-	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
+	// room id
+	RoomID int `form:"room_id" json:"room_id" yaml:"room_id" xml:"room_id"`
+	// スレッド内容
+	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
 	// 更新日
 	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+	// user id
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
 }
 
 // Validate validates the Thread media type instance.

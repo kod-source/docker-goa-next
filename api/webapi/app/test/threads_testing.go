@@ -23,18 +23,17 @@ import (
 )
 
 // CreateThreadsBadRequest runs the method Create of the given controller with the given parameters and payload.
-// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateThreadsBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ThreadsController, payload *app.CreateThreadsPayload) (http.ResponseWriter, *app.ServiceVerror) {
+func CreateThreadsBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ThreadsController, payload *app.CreateThreadsPayload) http.ResponseWriter {
 	t.Helper()
 
 	// Setup service
 	var (
 		logBuf strings.Builder
-		resp   interface{}
 
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
 	)
 	if service == nil {
 		service = goatest.Service(&logBuf, respSetter)
@@ -54,7 +53,7 @@ func CreateThreadsBadRequest(t testing.TB, ctx context.Context, service *goa.Ser
 			panic(err) // bug
 		}
 		t.Errorf("unexpected payload validation error: %+v", e)
-		return nil, nil
+		return nil
 	}
 
 	// Setup request context
@@ -77,7 +76,7 @@ func CreateThreadsBadRequest(t testing.TB, ctx context.Context, service *goa.Ser
 			panic("invalid test data " + _err.Error()) // bug
 		}
 		t.Errorf("unexpected parameter validation error: %+v", _e)
-		return nil, nil
+		return nil
 	}
 	createCtx.Payload = payload
 
@@ -91,21 +90,9 @@ func CreateThreadsBadRequest(t testing.TB, ctx context.Context, service *goa.Ser
 	if rw.Code != 400 {
 		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
 	}
-	var mt *app.ServiceVerror
-	if resp != nil {
-		var __ok bool
-		mt, __ok = resp.(*app.ServiceVerror)
-		if !__ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.ServiceVerror", resp, resp)
-		}
-		_err = mt.Validate()
-		if _err != nil {
-			t.Errorf("invalid response media type: %s", _err)
-		}
-	}
 
 	// Return results
-	return rw, mt
+	return rw
 }
 
 // CreateThreadsCreated runs the method Create of the given controller with the given parameters and payload.

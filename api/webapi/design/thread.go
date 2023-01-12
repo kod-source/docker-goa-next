@@ -30,7 +30,7 @@ var _ = Resource("threads", func() {
 			Required("text", "room_id", "user_id")
 		})
 		Response(Created, threadUser)
-		Response(BadRequest, MyError)
+		Response(BadRequest)
 		Response(InternalServerError)
 	})
 })
@@ -38,8 +38,9 @@ var _ = Resource("threads", func() {
 var thread = MediaType("application/vnd.thread", func() {
 	Description("スレッド")
 	Attribute("id", Integer, "room id")
-	Attribute("name", String, "room name")
-	Attribute("is_group", Boolean, "グループかDMの判定")
+	Attribute("user_id", Integer, "user id")
+	Attribute("room_id", Integer, "room id")
+	Attribute("text", String, "スレッド内容")
 	Attribute("created_at", DateTime, "作成日", func() {
 		Example(time.Date(2019, 01, 31, 0, 0, 0, 0, loc).Format(time.RFC3339))
 	})
@@ -49,13 +50,14 @@ var thread = MediaType("application/vnd.thread", func() {
 	Attribute("img", String, "画像")
 	View("default", func() {
 		Attribute("id")
-		Attribute("name")
-		Attribute("is_group")
+		Attribute("user_id")
+		Attribute("room_id")
+		Attribute("text")
 		Attribute("created_at")
 		Attribute("updated_at")
 		Attribute("img")
 	})
-	Required("id", "name", "is_group", "created_at", "updated_at")
+	Required("id", "user_id", "room_id", "text", "created_at", "updated_at")
 })
 
 var threadUser = MediaType("application/vnd.thread_user", func() {
