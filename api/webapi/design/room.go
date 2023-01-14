@@ -24,6 +24,9 @@ var _ = Resource("rooms", func() {
 			Attribute("user_ids", ArrayOf(Integer), "ルームに入れるUserID", func() {
 				Example([]int{1, 2})
 			})
+			Attribute("img", String, "画像データ", func() {
+				Example("img.com")
+			})
 			Required("name", "is_group", "user_ids")
 		})
 		Response(Created, roomUser)
@@ -78,12 +81,14 @@ var room = MediaType("application/vnd.room", func() {
 	Attribute("updated_at", DateTime, "更新日", func() {
 		Example(time.Date(2019, 01, 31, 0, 0, 0, 0, loc).Format(time.RFC3339))
 	})
+	Attribute("img", String, "画像")
 	View("default", func() {
 		Attribute("id")
 		Attribute("name")
 		Attribute("is_group")
 		Attribute("created_at")
 		Attribute("updated_at")
+		Attribute("img")
 	})
 	Required("id", "name", "is_group", "created_at", "updated_at")
 })
@@ -99,6 +104,7 @@ var roomUser = MediaType("application/vnd.room_user", func() {
 	Attribute("updated_at", DateTime, "更新日", func() {
 		Example(time.Date(2019, 01, 31, 0, 0, 0, 0, loc).Format(time.RFC3339))
 	})
+	Attribute("img", String, "画像")
 	Attribute("users", CollectionOf(show_user), "ルームいるユーザー")
 	View("default", func() {
 		Attribute("id")
@@ -106,6 +112,7 @@ var roomUser = MediaType("application/vnd.room_user", func() {
 		Attribute("is_group")
 		Attribute("created_at")
 		Attribute("updated_at")
+		Attribute("img")
 		Attribute("users")
 	})
 	Required("id", "name", "is_group", "created_at", "updated_at", "users")
@@ -117,11 +124,13 @@ var indexRoom = MediaType("application/vnd.index_room", func() {
 	Attribute("is_open", Boolean, "開いたどうか")
 	Attribute("last_text", String, "最後の内容")
 	Attribute("count_user", Integer, "ルームに入っているユーザー数")
+	Attribute("show_img", String, "DMの際に相手のプロフィール画像のパス")
 	View("default", func() {
 		Attribute("room")
 		Attribute("is_open")
 		Attribute("last_text")
 		Attribute("count_user")
+		Attribute("show_img")
 	})
 	Required("room", "is_open", "count_user")
 })

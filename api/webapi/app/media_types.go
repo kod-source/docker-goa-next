@@ -145,6 +145,8 @@ type IndexRoom struct {
 	LastText *string `form:"last_text,omitempty" json:"last_text,omitempty" yaml:"last_text,omitempty" xml:"last_text,omitempty"`
 	// room
 	Room *Room `form:"room" json:"room" yaml:"room" xml:"room"`
+	// DMの際に相手のプロフィール画像のパス
+	ShowImg *string `form:"show_img,omitempty" json:"show_img,omitempty" yaml:"show_img,omitempty" xml:"show_img,omitempty"`
 }
 
 // Validate validates the IndexRoom media type instance.
@@ -313,6 +315,8 @@ type Room struct {
 	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
 	// room id
 	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
 	// グループかDMの判定
 	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
 	// room name
@@ -335,6 +339,8 @@ type RoomUser struct {
 	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
 	// room id
 	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
 	// グループかDMの判定
 	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
 	// room name

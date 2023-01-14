@@ -23,6 +23,7 @@ func Test_CreateRoom(t *testing.T) {
 	wantRoomName := "room_name"
 	wantUserIDs := []model.UserID{1, 2}
 	wantIsGroup := true
+	wantImg := "test img"
 
 	t.Run("[OK]ルーム作成", func(t *testing.T) {
 		roomUser := &model.RoomUser{
@@ -32,6 +33,7 @@ func Test_CreateRoom(t *testing.T) {
 				IsGroup:   wantIsGroup,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       &wantImg,
 			},
 			Users: []*model.ShowUser{
 				{
@@ -48,7 +50,7 @@ func Test_CreateRoom(t *testing.T) {
 				},
 			},
 		}
-		ru.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+		ru.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomName, name); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
@@ -56,6 +58,9 @@ func Test_CreateRoom(t *testing.T) {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantIsGroup, isGroup); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(&wantImg, img); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 
@@ -68,6 +73,7 @@ func Test_CreateRoom(t *testing.T) {
 			IsGroup:   wantIsGroup,
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			Img:       pointer.Ptr("test img"),
 			Users: []*app.ShowUser{
 				{
 					ID:        1,
@@ -88,6 +94,7 @@ func Test_CreateRoom(t *testing.T) {
 			IsGroup: wantIsGroup,
 			Name:    wantRoomName,
 			UserIds: []int{1, 2},
+			Img:     &wantImg,
 		})
 
 		if diff := cmp.Diff(want, got); diff != "" {
@@ -96,11 +103,14 @@ func Test_CreateRoom(t *testing.T) {
 	})
 
 	t.Run("[NG]ルーム作成 - UserIDが空のケース", func(t *testing.T) {
-		ru.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID) (*model.RoomUser, error) {
+		ru.CreateFunc = func(ctx context.Context, name string, isGroup bool, userIDs []model.UserID, img *string) (*model.RoomUser, error) {
 			if diff := cmp.Diff(wantRoomName, name); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantIsGroup, isGroup); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(&wantImg, img); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if len(userIDs) != 0 {
@@ -114,6 +124,7 @@ func Test_CreateRoom(t *testing.T) {
 			IsGroup: wantIsGroup,
 			Name:    wantRoomName,
 			UserIds: []int{},
+			Img:     &wantImg,
 		})
 	})
 }
@@ -136,10 +147,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   true,
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Img:       pointer.Ptr("test img"),
 				},
 				IsOpen:    true,
-				LastText:  "test_text1",
+				LastText:  pointer.Ptr("test_text1"),
 				CountUser: 10,
+				ShowImg:   pointer.Ptr("test1_show_img"),
 			},
 			{
 				Room: model.Room{
@@ -148,10 +161,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   false,
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "",
+				LastText:  nil,
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
 		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
@@ -177,10 +192,12 @@ func Test_IndexRoom(t *testing.T) {
 						IsGroup:   true,
 						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Img:       pointer.Ptr("test img"),
 					},
 					IsOpen:    true,
 					LastText:  pointer.Ptr("test_text1"),
 					CountUser: 10,
+					ShowImg:   pointer.Ptr("test1_show_img"),
 				},
 				{
 					Room: &app.Room{
@@ -189,10 +206,12 @@ func Test_IndexRoom(t *testing.T) {
 						IsGroup:   false,
 						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Img:       nil,
 					},
 					IsOpen:    false,
 					LastText:  nil,
 					CountUser: 2,
+					ShowImg:   nil,
 				},
 			},
 		}
@@ -213,10 +232,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   true,
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Img:       pointer.Ptr("test img"),
 				},
 				IsOpen:    true,
-				LastText:  "test_text1",
+				LastText:  pointer.Ptr("test_text1"),
 				CountUser: 20,
+				ShowImg:   pointer.Ptr("test1_show_img"),
 			},
 			{
 				Room: model.Room{
@@ -225,10 +246,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   false,
 					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "",
+				LastText:  nil,
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
 		ru.IndexFunc = func(ctx context.Context, id model.UserID, nextID model.RoomID) ([]*model.IndexRoom, *int, error) {
@@ -254,10 +277,12 @@ func Test_IndexRoom(t *testing.T) {
 						IsGroup:   true,
 						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Img:       pointer.Ptr("test img"),
 					},
 					IsOpen:    true,
 					LastText:  pointer.Ptr("test_text1"),
 					CountUser: 20,
+					ShowImg:   pointer.Ptr("test1_show_img"),
 				},
 				{
 					Room: &app.Room{
@@ -266,10 +291,12 @@ func Test_IndexRoom(t *testing.T) {
 						IsGroup:   false,
 						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Img:       nil,
 					},
 					IsOpen:    false,
 					LastText:  nil,
 					CountUser: 2,
+					ShowImg:   nil,
 				},
 			},
 		}
@@ -339,6 +366,7 @@ func Test_Exists(t *testing.T) {
 				IsGroup:   false,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       nil,
 			}, nil
 		}
 
@@ -348,6 +376,7 @@ func Test_Exists(t *testing.T) {
 			IsGroup:   false,
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			Img:       nil,
 		}
 
 		_, got := test.ExistsRoomsOK(t, ctx, srv, r, int(wantUserID))
@@ -403,6 +432,7 @@ func Test_Show(t *testing.T) {
 				IsGroup:   false,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       nil,
 			},
 			Users: []*model.ShowUser{
 				{
@@ -439,6 +469,7 @@ func Test_Show(t *testing.T) {
 			Name:      "test room",
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			Img:       nil,
 			Users: []*app.ShowUser{
 				{
 					ID:        int(wantMyUserID),
@@ -470,6 +501,7 @@ func Test_Show(t *testing.T) {
 				IsGroup:   true,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       pointer.Ptr("test img"),
 			},
 			Users: []*model.ShowUser{
 				{
@@ -530,6 +562,7 @@ func Test_Show(t *testing.T) {
 			Name:      "test room",
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			Img:       pointer.Ptr("test img"),
 			Users: []*app.ShowUser{
 				{
 					ID:        int(wantMyUserID),

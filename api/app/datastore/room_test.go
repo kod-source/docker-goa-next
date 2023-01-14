@@ -20,9 +20,10 @@ func Test_CreateRoom(t *testing.T) {
 		return time.Date(2022, 1, 1, 0, 0, 0, 0, jst)
 	}
 	rd := NewRoomDatastore(testDB, tr)
+	wantImg := pointer.Ptr("test img")
 
 	t.Run("[OK]ルーム作成", func(t *testing.T) {
-		got, err := rd.Create(ctx, "test_room", false, []model.UserID{1, 2})
+		got, err := rd.Create(ctx, "test_room", false, []model.UserID{1, 2}, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -60,6 +61,7 @@ func Test_CreateRoom(t *testing.T) {
 				IsGroup:   false,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       nil,
 			},
 			Users: []*model.ShowUser{
 				{
@@ -86,7 +88,7 @@ func Test_CreateRoom(t *testing.T) {
 	})
 
 	t.Run("[OK]ルーム作成 - グループ作成", func(t *testing.T) {
-		got, err := rd.Create(ctx, "test_group_room", true, []model.UserID{1, 2})
+		got, err := rd.Create(ctx, "test_group_room", true, []model.UserID{1, 2}, wantImg)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -124,6 +126,7 @@ func Test_CreateRoom(t *testing.T) {
 				IsGroup:   true,
 				CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+				Img:       wantImg,
 			},
 			Users: []*model.ShowUser{
 				{
@@ -162,6 +165,10 @@ func Test_DeleteRoom(t *testing.T) {
 			IsGroup:   true,
 			CreatedAt: now,
 			UpdatedAt: now,
+			Img: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
 		}); err != nil {
 			t.Fatal(err)
 		}
@@ -225,10 +232,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   false,
 					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "thread5",
+				LastText:  pointer.Ptr("thread5"),
 				CountUser: 2,
+				ShowImg:   pointer.Ptr("test1_avatar"),
 			},
 			{
 				Room: model.Room{
@@ -237,13 +246,15 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   true,
 					CreatedAt: now,
 					UpdatedAt: now,
+					Img:       pointer.Ptr("test1_img"),
 				},
 				IsOpen:    false,
-				LastText:  "thread3",
+				LastText:  pointer.Ptr("thread3"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
-		got, gotNextID, err := rd.Index(ctx, 1, 0)
+		got, gotNextID, err := rd.Index(ctx, 2, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -264,6 +275,10 @@ func Test_IndexRoom(t *testing.T) {
 			IsGroup:   true,
 			CreatedAt: now,
 			UpdatedAt: now,
+			Img: sql.NullString{
+				String: "test_create_img",
+				Valid:  true,
+			},
 		}); err != nil {
 			t.Fatal(err)
 		}
@@ -303,10 +318,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   false,
 					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "thread5",
+				LastText:  pointer.Ptr("thread5"),
 				CountUser: 2,
+				ShowImg:   pointer.Ptr("test1_avatar"),
 			},
 			{
 				Room: model.Room{
@@ -315,10 +332,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   true,
 					CreatedAt: now,
 					UpdatedAt: now,
+					Img:       pointer.Ptr("test1_img"),
 				},
 				IsOpen:    false,
-				LastText:  "thread3",
+				LastText:  pointer.Ptr("thread3"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 			{
 				Room: model.Room{
@@ -327,13 +346,15 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   true,
 					CreatedAt: now,
 					UpdatedAt: now,
+					Img:       pointer.Ptr("test_create_img"),
 				},
 				IsOpen:    true,
-				LastText:  "",
+				LastText:  nil,
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
-		got, gotNextID, err := rd.Index(ctx, 1, 0)
+		got, gotNextID, err := rd.Index(ctx, 2, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -358,10 +379,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   true,
 					CreatedAt: now,
 					UpdatedAt: now,
+					Img:       pointer.Ptr("test1_img"),
 				},
 				IsOpen:    false,
-				LastText:  "thread3",
+				LastText:  pointer.Ptr("thread3"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 		}
 		got, gotNextID, err := rd.Index(ctx, 1, 1)
@@ -385,6 +408,10 @@ func Test_IndexRoom(t *testing.T) {
 			IsGroup:   false,
 			CreatedAt: now,
 			UpdatedAt: now,
+			Img: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
 		}); err != nil {
 			t.Fatal(err)
 		}
@@ -423,10 +450,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   false,
 					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "thread5",
+				LastText:  pointer.Ptr("thread5"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 			{
 				Room: model.Room{
@@ -435,10 +464,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   true,
 					CreatedAt: now,
 					UpdatedAt: now,
+					Img:       pointer.Ptr("test1_img"),
 				},
 				IsOpen:    false,
-				LastText:  "thread3",
+				LastText:  pointer.Ptr("thread3"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 			{
 				Room: model.Room{
@@ -447,10 +478,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   false,
 					CreatedAt: now,
 					UpdatedAt: now,
+					Img:       nil,
 				},
 				IsOpen:    true,
-				LastText:  "test_thread",
+				LastText:  pointer.Ptr("test_thread"),
 				CountUser: 1,
+				ShowImg:   nil,
 			},
 		}
 		got, gotNextID, err := rd.Index(ctx, 1, 0)
@@ -481,6 +514,10 @@ func Test_IndexRoom(t *testing.T) {
 				IsGroup:   false,
 				CreatedAt: time.Date(2023, 3, roomID, 0, 0, 0, 0, jst),
 				UpdatedAt: time.Date(2023, 3, roomID, 0, 0, 0, 0, jst),
+				Img: sql.NullString{
+					String: "",
+					Valid:  false,
+				},
 			})
 			userRooms = append(userRooms, &schema.UserRoom{
 				ID:     uint64(i),
@@ -536,9 +573,13 @@ func Test_IndexRoom(t *testing.T) {
 		if err := schema.InsertRoom(ctx, testDB, &schema.Room{
 			ID:        uint64(roomID),
 			Name:      "count_user_room",
-			IsGroup:   false,
+			IsGroup:   true,
 			CreatedAt: now,
 			UpdatedAt: now,
+			Img: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
 		}); err != nil {
 			t.Fatal(err)
 		}
@@ -617,10 +658,12 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   false,
 					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "thread5",
+				LastText:  pointer.Ptr("thread5"),
 				CountUser: 2,
+				ShowImg:   pointer.Ptr("test1_avatar"),
 			},
 			{
 				Room: model.Room{
@@ -629,25 +672,29 @@ func Test_IndexRoom(t *testing.T) {
 					IsGroup:   true,
 					CreatedAt: now,
 					UpdatedAt: now,
+					Img:       pointer.Ptr("test1_img"),
 				},
 				IsOpen:    false,
-				LastText:  "thread3",
+				LastText:  pointer.Ptr("thread3"),
 				CountUser: 2,
+				ShowImg:   nil,
 			},
 			{
 				Room: model.Room{
 					ID:        model.RoomID(roomID),
 					Name:      "count_user_room",
-					IsGroup:   false,
+					IsGroup:   true,
 					CreatedAt: now,
 					UpdatedAt: now,
+					Img:       nil,
 				},
 				IsOpen:    false,
-				LastText:  "test_thread",
+				LastText:  pointer.Ptr("test_thread"),
 				CountUser: 3,
+				ShowImg:   nil,
 			},
 		}
-		got, gotNextID, err := rd.Index(ctx, 1, 0)
+		got, gotNextID, err := rd.Index(ctx, 2, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -698,6 +745,7 @@ func Test_GetNoneGroup(t *testing.T) {
 			IsGroup:   false,
 			CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
 			UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+			Img:       nil,
 		}
 		got, err := rd.GetNoneGroup(ctx, 1, 2)
 		if err != nil {
@@ -734,6 +782,7 @@ func Test_ShowRoom(t *testing.T) {
 				IsGroup:   true,
 				CreatedAt: now,
 				UpdatedAt: now,
+				Img:       pointer.Ptr("test1_img"),
 			},
 			Users: []*model.ShowUser{
 				{

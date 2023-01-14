@@ -1332,6 +1332,8 @@ func NewCreateRoomRoomsContext(ctx context.Context, r *http.Request, service *go
 
 // createRoomRoomsPayload is the rooms create_room action payload.
 type createRoomRoomsPayload struct {
+	// 画像データ
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
 	// DMかどうか
 	IsGroup *bool `form:"is_group,omitempty" json:"is_group,omitempty" yaml:"is_group,omitempty" xml:"is_group,omitempty"`
 	// ルーム名
@@ -1357,6 +1359,9 @@ func (payload *createRoomRoomsPayload) Validate() (err error) {
 // Publicize creates CreateRoomRoomsPayload from createRoomRoomsPayload
 func (payload *createRoomRoomsPayload) Publicize() *CreateRoomRoomsPayload {
 	var pub CreateRoomRoomsPayload
+	if payload.Img != nil {
+		pub.Img = payload.Img
+	}
 	if payload.IsGroup != nil {
 		pub.IsGroup = *payload.IsGroup
 	}
@@ -1371,6 +1376,8 @@ func (payload *createRoomRoomsPayload) Publicize() *CreateRoomRoomsPayload {
 
 // CreateRoomRoomsPayload is the rooms create_room action payload.
 type CreateRoomRoomsPayload struct {
+	// 画像データ
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
 	// DMかどうか
 	IsGroup bool `form:"is_group" json:"is_group" yaml:"is_group" xml:"is_group"`
 	// ルーム名

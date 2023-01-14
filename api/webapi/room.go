@@ -25,7 +25,7 @@ func NewRoomController(service *goa.Service, ru usecase.RoomUseCase) *RoomContro
 
 // CreateRoom ルーム作成
 func (r *RoomController) CreateRoom(ctx *app.CreateRoomRoomsContext) error {
-	ru, err := r.ru.Create(ctx, ctx.Payload.Name, ctx.Payload.IsGroup, r.toUserIDsArray(ctx.Payload.UserIds))
+	ru, err := r.ru.Create(ctx, ctx.Payload.Name, ctx.Payload.IsGroup, r.toUserIDsArray(ctx.Payload.UserIds), ctx.Payload.Img)
 	if err != nil {
 		if errors.Is(err, myerrors.ErrBadRequestEmptyArray) {
 			return ctx.BadRequest(&app.ServiceVerror{
@@ -49,7 +49,7 @@ func (r *RoomController) Index(ctx *app.IndexRoomsContext) error {
 		}
 		return ctx.InternalServerError()
 	}
-	return ctx.OK(r.toAllRommUser(irs, nextID))
+	return ctx.OK(r.toAllRoomUser(irs, nextID))
 }
 
 // Exists DMの存在しているか確認
@@ -88,7 +88,7 @@ func (r *RoomController) Show(ctx *app.ShowRoomsContext) error {
 	return ctx.OK(r.toRoomUser(ru))
 }
 
-func (r *RoomController) toAllRommUser(irs []*model.IndexRoom, nextID *int) *app.AllRoomUser {
+func (r *RoomController) toAllRoomUser(irs []*model.IndexRoom, nextID *int) *app.AllRoomUser {
 	var airs []*app.IndexRoom
 	for _, ir := range irs {
 		airs = append(airs, r.toIndexRoom(ir))
@@ -103,14 +103,16 @@ func (r *RoomController) toAllRommUser(irs []*model.IndexRoom, nextID *int) *app
 func (r *RoomController) toIndexRoom(ir *model.IndexRoom) *app.IndexRoom {
 	return &app.IndexRoom{
 		IsOpen:    ir.IsOpen,
-		LastText:  pointer.PtrOrNil(ir.LastText),
+		LastText:  ir.LastText,
 		CountUser: ir.CountUser,
+		ShowImg: ir.ShowImg,
 		Room: &app.Room{
 			CreatedAt: ir.Room.CreatedAt,
 			ID:        int(ir.Room.ID),
 			IsGroup:   ir.Room.IsGroup,
 			Name:      ir.Room.Name,
 			UpdatedAt: ir.Room.UpdatedAt,
+			Img:       ir.Room.Img,
 		},
 	}
 }
@@ -122,6 +124,7 @@ func (r *RoomController) toRoomUser(ru *model.RoomUser) *app.RoomUser {
 		Name:      ru.Room.Name,
 		CreatedAt: ru.Room.CreatedAt,
 		UpdatedAt: ru.Room.UpdatedAt,
+		Img:       ru.Room.Img,
 		Users:     r.toShowUserCollection(ru.Users),
 	}
 }
