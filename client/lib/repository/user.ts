@@ -27,4 +27,13 @@ export const UserRepostiory = {
     );
     return user;
   },
+
+  index: async (): Promise<User[]> => {
+    const apiClient = await asyncApiClient.create();
+    const res = await apiClient.get("users");
+    const users: User[] = res.data.map((d: any) => {
+      return new User(d.id, d.name, d.email, d.created_at, d.avatar ? d.avatar : null);
+    });
+    return users
+  },
 };
