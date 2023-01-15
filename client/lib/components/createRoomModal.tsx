@@ -16,7 +16,9 @@ import {
   FormControlLabel,
 } from "@mui/material";
 import { User } from "lib/model/user";
+import { RoomRepository } from "lib/repository/room";
 import { UserRepostiory } from "lib/repository/user";
+import { useRouter } from "next/router";
 import React, { FC, FormEvent, useContext, useEffect, useState } from "react";
 
 import { AppContext } from "../../pages/_app";
@@ -61,13 +63,14 @@ export const CreateRoomModal: FC<Props> = ({ open, handleClose }) => {
 
   const { user } = useContext(AppContext);
   const theme = useTheme();
+  const router = useRouter();
   const [selectUsers, setSelectUsers] = useState<User[]>([]);
   const [values, setValues] = useState<{
     name: string;
     isGroup: boolean;
     userIDs: number[];
-    img: string | null;
-  }>({ name: "", isGroup: true, userIDs: [], img: null });
+    img?: string;
+  }>({ name: "", isGroup: true, userIDs: [] });
   const [isLoading, setIsLoading] = useState(false);
   const [isMyJoin, setIsMyJoin] = useState(true);
 
@@ -80,7 +83,20 @@ export const CreateRoomModal: FC<Props> = ({ open, handleClose }) => {
     fetchData();
   }, []);
 
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {};
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!user) return;
+    setIsLoading(true);
+    const showRoom = await RoomRepository.create(
+      values.name,
+      values.isGroup,
+      values.userIDs,
+      values.img,
+    );
+    setValues({ name: "", isGroup: true, userIDs: [] });
+    setIsLoading(false);
+    router.push(`/message/${showRoom.room.id}`);
+  };
 
   const onChangeInputFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
