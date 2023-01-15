@@ -58,3 +58,7 @@ func (c *UsersController) ShowUser(ctx *app.ShowUserUsersContext) error {
 		Avatar:    user.Avatar,
 	})
 }
+
+func (c *UsersController) Index(ctx *app.IndexUsersContext) error {
+	return ctx.OK(nil)
+}

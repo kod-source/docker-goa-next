@@ -1743,6 +1743,48 @@ func (ctx *GetCurrentUserUsersContext) InternalServerError() error {
 	return nil
 }
 
+// IndexUsersContext provides the users index action context.
+type IndexUsersContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewIndexUsersContext parses the incoming request URL and body, performs validations and creates the
+// context used by the users controller index action.
+func NewIndexUsersContext(ctx context.Context, r *http.Request, service *goa.Service) (*IndexUsersContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := IndexUsersContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *IndexUsersContext) OK(r UserCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.user+json; type=collection")
+	}
+	if r == nil {
+		r = UserCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *IndexUsersContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *IndexUsersContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // ShowUserUsersContext provides the users show_user action context.
 type ShowUserUsersContext struct {
 	context.Context

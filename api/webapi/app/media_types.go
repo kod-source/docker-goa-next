@@ -515,6 +515,17 @@ func (mt *User) Validate() (err error) {
 	return
 }
 
+// UserCollection is the media type for an array of User (default view)
+//
+// Identifier: application/vnd.user+json; type=collection; view=default
+type UserCollection []*User
+
+// Validate validates the UserCollection media type instance.
+func (mt UserCollection) Validate() (err error) {
+
+	return
+}
+
 // user room (default view)
 //
 // Identifier: application/vnd.user_room+json; view=default
