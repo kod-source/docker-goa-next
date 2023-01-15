@@ -110,7 +110,7 @@ func (ud *userDatastore) CreateUser(ctx context.Context, name, email, passowrd s
 }
 
 // IndexUser ...
-func (ud *userDatastore) IndexUser(ctx context.Context, id model.UserID) ([]*model.User, error) {
+func (ud *userDatastore) IndexUser(ctx context.Context, myID model.UserID) ([]*model.User, error) {
 	tx, err := ud.db.Begin()
 	if err != nil {
 		return nil, err
@@ -121,7 +121,7 @@ func (ud *userDatastore) IndexUser(ctx context.Context, id model.UserID) ([]*mod
 	query += "FROM `user` "
 	query += "WHERE `id` != ? "
 	query += "ORDER BY `created_at` DESC "
-	rows, err := tx.QueryContext(ctx, query, id)
+	rows, err := tx.QueryContext(ctx, query, myID)
 	if err != nil {
 		return nil, err
 	}

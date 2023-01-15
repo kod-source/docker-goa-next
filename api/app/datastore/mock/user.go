@@ -13,7 +13,7 @@ type MockUserRepository struct {
 	GetUserFunc        func(ctx context.Context, id model.UserID) (*model.User, error)
 	GetUserByEmailFunc func(ctx context.Context, email string) (*model.User, error)
 	CreateUserFunc     func(ctx context.Context, name, email, password string, avatar *string) (*model.User, error)
-	IndexUserFunc      func(ctx context.Context, id model.UserID) ([]*model.User, error)
+	IndexUserFunc      func(ctx context.Context, myID model.UserID) ([]*model.User, error)
 }
 
 func (m *MockUserRepository) GetUser(ctx context.Context, id model.UserID) (*model.User, error) {
@@ -28,6 +28,6 @@ func (m *MockUserRepository) CreateUser(ctx context.Context, name, email, passwo
 	return m.CreateUserFunc(ctx, name, email, password, avatar)
 }
 
-func (m *MockUserRepository) IndexUser(ctx context.Context, id model.UserID) ([]*model.User, error) {
-	return m.IndexUserFunc(ctx, id)
+func (m *MockUserRepository) IndexUser(ctx context.Context, myID model.UserID) ([]*model.User, error) {
+	return m.IndexUserFunc(ctx, myID)
 }

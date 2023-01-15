@@ -69,8 +69,8 @@ func (u *userInteractor) SignUp(ctx context.Context, name, email, password strin
 	return user, nil
 }
 
-func (u *userInteractor) IndexUser(ctx context.Context, id model.UserID) ([]*model.User, error) {
-	return u.ur.IndexUser(ctx, id)
+func (u *userInteractor) IndexUser(ctx context.Context, myID model.UserID) ([]*model.User, error) {
+	return u.ur.IndexUser(ctx, myID)
 }
 
 // 暗号(Hash)化
