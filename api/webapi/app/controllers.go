@@ -986,6 +986,7 @@ func unmarshalInviteRoomUserRoomsPayload(ctx context.Context, service *goa.Servi
 type UsersController interface {
 	goa.Muxer
 	GetCurrentUser(*GetCurrentUserUsersContext) error
+	Index(*IndexUsersContext) error
 	ShowUser(*ShowUserUsersContext) error
 }
 
@@ -994,6 +995,7 @@ func MountUsersController(service *goa.Service, ctrl UsersController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/current_user", ctrl.MuxHandler("preflight", handleUsersOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/users", ctrl.MuxHandler("preflight", handleUsersOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/users/:id", ctrl.MuxHandler("preflight", handleUsersOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
@@ -1012,6 +1014,23 @@ func MountUsersController(service *goa.Service, ctrl UsersController) {
 	h = handleUsersOrigin(h)
 	service.Mux.Handle("GET", "/current_user", ctrl.MuxHandler("get_current_user", h, nil))
 	service.LogInfo("mount", "ctrl", "Users", "action", "GetCurrentUser", "route", "GET /current_user", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewIndexUsersContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Index(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleUsersOrigin(h)
+	service.Mux.Handle("GET", "/users", ctrl.MuxHandler("index", h, nil))
+	service.LogInfo("mount", "ctrl", "Users", "action", "Index", "route", "GET /users", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

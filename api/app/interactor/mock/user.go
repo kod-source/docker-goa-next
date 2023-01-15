@@ -14,6 +14,7 @@ type MockUserUsecase struct {
 	GetUserByEmailFunc func(ctx context.Context, email, password string) (*model.User, error)
 	CreateJWTTokenFunc func(ctx context.Context, id model.UserID, name string) (*string, error)
 	SignUpFunc         func(ctx context.Context, name, email, password string, avatar *string) (*model.User, error)
+	IndexUserFunc      func(ctx context.Context, myID model.UserID) ([]*model.User, error)
 }
 
 func (m *MockUserUsecase) GetUser(ctx context.Context, id model.UserID) (*model.User, error) {
@@ -30,4 +31,8 @@ func (m *MockUserUsecase) CreateJWTToken(ctx context.Context, id model.UserID, n
 
 func (m *MockUserUsecase) SignUp(ctx context.Context, name, email, password string, avatar *string) (*model.User, error) {
 	return m.SignUpFunc(ctx, name, email, password, avatar)
+}
+
+func (m *MockUserUsecase) IndexUser(ctx context.Context, myID model.UserID) ([]*model.User, error) {
+	return m.IndexUserFunc(ctx, myID)
 }

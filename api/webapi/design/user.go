@@ -28,6 +28,13 @@ var _ = Resource("users", func() {
 		Response(NotFound)
 		Response(InternalServerError)
 	})
+	Action("index", func() {
+		Routing(GET("users"))
+		Description("自分以外のすべてのユーザーを返す")
+		Response(OK, CollectionOf(user))
+		Response(NotFound)
+		Response(InternalServerError)
+	})
 })
 
 var user = MediaType("application/vnd.user+json", func() {
