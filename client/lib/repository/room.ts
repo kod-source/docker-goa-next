@@ -25,6 +25,7 @@ export const RoomRepository = {
         res.data.is_group,
         new Date(res.data.created_at),
         new Date(res.data.updated_at),
+        res.data.img ? res.data.img : null,
       ),
       users: users,
     };
@@ -41,12 +42,14 @@ export const RoomRepository = {
         d.room.is_group,
         new Date(d.room.created_at),
         new Date(d.room.updated_at),
+        d.room.img ? d.room.img : null,
       );
       return {
         room: room,
-        lastText: d.last_text,
         isOpen: d.is_open,
         countUser: d.count_user,
+        lastText: d.last_text ? d.last_text : null,
+        showImg: d.show_img ? d.show_img : null,
       };
     });
 
@@ -66,6 +69,7 @@ export const RoomRepository = {
       res.data.is_group,
       new Date(res.data.created_at),
       new Date(res.data.updated_at),
+      res.data.img ? res.data.img : null,
     );
     return room;
   },

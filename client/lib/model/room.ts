@@ -7,6 +7,7 @@ export class Room {
     public isGroup: boolean,
     public createdAt: Date,
     public updatedAt: Date,
+    public img?: string,
   ) {}
 }
 
@@ -17,9 +18,10 @@ export interface ShowRoom {
 
 export interface IndexRoom {
   room: Room;
-  lastText: string;
   isOpen: boolean;
   countUser: number;
+  lastText?: string;
+  showImg?: string;
 }
 
 export interface AllRoom {
