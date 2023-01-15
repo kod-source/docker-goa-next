@@ -71,7 +71,7 @@ func (c *UsersController) Index(ctx *app.IndexUsersContext) error {
 	return ctx.OK(c.toAppUserCollection(users))
 }
 
-func (u *UsersController) toAppUserCollection(users []*model.User) app.UserCollection {
+func (c *UsersController) toAppUserCollection(users []*model.User) app.UserCollection {
 	us := app.UserCollection{}
 	for _, u := range users {
 		us = append(us, &app.User{
