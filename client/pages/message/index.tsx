@@ -8,6 +8,7 @@ import { RoomRepository } from "lib/repository/room";
 import { IndexRoom } from "lib/model/room";
 import { AppContext } from "pages/_app";
 import { Loading } from "lib/components/loading";
+import { Avatar, Button } from "@mui/material";
 
 const Message: NextPage = () => {
   const router = useRouter();
@@ -75,22 +76,30 @@ const Message: NextPage = () => {
           <h2>ホーム</h2>
         </div>
         <h1 className='text-2xl font-bold'>メッセージ</h1>
-        <div>
+        <div className='my-5'>
           {indexRooms.map((ir) => (
             <div
               key={ir.room.id}
-              className='w-1/2 h-10 my-3 hover:opacity-60 cursor-pointer'
+              className='w-1/2 h-10 my-3 flex hover:opacity-60 cursor-pointer'
               onClick={() => router.push(`/message/${ir.room.id}`)}
             >
-              {/* <div>画像の表示</div> */}
-              <p>
-                {ir.room.isGroup
-                  ? `${ir.room.name}(${ir.countUser})`
-                  : ir.room.name.split("/").map((name) => {
-                      if (name !== user.name) return name;
-                    })}
-              </p>
-              <p>{ir.lastText}</p>
+              <div>
+                <Avatar
+                  sx={{ width: 60, height: 60 }}
+                  alt='投稿者'
+                  src={ir.room.isGroup ? (ir.room.img ? ir.room.img : "/avatar.pgn") : ir.showImg}
+                />
+              </div>
+              <div className='mx-5'>
+                <p>
+                  {ir.room.isGroup
+                    ? `${ir.room.name}(${ir.countUser})`
+                    : ir.room.name.split("/").map((name) => {
+                        if (name !== user.name) return name;
+                      })}
+                </p>
+                <p className='text-gray-400 opacity-80'>{ir.lastText}</p>
+              </div>
             </div>
           ))}
         </div>
