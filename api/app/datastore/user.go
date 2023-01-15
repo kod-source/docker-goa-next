@@ -120,7 +120,7 @@ func (ud *userDatastore) IndexUser(ctx context.Context, myID model.UserID) ([]*m
 	query := "SELECT `id`, `name`, `email`, `created_at`, `avatar` "
 	query += "FROM `user` "
 	query += "WHERE `id` != ? "
-	query += "ORDER BY `created_at` DESC "
+	query += "ORDER BY `created_at` DESC"
 	rows, err := tx.QueryContext(ctx, query, myID)
 	if err != nil {
 		return nil, err
