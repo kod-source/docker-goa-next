@@ -90,7 +90,7 @@ export const CreateRoomModal: FC<Props> = ({ open, handleClose }) => {
     const showRoom = await RoomRepository.create(
       values.name,
       values.isGroup,
-      values.userIDs,
+      isMyJoin ? [...values.userIDs, user.id] : values.userIDs,
       values.img,
     );
     setValues({ name: "", isGroup: true, userIDs: [] });

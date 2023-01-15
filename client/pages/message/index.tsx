@@ -91,7 +91,7 @@ const Message: NextPage = () => {
           {indexRooms.map((ir) => (
             <div
               key={ir.room.id}
-              className='w-1/2 h-10 my-3 flex hover:opacity-60 cursor-pointer'
+              className='w-1/2 h-10 my-10 flex hover:opacity-60 cursor-pointer'
               onClick={() => router.push(`/message/${ir.room.id}`)}
             >
               <div>
