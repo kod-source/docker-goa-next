@@ -34,6 +34,6 @@ export const UserRepostiory = {
     const users: User[] = res.data.map((d: any) => {
       return new User(d.id, d.name, d.email, d.created_at, d.avatar ? d.avatar : null);
     });
-    return users
+    return users;
   },
 };
