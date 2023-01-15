@@ -109,6 +109,11 @@ func (ud *userDatastore) CreateUser(ctx context.Context, name, email, passowrd s
 	return ud.convetSchemaToModelUser(&user), nil
 }
 
+// IndexUser ...
+func (ud *userDatastore) IndexUser(ctx context.Context, id model.UserID) ([]*model.User, error) {
+	return nil, nil
+}
+
 func (ud *userDatastore) convetSchemaToModelUser(user *schema.User) *model.User {
 	u := &model.User{
 		ID:        model.UserID(user.ID),
