@@ -109,6 +109,50 @@ func (ud *userDatastore) CreateUser(ctx context.Context, name, email, passowrd s
 	return ud.convetSchemaToModelUser(&user), nil
 }
 
+// IndexUser ...
+func (ud *userDatastore) IndexUser(ctx context.Context, myID model.UserID) ([]*model.User, error) {
+	tx, err := ud.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	query := "SELECT `id`, `name`, `email`, `created_at`, `avatar` "
+	query += "FROM `user` "
+	query += "WHERE `id` != ? "
+	query += "ORDER BY `created_at` DESC"
+	rows, err := tx.QueryContext(ctx, query, myID)
+	if err != nil {
+		return nil, err
+	}
+
+	var users []*schema.User
+	for rows.Next() {
+		var u schema.User
+
+		if err := rows.Scan(
+			&u.ID,
+			&u.Name,
+			&u.Email,
+			&u.CreatedAt,
+			&u.Avatar,
+		); err != nil {
+			return nil, err
+		}
+		users = append(users, &u)
+	}
+	return ud.convertSchemaToUsers(users), tx.Commit()
+}
+
+func (ud *userDatastore) convertSchemaToUsers(users []*schema.User) []*model.User {
+	us := []*model.User{}
+
+	for _, u := range users {
+		us = append(us, ud.convetSchemaToModelUser(u))
+	}
+	return us
+}
+
 func (ud *userDatastore) convetSchemaToModelUser(user *schema.User) *model.User {
 	u := &model.User{
 		ID:        model.UserID(user.ID),

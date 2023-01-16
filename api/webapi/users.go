@@ -58,3 +58,29 @@ func (c *UsersController) ShowUser(ctx *app.ShowUserUsersContext) error {
 		Avatar:    user.Avatar,
 	})
 }
+
+func (c *UsersController) Index(ctx *app.IndexUsersContext) error {
+	users, err := c.uu.IndexUser(ctx, model.UserID(getUserIDCode(ctx)))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
+	}
+
+	return ctx.OK(c.toAppUserCollection(users))
+}
+
+func (c *UsersController) toAppUserCollection(users []*model.User) app.UserCollection {
+	us := app.UserCollection{}
+	for _, u := range users {
+		us = append(us, &app.User{
+			ID:        int(u.ID),
+			Email:     &u.Email,
+			Name:      &u.Name,
+			CreatedAt: &u.CreatedAt,
+			Avatar:    u.Avatar,
+		})
+	}
+	return us
+}

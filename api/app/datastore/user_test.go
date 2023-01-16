@@ -178,3 +178,71 @@ func Test_CreateUser(t *testing.T) {
 		}
 	})
 }
+
+func Test_IndexUser(t *testing.T) {
+	ur := NewUserDatastore(testDB, nil)
+
+	wantUserID := 7
+	if err := schema.InsertUser(ctx, testDB, &schema.User{
+		ID:        uint64(wantUserID),
+		Name:      "create_user",
+		Email:     "create@exmaple.com",
+		Password:  "create_pas",
+		CreatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, jst),
+		UpdatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, jst),
+		Avatar: sql.NullString{
+			String: "create_avatar",
+			Valid:  true,
+		},
+	}); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("[OK]自分以外の全てのユーザーを取得", func(t *testing.T) {
+		want := []*model.User{
+			{
+				ID:        model.UserID(wantUserID),
+				Name:      "create_user",
+				Email:     "create@exmaple.com",
+				CreatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, jst),
+				Avatar:    pointer.Ptr("create_avatar"),
+			},
+			{
+				ID:        2,
+				Name:      "test2_name",
+				Email:     "test2@gmail.com",
+				CreatedAt: now,
+				Avatar:    nil,
+			},
+			{
+				ID:        3,
+				Name:      "count_user",
+				Email:     "count@gmail.com",
+				CreatedAt: now,
+				Avatar:    nil,
+			},
+			{
+				ID:        4,
+				Name:      "create_name",
+				Email:     "create@gmail.com",
+				CreatedAt: now,
+				Avatar:    pointer.Ptr("create_avatar"),
+			},
+			{
+				ID:        5,
+				Name:      "create_no_avatar_name",
+				Email:     "create_no_avatar@gmail.com",
+				CreatedAt: now,
+				Avatar:    nil,
+			},
+		}
+		got, err := ur.IndexUser(ctx, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+}

@@ -51,7 +51,7 @@ func DeleteUserRoomsInternalServerError(t testing.TB, ctx context.Context, servi
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/user_room/%v", id),
+		Path: fmt.Sprintf("/api/v1/user_room/%v", id),
 	}
 	req := httptest.NewRequest("DELETE", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -113,7 +113,7 @@ func DeleteUserRoomsOK(t testing.TB, ctx context.Context, service *goa.Service, 
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/user_room/%v", id),
+		Path: fmt.Sprintf("/api/v1/user_room/%v", id),
 	}
 	req := httptest.NewRequest("DELETE", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -186,7 +186,7 @@ func InviteRoomUserRoomsBadRequest(t testing.TB, ctx context.Context, service *g
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/user_room"),
+		Path: fmt.Sprintf("/api/v1/user_room"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -260,7 +260,7 @@ func InviteRoomUserRoomsCreated(t testing.TB, ctx context.Context, service *goa.
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/user_room"),
+		Path: fmt.Sprintf("/api/v1/user_room"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -345,7 +345,7 @@ func InviteRoomUserRoomsInternalServerError(t testing.TB, ctx context.Context, s
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/user_room"),
+		Path: fmt.Sprintf("/api/v1/user_room"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)

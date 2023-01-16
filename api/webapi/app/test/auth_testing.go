@@ -63,7 +63,7 @@ func LoginAuthBadRequest(t testing.TB, ctx context.Context, service *goa.Service
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/login"),
+		Path: fmt.Sprintf("/api/v1/login"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -148,7 +148,7 @@ func LoginAuthInternalServerError(t testing.TB, ctx context.Context, service *go
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/login"),
+		Path: fmt.Sprintf("/api/v1/login"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -222,7 +222,7 @@ func LoginAuthNotFound(t testing.TB, ctx context.Context, service *goa.Service, 
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/login"),
+		Path: fmt.Sprintf("/api/v1/login"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -308,7 +308,7 @@ func LoginAuthOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl a
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/login"),
+		Path: fmt.Sprintf("/api/v1/login"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -394,7 +394,7 @@ func SignUpAuthBadRequest(t testing.TB, ctx context.Context, service *goa.Servic
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/sign_up"),
+		Path: fmt.Sprintf("/api/v1/sign_up"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -480,7 +480,7 @@ func SignUpAuthCreated(t testing.TB, ctx context.Context, service *goa.Service, 
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/sign_up"),
+		Path: fmt.Sprintf("/api/v1/sign_up"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -565,7 +565,7 @@ func SignUpAuthInternalServerError(t testing.TB, ctx context.Context, service *g
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/sign_up"),
+		Path: fmt.Sprintf("/api/v1/sign_up"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)

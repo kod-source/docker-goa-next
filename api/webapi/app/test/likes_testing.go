@@ -52,7 +52,7 @@ func CreateLikesBadRequest(t testing.TB, ctx context.Context, service *goa.Servi
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes"),
+		Path: fmt.Sprintf("/api/v1/likes"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -127,7 +127,7 @@ func CreateLikesCreated(t testing.TB, ctx context.Context, service *goa.Service,
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes"),
+		Path: fmt.Sprintf("/api/v1/likes"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -201,7 +201,7 @@ func CreateLikesInternalServerError(t testing.TB, ctx context.Context, service *
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes"),
+		Path: fmt.Sprintf("/api/v1/likes"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -263,7 +263,7 @@ func DeleteLikesBadRequest(t testing.TB, ctx context.Context, service *goa.Servi
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes"),
+		Path: fmt.Sprintf("/api/v1/likes"),
 	}
 	req := httptest.NewRequest("DELETE", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -325,7 +325,7 @@ func DeleteLikesInternalServerError(t testing.TB, ctx context.Context, service *
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes"),
+		Path: fmt.Sprintf("/api/v1/likes"),
 	}
 	req := httptest.NewRequest("DELETE", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -387,7 +387,7 @@ func DeleteLikesOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes"),
+		Path: fmt.Sprintf("/api/v1/likes"),
 	}
 	req := httptest.NewRequest("DELETE", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -449,7 +449,7 @@ func GetLikeByUserLikesInternalServerError(t testing.TB, ctx context.Context, se
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes/%v", userID),
+		Path: fmt.Sprintf("/api/v1/likes/%v", userID),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -511,7 +511,7 @@ func GetLikeByUserLikesNotFound(t testing.TB, ctx context.Context, service *goa.
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes/%v", userID),
+		Path: fmt.Sprintf("/api/v1/likes/%v", userID),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -573,7 +573,7 @@ func GetLikeByUserLikesOK(t testing.TB, ctx context.Context, service *goa.Servic
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes/%v", userID),
+		Path: fmt.Sprintf("/api/v1/likes/%v", userID),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -635,7 +635,7 @@ func GetMyLikeLikesInternalServerError(t testing.TB, ctx context.Context, servic
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes"),
+		Path: fmt.Sprintf("/api/v1/likes"),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -696,7 +696,7 @@ func GetMyLikeLikesOK(t testing.TB, ctx context.Context, service *goa.Service, c
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/likes"),
+		Path: fmt.Sprintf("/api/v1/likes"),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)

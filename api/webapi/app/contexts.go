@@ -1574,6 +1574,108 @@ func (ctx *ShowRoomsContext) InternalServerError() error {
 	return nil
 }
 
+// CreateThreadsContext provides the threads create action context.
+type CreateThreadsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *CreateThreadsPayload
+}
+
+// NewCreateThreadsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the threads controller create action.
+func NewCreateThreadsContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateThreadsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreateThreadsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// createThreadsPayload is the threads create action payload.
+type createThreadsPayload struct {
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// ルームID
+	RoomID *int `form:"room_id,omitempty" json:"room_id,omitempty" yaml:"room_id,omitempty" xml:"room_id,omitempty"`
+	// スレッドの内容
+	Text *string `form:"text,omitempty" json:"text,omitempty" yaml:"text,omitempty" xml:"text,omitempty"`
+	// ユーザーID
+	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" yaml:"user_id,omitempty" xml:"user_id,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *createThreadsPayload) Validate() (err error) {
+	if payload.Text == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "text"))
+	}
+	if payload.RoomID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "room_id"))
+	}
+	if payload.UserID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "user_id"))
+	}
+	return
+}
+
+// Publicize creates CreateThreadsPayload from createThreadsPayload
+func (payload *createThreadsPayload) Publicize() *CreateThreadsPayload {
+	var pub CreateThreadsPayload
+	if payload.Img != nil {
+		pub.Img = payload.Img
+	}
+	if payload.RoomID != nil {
+		pub.RoomID = *payload.RoomID
+	}
+	if payload.Text != nil {
+		pub.Text = *payload.Text
+	}
+	if payload.UserID != nil {
+		pub.UserID = *payload.UserID
+	}
+	return &pub
+}
+
+// CreateThreadsPayload is the threads create action payload.
+type CreateThreadsPayload struct {
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// ルームID
+	RoomID int `form:"room_id" json:"room_id" yaml:"room_id" xml:"room_id"`
+	// スレッドの内容
+	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
+	// ユーザーID
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *CreateThreadsPayload) Validate() (err error) {
+
+	return
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *CreateThreadsContext) Created(r *ThreadUser) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.thread_user")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreateThreadsContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *CreateThreadsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // DeleteUserRoomsContext provides the user_rooms delete action context.
 type DeleteUserRoomsContext struct {
 	context.Context
@@ -1739,6 +1841,48 @@ func (ctx *GetCurrentUserUsersContext) NotFound() error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *GetCurrentUserUsersContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
+// IndexUsersContext provides the users index action context.
+type IndexUsersContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewIndexUsersContext parses the incoming request URL and body, performs validations and creates the
+// context used by the users controller index action.
+func NewIndexUsersContext(ctx context.Context, r *http.Request, service *goa.Service) (*IndexUsersContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := IndexUsersContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *IndexUsersContext) OK(r UserCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.user+json; type=collection")
+	}
+	if r == nil {
+		r = UserCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *IndexUsersContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *IndexUsersContext) InternalServerError() error {
 	ctx.ResponseData.WriteHeader(500)
 	return nil
 }
