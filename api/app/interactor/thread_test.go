@@ -7,14 +7,14 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/kod-source/docker-goa-next/app/datastore/mock"
+	datastore "github.com/kod-source/docker-goa-next/app/datastore/mock"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/shogo82148/pointer"
 )
 
 func Test_CreateThread(t *testing.T) {
-	tr := &mock.MockThreadRepository{}
+	tr := &datastore.MockThreadRepository{}
 	tu := NewThreadUsecase(tr)
 	wantText := "スレッド作成"
 	wantRoomID := model.RoomID(2)

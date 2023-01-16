@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/kod-source/docker-goa-next/app/interactor/mock"
+	interactor "github.com/kod-source/docker-goa-next/app/interactor/mock"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/webapi/app"
@@ -17,7 +17,7 @@ import (
 
 func Test_CreateThread(t *testing.T) {
 	srv := testApp.srv
-	tu := &mock.MockThreadUsecase{}
+	tu := &interactor.MockThreadUsecase{}
 	tc := NewThreadController(srv, tu)
 	wantText := "テストスレ"
 	wantThreadID := model.ThreadID(1)
