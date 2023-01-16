@@ -62,7 +62,7 @@ func CreateCommentCommentsBadRequest(t testing.TB, ctx context.Context, service 
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments"),
+		Path: fmt.Sprintf("/api/v1/comments"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -136,7 +136,7 @@ func CreateCommentCommentsCreated(t testing.TB, ctx context.Context, service *go
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments"),
+		Path: fmt.Sprintf("/api/v1/comments"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -221,7 +221,7 @@ func CreateCommentCommentsInternalServerError(t testing.TB, ctx context.Context,
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments"),
+		Path: fmt.Sprintf("/api/v1/comments"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -283,7 +283,7 @@ func DeleteCommentCommentsInternalServerError(t testing.TB, ctx context.Context,
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments/%v", id),
+		Path: fmt.Sprintf("/api/v1/comments/%v", id),
 	}
 	req := httptest.NewRequest("DELETE", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -345,7 +345,7 @@ func DeleteCommentCommentsNotFound(t testing.TB, ctx context.Context, service *g
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments/%v", id),
+		Path: fmt.Sprintf("/api/v1/comments/%v", id),
 	}
 	req := httptest.NewRequest("DELETE", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -407,7 +407,7 @@ func DeleteCommentCommentsOK(t testing.TB, ctx context.Context, service *goa.Ser
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments/%v", id),
+		Path: fmt.Sprintf("/api/v1/comments/%v", id),
 	}
 	req := httptest.NewRequest("DELETE", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -469,7 +469,7 @@ func ShowCommentCommentsInternalServerError(t testing.TB, ctx context.Context, s
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments/%v", id),
+		Path: fmt.Sprintf("/api/v1/comments/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -531,7 +531,7 @@ func ShowCommentCommentsNotFound(t testing.TB, ctx context.Context, service *goa
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments/%v", id),
+		Path: fmt.Sprintf("/api/v1/comments/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -594,7 +594,7 @@ func ShowCommentCommentsOK(t testing.TB, ctx context.Context, service *goa.Servi
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments/%v", id),
+		Path: fmt.Sprintf("/api/v1/comments/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -668,7 +668,7 @@ func UpdateCommentCommentsBadRequest(t testing.TB, ctx context.Context, service 
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments/%v", id),
+		Path: fmt.Sprintf("/api/v1/comments/%v", id),
 	}
 	req := httptest.NewRequest("PUT", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -731,7 +731,7 @@ func UpdateCommentCommentsInternalServerError(t testing.TB, ctx context.Context,
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments/%v", id),
+		Path: fmt.Sprintf("/api/v1/comments/%v", id),
 	}
 	req := httptest.NewRequest("PUT", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -795,7 +795,7 @@ func UpdateCommentCommentsOK(t testing.TB, ctx context.Context, service *goa.Ser
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/comments/%v", id),
+		Path: fmt.Sprintf("/api/v1/comments/%v", id),
 	}
 	req := httptest.NewRequest("PUT", u.String(), nil)
 	req = req.WithContext(ctx)

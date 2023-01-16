@@ -51,7 +51,7 @@ func GetCurrentUserUsersInternalServerError(t testing.TB, ctx context.Context, s
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/current_user"),
+		Path: fmt.Sprintf("/api/v1/current_user"),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -112,7 +112,7 @@ func GetCurrentUserUsersNotFound(t testing.TB, ctx context.Context, service *goa
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/current_user"),
+		Path: fmt.Sprintf("/api/v1/current_user"),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -174,7 +174,7 @@ func GetCurrentUserUsersOK(t testing.TB, ctx context.Context, service *goa.Servi
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/current_user"),
+		Path: fmt.Sprintf("/api/v1/current_user"),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -243,7 +243,7 @@ func IndexUsersInternalServerError(t testing.TB, ctx context.Context, service *g
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users"),
+		Path: fmt.Sprintf("/api/v1/users"),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -304,7 +304,7 @@ func IndexUsersNotFound(t testing.TB, ctx context.Context, service *goa.Service,
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users"),
+		Path: fmt.Sprintf("/api/v1/users"),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -366,7 +366,7 @@ func IndexUsersOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl 
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users"),
+		Path: fmt.Sprintf("/api/v1/users"),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -435,7 +435,7 @@ func ShowUserUsersInternalServerError(t testing.TB, ctx context.Context, service
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", id),
+		Path: fmt.Sprintf("/api/v1/users/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -497,7 +497,7 @@ func ShowUserUsersNotFound(t testing.TB, ctx context.Context, service *goa.Servi
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", id),
+		Path: fmt.Sprintf("/api/v1/users/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -560,7 +560,7 @@ func ShowUserUsersOK(t testing.TB, ctx context.Context, service *goa.Service, ct
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/users/%v", id),
+		Path: fmt.Sprintf("/api/v1/users/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
