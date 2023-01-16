@@ -886,6 +886,83 @@ func unmarshalCreateRoomRoomsPayload(ctx context.Context, service *goa.Service, 
 	return nil
 }
 
+// ThreadsController is the controller interface for the Threads actions.
+type ThreadsController interface {
+	goa.Muxer
+	Create(*CreateThreadsContext) error
+}
+
+// MountThreadsController "mounts" a Threads resource controller on the given service.
+func MountThreadsController(service *goa.Service, ctrl ThreadsController) {
+	initService(service)
+	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/api/v1/threads", ctrl.MuxHandler("preflight", handleThreadsOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewCreateThreadsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*CreateThreadsPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Create(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleThreadsOrigin(h)
+	service.Mux.Handle("POST", "/api/v1/threads", ctrl.MuxHandler("create", h, unmarshalCreateThreadsPayload))
+	service.LogInfo("mount", "ctrl", "Threads", "action", "Create", "route", "POST /api/v1/threads", "security", "jwt")
+}
+
+// handleThreadsOrigin applies the CORS response headers corresponding to the origin.
+func handleThreadsOrigin(h goa.Handler) goa.Handler {
+	spec0 := regexp.MustCompile(".*localhost.*")
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOriginRegexp(origin, spec0) {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Vary", "Origin")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+				rw.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
+}
+
+// unmarshalCreateThreadsPayload unmarshals the request body into the context request data Payload field.
+func unmarshalCreateThreadsPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &createThreadsPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
 // UserRoomsController is the controller interface for the UserRooms actions.
 type UserRoomsController interface {
 	goa.Muxer
