@@ -3,12 +3,18 @@ import { AllRoom, IndexRoom, Room, ShowRoom } from "../model/room";
 import { User } from "../model/user";
 
 export const RoomRepository = {
-  create: async (name: string, isGroup: boolean, userIDs: number[]): Promise<ShowRoom> => {
+  create: async (
+    name: string,
+    isGroup: boolean,
+    userIDs: number[],
+    img?: string,
+  ): Promise<ShowRoom> => {
     const apiClient = await asyncApiClient.create();
     const res = await apiClient.post("rooms", {
       name: name,
       is_group: isGroup,
       user_ids: userIDs,
+      img: img,
     });
 
     const users: Omit<User, "email" | "password" | "createdAt">[] = res.data.users.map((u: any) => {
