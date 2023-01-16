@@ -42,6 +42,7 @@ var _ = Resource("threads", func() {
 		})
 		Response(OK)
 		Response(NotFound)
+		Response(BadRequest)
 		Response(InternalServerError)
 	})
 })

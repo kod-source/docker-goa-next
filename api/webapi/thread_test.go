@@ -315,6 +315,20 @@ func Test_DeleteThread(t *testing.T) {
 		test.DeleteThreadsNotFound(t, ctx, srv, tc, 1000)
 	})
 
+	t.Run("[NG]スレッドの削除 - 権限エラー", func(t *testing.T) {
+		tu.DeleteFunc = func(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
+			if diff := cmp.Diff(wantMyID, myID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantThreadID, threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return myerrors.ErrBadRequestNoPermission
+		}
+
+		test.DeleteThreadsBadRequest(t, ctx, srv, tc, int(wantThreadID))
+	})
+
 	t.Run("[NG]スレッドの削除 - 想定外エラー発生", func(t *testing.T) {
 		tu.DeleteFunc = func(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
 			if diff := cmp.Diff(wantMyID, myID); diff != "" {

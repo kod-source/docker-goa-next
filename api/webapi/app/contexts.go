@@ -1715,6 +1715,12 @@ func (ctx *DeleteThreadsContext) OK(resp []byte) error {
 	return err
 }
 
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *DeleteThreadsContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
 // NotFound sends a HTTP response with status code 404.
 func (ctx *DeleteThreadsContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
