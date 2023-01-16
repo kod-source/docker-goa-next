@@ -38,6 +38,11 @@ func (t *ThreadController) Create(ctx *app.CreateThreadsContext) error {
 	return ctx.Created(toAppThreadUser(tu))
 }
 
+// Delete スレッドの削除
+func (t *ThreadController) Delete(ctx *app.DeleteThreadsContext) error {
+	return ctx.OK(nil)
+}
+
 func toAppThreadUser(tu *model.ThreadUser) *app.ThreadUser {
 	return &app.ThreadUser{
 		Thread: &app.Thread{

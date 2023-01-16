@@ -2008,6 +2008,37 @@ paths:
       summary: create threads
       tags:
       - threads
+  /threads/{id}:
+    delete:
+      description: |-
+        スレッドを削除
+
+        Required security scopes:
+          * `api:access`
+      operationId: threads#delete
+      parameters:
+      - description: thread id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: delete threads
+      tags:
+      - threads
   /user_room:
     post:
       description: |-
