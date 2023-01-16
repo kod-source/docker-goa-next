@@ -219,6 +219,35 @@ func Test_CreateThread(t *testing.T) {
 		})
 	})
 
+	t.Run("[NG]スレッド作成 - 外部キーエラーの時", func(t *testing.T) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+			if diff := cmp.Diff(wantText, text); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantImg, img); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+
+			return nil, myerrors.MySQLErrorAddOrUpdateForeignKey
+		}
+		defer func() {
+			tu.CreateFunc = nil
+		}()
+
+		test.CreateThreadsBadRequest(t, ctx, srv, tc, &app.CreateThreadsPayload{
+			Text:   wantText,
+			RoomID: int(wantRoomID),
+			UserID: int(wantUserID),
+			Img:    wantImg,
+		})
+	})
+
 	t.Run("[NG]スレッド作成 - 想定外エラー", func(t *testing.T) {
 		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {

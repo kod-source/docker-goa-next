@@ -24,6 +24,9 @@ func (t *ThreadController) Create(ctx *app.CreateThreadsContext) error {
 	pl := ctx.Payload
 	tu, err := t.tu.Create(ctx, pl.Text, model.RoomID(pl.RoomID), model.UserID(pl.UserID), pl.Img)
 	if err != nil {
+		if code := myerrors.GetMySQLErrorNumber(err); code == myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
+			return ctx.BadRequest()
+		}
 		switch err {
 		case myerrors.ErrBadRequestSting, myerrors.ErrBadRequestInt:
 			return ctx.BadRequest()
