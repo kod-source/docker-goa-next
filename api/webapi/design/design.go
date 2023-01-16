@@ -11,6 +11,9 @@ var _ = API("docker_goa_next", func() {
 	Host("localhost:3000")
 	Scheme("http")
 
+	Version("v1")
+	BasePath("/api/v1")
+
 	Origin("/.*localhost.*/", func() {
 		Headers("Authorization, Content-Type")
 		Methods("GET", "POST", "PUT", "DELETE")

@@ -53,7 +53,7 @@ func CreatePostPostsBadRequest(t testing.TB, ctx context.Context, service *goa.S
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts"),
+		Path: fmt.Sprintf("/api/v1/posts"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -128,7 +128,7 @@ func CreatePostPostsCreated(t testing.TB, ctx context.Context, service *goa.Serv
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts"),
+		Path: fmt.Sprintf("/api/v1/posts"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -202,7 +202,7 @@ func CreatePostPostsInternalServerError(t testing.TB, ctx context.Context, servi
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts"),
+		Path: fmt.Sprintf("/api/v1/posts"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -264,7 +264,7 @@ func DeletePostsInternalServerError(t testing.TB, ctx context.Context, service *
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts/%v", id),
+		Path: fmt.Sprintf("/api/v1/posts/%v", id),
 	}
 	req := httptest.NewRequest("DELETE", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -326,7 +326,7 @@ func DeletePostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts/%v", id),
+		Path: fmt.Sprintf("/api/v1/posts/%v", id),
 	}
 	req := httptest.NewRequest("DELETE", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -393,7 +393,7 @@ func IndexPostsInternalServerError(t testing.TB, ctx context.Context, service *g
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts"),
+		Path:     fmt.Sprintf("/api/v1/posts"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -464,7 +464,7 @@ func IndexPostsNotFound(t testing.TB, ctx context.Context, service *goa.Service,
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts"),
+		Path:     fmt.Sprintf("/api/v1/posts"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -536,7 +536,7 @@ func IndexPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl 
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts"),
+		Path:     fmt.Sprintf("/api/v1/posts"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -614,7 +614,7 @@ func ShowPostsInternalServerError(t testing.TB, ctx context.Context, service *go
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts/%v", id),
+		Path: fmt.Sprintf("/api/v1/posts/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -676,7 +676,7 @@ func ShowPostsNotFound(t testing.TB, ctx context.Context, service *goa.Service, 
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts/%v", id),
+		Path: fmt.Sprintf("/api/v1/posts/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -739,7 +739,7 @@ func ShowPostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl a
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts/%v", id),
+		Path: fmt.Sprintf("/api/v1/posts/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -818,7 +818,7 @@ func ShowMyLikePostsInternalServerError(t testing.TB, ctx context.Context, servi
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/my_like"),
+		Path:     fmt.Sprintf("/api/v1/posts/my_like"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -889,7 +889,7 @@ func ShowMyLikePostsNotFound(t testing.TB, ctx context.Context, service *goa.Ser
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/my_like"),
+		Path:     fmt.Sprintf("/api/v1/posts/my_like"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -961,7 +961,7 @@ func ShowMyLikePostsOK(t testing.TB, ctx context.Context, service *goa.Service, 
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/my_like"),
+		Path:     fmt.Sprintf("/api/v1/posts/my_like"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -1044,7 +1044,7 @@ func ShowPostLikePostsInternalServerError(t testing.TB, ctx context.Context, ser
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/likes/%v", id),
+		Path:     fmt.Sprintf("/api/v1/posts/likes/%v", id),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -1116,7 +1116,7 @@ func ShowPostLikePostsNotFound(t testing.TB, ctx context.Context, service *goa.S
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/likes/%v", id),
+		Path:     fmt.Sprintf("/api/v1/posts/likes/%v", id),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -1189,7 +1189,7 @@ func ShowPostLikePostsOK(t testing.TB, ctx context.Context, service *goa.Service
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/likes/%v", id),
+		Path:     fmt.Sprintf("/api/v1/posts/likes/%v", id),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -1273,7 +1273,7 @@ func ShowPostMediaPostsInternalServerError(t testing.TB, ctx context.Context, se
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/my_media/%v", id),
+		Path:     fmt.Sprintf("/api/v1/posts/my_media/%v", id),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -1345,7 +1345,7 @@ func ShowPostMediaPostsNotFound(t testing.TB, ctx context.Context, service *goa.
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/my_media/%v", id),
+		Path:     fmt.Sprintf("/api/v1/posts/my_media/%v", id),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -1418,7 +1418,7 @@ func ShowPostMediaPostsOK(t testing.TB, ctx context.Context, service *goa.Servic
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/my_media/%v", id),
+		Path:     fmt.Sprintf("/api/v1/posts/my_media/%v", id),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -1502,7 +1502,7 @@ func ShowPostMyPostsInternalServerError(t testing.TB, ctx context.Context, servi
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/my_post/%v", id),
+		Path:     fmt.Sprintf("/api/v1/posts/my_post/%v", id),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -1574,7 +1574,7 @@ func ShowPostMyPostsNotFound(t testing.TB, ctx context.Context, service *goa.Ser
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/my_post/%v", id),
+		Path:     fmt.Sprintf("/api/v1/posts/my_post/%v", id),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -1647,7 +1647,7 @@ func ShowPostMyPostsOK(t testing.TB, ctx context.Context, service *goa.Service, 
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/posts/my_post/%v", id),
+		Path:     fmt.Sprintf("/api/v1/posts/my_post/%v", id),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -1726,7 +1726,7 @@ func UpdatePostsBadRequest(t testing.TB, ctx context.Context, service *goa.Servi
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts/%v", id),
+		Path: fmt.Sprintf("/api/v1/posts/%v", id),
 	}
 	req := httptest.NewRequest("PUT", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -1789,7 +1789,7 @@ func UpdatePostsInternalServerError(t testing.TB, ctx context.Context, service *
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts/%v", id),
+		Path: fmt.Sprintf("/api/v1/posts/%v", id),
 	}
 	req := httptest.NewRequest("PUT", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -1853,7 +1853,7 @@ func UpdatePostsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/posts/%v", id),
+		Path: fmt.Sprintf("/api/v1/posts/%v", id),
 	}
 	req := httptest.NewRequest("PUT", u.String(), nil)
 	req = req.WithContext(ctx)

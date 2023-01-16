@@ -6,7 +6,7 @@ import { getEndPoint } from "../token";
 
 export const AuthRepository = {
   login: async (email: string, password: string): Promise<Auth> => {
-    const res = await axios.post(`${getEndPoint()}/login`, {
+    const res = await axios.post(`${getEndPoint()}/api/v1/login`, {
       email: email,
       password: password,
     });
@@ -28,7 +28,7 @@ export const AuthRepository = {
     password: string,
     avatarPath?: string,
   ): Promise<Auth> => {
-    const res = await axios.post(`${getEndPoint()}/sign_up`, {
+    const res = await axios.post(`${getEndPoint()}/api/v1/sign_up`, {
       name: name,
       email: email,
       password: password,

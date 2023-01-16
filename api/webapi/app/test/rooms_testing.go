@@ -64,7 +64,7 @@ func CreateRoomRoomsBadRequest(t testing.TB, ctx context.Context, service *goa.S
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/rooms"),
+		Path: fmt.Sprintf("/api/v1/rooms"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -150,7 +150,7 @@ func CreateRoomRoomsCreated(t testing.TB, ctx context.Context, service *goa.Serv
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/rooms"),
+		Path: fmt.Sprintf("/api/v1/rooms"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -235,7 +235,7 @@ func CreateRoomRoomsInternalServerError(t testing.TB, ctx context.Context, servi
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/rooms"),
+		Path: fmt.Sprintf("/api/v1/rooms"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -302,7 +302,7 @@ func ExistsRoomsInternalServerError(t testing.TB, ctx context.Context, service *
 		query["user_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/rooms/exists"),
+		Path:     fmt.Sprintf("/api/v1/rooms/exists"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -373,7 +373,7 @@ func ExistsRoomsNotFound(t testing.TB, ctx context.Context, service *goa.Service
 		query["user_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/rooms/exists"),
+		Path:     fmt.Sprintf("/api/v1/rooms/exists"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -445,7 +445,7 @@ func ExistsRoomsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl
 		query["user_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/rooms/exists"),
+		Path:     fmt.Sprintf("/api/v1/rooms/exists"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -528,7 +528,7 @@ func IndexRoomsInternalServerError(t testing.TB, ctx context.Context, service *g
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/rooms"),
+		Path:     fmt.Sprintf("/api/v1/rooms"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -599,7 +599,7 @@ func IndexRoomsNotFound(t testing.TB, ctx context.Context, service *goa.Service,
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/rooms"),
+		Path:     fmt.Sprintf("/api/v1/rooms"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -671,7 +671,7 @@ func IndexRoomsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl 
 		query["next_id"] = sliceVal
 	}
 	u := &url.URL{
-		Path:     fmt.Sprintf("/rooms"),
+		Path:     fmt.Sprintf("/api/v1/rooms"),
 		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
@@ -749,7 +749,7 @@ func ShowRoomsBadRequest(t testing.TB, ctx context.Context, service *goa.Service
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/rooms/%v", id),
+		Path: fmt.Sprintf("/api/v1/rooms/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -811,7 +811,7 @@ func ShowRoomsInternalServerError(t testing.TB, ctx context.Context, service *go
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/rooms/%v", id),
+		Path: fmt.Sprintf("/api/v1/rooms/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -873,7 +873,7 @@ func ShowRoomsNotFound(t testing.TB, ctx context.Context, service *goa.Service, 
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/rooms/%v", id),
+		Path: fmt.Sprintf("/api/v1/rooms/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -936,7 +936,7 @@ func ShowRoomsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl a
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/rooms/%v", id),
+		Path: fmt.Sprintf("/api/v1/rooms/%v", id),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)

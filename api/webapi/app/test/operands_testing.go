@@ -51,7 +51,7 @@ func AddOperandsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/add/%v/%v", left, right),
+		Path: fmt.Sprintf("/api/v1/add/%v/%v", left, right),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)

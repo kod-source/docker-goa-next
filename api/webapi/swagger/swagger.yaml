@@ -1,3 +1,4 @@
+basePath: /api/v1
 consumes:
 - application/json
 - application/xml
@@ -1088,7 +1089,7 @@ host: localhost:3000
 info:
   description: A teaser for goa
   title: The docker_goa API
-  version: ""
+  version: v1
 paths:
   /add/{left}/{right}:
     get:

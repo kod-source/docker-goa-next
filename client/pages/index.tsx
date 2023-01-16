@@ -10,7 +10,6 @@ import { FormEvent, useCallback, useContext, useEffect, useState } from "react";
 import { AppContext } from "./_app";
 import { isAxiosError, MyAxiosError } from "lib/axios";
 import { PostWithUser, SelectPost } from "lib/model/post";
-import { getEndPoint, getToken } from "lib/token";
 import { ConfirmationModal } from "lib/components/confirmationModal";
 import { DetailModal } from "lib/components/detailModal";
 import { Loading } from "lib/components/loading";
