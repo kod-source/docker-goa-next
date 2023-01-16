@@ -78,6 +78,10 @@ func (td *threadDatastore) Create(ctx context.Context, text string, roomID model
 	return toModelThreadUser(thread, user), tx.Commit()
 }
 
+func (td *threadDatastore) Delete(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
+	return nil
+}
+
 func toModelThreadUser(th schema.Thread, u schema.User) *model.ThreadUser {
 	thu := &model.ThreadUser{
 		Thread: model.Thread{
