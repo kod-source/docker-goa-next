@@ -16,7 +16,7 @@ export const isAxiosError = (error: any): error is AxiosError => {
 export const asyncApiClient = {
   create: async () => {
     return axios.create({
-      baseURL: getEndPoint(),
+      baseURL: `${getEndPoint()}/api/v1`,
       responseType: "json",
       headers: {
         "Content-Type": "application/json",
