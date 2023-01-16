@@ -896,7 +896,7 @@ type ThreadsController interface {
 func MountThreadsController(service *goa.Service, ctrl ThreadsController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/threads", ctrl.MuxHandler("preflight", handleThreadsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/api/v1/threads", ctrl.MuxHandler("preflight", handleThreadsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -918,8 +918,8 @@ func MountThreadsController(service *goa.Service, ctrl ThreadsController) {
 	}
 	h = handleSecurity("jwt", h, "api:access")
 	h = handleThreadsOrigin(h)
-	service.Mux.Handle("POST", "/threads", ctrl.MuxHandler("create", h, unmarshalCreateThreadsPayload))
-	service.LogInfo("mount", "ctrl", "Threads", "action", "Create", "route", "POST /threads", "security", "jwt")
+	service.Mux.Handle("POST", "/api/v1/threads", ctrl.MuxHandler("create", h, unmarshalCreateThreadsPayload))
+	service.LogInfo("mount", "ctrl", "Threads", "action", "Create", "route", "POST /api/v1/threads", "security", "jwt")
 }
 
 // handleThreadsOrigin applies the CORS response headers corresponding to the origin.

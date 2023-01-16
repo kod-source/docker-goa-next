@@ -62,7 +62,7 @@ func CreateThreadsBadRequest(t testing.TB, ctx context.Context, service *goa.Ser
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/threads"),
+		Path: fmt.Sprintf("/api/v1/threads"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -136,7 +136,7 @@ func CreateThreadsCreated(t testing.TB, ctx context.Context, service *goa.Servic
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/threads"),
+		Path: fmt.Sprintf("/api/v1/threads"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -221,7 +221,7 @@ func CreateThreadsInternalServerError(t testing.TB, ctx context.Context, service
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/threads"),
+		Path: fmt.Sprintf("/api/v1/threads"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
