@@ -35,10 +35,10 @@ func (t *ThreadController) Create(ctx *app.CreateThreadsContext) error {
 		}
 	}
 
-	return ctx.Created(t.toAppThreadUser(tu))
+	return ctx.Created(toAppThreadUser(tu))
 }
 
-func (t *ThreadController) toAppThreadUser(tu *model.ThreadUser) *app.ThreadUser {
+func toAppThreadUser(tu *model.ThreadUser) *app.ThreadUser {
 	return &app.ThreadUser{
 		Thread: &app.Thread{
 			ID:        int(tu.Thread.ID),
