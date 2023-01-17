@@ -49,7 +49,7 @@ func newService() *goa.Service {
 	return srv
 }
 
-func newApp(ctx context.Context, srv *goa.Service, userCtrl app.UsersController, postCtrl app.PostsController, opeCtrl app.OperandsController, likeCtrl app.LikesController, commentCtrl app.CommentsController, authCtrl app.AuthController, roomCtrl app.RoomsController, userRoomCtrl app.UserRoomsController, threadCtrl app.ThreadsController) (*App, error) {
+func newApp(ctx context.Context, srv *goa.Service, userCtrl app.UsersController, postCtrl app.PostsController, opeCtrl app.OperandsController, likeCtrl app.LikesController, commentCtrl app.CommentsController, authCtrl app.AuthController, roomCtrl app.RoomsController, userRoomCtrl app.UserRoomsController, threadCtrl app.ThreadsController, contentCtrl app.ContentController) (*App, error) {
 	app.MountOperandsController(srv, opeCtrl)
 	app.MountAuthController(srv, authCtrl)
 	app.MountUsersController(srv, userCtrl)
@@ -59,6 +59,7 @@ func newApp(ctx context.Context, srv *goa.Service, userCtrl app.UsersController,
 	app.MountRoomsController(srv, roomCtrl)
 	app.MountUserRoomsController(srv, userRoomCtrl)
 	app.MountThreadsController(srv, threadCtrl)
+	app.MountContentController(srv, contentCtrl)
 
 	return &App{srv: srv}, nil
 }
@@ -86,4 +87,5 @@ var ControllerSet = wire.NewSet(
 	NewRoomController, wire.Bind(new(app.RoomsController), new(*RoomController)),
 	NewUserRoomController, wire.Bind(new(app.UserRoomsController), new(*UserRoomController)),
 	NewThreadController, wire.Bind(new(app.ThreadsController), new(*ThreadController)),
+	NewContentController, wire.Bind(new(app.ContentController), new(*ContentController)),
 )

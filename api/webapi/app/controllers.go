@@ -298,6 +298,62 @@ func unmarshalUpdateCommentCommentsPayload(ctx context.Context, service *goa.Ser
 	return nil
 }
 
+// ContentController is the controller interface for the Content actions.
+type ContentController interface {
+	goa.Muxer
+	Delete(*DeleteContentContext) error
+}
+
+// MountContentController "mounts" a Content resource controller on the given service.
+func MountContentController(service *goa.Service, ctrl ContentController) {
+	initService(service)
+	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/api/v1/content/:id", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewDeleteContentContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Delete(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleContentOrigin(h)
+	service.Mux.Handle("DELETE", "/api/v1/content/:id", ctrl.MuxHandler("delete", h, nil))
+	service.LogInfo("mount", "ctrl", "Content", "action", "Delete", "route", "DELETE /api/v1/content/:id", "security", "jwt")
+}
+
+// handleContentOrigin applies the CORS response headers corresponding to the origin.
+func handleContentOrigin(h goa.Handler) goa.Handler {
+	spec0 := regexp.MustCompile(".*localhost.*")
+
+	return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		origin := req.Header.Get("Origin")
+		if origin == "" {
+			// Not a CORS request
+			return h(ctx, rw, req)
+		}
+		if cors.MatchOriginRegexp(origin, spec0) {
+			ctx = goa.WithLogContext(ctx, "origin", origin)
+			rw.Header().Set("Access-Control-Allow-Origin", origin)
+			rw.Header().Set("Vary", "Origin")
+			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
+				// We are handling a preflight request
+				rw.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE")
+				rw.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			}
+			return h(ctx, rw, req)
+		}
+
+		return h(ctx, rw, req)
+	}
+}
+
 // LikesController is the controller interface for the Likes actions.
 type LikesController interface {
 	goa.Muxer
