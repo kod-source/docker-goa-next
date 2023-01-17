@@ -1,6 +1,8 @@
 package datastore
 
 import (
+	"database/sql"
+	"errors"
 	"testing"
 	"time"
 
@@ -31,6 +33,8 @@ func Test_CreateThread(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer thr.Delete(ctx, wantUserID, got.Thread.ID)
+
 		thread, err := schema.SelectThread(ctx, testDB, &schema.Thread{ID: uint64(got.Thread.ID)})
 		if err != nil {
 			t.Fatal(err)
@@ -68,6 +72,8 @@ func Test_CreateThread(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		defer thr.Delete(ctx, wantUserID, got.Thread.ID)
+
 		thread, err := schema.SelectThread(ctx, testDB, &schema.Thread{ID: uint64(got.Thread.ID)})
 		if err != nil {
 			t.Fatal(err)
@@ -111,6 +117,78 @@ func Test_CreateThread(t *testing.T) {
 		_, err := thr.Create(ctx, wantText, wantRoomID, 1000, wantImg)
 		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
 			t.Errorf("error code (-want %d, got %d)", myerrors.MySQLErrorAddOrUpdateForeignKey.Number, code)
+		}
+	})
+}
+
+func Test_DeleteThread(t *testing.T) {
+	thr := NewThreadRepository(testDB, nil)
+	wantUserID := model.UserID(1)
+	wantRoomID := model.RoomID(2)
+
+	t.Run("[OK]スレッドの削除", func(t *testing.T) {
+		threadID := model.ThreadID(42)
+		if err := schema.InsertThread(ctx, testDB, &schema.Thread{
+			ID:        uint64(threadID),
+			UserID:    uint64(wantUserID),
+			RoomID:    uint64(wantRoomID),
+			Text:      "delete_thread",
+			CreatedAt: now,
+			UpdatedAt: now,
+			Img: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
+		}); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := thr.Delete(ctx, wantUserID, threadID); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("[NG]スレッドの削除 - 他人の投稿を削除した時", func(t *testing.T) {
+		threadID := model.ThreadID(43)
+		if err := schema.InsertThread(ctx, testDB, &schema.Thread{
+			ID:        uint64(threadID),
+			UserID:    uint64(wantUserID),
+			RoomID:    uint64(wantRoomID),
+			Text:      "delete_thread",
+			CreatedAt: now,
+			UpdatedAt: now,
+			Img: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
+		}); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := thr.Delete(ctx, 2, threadID); !errors.Is(err, myerrors.ErrBadRequestNoPermission) {
+			t.Errorf("error mismatch (-want %v, got %v)", myerrors.ErrBadRequestNoPermission, err)
+		}
+	})
+
+	t.Run("[NG]スレッドの削除 - 存在しないスレッドを指定した時", func(t *testing.T) {
+		threadID := model.ThreadID(44)
+		if err := schema.InsertThread(ctx, testDB, &schema.Thread{
+			ID:        uint64(threadID),
+			UserID:    uint64(wantUserID),
+			RoomID:    uint64(wantRoomID),
+			Text:      "delete_thread",
+			CreatedAt: now,
+			UpdatedAt: now,
+			Img: sql.NullString{
+				String: "",
+				Valid:  false,
+			},
+		}); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := thr.Delete(ctx, wantUserID, 1000); !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("error mismatch (-want %v, got %v)", sql.ErrNoRows, err)
 		}
 	})
 }
