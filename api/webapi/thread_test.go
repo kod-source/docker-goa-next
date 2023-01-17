@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"testing"
 	"time"
@@ -275,5 +276,70 @@ func Test_CreateThread(t *testing.T) {
 			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
+	})
+}
+
+func Test_DeleteThread(t *testing.T) {
+	srv := testApp.srv
+	tu := &interactor.MockThreadUsecase{}
+	tc := NewThreadController(srv, tu)
+	wantMyID := model.UserID(1)
+	wantThreadID := model.ThreadID(2)
+	ctx = context.WithValue(ctx, userIDCodeKey, int(wantMyID))
+
+	t.Run("[OK]スレッドの削除", func(t *testing.T) {
+		tu.DeleteFunc = func(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
+			if diff := cmp.Diff(wantMyID, myID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantThreadID, threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return nil
+		}
+
+		test.DeleteThreadsOK(t, ctx, srv, tc, int(wantThreadID))
+	})
+
+	t.Run("[NG]スレッドの削除 - IDが不明の時", func(t *testing.T) {
+		tu.DeleteFunc = func(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
+			if diff := cmp.Diff(wantMyID, myID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(model.ThreadID(1000), threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return sql.ErrNoRows
+		}
+
+		test.DeleteThreadsNotFound(t, ctx, srv, tc, 1000)
+	})
+
+	t.Run("[NG]スレッドの削除 - 権限エラー", func(t *testing.T) {
+		tu.DeleteFunc = func(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
+			if diff := cmp.Diff(wantMyID, myID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantThreadID, threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return myerrors.ErrBadRequestNoPermission
+		}
+
+		test.DeleteThreadsBadRequest(t, ctx, srv, tc, int(wantThreadID))
+	})
+
+	t.Run("[NG]スレッドの削除 - 想定外エラー発生", func(t *testing.T) {
+		tu.DeleteFunc = func(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
+			if diff := cmp.Diff(wantMyID, myID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantThreadID, threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return errors.New("test error")
+		}
+
+		test.DeleteThreadsInternalServerError(t, ctx, srv, tc, int(wantThreadID))
 	})
 }

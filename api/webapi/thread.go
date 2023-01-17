@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
@@ -36,6 +38,21 @@ func (t *ThreadController) Create(ctx *app.CreateThreadsContext) error {
 	}
 
 	return ctx.Created(toAppThreadUser(tu))
+}
+
+// Delete スレッドの削除
+func (t *ThreadController) Delete(ctx *app.DeleteThreadsContext) error {
+	if err := t.tu.Delete(ctx, model.UserID(getUserIDCode(ctx)), model.ThreadID(ctx.ID)); err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return ctx.NotFound()
+		case myerrors.ErrBadRequestNoPermission:
+			return ctx.BadRequest()
+		default:
+			return ctx.InternalServerError()
+		}
+	}
+	return ctx.OK(nil)
 }
 
 func toAppThreadUser(tu *model.ThreadUser) *app.ThreadUser {

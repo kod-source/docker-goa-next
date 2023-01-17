@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
+	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
 )
@@ -76,6 +77,47 @@ func (td *threadDatastore) Create(ctx context.Context, text string, roomID model
 	}
 
 	return toModelThreadUser(thread, user), tx.Commit()
+}
+
+// Delete ...
+func (td *threadDatastore) Delete(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
+	tx, err := td.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	var user schema.User
+	if err := tx.QueryRowContext(
+		ctx,
+		"SELECT `user_id` FROM `thread` WHERE `id` = ?",
+		threadID,
+	).Scan(
+		&user.ID,
+	); err != nil {
+		return err
+	}
+	if user.ID != uint64(myID) {
+		return myerrors.ErrBadRequestNoPermission
+	}
+
+	stmt, err := tx.PrepareContext(ctx, "DELETE FROM `thread` WHERE `id` = ?")
+	if err != nil {
+		return err
+	}
+	res, err := stmt.ExecContext(ctx, threadID)
+	if err != nil {
+		return err
+	}
+	i, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if i == 0 {
+		return sql.ErrNoRows
+	}
+
+	return tx.Commit()
 }
 
 func toModelThreadUser(th schema.Thread, u schema.User) *model.ThreadUser {

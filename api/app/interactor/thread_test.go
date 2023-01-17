@@ -113,3 +113,43 @@ func Test_CreateThread(t *testing.T) {
 		}
 	})
 }
+
+func Test_DeleteThread(t *testing.T) {
+	tr := &datastore.MockThreadRepository{}
+	tu := NewThreadUsecase(tr)
+	wantThreadID := model.ThreadID(1)
+	wantMyID := model.UserID(2)
+
+	t.Run("[OK]スレッドの削除", func(t *testing.T) {
+		tr.DeleteFunc = func(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
+			if diff := cmp.Diff(wantMyID, myID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantThreadID, threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return nil
+		}
+
+		if err := tu.Delete(ctx, wantMyID, wantThreadID); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("[NG]スレッドの削除 - 想定外エラー発生", func(t *testing.T) {
+		wantErr := errors.New("test_error")
+		tr.DeleteFunc = func(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
+			if diff := cmp.Diff(wantMyID, myID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantThreadID, threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return wantErr
+		}
+
+		if err := tu.Delete(ctx, wantMyID, wantThreadID); !errors.Is(err, wantErr) {
+			t.Errorf("error mismatch (-want %v, +got %v)", wantErr, err)
+		}
+	})
+}

@@ -33,6 +33,18 @@ var _ = Resource("threads", func() {
 		Response(BadRequest)
 		Response(InternalServerError)
 	})
+
+	Action("delete", func() {
+		Routing(DELETE("threads/:id"))
+		Description("スレッドを削除")
+		Params(func() {
+			Param("id", Integer, "thread id")
+		})
+		Response(OK)
+		Response(NotFound)
+		Response(BadRequest)
+		Response(InternalServerError)
+	})
 })
 
 var thread = MediaType("application/vnd.thread", func() {

@@ -35,3 +35,10 @@ func (ti *threadInteractor) Create(ctx context.Context, text string, roomID mode
 
 	return ti.tr.Create(ctx, text, roomID, userID, img)
 }
+
+func (ti *threadInteractor) Delete(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
+	if err := ti.tr.Delete(ctx, myID, threadID); err != nil {
+		return err
+	}
+	return nil
+}
