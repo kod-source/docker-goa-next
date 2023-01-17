@@ -10,4 +10,5 @@ var Set = wire.NewSet(
 	RoomInteractorSet,
 	UserRoomInteractorSet,
 	ThreadUsecaseSet,
+	ContentUsecaseSet,
 )

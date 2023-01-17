@@ -18,4 +18,5 @@ var Set = wire.NewSet(
 	RoomDatastoreSet,
 	UserRoomRepositorySet,
 	ThreadRepositorySet,
+	ContentRepositorySet,
 )
