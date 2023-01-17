@@ -122,6 +122,7 @@ func Test_CreateThread(t *testing.T) {
 }
 
 func Test_DeleteThread(t *testing.T) {
+	t.Helper()
 	thr := NewThreadRepository(testDB, nil)
 	wantUserID := model.UserID(1)
 	wantRoomID := model.RoomID(2)

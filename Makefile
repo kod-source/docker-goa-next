@@ -15,7 +15,7 @@ seed: ## 初期値の登録
 
 .PHONY: test_api
 test_api: ## apiのテスト
-	cd api && go test -v ./... && cd ../
+	cd api && go test ./... && cd ../
 
 .PHONY: schemaspy
 schemaspy: ## schemaspyの更新
