@@ -53,9 +53,3 @@ func (*Content) ForeignKeys() []*myddlmaker.ForeignKey {
 		).OnUpdate(myddlmaker.ForeignKeyOptionCascade),
 	}
 }
-
-func (*Content) UniqueIndexes() []*myddlmaker.UniqueIndex {
-	return []*myddlmaker.UniqueIndex{
-		myddlmaker.NewUniqueIndex("user_thread_id_index", "user_id", "thread_id"),
-	}
-}

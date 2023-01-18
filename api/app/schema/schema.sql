@@ -124,7 +124,6 @@ CREATE TABLE `content` (
     `img` LONGTEXT NULL,
     INDEX `idx_user_id` (`user_id`),
     INDEX `idx_thread_id` (`thread_id`),
-    UNIQUE `user_thread_id_index` (`user_id`, `thread_id`),
     CONSTRAINT `user_content_id_constraint` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `thread_content_id_constraint` FOREIGN KEY (`thread_id`) REFERENCES `thread` (`id`) ON UPDATE CASCADE,
     PRIMARY KEY (`id`)

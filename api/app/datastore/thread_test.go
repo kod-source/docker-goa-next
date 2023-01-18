@@ -169,25 +169,12 @@ func Test_DeleteThread(t *testing.T) {
 		if err := thr.Delete(ctx, 2, threadID); !errors.Is(err, myerrors.ErrBadRequestNoPermission) {
 			t.Errorf("error mismatch (-want %v, got %v)", myerrors.ErrBadRequestNoPermission, err)
 		}
+		if err := thr.Delete(ctx, wantUserID, threadID); err != nil {
+			t.Fatal(err)
+		}
 	})
 
 	t.Run("[NG]スレッドの削除 - 存在しないスレッドを指定した時", func(t *testing.T) {
-		threadID := model.ThreadID(44)
-		if err := schema.InsertThread(ctx, testDB, &schema.Thread{
-			ID:        uint64(threadID),
-			UserID:    uint64(wantUserID),
-			RoomID:    uint64(wantRoomID),
-			Text:      "delete_thread",
-			CreatedAt: now,
-			UpdatedAt: now,
-			Img: sql.NullString{
-				String: "",
-				Valid:  false,
-			},
-		}); err != nil {
-			t.Fatal(err)
-		}
-
 		if err := thr.Delete(ctx, wantUserID, 1000); !errors.Is(err, sql.ErrNoRows) {
 			t.Errorf("error mismatch (-want %v, got %v)", sql.ErrNoRows, err)
 		}
