@@ -55,7 +55,10 @@ func NewApp(ctx context.Context) (*App, error) {
 	threadDatastore := datastore.NewThreadRepository(db, timeRepository)
 	threadInteractor := interactor.NewThreadUsecase(threadDatastore)
 	threadController := NewThreadController(service, threadInteractor)
-	app, err := newApp(ctx, service, usersController, postsController, operandsController, likesController, commentsController, authController, roomController, userRoomController, threadController)
+	contentDatastore := datastore.NewContentRepository(db, timeRepository)
+	contentInteractor := interactor.NewContentUsecase(contentDatastore)
+	contentController := NewContentController(service, contentInteractor)
+	app, err := newApp(ctx, service, usersController, postsController, operandsController, likesController, commentsController, authController, roomController, userRoomController, threadController, contentController)
 	if err != nil {
 		return nil, err
 	}

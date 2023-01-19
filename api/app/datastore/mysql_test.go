@@ -65,6 +65,9 @@ func TestMain(m *testing.M) {
 	if err := testdata.ThreadSeed(ctx, testDB); err != nil {
 		panic(err)
 	}
+	if err := testdata.ContentSeed(ctx, testDB); err != nil {
+		panic(err)
+	}
 	var err error
 	jst, err = time.LoadLocation("Asia/Tokyo")
 	if err != nil {
