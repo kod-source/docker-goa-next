@@ -2,12 +2,14 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
+	"github.com/shogo82148/pointer"
 )
 
 // ThreadController ...
@@ -57,7 +59,15 @@ func (t *ThreadController) Delete(ctx *app.DeleteThreadsContext) error {
 
 // GetThreadsByRoom ルーム内のスレッドを返す
 func (t *ThreadController) GetThreadsByRoom(ctx *app.GetThreadsByRoomThreadsContext) error {
-	return ctx.OK(nil)
+	its, nextID, err := t.tu.GetThreadsByRoom(ctx, model.RoomID(ctx.ID), model.ThreadID(pointer.Value(ctx.NextID)))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
+	}
+
+	return ctx.OK(toAllIndexThreads(its, nextID))
 }
 
 func toAppThreadUser(tu *model.ThreadUser) *app.ThreadUser {
@@ -77,5 +87,20 @@ func toAppThreadUser(tu *model.ThreadUser) *app.ThreadUser {
 			CreatedAt: tu.User.CreatedAt,
 			Avatar:    tu.User.Avatar,
 		},
+	}
+}
+
+func toAllIndexThreads(its []*model.IndexThread, nextID *int) *app.AllIndexThreads {
+	var aits []*app.IndexThread
+	for _, it := range its {
+		aits = append(aits, &app.IndexThread{
+			CountContent: it.CountContent,
+			ThreadUser:   toAppThreadUser(&it.ThreadUser),
+		})
+	}
+
+	return &app.AllIndexThreads{
+		IndexThreads: aits,
+		NextID:       nextID,
 	}
 }
