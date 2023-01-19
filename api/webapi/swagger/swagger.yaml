@@ -2224,6 +2224,11 @@ paths:
         name: id
         required: true
         type: integer
+      - description: 次のID
+        in: query
+        name: next_id
+        required: false
+        type: integer
       produces:
       - application/vnd.all_index_threads
       responses:

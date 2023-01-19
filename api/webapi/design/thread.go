@@ -51,6 +51,7 @@ var _ = Resource("threads", func() {
 		Description("ルーム内のスレッドを返す")
 		Params(func() {
 			Param("id", Integer, "Room ID")
+			Param("next_id", Integer, "次のID")
 		})
 		Response(OK, allIndexThreads)
 		Response(NotFound)

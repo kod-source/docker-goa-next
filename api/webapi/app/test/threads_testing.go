@@ -18,6 +18,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -506,7 +507,7 @@ func DeleteThreadsOK(t testing.TB, ctx context.Context, service *goa.Service, ct
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetThreadsByRoomThreadsInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ThreadsController, id int) http.ResponseWriter {
+func GetThreadsByRoomThreadsInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ThreadsController, id int, nextID *int) http.ResponseWriter {
 	t.Helper()
 
 	// Setup service
@@ -530,13 +531,23 @@ func GetThreadsByRoomThreadsInternalServerError(t testing.TB, ctx context.Contex
 		ctx = context.Background()
 	}
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		query["next_id"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/threads/room/%v", id),
+		Path:     fmt.Sprintf("/api/v1/threads/room/%v", id),
+		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		prms["next_id"] = sliceVal
+	}
 
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "ThreadsTest"), rw, req, prms)
 	getThreadsByRoomCtx, err := app.NewGetThreadsByRoomThreadsContext(goaCtx, req, service)
@@ -568,7 +579,7 @@ func GetThreadsByRoomThreadsInternalServerError(t testing.TB, ctx context.Contex
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetThreadsByRoomThreadsNotFound(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ThreadsController, id int) http.ResponseWriter {
+func GetThreadsByRoomThreadsNotFound(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ThreadsController, id int, nextID *int) http.ResponseWriter {
 	t.Helper()
 
 	// Setup service
@@ -592,13 +603,23 @@ func GetThreadsByRoomThreadsNotFound(t testing.TB, ctx context.Context, service 
 		ctx = context.Background()
 	}
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		query["next_id"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/threads/room/%v", id),
+		Path:     fmt.Sprintf("/api/v1/threads/room/%v", id),
+		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		prms["next_id"] = sliceVal
+	}
 
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "ThreadsTest"), rw, req, prms)
 	getThreadsByRoomCtx, err := app.NewGetThreadsByRoomThreadsContext(goaCtx, req, service)
@@ -630,7 +651,7 @@ func GetThreadsByRoomThreadsNotFound(t testing.TB, ctx context.Context, service 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetThreadsByRoomThreadsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ThreadsController, id int) (http.ResponseWriter, *app.AllIndexThreads) {
+func GetThreadsByRoomThreadsOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ThreadsController, id int, nextID *int) (http.ResponseWriter, *app.AllIndexThreads) {
 	t.Helper()
 
 	// Setup service
@@ -655,13 +676,23 @@ func GetThreadsByRoomThreadsOK(t testing.TB, ctx context.Context, service *goa.S
 		ctx = context.Background()
 	}
 	rw := httptest.NewRecorder()
+	query := url.Values{}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		query["next_id"] = sliceVal
+	}
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/threads/room/%v", id),
+		Path:     fmt.Sprintf("/api/v1/threads/room/%v", id),
+		RawQuery: query.Encode(),
 	}
 	req := httptest.NewRequest("GET", u.String(), nil)
 	req = req.WithContext(ctx)
 	prms := url.Values{}
 	prms["id"] = []string{fmt.Sprintf("%v", id)}
+	if nextID != nil {
+		sliceVal := []string{strconv.Itoa(*nextID)}
+		prms["next_id"] = sliceVal
+	}
 
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "ThreadsTest"), rw, req, prms)
 	getThreadsByRoomCtx, err := app.NewGetThreadsByRoomThreadsContext(goaCtx, req, service)

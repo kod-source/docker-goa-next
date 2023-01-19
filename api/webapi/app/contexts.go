@@ -1795,7 +1795,8 @@ type GetThreadsByRoomThreadsContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID int
+	ID     int
+	NextID *int
 }
 
 // NewGetThreadsByRoomThreadsContext parses the incoming request URL and body, performs validations and creates the
@@ -1814,6 +1815,17 @@ func NewGetThreadsByRoomThreadsContext(ctx context.Context, r *http.Request, ser
 			rctx.ID = id
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	paramNextID := req.Params["next_id"]
+	if len(paramNextID) > 0 {
+		rawNextID := paramNextID[0]
+		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
+			tmp31 := nextID
+			tmp30 := &tmp31
+			rctx.NextID = tmp30
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
 	}
 	return &rctx, err
