@@ -120,6 +120,11 @@ func (td *threadDatastore) Delete(ctx context.Context, myID model.UserID, thread
 	return tx.Commit()
 }
 
+// GetThreadsByRoom ...
+func (td *threadDatastore) GetThreadsByRoom(ctx context.Context, roomID model.RoomID, nextID model.ThreadID) ([]*model.IndexThread, *int, error) {
+	return nil, nil, nil
+}
+
 func toModelThreadUser(th schema.Thread, u schema.User) *model.ThreadUser {
 	thu := &model.ThreadUser{
 		Thread: model.Thread{
