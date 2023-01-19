@@ -55,6 +55,11 @@ func (t *ThreadController) Delete(ctx *app.DeleteThreadsContext) error {
 	return ctx.OK(nil)
 }
 
+// GetThreadsByRoom ルーム内のスレッドを返す
+func (t *ThreadController) GetThreadsByRoom(ctx *app.GetThreadsByRoomThreadsContext) error {
+	return ctx.OK(nil)
+}
+
 func toAppThreadUser(tu *model.ThreadUser) *app.ThreadUser {
 	return &app.ThreadUser{
 		Thread: &app.Thread{
