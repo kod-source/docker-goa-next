@@ -1,0 +1,12 @@
+# room
+README.md
+.env
+.github
+.git
+
+# client
+**/README.md
+**/node_modules
+
+# api
+**/tmp
