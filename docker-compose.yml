@@ -31,8 +31,6 @@ services:
       - MYSQL_HOST
     tty: true
     stdin_open: true
-    # volumes:
-    #   - ./api:/go/src/app
     ports:
       - 3000:3000
     depends_on:
