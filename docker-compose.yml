@@ -19,8 +19,8 @@ services:
       - ./db-goa-next:/var/lib/mysql
   api:
     build:
-      context: ./docker/go
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/go/Dockerfile
       # target: dev
     environment:
       - END_POINT
@@ -31,22 +31,17 @@ services:
       - MYSQL_HOST
     tty: true
     stdin_open: true
-    volumes:
-      - ./api:/go/src/app
     ports:
       - 3000:3000
     depends_on:
       - db
   client:
     build:
-      context: ./docker/client/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/client/Dockerfile
     environment:
       - NEXT_PUBLIC_END_POINT
     tty: true
-    volumes:
-      - ./client:/usr/src/app
-    command: sh -c "yarn dev"
     ports:
       - '8080:3000'
     depends_on:
@@ -54,8 +49,8 @@ services:
 
   schemaspy:
     build:
-      context: ./docker/schemaspy/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./docker/schemaspy/Dockerfile
     platform: linux/x86_64
     environment:
       - TZ=Asia/Tokyo
