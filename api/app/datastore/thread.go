@@ -3,12 +3,14 @@ package datastore
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/schema"
+	"github.com/shogo82148/pointer"
 )
 
 var _ repository.ThreadRepository = (*threadDatastore)(nil)
@@ -122,7 +124,104 @@ func (td *threadDatastore) Delete(ctx context.Context, myID model.UserID, thread
 
 // GetThreadsByRoom ...
 func (td *threadDatastore) GetThreadsByRoom(ctx context.Context, roomID model.RoomID, nextID model.ThreadID) ([]*model.IndexThread, *int, error) {
-	return nil, nil, nil
+	tx, err := td.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer tx.Rollback()
+
+	query := "SELECT `th`.`id`, `th`.`user_id`, `th`.`room_id`, `th`.`text`, `th`.`created_at`, `th`.`updated_at`, `th`.`img`, " +
+		"`u`.`id`, `u`.`name`, `u`.`created_at`, `u`.`avatar`, `c`.`count` " +
+		"FROM `thread` AS `th` " +
+		"INNER JOIN `user` AS `u` " +
+		"ON `th`.`user_id` = `u`.`id` " +
+		"LEFT JOIN (" +
+		"SELECT `thread_id`, COUNT(`thread_id`) AS `count` " +
+		"FROM `content` " +
+		"GROUP BY thread_id" +
+		") AS `c` " +
+		"ON `th`.`id` = `c`.`thread_id` " +
+		"WHERE `th`.`room_id` = ? " +
+		"ORDER BY `th`.`created_at` DESC " +
+		"LIMIT ?, ?"
+	rows, err := tx.QueryContext(ctx, query, roomID, nextID, LIMIT)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+	fmt.Println(rows)
+
+	var its []*model.IndexThread
+	for rows.Next() {
+		var thread schema.Thread
+		var user schema.User
+		var count sql.NullInt64
+		if err := rows.Scan(
+			&thread.ID,
+			&thread.UserID,
+			&thread.RoomID,
+			&thread.Text,
+			&thread.CreatedAt,
+			&thread.UpdatedAt,
+			&thread.Img,
+			&user.ID,
+			&user.Name,
+			&user.CreatedAt,
+			&user.Avatar,
+			&count,
+		); err != nil {
+			return nil, nil, err
+		}
+
+		it := &model.IndexThread{
+			ThreadUser: model.ThreadUser{
+				Thread: model.Thread{
+					ID:        model.ThreadID(thread.ID),
+					UserID:    model.UserID(thread.UserID),
+					RoomID:    model.RoomID(thread.RoomID),
+					Text:      thread.Text,
+					CreatedAt: thread.CreatedAt,
+					UpdatedAt: thread.UpdatedAt,
+					Img:       nil,
+				},
+				User: model.ShowUser{
+					ID:        model.UserID(user.ID),
+					Name:      user.Name,
+					CreatedAt: user.CreatedAt,
+					Avatar:    nil,
+				},
+			},
+			CountContent: nil,
+		}
+		if thread.Img.Valid {
+			it.ThreadUser.Thread.Img = &thread.Img.String
+		}
+		if user.Avatar.Valid {
+			it.ThreadUser.User.Avatar = &user.Avatar.String
+		}
+		if count.Valid {
+			it.CountContent = pointer.Ptr(int(count.Int64))
+		}
+		its = append(its, it)
+	}
+
+	var threadID model.ThreadID
+	if err := tx.QueryRowContext(
+		ctx,
+		"SELECT `id` FROM `thread` WHERE `room_id` = ? ORDER BY `created_at` LIMIT 1",
+		roomID,
+	).Scan(
+		&threadID,
+	); err != nil {
+		return nil, nil, err
+	}
+	var resNextID *int
+	resNextID = pointer.Int(int(nextID) + LIMIT)
+	if len(its) == 0 || its[len(its)-1].ThreadUser.Thread.ID == threadID {
+		resNextID = nil
+	}
+
+	return its, resNextID, tx.Commit()
 }
 
 func toModelThreadUser(th schema.Thread, u schema.User) *model.ThreadUser {
