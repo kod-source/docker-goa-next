@@ -3,7 +3,6 @@ package datastore
 import (
 	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
@@ -149,7 +148,6 @@ func (td *threadDatastore) GetThreadsByRoom(ctx context.Context, roomID model.Ro
 		return nil, nil, err
 	}
 	defer rows.Close()
-	fmt.Println(rows)
 
 	var its []*model.IndexThread
 	for rows.Next() {
