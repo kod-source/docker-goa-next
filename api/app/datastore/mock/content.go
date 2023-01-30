@@ -11,8 +11,13 @@ var _ repository.ContentRepository = (*MockContentRepository)(nil)
 
 type MockContentRepository struct {
 	DeleteFunc func(ctx context.Context, myID model.UserID, contentID model.ContentID) error
+	CreateFunc func(ctx context.Context, text string, threadID model.ThreadID, myID model.UserID, img *string) (*model.ContentUser, error)
 }
 
 func (m *MockContentRepository) Delete(ctx context.Context, myID model.UserID, contentID model.ContentID) error {
 	return m.DeleteFunc(ctx, myID, contentID)
+}
+
+func (m *MockContentRepository) Create(ctx context.Context, text string, threadID model.ThreadID, myID model.UserID, img *string) (*model.ContentUser, error) {
+	return m.CreateFunc(ctx, text, threadID, myID, img)
 }

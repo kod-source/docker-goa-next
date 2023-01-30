@@ -66,3 +66,7 @@ func (cd *contentDatastore) Delete(ctx context.Context, myID model.UserID, conte
 
 	return tx.Commit()
 }
+
+func (cd *contentDatastore) Create(ctx context.Context, text string, threadID model.ThreadID, myID model.UserID, img *string) (*model.ContentUser, error) {
+	return nil, nil
+}
