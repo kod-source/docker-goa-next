@@ -36,3 +36,8 @@ func (c *ContentController) Delete(ctx *app.DeleteContentContext) error {
 
 	return ctx.OK(nil)
 }
+
+// Create スレッドの返信を作成する
+func (c *ContentController) Create(ctx *app.CreateContentContext) error {
+	return ctx.Created(nil)
+}

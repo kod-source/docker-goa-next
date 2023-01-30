@@ -128,6 +128,61 @@ func (mt CommentWithUserJSONCollection) Validate() (err error) {
 	return
 }
 
+// コンテント (default view)
+//
+// Identifier: application/vnd.content; view=default
+type Content struct {
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// content id
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コンテント内容
+	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
+	// thread id
+	ThreadID int `form:"thread_id" json:"thread_id" yaml:"thread_id" xml:"thread_id"`
+	// 更新日
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+	// user id
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+}
+
+// Validate validates the Content media type instance.
+func (mt *Content) Validate() (err error) {
+
+	return
+}
+
+// コンテントとユーザー (default view)
+//
+// Identifier: application/vnd.contentuser; view=default
+type Contentuser struct {
+	Content *Content  `form:"content" json:"content" yaml:"content" xml:"content"`
+	User    *ShowUser `form:"user" json:"user" yaml:"user" xml:"user"`
+}
+
+// Validate validates the Contentuser media type instance.
+func (mt *Contentuser) Validate() (err error) {
+	if mt.Content == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "content"))
+	}
+	if mt.User == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "user"))
+	}
+	if mt.Content != nil {
+		if err2 := mt.Content.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if mt.User != nil {
+		if err2 := mt.User.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
 // 投稿 (default view)
 //
 // Identifier: application/vnd.index_post_json; view=default

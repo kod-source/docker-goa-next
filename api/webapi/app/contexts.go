@@ -494,6 +494,108 @@ func (ctx *UpdateCommentCommentsContext) InternalServerError() error {
 	return nil
 }
 
+// CreateContentContext provides the content create action context.
+type CreateContentContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *CreateContentPayload
+}
+
+// NewCreateContentContext parses the incoming request URL and body, performs validations and creates the
+// context used by the content controller create action.
+func NewCreateContentContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateContentContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreateContentContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// createContentPayload is the content create action payload.
+type createContentPayload struct {
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コンテントの内容
+	Text *string `form:"text,omitempty" json:"text,omitempty" yaml:"text,omitempty" xml:"text,omitempty"`
+	// スレッドID
+	ThreadID *int `form:"thread_id,omitempty" json:"thread_id,omitempty" yaml:"thread_id,omitempty" xml:"thread_id,omitempty"`
+	// ユーザーID
+	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" yaml:"user_id,omitempty" xml:"user_id,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *createContentPayload) Validate() (err error) {
+	if payload.Text == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "text"))
+	}
+	if payload.ThreadID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "thread_id"))
+	}
+	if payload.UserID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "user_id"))
+	}
+	return
+}
+
+// Publicize creates CreateContentPayload from createContentPayload
+func (payload *createContentPayload) Publicize() *CreateContentPayload {
+	var pub CreateContentPayload
+	if payload.Img != nil {
+		pub.Img = payload.Img
+	}
+	if payload.Text != nil {
+		pub.Text = *payload.Text
+	}
+	if payload.ThreadID != nil {
+		pub.ThreadID = *payload.ThreadID
+	}
+	if payload.UserID != nil {
+		pub.UserID = *payload.UserID
+	}
+	return &pub
+}
+
+// CreateContentPayload is the content create action payload.
+type CreateContentPayload struct {
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コンテントの内容
+	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
+	// スレッドID
+	ThreadID int `form:"thread_id" json:"thread_id" yaml:"thread_id" xml:"thread_id"`
+	// ユーザーID
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *CreateContentPayload) Validate() (err error) {
+
+	return
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *CreateContentContext) Created(r *Contentuser) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.contentuser")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreateContentContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *CreateContentContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // DeleteContentContext provides the content delete action context.
 type DeleteContentContext struct {
 	context.Context
