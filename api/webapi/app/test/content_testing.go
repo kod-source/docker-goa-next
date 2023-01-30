@@ -99,7 +99,7 @@ func CreateContentBadRequest(t testing.TB, ctx context.Context, service *goa.Ser
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateContentCreated(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, payload *app.CreateContentPayload) (http.ResponseWriter, *app.Contentuser) {
+func CreateContentCreated(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, payload *app.CreateContentPayload) (http.ResponseWriter, *app.ContentUser) {
 	t.Helper()
 
 	// Setup service
@@ -164,12 +164,12 @@ func CreateContentCreated(t testing.TB, ctx context.Context, service *goa.Servic
 	if rw.Code != 201 {
 		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
 	}
-	var mt *app.Contentuser
+	var mt *app.ContentUser
 	if resp != nil {
 		var __ok bool
-		mt, __ok = resp.(*app.Contentuser)
+		mt, __ok = resp.(*app.ContentUser)
 		if !__ok {
-			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Contentuser", resp, resp)
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.ContentUser", resp, resp)
 		}
 		_err = mt.Validate()
 		if _err != nil {

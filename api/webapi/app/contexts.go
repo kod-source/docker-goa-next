@@ -567,9 +567,9 @@ func (payload *CreateContentPayload) Validate() (err error) {
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *CreateContentContext) Created(r *Contentuser) error {
+func (ctx *CreateContentContext) Created(r *ContentUser) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.contentuser")
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.content_user")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
 }

@@ -236,7 +236,7 @@ definitions:
     - updated_at
     title: 'Mediatype identifier: application/vnd.content; view=default'
     type: object
-  Contentuser:
+  Content_user:
     description: コンテントとユーザー (default view)
     example:
       content:
@@ -260,7 +260,7 @@ definitions:
     required:
     - content
     - user
-    title: 'Mediatype identifier: application/vnd.contentuser; view=default'
+    title: 'Mediatype identifier: application/vnd.content_user; view=default'
     type: object
   CreateCommentCommentsPayload:
     example:
@@ -1537,12 +1537,12 @@ paths:
         schema:
           $ref: '#/definitions/CreateContentPayload'
       produces:
-      - application/vnd.contentuser
+      - application/vnd.content_user
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/Contentuser'
+            $ref: '#/definitions/Content_user'
         "400":
           description: Bad Request
         "500":

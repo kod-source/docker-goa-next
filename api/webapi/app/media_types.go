@@ -156,14 +156,14 @@ func (mt *Content) Validate() (err error) {
 
 // コンテントとユーザー (default view)
 //
-// Identifier: application/vnd.contentuser; view=default
-type Contentuser struct {
+// Identifier: application/vnd.content_user; view=default
+type ContentUser struct {
 	Content *Content  `form:"content" json:"content" yaml:"content" xml:"content"`
 	User    *ShowUser `form:"user" json:"user" yaml:"user" xml:"user"`
 }
 
-// Validate validates the Contentuser media type instance.
-func (mt *Contentuser) Validate() (err error) {
+// Validate validates the ContentUser media type instance.
+func (mt *ContentUser) Validate() (err error) {
 	if mt.Content == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "content"))
 	}

@@ -27,3 +27,7 @@ func NewContentUsecase(cr repository.ContentRepository) *contentInteractor {
 func (ci *contentInteractor) Delete(ctx context.Context, myID model.UserID, contentID model.ContentID) error {
 	return ci.cr.Delete(ctx, myID, contentID)
 }
+
+func (ci *contentInteractor) Create(ctx context.Context, text string, threadID model.ThreadID, myID model.UserID, img *string) (*model.ContentUser, error) {
+	return nil, nil
+}

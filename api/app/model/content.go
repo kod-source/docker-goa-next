@@ -23,3 +23,8 @@ type Content struct {
 	// Img 画像データ
 	Img *string
 }
+
+type ContentUser struct {
+	Content Content
+	User    ShowUser
+}

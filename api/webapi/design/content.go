@@ -71,7 +71,7 @@ var content = MediaType("application/vnd.content", func() {
 	Required("id", "user_id", "thread_id", "text", "created_at", "updated_at")
 })
 
-var contentUser = MediaType("application/vnd.contentUser", func() {
+var contentUser = MediaType("application/vnd.content_user", func() {
 	Description("コンテントとユーザー")
 	Attribute("content", content)
 	Attribute("user", show_user)
