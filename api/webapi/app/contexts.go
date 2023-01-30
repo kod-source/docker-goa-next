@@ -522,8 +522,6 @@ type createContentPayload struct {
 	Text *string `form:"text,omitempty" json:"text,omitempty" yaml:"text,omitempty" xml:"text,omitempty"`
 	// スレッドID
 	ThreadID *int `form:"thread_id,omitempty" json:"thread_id,omitempty" yaml:"thread_id,omitempty" xml:"thread_id,omitempty"`
-	// ユーザーID
-	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" yaml:"user_id,omitempty" xml:"user_id,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -533,9 +531,6 @@ func (payload *createContentPayload) Validate() (err error) {
 	}
 	if payload.ThreadID == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "thread_id"))
-	}
-	if payload.UserID == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "user_id"))
 	}
 	return
 }
@@ -552,9 +547,6 @@ func (payload *createContentPayload) Publicize() *CreateContentPayload {
 	if payload.ThreadID != nil {
 		pub.ThreadID = *payload.ThreadID
 	}
-	if payload.UserID != nil {
-		pub.UserID = *payload.UserID
-	}
 	return &pub
 }
 
@@ -566,8 +558,6 @@ type CreateContentPayload struct {
 	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
 	// スレッドID
 	ThreadID int `form:"thread_id" json:"thread_id" yaml:"thread_id" xml:"thread_id"`
-	// ユーザーID
-	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
 }
 
 // Validate runs the validation rules defined in the design.

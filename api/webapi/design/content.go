@@ -35,13 +35,10 @@ var _ = Resource("content", func() {
 			Attribute("thread_id", Integer, "スレッドID", func() {
 				Example(1)
 			})
-			Attribute("user_id", Integer, "ユーザーID", func() {
-				Example(2)
-			})
 			Attribute("img", String, "画像", func() {
 				Example("https://test.img")
 			})
-			Required("text", "thread_id", "user_id")
+			Required("text", "thread_id")
 		})
 		Response(Created, contentUser)
 		Response(BadRequest)

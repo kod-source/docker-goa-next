@@ -291,7 +291,6 @@ definitions:
       img: https://test.img
       text: いいですね
       thread_id: 1
-      user_id: 2
     properties:
       img:
         description: 画像
@@ -306,15 +305,9 @@ definitions:
         example: 1
         format: int64
         type: integer
-      user_id:
-        description: ユーザーID
-        example: 2
-        format: int64
-        type: integer
     required:
     - text
     - thread_id
-    - user_id
     title: CreateContentPayload
     type: object
   CreateLikesPayload:
