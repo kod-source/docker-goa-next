@@ -12,6 +12,27 @@ import (
 	"time"
 )
 
+// スレッド一覧とNextID (default view)
+//
+// Identifier: application/vnd.all_index_threads; view=default
+type AllIndexThreads struct {
+	// index_threads
+	IndexThreads IndexThreadCollection `form:"index_threads" json:"index_threads" yaml:"index_threads" xml:"index_threads"`
+	// 次取得するThreadID
+	NextID *int `form:"next_id,omitempty" json:"next_id,omitempty" yaml:"next_id,omitempty" xml:"next_id,omitempty"`
+}
+
+// Validate validates the AllIndexThreads media type instance.
+func (mt *AllIndexThreads) Validate() (err error) {
+	if mt.IndexThreads == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "index_threads"))
+	}
+	if err2 := mt.IndexThreads.Validate(); err2 != nil {
+		err = goa.MergeErrors(err, err2)
+	}
+	return
+}
+
 // 全てのルーム (default view)
 //
 // Identifier: application/vnd.all_room_user; view=default
@@ -170,6 +191,46 @@ type IndexRoomCollection []*IndexRoom
 
 // Validate validates the IndexRoomCollection media type instance.
 func (mt IndexRoomCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// スレッドの一覧 (default view)
+//
+// Identifier: application/vnd.index_thread; view=default
+type IndexThread struct {
+	// スレッドの返信数
+	CountContent *int `form:"count_content,omitempty" json:"count_content,omitempty" yaml:"count_content,omitempty" xml:"count_content,omitempty"`
+	// スレッドとユーザー
+	ThreadUser *ThreadUser `form:"thread_user" json:"thread_user" yaml:"thread_user" xml:"thread_user"`
+}
+
+// Validate validates the IndexThread media type instance.
+func (mt *IndexThread) Validate() (err error) {
+	if mt.ThreadUser == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "thread_user"))
+	}
+	if mt.ThreadUser != nil {
+		if err2 := mt.ThreadUser.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// Index_threadCollection is the media type for an array of Index_thread (default view)
+//
+// Identifier: application/vnd.index_thread; type=collection; view=default
+type IndexThreadCollection []*IndexThread
+
+// Validate validates the IndexThreadCollection media type instance.
+func (mt IndexThreadCollection) Validate() (err error) {
 	for _, e := range mt {
 		if e != nil {
 			if err2 := e.Validate(); err2 != nil {

@@ -45,6 +45,18 @@ var _ = Resource("threads", func() {
 		Response(BadRequest)
 		Response(InternalServerError)
 	})
+
+	Action("get_threads_by_room", func() {
+		Routing(GET("threads/room/:id"))
+		Description("ルーム内のスレッドを返す")
+		Params(func() {
+			Param("id", Integer, "Room ID")
+			Param("next_id", Integer, "次のID")
+		})
+		Response(OK, allIndexThreads)
+		Response(NotFound)
+		Response(InternalServerError)
+	})
 })
 
 var thread = MediaType("application/vnd.thread", func() {
@@ -81,4 +93,26 @@ var threadUser = MediaType("application/vnd.thread_user", func() {
 		Attribute("user")
 	})
 	Required("thread", "user")
+})
+
+var indexThread = MediaType("application/vnd.index_thread", func() {
+	Description("スレッドの一覧")
+	Attribute("thread_user", threadUser, "スレッドとユーザー")
+	Attribute("count_content", Integer, "スレッドの返信数")
+	View("default", func() {
+		Attribute("thread_user")
+		Attribute("count_content")
+	})
+	Required("thread_user")
+})
+
+var allIndexThreads = MediaType("application/vnd.all_index_threads", func() {
+	Description("スレッド一覧とNextID")
+	Attribute("index_threads", CollectionOf(indexThread), "index_threads")
+	Attribute("next_id", Integer, "次取得するThreadID")
+	View("default", func() {
+		Attribute("index_threads")
+		Attribute("next_id")
+	})
+	Required("index_threads")
 })

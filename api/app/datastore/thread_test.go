@@ -180,3 +180,161 @@ func Test_DeleteThread(t *testing.T) {
 		}
 	})
 }
+
+func Test_GetThreadsByRoom(t *testing.T) {
+	thr := NewThreadRepository(testDB, nil)
+	wantRoomID := model.RoomID(1)
+
+	t.Run("[OK]ルーム内のスレッドを取得", func(t *testing.T) {
+		want := []*model.IndexThread{
+			{
+				ThreadUser: model.ThreadUser{
+					Thread: model.Thread{
+						ID:        3,
+						UserID:    2,
+						RoomID:    1,
+						Text:      "thread3",
+						CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+						Img:       pointer.Ptr("image3"),
+					},
+					User: model.ShowUser{
+						ID:        2,
+						Name:      "test2_name",
+						CreatedAt: now,
+						Avatar:    nil,
+					},
+				},
+				CountContent: nil,
+			},
+			{
+				ThreadUser: model.ThreadUser{
+					Thread: model.Thread{
+						ID:        2,
+						UserID:    1,
+						RoomID:    1,
+						Text:      "thread2",
+						CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+						Img:       nil,
+					},
+					User: model.ShowUser{
+						ID:        1,
+						Name:      "test1_name",
+						CreatedAt: now,
+						Avatar:    pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountContent: pointer.Ptr(1),
+			},
+			{
+				ThreadUser: model.ThreadUser{
+					Thread: model.Thread{
+						ID:        1,
+						UserID:    1,
+						RoomID:    1,
+						Text:      "thread1",
+						CreatedAt: now,
+						UpdatedAt: now,
+						Img:       pointer.Ptr("image1"),
+					},
+					User: model.ShowUser{
+						ID:        1,
+						Name:      "test1_name",
+						CreatedAt: now,
+						Avatar:    pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountContent: pointer.Ptr(3),
+			},
+		}
+		got, nextID, err := thr.GetThreadsByRoom(ctx, wantRoomID, model.ThreadID(0))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if nextID != nil {
+			t.Errorf("mismatch nextID (-want %v +got %v)", nil, *nextID)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]ルーム内のスレッドの取得 - NextIDを指定するとき", func(t *testing.T) {
+		want := []*model.IndexThread{
+			{
+				ThreadUser: model.ThreadUser{
+					Thread: model.Thread{
+						ID:        2,
+						UserID:    1,
+						RoomID:    1,
+						Text:      "thread2",
+						CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+						Img:       nil,
+					},
+					User: model.ShowUser{
+						ID:        1,
+						Name:      "test1_name",
+						CreatedAt: now,
+						Avatar:    pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountContent: pointer.Ptr(1),
+			},
+			{
+				ThreadUser: model.ThreadUser{
+					Thread: model.Thread{
+						ID:        1,
+						UserID:    1,
+						RoomID:    1,
+						Text:      "thread1",
+						CreatedAt: now,
+						UpdatedAt: now,
+						Img:       pointer.Ptr("image1"),
+					},
+					User: model.ShowUser{
+						ID:        1,
+						Name:      "test1_name",
+						CreatedAt: now,
+						Avatar:    pointer.Ptr("test1_avatar"),
+					},
+				},
+				CountContent: pointer.Ptr(3),
+			},
+		}
+
+		got, nextID, err := thr.GetThreadsByRoom(ctx, wantRoomID, model.ThreadID(1))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if nextID != nil {
+			t.Errorf("mismatch nextID (-want %v +got %v)", nil, *nextID)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]ルーム内のスレッドの取得 - データが存在しないとき", func(t *testing.T) {
+		got, nextID, err := thr.GetThreadsByRoom(ctx, wantRoomID, model.ThreadID(1000))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if nextID != nil {
+			t.Errorf("mismatch nextID (-want nil +got %v)", *nextID)
+		}
+		if len(got) != 0 {
+			t.Errorf("mismatch data length (-want 0 +got %v))", len(got))
+		}
+	})
+
+	t.Run("[OK]ルーム内のスレッドの取得 - 存在しないルームIDを取得したとき", func(t *testing.T) {
+		if _, _, err := thr.GetThreadsByRoom(ctx, model.RoomID(1000), model.ThreadID(0)); !errors.Is(err, sql.ErrNoRows) {
+			t.Errorf("error mismatch (-want %v +got %v)", sql.ErrNoRows, err)
+		}
+	})
+}

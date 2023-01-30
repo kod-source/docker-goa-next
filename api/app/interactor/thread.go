@@ -42,3 +42,12 @@ func (ti *threadInteractor) Delete(ctx context.Context, myID model.UserID, threa
 	}
 	return nil
 }
+
+func (ti *threadInteractor) GetThreadsByRoom(ctx context.Context, roomID model.RoomID, nextID model.ThreadID) ([]*model.IndexThread, *int, error) {
+	its, nID, err := ti.tr.GetThreadsByRoom(ctx, roomID, nextID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return its, nID, nil
+}
