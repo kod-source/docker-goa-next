@@ -4,7 +4,7 @@
 //go:build !wireinject
 // +build !wireinject
 
-package main
+package webapi
 
 import (
 	"context"
@@ -18,11 +18,11 @@ import (
 
 func NewApp(ctx context.Context) (*App, error) {
 	service := newService()
-	mainAppConfig, err := getAppConfig()
+	webapiAppConfig, err := getAppConfig()
 	if err != nil {
 		return nil, err
 	}
-	config, err := newMysqlConfig(mainAppConfig)
+	config, err := newMysqlConfig(webapiAppConfig)
 	if err != nil {
 		return nil, err
 	}

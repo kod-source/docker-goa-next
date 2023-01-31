@@ -1,4 +1,6 @@
-package main
+//go:generate go run gen/main.go
+
+package webapi
 
 import (
 	"context"
@@ -23,6 +25,14 @@ type appConfig struct {
 	DatabasePassword string `env:"MYSQL_PASSWORD,required"`
 	DatabasePort     string `env:"MYSQL_PORT" envDefault:"3306"`
 	DatabaseHost     string `env:"MYSQL_HOST,required"`
+}
+
+func (a *App) LaunchServer() error {
+	if err := a.srv.ListenAndServe(":3000"); err != nil {
+		a.srv.LogError("startup", "err", err)
+		return err
+	}
+	return nil
 }
 
 func getAppConfig() (*appConfig, error) {
