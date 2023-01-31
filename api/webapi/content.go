@@ -56,6 +56,11 @@ func (c *ContentController) Create(ctx *app.CreateContentContext) error {
 	return ctx.Created(toAppContentUser(cu))
 }
 
+// GetByThread スレッドの返信の一覧を返す
+func (c *ContentController) GetByThread(ctx *app.GetByThreadContentContext) error {
+	return ctx.OK(nil)
+}
+
 func toAppContentUser(cu *model.ContentUser) *app.ContentUser {
 	return &app.ContentUser{
 		Content: &app.Content{

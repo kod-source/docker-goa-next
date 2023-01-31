@@ -643,6 +643,54 @@ func (ctx *DeleteContentContext) InternalServerError() error {
 	return nil
 }
 
+// GetByThreadContentContext provides the content get_by_thread action context.
+type GetByThreadContentContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewGetByThreadContentContext parses the incoming request URL and body, performs validations and creates the
+// context used by the content controller get_by_thread action.
+func NewGetByThreadContentContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetByThreadContentContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetByThreadContentContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetByThreadContentContext) OK(r ContentUserCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.content_user; type=collection")
+	}
+	if r == nil {
+		r = ContentUserCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *GetByThreadContentContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetByThreadContentContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // CreateLikesContext provides the likes create action context.
 type CreateLikesContext struct {
 	context.Context

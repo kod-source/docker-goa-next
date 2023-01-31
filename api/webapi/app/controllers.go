@@ -303,6 +303,7 @@ type ContentController interface {
 	goa.Muxer
 	Create(*CreateContentContext) error
 	Delete(*DeleteContentContext) error
+	GetByThread(*GetByThreadContentContext) error
 }
 
 // MountContentController "mounts" a Content resource controller on the given service.
@@ -311,6 +312,7 @@ func MountContentController(service *goa.Service, ctrl ContentController) {
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/api/v1/content", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/api/v1/content/:id", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/api/v1/content/thread/:id", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -351,6 +353,23 @@ func MountContentController(service *goa.Service, ctrl ContentController) {
 	h = handleContentOrigin(h)
 	service.Mux.Handle("DELETE", "/api/v1/content/:id", ctrl.MuxHandler("delete", h, nil))
 	service.LogInfo("mount", "ctrl", "Content", "action", "Delete", "route", "DELETE /api/v1/content/:id", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetByThreadContentContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetByThread(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleContentOrigin(h)
+	service.Mux.Handle("GET", "/api/v1/content/thread/:id", ctrl.MuxHandler("get_by_thread", h, nil))
+	service.LogInfo("mount", "ctrl", "Content", "action", "GetByThread", "route", "GET /api/v1/content/thread/:id", "security", "jwt")
 }
 
 // handleContentOrigin applies the CORS response headers corresponding to the origin.
