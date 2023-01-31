@@ -23,8 +23,9 @@ func Test_CreateThread(t *testing.T) {
 	wantText := "テストスレ"
 	wantThreadID := model.ThreadID(1)
 	wantRoomID := model.RoomID(2)
-	wantUserID := model.UserID(3)
 	wantImg := pointer.Ptr("test img")
+	wantUserID := model.UserID(3)
+	ctx = context.WithValue(ctx, userIDCodeKey, int(wantUserID))
 
 	t.Run("[OK]スレッド作成", func(t *testing.T) {
 		threadUser := &model.ThreadUser{
@@ -44,14 +45,14 @@ func Test_CreateThread(t *testing.T) {
 				Avatar:    pointer.Ptr("test_avatar"),
 			},
 		}
-		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantImg, img); diff != "" {
@@ -85,7 +86,6 @@ func Test_CreateThread(t *testing.T) {
 		_, got := test.CreateThreadsCreated(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
 
@@ -112,14 +112,14 @@ func Test_CreateThread(t *testing.T) {
 				Avatar:    nil,
 			},
 		}
-		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if img != nil {
@@ -153,7 +153,6 @@ func Test_CreateThread(t *testing.T) {
 		_, got := test.CreateThreadsCreated(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    nil,
 		})
 
@@ -163,14 +162,14 @@ func Test_CreateThread(t *testing.T) {
 	})
 
 	t.Run("[NG]スレッド作成 - 不明な文字列の時", func(t *testing.T) {
-		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantImg, img); diff != "" {
@@ -186,20 +185,19 @@ func Test_CreateThread(t *testing.T) {
 		test.CreateThreadsBadRequest(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
 	})
 
 	t.Run("[NG]スレッド作成 - 不明な数字の時", func(t *testing.T) {
-		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantImg, img); diff != "" {
@@ -215,7 +213,6 @@ func Test_CreateThread(t *testing.T) {
 		test.CreateThreadsBadRequest(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
 	})
@@ -244,20 +241,19 @@ func Test_CreateThread(t *testing.T) {
 		test.CreateThreadsBadRequest(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
 	})
 
 	t.Run("[NG]スレッド作成 - 想定外エラー", func(t *testing.T) {
-		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantImg, img); diff != "" {
@@ -273,7 +269,6 @@ func Test_CreateThread(t *testing.T) {
 		test.CreateThreadsInternalServerError(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
 	})

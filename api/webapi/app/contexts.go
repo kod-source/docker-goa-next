@@ -1751,8 +1751,6 @@ type createThreadsPayload struct {
 	RoomID *int `form:"room_id,omitempty" json:"room_id,omitempty" yaml:"room_id,omitempty" xml:"room_id,omitempty"`
 	// スレッドの内容
 	Text *string `form:"text,omitempty" json:"text,omitempty" yaml:"text,omitempty" xml:"text,omitempty"`
-	// ユーザーID
-	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" yaml:"user_id,omitempty" xml:"user_id,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -1762,9 +1760,6 @@ func (payload *createThreadsPayload) Validate() (err error) {
 	}
 	if payload.RoomID == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "room_id"))
-	}
-	if payload.UserID == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "user_id"))
 	}
 	return
 }
@@ -1781,9 +1776,6 @@ func (payload *createThreadsPayload) Publicize() *CreateThreadsPayload {
 	if payload.Text != nil {
 		pub.Text = *payload.Text
 	}
-	if payload.UserID != nil {
-		pub.UserID = *payload.UserID
-	}
 	return &pub
 }
 
@@ -1795,8 +1787,6 @@ type CreateThreadsPayload struct {
 	RoomID int `form:"room_id" json:"room_id" yaml:"room_id" xml:"room_id"`
 	// スレッドの内容
 	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
-	// ユーザーID
-	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
 }
 
 // Validate runs the validation rules defined in the design.
