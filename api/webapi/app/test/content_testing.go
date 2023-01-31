@@ -62,7 +62,7 @@ func CreateContentBadRequest(t testing.TB, ctx context.Context, service *goa.Ser
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/content/"),
+		Path: fmt.Sprintf("/api/v1/content"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -136,7 +136,7 @@ func CreateContentCreated(t testing.TB, ctx context.Context, service *goa.Servic
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/content/"),
+		Path: fmt.Sprintf("/api/v1/content"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)
@@ -221,7 +221,7 @@ func CreateContentInternalServerError(t testing.TB, ctx context.Context, service
 	}
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/content/"),
+		Path: fmt.Sprintf("/api/v1/content"),
 	}
 	req := httptest.NewRequest("POST", u.String(), nil)
 	req = req.WithContext(ctx)

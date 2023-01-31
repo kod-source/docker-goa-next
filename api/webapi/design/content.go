@@ -26,7 +26,7 @@ var _ = Resource("content", func() {
 	})
 
 	Action("create", func() {
-		Routing(POST("/"))
+		Routing(POST(""))
 		Description("スレッドの返信の作成")
 		Payload(func() {
 			Attribute("text", String, "コンテントの内容", func() {

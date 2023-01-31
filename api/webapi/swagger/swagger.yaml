@@ -1522,7 +1522,7 @@ paths:
       summary: update_comment comments
       tags:
       - comments
-  /content/:
+  /content:
     post:
       description: |-
         スレッドの返信の作成

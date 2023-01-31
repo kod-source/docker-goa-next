@@ -309,7 +309,7 @@ type ContentController interface {
 func MountContentController(service *goa.Service, ctrl ContentController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/api/v1/content/", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/api/v1/content", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/api/v1/content/:id", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
@@ -332,8 +332,8 @@ func MountContentController(service *goa.Service, ctrl ContentController) {
 	}
 	h = handleSecurity("jwt", h, "api:access")
 	h = handleContentOrigin(h)
-	service.Mux.Handle("POST", "/api/v1/content/", ctrl.MuxHandler("create", h, unmarshalCreateContentPayload))
-	service.LogInfo("mount", "ctrl", "Content", "action", "Create", "route", "POST /api/v1/content/", "security", "jwt")
+	service.Mux.Handle("POST", "/api/v1/content", ctrl.MuxHandler("create", h, unmarshalCreateContentPayload))
+	service.LogInfo("mount", "ctrl", "Content", "action", "Create", "route", "POST /api/v1/content", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
