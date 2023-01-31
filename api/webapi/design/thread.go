@@ -21,13 +21,10 @@ var _ = Resource("threads", func() {
 			Attribute("room_id", Integer, "ルームID", func() {
 				Example(1)
 			})
-			Attribute("user_id", Integer, "ユーザーID", func() {
-				Example(2)
-			})
 			Attribute("img", String, "画像", func() {
 				Example("https://test.img")
 			})
-			Required("text", "room_id", "user_id")
+			Required("text", "room_id")
 		})
 		Response(Created, threadUser)
 		Response(BadRequest)

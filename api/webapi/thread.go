@@ -26,7 +26,8 @@ func NewThreadController(service *goa.Service, tu usecase.ThreadUsecase) *Thread
 // Create スレッド作成
 func (t *ThreadController) Create(ctx *app.CreateThreadsContext) error {
 	pl := ctx.Payload
-	tu, err := t.tu.Create(ctx, pl.Text, model.RoomID(pl.RoomID), model.UserID(pl.UserID), pl.Img)
+	myID := getUserIDCode(ctx)
+	tu, err := t.tu.Create(ctx, pl.Text, model.RoomID(pl.RoomID), model.UserID(myID), pl.Img)
 	if err != nil {
 		if code := myerrors.GetMySQLErrorNumber(err); code == myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
 			return ctx.BadRequest()
