@@ -301,6 +301,7 @@ func unmarshalUpdateCommentCommentsPayload(ctx context.Context, service *goa.Ser
 // ContentController is the controller interface for the Content actions.
 type ContentController interface {
 	goa.Muxer
+	Create(*CreateContentContext) error
 	Delete(*DeleteContentContext) error
 }
 
@@ -308,7 +309,31 @@ type ContentController interface {
 func MountContentController(service *goa.Service, ctrl ContentController) {
 	initService(service)
 	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/api/v1/content", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/api/v1/content/:id", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewCreateContentContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*CreateContentPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Create(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleContentOrigin(h)
+	service.Mux.Handle("POST", "/api/v1/content", ctrl.MuxHandler("create", h, unmarshalCreateContentPayload))
+	service.LogInfo("mount", "ctrl", "Content", "action", "Create", "route", "POST /api/v1/content", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -352,6 +377,21 @@ func handleContentOrigin(h goa.Handler) goa.Handler {
 
 		return h(ctx, rw, req)
 	}
+}
+
+// unmarshalCreateContentPayload unmarshals the request body into the context request data Payload field.
+func unmarshalCreateContentPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &createContentPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
 }
 
 // LikesController is the controller interface for the Likes actions.

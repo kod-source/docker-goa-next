@@ -66,3 +66,79 @@ func (cd *contentDatastore) Delete(ctx context.Context, myID model.UserID, conte
 
 	return tx.Commit()
 }
+
+func (cd *contentDatastore) Create(ctx context.Context, text string, threadID model.ThreadID, myID model.UserID, img *string) (*model.ContentUser, error) {
+	tx, err := cd.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.PrepareContext(
+		ctx,
+		"INSERT INTO `content` (`user_id`, `thread_id`, `text`, `created_at`, `updated_at`, `img`) VALUES(?,?,?,?,?,?)",
+	)
+	if err != nil {
+		return nil, err
+	}
+	res, err := stmt.ExecContext(ctx, myID, threadID, text, cd.tr.Now(), cd.tr.Now(), img)
+	if err != nil {
+		return nil, err
+	}
+	contentID, err := res.LastInsertId()
+	if err != nil {
+		return nil, err
+	}
+
+	var content schema.Content
+	var user schema.User
+	query := "SELECT `c`.`id`, `c`.`user_id`, `c`.`thread_id`, `c`.`text`, `c`.`created_at`, `c`.`updated_at`, `c`.`img`, " +
+		"`u`.`id`, `u`.`name`, `u`.`created_at`, `u`.`avatar` " +
+		"FROM `content` AS `c` " +
+		"INNER JOIN `user` AS `u` " +
+		"ON `c`.`user_id` = `u`.`id` " +
+		"WHERE `c`.`id` = ?"
+	if err := tx.QueryRowContext(ctx, query, contentID).Scan(
+		&content.ID,
+		&content.UserID,
+		&content.ThreadID,
+		&content.Text,
+		&content.CreatedAt,
+		&content.UpdatedAt,
+		&content.Img,
+		&user.ID,
+		&user.Name,
+		&user.CreatedAt,
+		&user.Avatar,
+	); err != nil {
+		return nil, err
+	}
+
+	return toContentUser(content, user), tx.Commit()
+}
+
+func toContentUser(c schema.Content, u schema.User) *model.ContentUser {
+	cu := &model.ContentUser{
+		Content: model.Content{
+			ID:        model.ContentID(c.ID),
+			UserID:    model.UserID(c.UserID),
+			ThreadID:  model.ThreadID(c.ThreadID),
+			Text:      c.Text,
+			CreatedAt: c.CreatedAt,
+			UpdatedAt: c.UpdatedAt,
+		},
+		User: model.ShowUser{
+			ID:        model.UserID(u.ID),
+			Name:      u.Name,
+			CreatedAt: u.CreatedAt,
+		},
+	}
+	if c.Img.Valid {
+		cu.Content.Img = &c.Img.String
+	}
+	if u.Avatar.Valid {
+		cu.User.Avatar = &u.Avatar.String
+	}
+
+	return cu
+}
