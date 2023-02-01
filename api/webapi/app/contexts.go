@@ -643,6 +643,58 @@ func (ctx *DeleteContentContext) InternalServerError() error {
 	return nil
 }
 
+// GetByThreadContentContext provides the content get_by_thread action context.
+type GetByThreadContentContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID int
+}
+
+// NewGetByThreadContentContext parses the incoming request URL and body, performs validations and creates the
+// context used by the content controller get_by_thread action.
+func NewGetByThreadContentContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetByThreadContentContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetByThreadContentContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetByThreadContentContext) OK(r ContentUserCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.content_user; type=collection")
+	}
+	if r == nil {
+		r = ContentUserCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *GetByThreadContentContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetByThreadContentContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // CreateLikesContext provides the likes create action context.
 type CreateLikesContext struct {
 	context.Context
@@ -1060,9 +1112,9 @@ func NewIndexPostsContext(ctx context.Context, r *http.Request, service *goa.Ser
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp10 := nextID
-			tmp9 := &tmp10
-			rctx.NextID = tmp9
+			tmp11 := nextID
+			tmp10 := &tmp11
+			rctx.NextID = tmp10
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1160,9 +1212,9 @@ func NewShowMyLikePostsContext(ctx context.Context, r *http.Request, service *go
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp13 := nextID
-			tmp12 := &tmp13
-			rctx.NextID = tmp12
+			tmp14 := nextID
+			tmp13 := &tmp14
+			rctx.NextID = tmp13
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1221,9 +1273,9 @@ func NewShowPostLikePostsContext(ctx context.Context, r *http.Request, service *
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp16 := nextID
-			tmp15 := &tmp16
-			rctx.NextID = tmp15
+			tmp17 := nextID
+			tmp16 := &tmp17
+			rctx.NextID = tmp16
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1282,9 +1334,9 @@ func NewShowPostMediaPostsContext(ctx context.Context, r *http.Request, service 
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp19 := nextID
-			tmp18 := &tmp19
-			rctx.NextID = tmp18
+			tmp20 := nextID
+			tmp19 := &tmp20
+			rctx.NextID = tmp19
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1343,9 +1395,9 @@ func NewShowPostMyPostsContext(ctx context.Context, r *http.Request, service *go
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp22 := nextID
-			tmp21 := &tmp22
-			rctx.NextID = tmp21
+			tmp23 := nextID
+			tmp22 := &tmp23
+			rctx.NextID = tmp22
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1638,9 +1690,9 @@ func NewIndexRoomsContext(ctx context.Context, r *http.Request, service *goa.Ser
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp26 := nextID
-			tmp25 := &tmp26
-			rctx.NextID = tmp25
+			tmp27 := nextID
+			tmp26 := &tmp27
+			rctx.NextID = tmp26
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1903,9 +1955,9 @@ func NewGetThreadsByRoomThreadsContext(ctx context.Context, r *http.Request, ser
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp31 := nextID
-			tmp30 := &tmp31
-			rctx.NextID = tmp30
+			tmp32 := nextID
+			tmp31 := &tmp32
+			rctx.NextID = tmp31
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}

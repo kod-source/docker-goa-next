@@ -183,6 +183,23 @@ func (mt *ContentUser) Validate() (err error) {
 	return
 }
 
+// Content_userCollection is the media type for an array of Content_user (default view)
+//
+// Identifier: application/vnd.content_user; type=collection; view=default
+type ContentUserCollection []*ContentUser
+
+// Validate validates the ContentUserCollection media type instance.
+func (mt ContentUserCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
 // 投稿 (default view)
 //
 // Identifier: application/vnd.index_post_json; view=default

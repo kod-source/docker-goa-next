@@ -44,6 +44,17 @@ var _ = Resource("content", func() {
 		Response(BadRequest)
 		Response(InternalServerError)
 	})
+
+	Action("get_by_thread", func() {
+		Routing(GET("/thread/:id"))
+		Description("スレッドの返信一覧を返す")
+		Params(func() {
+			Param("id", Integer, "Thread ID")
+		})
+		Response(OK, CollectionOf(contentUser))
+		Response(NotFound)
+		Response(InternalServerError)
+	})
 })
 
 var content = MediaType("application/vnd.content", func() {
