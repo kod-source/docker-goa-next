@@ -44,6 +44,8 @@ func (td *threadDatastore) Create(ctx context.Context, text string, roomID model
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
+
 	res, err := stmt.ExecContext(ctx, roomID, userID, text, td.tr.Now(), td.tr.Now(), img)
 	if err != nil {
 		return nil, err

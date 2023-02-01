@@ -41,6 +41,8 @@ func (urd *userRoomDatastore) Create(ctx context.Context, roomID model.RoomID, u
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
+
 	res, err := stmt.ExecContext(ctx, userID, roomID, urd.tr.Now(), urd.tr.Now())
 	if err != nil {
 		return nil, err

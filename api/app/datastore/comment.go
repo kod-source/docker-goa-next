@@ -39,6 +39,8 @@ func (c *commentDatastore) Create(ctx context.Context, postID, userID int, text 
 	if err != nil {
 		return nil, err
 	}
+	defer ins.Close()
+
 	res, err := ins.Exec(postID, userID, text, img, c.tr.Now(), c.tr.Now())
 	if err != nil {
 		return nil, err

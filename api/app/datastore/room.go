@@ -46,6 +46,8 @@ func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, 
 	if err != nil {
 		return nil, err
 	}
+	defer ins.Close()
+
 	res, err := ins.ExecContext(ctx, name, isGroup, rd.tr.Now(), rd.tr.Now(), img)
 	if err != nil {
 		return nil, err
@@ -63,6 +65,7 @@ func (rd *roomDatastore) Create(ctx context.Context, name string, isGroup bool, 
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
 
 	var wg sync.WaitGroup
 	var wgError error

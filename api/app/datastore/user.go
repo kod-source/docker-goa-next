@@ -80,6 +80,8 @@ func (ud *userDatastore) CreateUser(ctx context.Context, name, email, passowrd s
 	if err != nil {
 		return nil, err
 	}
+	defer ins.Close()
+
 	res, err := ins.Exec(name, email, passowrd, ud.tr.Now(), ud.tr.Now(), avatar)
 	if err != nil {
 		return nil, err
