@@ -43,3 +43,7 @@ func (ci *contentInteractor) Create(ctx context.Context, text string, threadID m
 	}
 	return cu, nil
 }
+
+func (ci *contentInteractor) GetByThread(ctx context.Context, threadID model.ThreadID) ([]*model.ContentUser, error) {
+	return nil, nil
+}

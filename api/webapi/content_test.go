@@ -345,3 +345,132 @@ func Test_CreateContent(t *testing.T) {
 		})
 	})
 }
+
+func Test_GetByThread(t *testing.T) {
+	srv := testApp.srv
+	cu := &interactor.MockContentUsecase{}
+	cc := NewContentController(srv, cu)
+
+	wantThreadID := model.ThreadID(1)
+
+	t.Run("[OK]スレッドの返信一覧の返却", func(t *testing.T) {
+		cus := []*model.ContentUser{
+			{
+				Content: model.Content{
+					ID:        1,
+					UserID:    1,
+					ThreadID:  wantThreadID,
+					Text:      "content1",
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, jst),
+					Img:       pointer.Ptr("content1 img"),
+				},
+				User: model.ShowUser{
+					ID:        1,
+					Name:      "user1",
+					CreatedAt: time.Date(2022, 10, 1, 0, 0, 0, 0, jst),
+					Avatar:    pointer.Ptr("user1 avatar"),
+				},
+			},
+			{
+				Content: model.Content{
+					ID:        2,
+					UserID:    2,
+					ThreadID:  wantThreadID,
+					Text:      "content2",
+					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2023, 2, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
+				},
+				User: model.ShowUser{
+					ID:        2,
+					Name:      "user2",
+					CreatedAt: time.Date(2022, 12, 1, 0, 0, 0, 0, jst),
+					Avatar:    nil,
+				},
+			},
+		}
+		cu.GetByThreadFunc = func(ctx context.Context, threadID model.ThreadID) ([]*model.ContentUser, error) {
+			if diff := cmp.Diff(wantThreadID, threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+
+			return cus, nil
+		}
+		defer func() {
+			cu.GetByThreadFunc = nil
+		}()
+
+		want := app.ContentUserCollection{
+			{
+				Content: &app.Content{
+					ID:        1,
+					UserID:    1,
+					ThreadID:  int(wantThreadID),
+					Text:      "content1",
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, jst),
+					Img:       pointer.Ptr("content1 img"),
+				},
+				User: &app.ShowUser{
+					ID:        1,
+					Name:      "user1",
+					CreatedAt: time.Date(2022, 10, 1, 0, 0, 0, 0, jst),
+					Avatar:    pointer.Ptr("user1 avatar"),
+				},
+			},
+			{
+				Content: &app.Content{
+					ID:        2,
+					UserID:    2,
+					ThreadID:  int(wantThreadID),
+					Text:      "content2",
+					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2023, 2, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
+				},
+				User: &app.ShowUser{
+					ID:        2,
+					Name:      "user2",
+					CreatedAt: time.Date(2022, 12, 1, 0, 0, 0, 0, jst),
+					Avatar:    nil,
+				},
+			},
+		}
+		_, got := test.GetByThreadContentOK(t, ctx, srv, cc, int(wantThreadID))
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]スレッドの返信一覧の返却 - 存在しないスレッドIDの時", func(t *testing.T) {
+		cu.GetByThreadFunc = func(ctx context.Context, threadID model.ThreadID) ([]*model.ContentUser, error) {
+			if diff := cmp.Diff(model.ThreadID(1000), threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+
+			return nil, sql.ErrNoRows
+		}
+		defer func() {
+			cu.GetByThreadFunc = nil
+		}()
+
+		test.GetByThreadContentNotFound(t, ctx, srv, cc, int(1000))
+	})
+
+	t.Run("[NG]スレッドの返信一覧の返却 - 想定外エラー発生", func(t *testing.T) {
+		cu.GetByThreadFunc = func(ctx context.Context, threadID model.ThreadID) ([]*model.ContentUser, error) {
+			if diff := cmp.Diff(wantThreadID, threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+
+			return nil, errors.New("test error")
+		}
+		defer func() {
+			cu.GetByThreadFunc = nil
+		}()
+
+		test.GetByThreadContentInternalServerError(t, ctx, srv, cc, int(wantThreadID))
+	})
+}

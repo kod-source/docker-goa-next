@@ -48,6 +48,9 @@ var _ = Resource("content", func() {
 	Action("get_by_thread", func() {
 		Routing(GET("/thread/:id"))
 		Description("スレッドの返信一覧を返す")
+		Params(func() {
+			Param("id", Integer, "Thread ID")
+		})
 		Response(OK, CollectionOf(contentUser))
 		Response(NotFound)
 		Response(InternalServerError)

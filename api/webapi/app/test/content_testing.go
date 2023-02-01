@@ -506,7 +506,7 @@ func DeleteContentOK(t testing.TB, ctx context.Context, service *goa.Service, ct
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetByThreadContentInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, id string) http.ResponseWriter {
+func GetByThreadContentInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, id int) http.ResponseWriter {
 	t.Helper()
 
 	// Setup service
@@ -568,7 +568,7 @@ func GetByThreadContentInternalServerError(t testing.TB, ctx context.Context, se
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetByThreadContentNotFound(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, id string) http.ResponseWriter {
+func GetByThreadContentNotFound(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, id int) http.ResponseWriter {
 	t.Helper()
 
 	// Setup service
@@ -630,7 +630,7 @@ func GetByThreadContentNotFound(t testing.TB, ctx context.Context, service *goa.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func GetByThreadContentOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, id string) (http.ResponseWriter, app.ContentUserCollection) {
+func GetByThreadContentOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, id int) (http.ResponseWriter, app.ContentUserCollection) {
 	t.Helper()
 
 	// Setup service

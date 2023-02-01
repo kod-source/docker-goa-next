@@ -2,6 +2,7 @@ package webapi
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
@@ -58,7 +59,15 @@ func (c *ContentController) Create(ctx *app.CreateContentContext) error {
 
 // GetByThread スレッドの返信の一覧を返す
 func (c *ContentController) GetByThread(ctx *app.GetByThreadContentContext) error {
-	return ctx.OK(nil)
+	cus, err := c.cu.GetByThread(ctx, model.ThreadID(ctx.ID))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
+	}
+
+	return ctx.OK(toAppContentUserCollection(cus))
 }
 
 func toAppContentUser(cu *model.ContentUser) *app.ContentUser {
@@ -79,4 +88,13 @@ func toAppContentUser(cu *model.ContentUser) *app.ContentUser {
 			Avatar:    cu.User.Avatar,
 		},
 	}
+}
+
+func toAppContentUserCollection(contentUsers []*model.ContentUser) app.ContentUserCollection {
+	var cus app.ContentUserCollection
+	for _, cu := range contentUsers {
+		cus = append(cus, toAppContentUser(cu))
+	}
+
+	return cus
 }
