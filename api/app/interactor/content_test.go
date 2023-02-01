@@ -148,3 +148,78 @@ func Test_CreateContent(t *testing.T) {
 		}
 	})
 }
+
+func Test_GetByThread(t *testing.T) {
+	cr := &datastore.MockContentRepository{}
+	cu := NewContentUsecase(cr)
+	wantThreadID := model.ThreadID(1)
+
+	t.Run("[OK]スレッドの返信の一覧の返却", func(t *testing.T) {
+		want := []*model.ContentUser{
+			{
+				Content: model.Content{
+					ID:        1,
+					UserID:    1,
+					ThreadID:  wantThreadID,
+					Text:      "content1",
+					CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2023, 1, 1, 0, 0, 0, 0, jst),
+					Img:       pointer.Ptr("content1 img"),
+				},
+				User: model.ShowUser{
+					ID:        1,
+					Name:      "user1",
+					CreatedAt: time.Date(2022, 10, 1, 0, 0, 0, 0, jst),
+					Avatar:    pointer.Ptr("user1 avatar"),
+				},
+			},
+			{
+				Content: model.Content{
+					ID:        2,
+					UserID:    2,
+					ThreadID:  wantThreadID,
+					Text:      "content2",
+					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2023, 2, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
+				},
+				User: model.ShowUser{
+					ID:        2,
+					Name:      "user2",
+					CreatedAt: time.Date(2022, 12, 1, 0, 0, 0, 0, jst),
+					Avatar:    nil,
+				},
+			},
+		}
+		cr.GetByThreadFunc = func(ctx context.Context, threadID model.ThreadID) ([]*model.ContentUser, error) {
+			if diff := cmp.Diff(wantThreadID, threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return want, nil
+		}
+		defer func() {
+			cr.GetByThreadFunc = nil
+		}()
+
+		got, err := cu.GetByThread(ctx, wantThreadID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]スレッドの返信の一覧の返却 - 想定外エラー発生", func(t *testing.T) {
+		wantErr := errors.New("test err")
+		cr.GetByThreadFunc = func(ctx context.Context, threadID model.ThreadID) ([]*model.ContentUser, error) {
+			if diff := cmp.Diff(wantThreadID, threadID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return nil, wantErr
+		}
+		if _, err := cu.GetByThread(ctx, wantThreadID); !errors.Is(err, wantErr) {
+			t.Errorf("mismatch error (-want %v, +got %v)", wantErr, err)
+		}
+	})
+}

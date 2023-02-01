@@ -117,6 +117,11 @@ func (cd *contentDatastore) Create(ctx context.Context, text string, threadID mo
 	return toContentUser(content, user), tx.Commit()
 }
 
+// GetByThread ...
+func (cd *contentDatastore) GetByThread(ctx context.Context, threadID model.ThreadID) ([]*model.ContentUser, error) {
+	return nil, nil
+}
+
 func toContentUser(c schema.Content, u schema.User) *model.ContentUser {
 	cu := &model.ContentUser{
 		Content: model.Content{
