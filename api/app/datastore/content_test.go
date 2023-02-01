@@ -164,3 +164,85 @@ func Test_CreateContent(t *testing.T) {
 		}
 	})
 }
+
+func Test_GetByThread(t *testing.T) {
+	cr := NewContentRepository(testDB, nil)
+	wantThreadID := model.ThreadID(1)
+
+	t.Run("[OK]スレッドの返信の一覧の返却", func(t *testing.T) {
+		want := []*model.ContentUser{
+			{
+				Content: model.Content{
+					ID:        1,
+					UserID:    1,
+					ThreadID:  wantThreadID,
+					Text:      "content1",
+					CreatedAt: now,
+					UpdatedAt: now,
+					Img:       pointer.Ptr("content1_img"),
+				},
+				User: model.ShowUser{
+					ID:        1,
+					Name:      "test1_name",
+					CreatedAt: now,
+					Avatar:    pointer.Ptr("test1_avatar"),
+				},
+			},
+			{
+				Content: model.Content{
+					ID:        2,
+					UserID:    2,
+					ThreadID:  wantThreadID,
+					Text:      "content2",
+					CreatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 2, 1, 0, 0, 0, 0, jst),
+					Img:       pointer.Ptr("content2_img"),
+				},
+				User: model.ShowUser{
+					ID:        2,
+					Name:      "test2_name",
+					CreatedAt: now,
+					Avatar:    nil,
+				},
+			},
+			{
+				Content: model.Content{
+					ID:        3,
+					UserID:    1,
+					ThreadID:  wantThreadID,
+					Text:      "content3",
+					CreatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+					UpdatedAt: time.Date(2022, 3, 1, 0, 0, 0, 0, jst),
+					Img:       nil,
+				},
+				User: model.ShowUser{
+					ID:        1,
+					Name:      "test1_name",
+					CreatedAt: now,
+					Avatar:    pointer.Ptr("test1_avatar"),
+				},
+			},
+		}
+
+		got, err := cr.GetByThread(ctx, wantThreadID)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]スレッドの返信の一覧の返却 - 返信がない時", func(t *testing.T) {
+		var want []*model.ContentUser
+		got, err := cr.GetByThread(ctx, model.ThreadID(1000))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+}

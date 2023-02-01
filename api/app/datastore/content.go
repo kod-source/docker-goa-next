@@ -81,6 +81,8 @@ func (cd *contentDatastore) Create(ctx context.Context, text string, threadID mo
 	if err != nil {
 		return nil, err
 	}
+	defer stmt.Close()
+
 	res, err := stmt.ExecContext(ctx, myID, threadID, text, cd.tr.Now(), cd.tr.Now(), img)
 	if err != nil {
 		return nil, err
@@ -119,7 +121,70 @@ func (cd *contentDatastore) Create(ctx context.Context, text string, threadID mo
 
 // GetByThread ...
 func (cd *contentDatastore) GetByThread(ctx context.Context, threadID model.ThreadID) ([]*model.ContentUser, error) {
-	return nil, nil
+	tx, err := cd.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	query := "SELECT `c`.`id`, `c`.`user_id`, `c`.`thread_id`, `c`.`text`, `c`.`created_at`, `c`.`updated_at`, `c`.`img`, " +
+		"`u`.`id`, `u`.`name`, `u`.`created_at`, `u`.`avatar` " +
+		"FROM `content` AS `c` " +
+		"INNER JOIN `user` AS `u` " +
+		"ON `c`.`user_id` = `u`.`id` " +
+		"WHERE `c`.`thread_id` = ? " +
+		"ORDER BY `c`.`created_at`"
+	rows, err := tx.QueryContext(ctx, query, threadID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var cus []*model.ContentUser
+	for rows.Next() {
+		var c schema.Content
+		var u schema.User
+		if err := rows.Scan(
+			&c.ID,
+			&c.UserID,
+			&c.ThreadID,
+			&c.Text,
+			&c.CreatedAt,
+			&c.UpdatedAt,
+			&c.Img,
+			&u.ID,
+			&u.Name,
+			&u.CreatedAt,
+			&u.Avatar,
+		); err != nil {
+			return nil, err
+		}
+
+		cu := &model.ContentUser{
+			Content: model.Content{
+				ID:        model.ContentID(c.ID),
+				UserID:    model.UserID(c.UserID),
+				ThreadID:  model.ThreadID(c.ThreadID),
+				Text:      c.Text,
+				CreatedAt: c.CreatedAt,
+				UpdatedAt: c.UpdatedAt,
+			},
+			User: model.ShowUser{
+				ID:        model.UserID(u.ID),
+				Name:      u.Name,
+				CreatedAt: u.CreatedAt,
+			},
+		}
+		if c.Img.Valid {
+			cu.Content.Img = &c.Img.String
+		}
+		if u.Avatar.Valid {
+			cu.User.Avatar = &u.Avatar.String
+		}
+		cus = append(cus, cu)
+	}
+
+	return cus, tx.Commit()
 }
 
 func toContentUser(c schema.Content, u schema.User) *model.ContentUser {
