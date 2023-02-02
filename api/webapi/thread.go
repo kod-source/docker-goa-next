@@ -3,6 +3,7 @@ package webapi
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
@@ -10,17 +11,19 @@ import (
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
 	"github.com/shogo82148/pointer"
+	"golang.org/x/net/websocket"
 )
 
 // ThreadController ...
 type ThreadController struct {
 	*goa.Controller
 	tu usecase.ThreadUsecase
+	connections *WsConnections
 }
 
 // NewThreadController ...
-func NewThreadController(service *goa.Service, tu usecase.ThreadUsecase) *ThreadController {
-	return &ThreadController{Controller: service.NewController("ThreadController"), tu: tu}
+func NewThreadController(service *goa.Service, tu usecase.ThreadUsecase, wsc *WsConnections) *ThreadController {
+	return &ThreadController{Controller: service.NewController("ThreadController"), tu: tu, connections: wsc}
 }
 
 // Create スレッド作成
@@ -69,6 +72,35 @@ func (t *ThreadController) GetThreadsByRoom(ctx *app.GetThreadsByRoomThreadsCont
 	}
 
 	return ctx.OK(toAllIndexThreads(its, nextID))
+}
+
+// Watch スレッドの更新を監視する
+func (t *ThreadController) Watch(ctx *app.WatchThreadsContext) error {
+	websocket.Handler(func(ws *websocket.Conn) {
+		defer ws.Close()
+
+		// 初回のメッセージを送信
+		err := websocket.Message.Send(ws, "Server: Hello, Client!")
+		if err != nil {
+			// c.Logger().Error(err)
+		}
+
+		for {
+			// Client からのメッセージを読み込む
+			msg := ""
+			err = websocket.Message.Receive(ws, &msg)
+			if err != nil {
+				// c.Logger().Error(err)
+			}
+
+			// Client からのメッセージを元に返すメッセージを作成し送信する
+			err := websocket.Message.Send(ws, fmt.Sprintf("Server: \"%s\" received!", msg))
+			if err != nil {
+				// c.Logger().Error(err)
+			}
+		}
+	}).ServeHTTP(ctx.ResponseData, ctx.Request)
+	return nil
 }
 
 func toAppThreadUser(tu *model.ThreadUser) *app.ThreadUser {
