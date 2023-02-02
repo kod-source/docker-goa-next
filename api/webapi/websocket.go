@@ -3,6 +3,7 @@ package webapi
 import (
 	"context"
 
+	"github.com/kod-source/docker-goa-next/app/model"
 	goa "github.com/shogo82148/goa-v1"
 )
 
@@ -22,18 +23,18 @@ func newConnections(ctx context.Context) *WsConnections {
 	}
 }
 
-func (l *WsConnections) apendConn(roomID int, comm Comm) {
-	list := l.connections[roomID]
+func (l *WsConnections) apendConn(roomID model.RoomID, comm Comm) {
+	list := l.connections[int(roomID)]
 	if list == nil {
 		list = []Comm{}
 	}
 	list = append(list, comm)
-	l.connections[roomID] = list
+	l.connections[int(roomID)] = list
 	goa.LogInfo(l.ctx, "apendConn", "list", list)
 }
 
-func (l *WsConnections) removeConn(roomID int, comm Comm) {
-	list := l.connections[roomID]
+func (l *WsConnections) removeConn(roomID model.RoomID, comm Comm) {
+	list := l.connections[int(roomID)]
 	if list == nil {
 		list = []Comm{}
 	}
@@ -45,13 +46,13 @@ func (l *WsConnections) removeConn(roomID int, comm Comm) {
 		newList = append(newList, c)
 	}
 
-	l.connections[roomID] = newList
+	l.connections[int(roomID)] = newList
 	goa.LogInfo(l.ctx, "removeConn", "list", newList)
 }
 
-func (l *WsConnections) updateRoom(roomID int) {
+func (l *WsConnections) updateRoom(roomID model.RoomID) {
 	goa.LogInfo(l.ctx, "updateRoom", "roomID", roomID)
-	comms, ok := l.connections[roomID]
+	comms, ok := l.connections[int(roomID)]
 	if !ok {
 		return
 	}
