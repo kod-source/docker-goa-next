@@ -731,3 +731,73 @@ func GetThreadsByRoomThreadsOK(t testing.TB, ctx context.Context, service *goa.S
 	// Return results
 	return rw, mt
 }
+
+// WatchThreadsBadRequest runs the method Watch of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func WatchThreadsBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ThreadsController, roomID int) (http.ResponseWriter, error) {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/threads/%v/watch", roomID),
+	}
+	req := httptest.NewRequest("GET", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+	prms["roomID"] = []string{fmt.Sprintf("%v", roomID)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ThreadsTest"), rw, req, prms)
+	watchCtx, err := app.NewWatchThreadsContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		return nil, e
+	}
+
+	// Perform action
+	err = ctrl.Watch(watchCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 400 {
+		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
+	}
+	var mt error
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}

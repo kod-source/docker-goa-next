@@ -1985,6 +1985,43 @@ func (ctx *GetThreadsByRoomThreadsContext) InternalServerError() error {
 	return nil
 }
 
+// WatchThreadsContext provides the threads watch action context.
+type WatchThreadsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	RoomID int
+}
+
+// NewWatchThreadsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the threads controller watch action.
+func NewWatchThreadsContext(ctx context.Context, r *http.Request, service *goa.Service) (*WatchThreadsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := WatchThreadsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramRoomID := req.Params["roomID"]
+	if len(paramRoomID) > 0 {
+		rawRoomID := paramRoomID[0]
+		if roomID, err2 := strconv.Atoi(rawRoomID); err2 == nil {
+			rctx.RoomID = roomID
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("roomID", rawRoomID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *WatchThreadsContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
 // DeleteUserRoomsContext provides the user_rooms delete action context.
 type DeleteUserRoomsContext struct {
 	context.Context
