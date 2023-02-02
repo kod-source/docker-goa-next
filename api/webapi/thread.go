@@ -84,7 +84,7 @@ func (t *ThreadController) Watch(ctx *app.WatchThreadsContext) error {
 func watcher(roomID model.RoomID, c *ThreadController) websocket.Handler {
 	return func(ws *websocket.Conn) {
 		ch := make(chan struct{})
-		c.connections.apendConn(roomID, ch)
+		c.connections.appendRoomConn(roomID, ch)
 		for {
 			<-ch
 			_, err := ws.Write([]byte(fmt.Sprintf("Room: %d", roomID)))
@@ -92,7 +92,7 @@ func watcher(roomID model.RoomID, c *ThreadController) websocket.Handler {
 				break
 			}
 		}
-		c.connections.removeConn(roomID, ch)
+		c.connections.removeRoomConn(roomID, ch)
 	}
 }
 

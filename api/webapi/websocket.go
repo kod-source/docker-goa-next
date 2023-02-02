@@ -23,17 +23,17 @@ func newConnections(ctx context.Context) *WsConnections {
 	}
 }
 
-func (l *WsConnections) apendConn(roomID model.RoomID, comm Comm) {
+func (l *WsConnections) appendRoomConn(roomID model.RoomID, comm Comm) {
 	list := l.connections[int(roomID)]
 	if list == nil {
 		list = []Comm{}
 	}
 	list = append(list, comm)
 	l.connections[int(roomID)] = list
-	goa.LogInfo(l.ctx, "apendConn", "list", list)
+	goa.LogInfo(l.ctx, "appendRoomConn", "list", list)
 }
 
-func (l *WsConnections) removeConn(roomID model.RoomID, comm Comm) {
+func (l *WsConnections) removeRoomConn(roomID model.RoomID, comm Comm) {
 	list := l.connections[int(roomID)]
 	if list == nil {
 		list = []Comm{}
@@ -47,7 +47,7 @@ func (l *WsConnections) removeConn(roomID model.RoomID, comm Comm) {
 	}
 
 	l.connections[int(roomID)] = newList
-	goa.LogInfo(l.ctx, "removeConn", "list", newList)
+	goa.LogInfo(l.ctx, "removeRoomConn", "list", newList)
 }
 
 func (l *WsConnections) updateRoom(roomID model.RoomID) {
