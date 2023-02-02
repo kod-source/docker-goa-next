@@ -19,7 +19,8 @@ import (
 func Test_CreateThread(t *testing.T) {
 	srv := testApp.srv
 	tu := &interactor.MockThreadUsecase{}
-	tc := NewThreadController(srv, tu, nil)
+	wsc := newConnections(ctx)
+	tc := NewThreadController(srv, tu, wsc)
 	wantText := "テストスレ"
 	wantThreadID := model.ThreadID(1)
 	wantRoomID := model.RoomID(2)
