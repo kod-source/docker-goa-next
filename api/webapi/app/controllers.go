@@ -301,14 +301,41 @@ func unmarshalUpdateCommentCommentsPayload(ctx context.Context, service *goa.Ser
 // ContentController is the controller interface for the Content actions.
 type ContentController interface {
 	goa.Muxer
+	Create(*CreateContentContext) error
 	Delete(*DeleteContentContext) error
+	GetByThread(*GetByThreadContentContext) error
 }
 
 // MountContentController "mounts" a Content resource controller on the given service.
 func MountContentController(service *goa.Service, ctrl ContentController) {
 	initService(service)
 	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/api/v1/content", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/api/v1/content/:id", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/api/v1/content/thread/:id", ctrl.MuxHandler("preflight", handleContentOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewCreateContentContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*CreateContentPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Create(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleContentOrigin(h)
+	service.Mux.Handle("POST", "/api/v1/content", ctrl.MuxHandler("create", h, unmarshalCreateContentPayload))
+	service.LogInfo("mount", "ctrl", "Content", "action", "Create", "route", "POST /api/v1/content", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -326,6 +353,23 @@ func MountContentController(service *goa.Service, ctrl ContentController) {
 	h = handleContentOrigin(h)
 	service.Mux.Handle("DELETE", "/api/v1/content/:id", ctrl.MuxHandler("delete", h, nil))
 	service.LogInfo("mount", "ctrl", "Content", "action", "Delete", "route", "DELETE /api/v1/content/:id", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetByThreadContentContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetByThread(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleContentOrigin(h)
+	service.Mux.Handle("GET", "/api/v1/content/thread/:id", ctrl.MuxHandler("get_by_thread", h, nil))
+	service.LogInfo("mount", "ctrl", "Content", "action", "GetByThread", "route", "GET /api/v1/content/thread/:id", "security", "jwt")
 }
 
 // handleContentOrigin applies the CORS response headers corresponding to the origin.
@@ -352,6 +396,21 @@ func handleContentOrigin(h goa.Handler) goa.Handler {
 
 		return h(ctx, rw, req)
 	}
+}
+
+// unmarshalCreateContentPayload unmarshals the request body into the context request data Payload field.
+func unmarshalCreateContentPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &createContentPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
 }
 
 // LikesController is the controller interface for the Likes actions.
@@ -947,6 +1006,7 @@ type ThreadsController interface {
 	goa.Muxer
 	Create(*CreateThreadsContext) error
 	Delete(*DeleteThreadsContext) error
+	GetThreadsByRoom(*GetThreadsByRoomThreadsContext) error
 }
 
 // MountThreadsController "mounts" a Threads resource controller on the given service.
@@ -955,6 +1015,7 @@ func MountThreadsController(service *goa.Service, ctrl ThreadsController) {
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/api/v1/threads", ctrl.MuxHandler("preflight", handleThreadsOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/api/v1/threads/:id", ctrl.MuxHandler("preflight", handleThreadsOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/api/v1/threads/room/:id", ctrl.MuxHandler("preflight", handleThreadsOrigin(cors.HandlePreflight()), nil))
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -995,6 +1056,23 @@ func MountThreadsController(service *goa.Service, ctrl ThreadsController) {
 	h = handleThreadsOrigin(h)
 	service.Mux.Handle("DELETE", "/api/v1/threads/:id", ctrl.MuxHandler("delete", h, nil))
 	service.LogInfo("mount", "ctrl", "Threads", "action", "Delete", "route", "DELETE /api/v1/threads/:id", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetThreadsByRoomThreadsContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetThreadsByRoom(rctx)
+	}
+	h = handleSecurity("jwt", h, "api:access")
+	h = handleThreadsOrigin(h)
+	service.Mux.Handle("GET", "/api/v1/threads/room/:id", ctrl.MuxHandler("get_threads_by_room", h, nil))
+	service.LogInfo("mount", "ctrl", "Threads", "action", "GetThreadsByRoom", "route", "GET /api/v1/threads/room/:id", "security", "jwt")
 }
 
 // handleThreadsOrigin applies the CORS response headers corresponding to the origin.

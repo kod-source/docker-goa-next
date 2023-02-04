@@ -22,6 +22,238 @@ import (
 	"testing"
 )
 
+// CreateContentBadRequest runs the method Create of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func CreateContentBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, payload *app.CreateContentPayload) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/content"),
+	}
+	req := httptest.NewRequest("POST", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContentTest"), rw, req, prms)
+	createCtx, _err := app.NewCreateContentContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil
+	}
+	createCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.Create(createCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 400 {
+		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// CreateContentCreated runs the method Create of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func CreateContentCreated(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, payload *app.CreateContentPayload) (http.ResponseWriter, *app.ContentUser) {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil, nil
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/content"),
+	}
+	req := httptest.NewRequest("POST", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContentTest"), rw, req, prms)
+	createCtx, _err := app.NewCreateContentContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil, nil
+	}
+	createCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.Create(createCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 201 {
+		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
+	}
+	var mt *app.ContentUser
+	if resp != nil {
+		var __ok bool
+		mt, __ok = resp.(*app.ContentUser)
+		if !__ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.ContentUser", resp, resp)
+		}
+		_err = mt.Validate()
+		if _err != nil {
+			t.Errorf("invalid response media type: %s", _err)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// CreateContentInternalServerError runs the method Create of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func CreateContentInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, payload *app.CreateContentPayload) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/content"),
+	}
+	req := httptest.NewRequest("POST", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContentTest"), rw, req, prms)
+	createCtx, _err := app.NewCreateContentContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil
+	}
+	createCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.Create(createCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 500 {
+		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
 // DeleteContentBadRequest runs the method Delete of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
@@ -268,4 +500,203 @@ func DeleteContentOK(t testing.TB, ctx context.Context, service *goa.Service, ct
 
 	// Return results
 	return rw
+}
+
+// GetByThreadContentInternalServerError runs the method GetByThread of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GetByThreadContentInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, id int) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/content/thread/%v", id),
+	}
+	req := httptest.NewRequest("GET", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContentTest"), rw, req, prms)
+	getByThreadCtx, err := app.NewGetByThreadContentContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+
+	// Perform action
+	err = ctrl.GetByThread(getByThreadCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 500 {
+		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// GetByThreadContentNotFound runs the method GetByThread of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GetByThreadContentNotFound(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, id int) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/content/thread/%v", id),
+	}
+	req := httptest.NewRequest("GET", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContentTest"), rw, req, prms)
+	getByThreadCtx, err := app.NewGetByThreadContentContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+
+	// Perform action
+	err = ctrl.GetByThread(getByThreadCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 404 {
+		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// GetByThreadContentOK runs the method GetByThread of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GetByThreadContentOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.ContentController, id int) (http.ResponseWriter, app.ContentUserCollection) {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/content/thread/%v", id),
+	}
+	req := httptest.NewRequest("GET", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+	prms["id"] = []string{fmt.Sprintf("%v", id)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContentTest"), rw, req, prms)
+	getByThreadCtx, err := app.NewGetByThreadContentContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil, nil
+	}
+
+	// Perform action
+	err = ctrl.GetByThread(getByThreadCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
+	}
+	var mt app.ContentUserCollection
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(app.ContentUserCollection)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.ContentUserCollection", resp, resp)
+		}
+		err = mt.Validate()
+		if err != nil {
+			t.Errorf("invalid response media type: %s", err)
+		}
+	}
+
+	// Return results
+	return rw, mt
 }

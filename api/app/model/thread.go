@@ -27,3 +27,8 @@ type ThreadUser struct {
 	Thread Thread
 	User   ShowUser
 }
+
+type IndexThread struct {
+	ThreadUser   ThreadUser
+	CountContent *int
+}

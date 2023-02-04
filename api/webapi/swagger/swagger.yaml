@@ -5,28 +5,75 @@ consumes:
 - application/gob
 - application/x-gob
 definitions:
+  All_index_threads:
+    description: スレッド一覧とNextID (default view)
+    example:
+      index_threads:
+      - count_content: 5117110471024515774
+        thread_user:
+          thread:
+            created_at: "2019-01-31T00:00:00+09:00"
+            id: 8317064204162844080
+            img: Ipsa autem voluptatem et voluptatum.
+            room_id: 8344770141791658714
+            text: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
+            updated_at: "2019-01-31T00:00:00+09:00"
+            user_id: 8626963791446443131
+          user:
+            avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+            created_at: "2019-01-31T00:00:00+09:00"
+            id: 1
+            name: 佐藤　太郎
+      - count_content: 5117110471024515774
+        thread_user:
+          thread:
+            created_at: "2019-01-31T00:00:00+09:00"
+            id: 8317064204162844080
+            img: Ipsa autem voluptatem et voluptatum.
+            room_id: 8344770141791658714
+            text: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
+            updated_at: "2019-01-31T00:00:00+09:00"
+            user_id: 8626963791446443131
+          user:
+            avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+            created_at: "2019-01-31T00:00:00+09:00"
+            id: 1
+            name: 佐藤　太郎
+      next_id: 3134763419238775467
+    properties:
+      index_threads:
+        $ref: '#/definitions/Index_threadCollection'
+      next_id:
+        description: 次取得するThreadID
+        example: 3134763419238775467
+        format: int64
+        type: integer
+    required:
+    - index_threads
+    title: 'Mediatype identifier: application/vnd.all_index_threads; view=default'
+    type: object
   All_room_user:
     description: 全てのルーム (default view)
     example:
       index_room:
-      - count_user: 5117110471024515774
+      - count_user: 6674793147261772734
         is_open: true
-        last_text: Ipsa autem voluptatem et voluptatum.
+        last_text: Nemo quasi iste.
         room:
           created_at: "2019-01-31T00:00:00+09:00"
-          id: 8344770141791658714
-          img: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
+          id: 7421852682474456458
+          img: Ut aliquam nihil facere ea est.
           is_group: false
-          name: Minima earum repellendus consequuntur nemo quasi.
+          name: Reiciendis et et fuga.
           updated_at: "2019-01-31T00:00:00+09:00"
-        show_img: Perspiciatis enim.
-      next_id: 5403692490912142882
+        show_img: Dolorem sunt aut nobis dolor voluptatum.
+      next_id: 7371276589150779105
     properties:
       index_room:
         $ref: '#/definitions/Index_roomCollection'
       next_id:
         description: 次取得するRoomID
-        example: 5403692490912142882
+        example: 7371276589150779105
         format: int64
         type: integer
     required:
@@ -131,25 +178,123 @@ definitions:
         id: 1
         name: 佐藤　太郎
         password: pas
-    - comment:
-        created_at: "2019-01-31T00:00:00+09:00"
-        id: 1
-        img: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/
-        post_id: 1
-        text: やっほー
-        updated_at: "2019-01-31T00:00:00+09:00"
-        user_id: 1
-      user:
-        avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
-        created_at: "2019-01-31T00:00:00+09:00"
-        email: test@exmaple.com
-        id: 1
-        name: 佐藤　太郎
-        password: pas
     items:
       $ref: '#/definitions/Comment_with_user_json'
     title: 'Mediatype identifier: application/vnd.comment_with_user_json; type=collection;
       view=default'
+    type: array
+  Content:
+    description: コンテント (default view)
+    example:
+      created_at: "2019-01-31T00:00:00+09:00"
+      id: 6084612651337873181
+      img: Harum suscipit est.
+      text: Necessitatibus assumenda voluptas harum eveniet omnis molestiae.
+      thread_id: 5791727217760924305
+      updated_at: "2019-01-31T00:00:00+09:00"
+      user_id: 3073543738282761361
+    properties:
+      created_at:
+        description: 作成日
+        example: "2019-01-31T00:00:00+09:00"
+        format: date-time
+        type: string
+      id:
+        description: content id
+        example: 6084612651337873181
+        format: int64
+        type: integer
+      img:
+        description: 画像
+        example: Harum suscipit est.
+        type: string
+      text:
+        description: コンテント内容
+        example: Necessitatibus assumenda voluptas harum eveniet omnis molestiae.
+        type: string
+      thread_id:
+        description: thread id
+        example: 5791727217760924305
+        format: int64
+        type: integer
+      updated_at:
+        description: 更新日
+        example: "2019-01-31T00:00:00+09:00"
+        format: date-time
+        type: string
+      user_id:
+        description: user id
+        example: 3073543738282761361
+        format: int64
+        type: integer
+    required:
+    - id
+    - user_id
+    - thread_id
+    - text
+    - created_at
+    - updated_at
+    title: 'Mediatype identifier: application/vnd.content; view=default'
+    type: object
+  Content_user:
+    description: コンテントとユーザー (default view)
+    example:
+      content:
+        created_at: "2019-01-31T00:00:00+09:00"
+        id: 6084612651337873181
+        img: Harum suscipit est.
+        text: Necessitatibus assumenda voluptas harum eveniet omnis molestiae.
+        thread_id: 5791727217760924305
+        updated_at: "2019-01-31T00:00:00+09:00"
+        user_id: 3073543738282761361
+      user:
+        avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+        created_at: "2019-01-31T00:00:00+09:00"
+        id: 1
+        name: 佐藤　太郎
+    properties:
+      content:
+        $ref: '#/definitions/Content'
+      user:
+        $ref: '#/definitions/Show_user'
+    required:
+    - content
+    - user
+    title: 'Mediatype identifier: application/vnd.content_user; view=default'
+    type: object
+  Content_userCollection:
+    description: Content_userCollection is the media type for an array of Content_user
+      (default view)
+    example:
+    - content:
+        created_at: "2019-01-31T00:00:00+09:00"
+        id: 6084612651337873181
+        img: Harum suscipit est.
+        text: Necessitatibus assumenda voluptas harum eveniet omnis molestiae.
+        thread_id: 5791727217760924305
+        updated_at: "2019-01-31T00:00:00+09:00"
+        user_id: 3073543738282761361
+      user:
+        avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+        created_at: "2019-01-31T00:00:00+09:00"
+        id: 1
+        name: 佐藤　太郎
+    - content:
+        created_at: "2019-01-31T00:00:00+09:00"
+        id: 6084612651337873181
+        img: Harum suscipit est.
+        text: Necessitatibus assumenda voluptas harum eveniet omnis molestiae.
+        thread_id: 5791727217760924305
+        updated_at: "2019-01-31T00:00:00+09:00"
+        user_id: 3073543738282761361
+      user:
+        avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+        created_at: "2019-01-31T00:00:00+09:00"
+        id: 1
+        name: 佐藤　太郎
+    items:
+      $ref: '#/definitions/Content_user'
+    title: 'Mediatype identifier: application/vnd.content_user; type=collection; view=default'
     type: array
   CreateCommentCommentsPayload:
     example:
@@ -174,6 +319,30 @@ definitions:
     - post_id
     - text
     title: CreateCommentCommentsPayload
+    type: object
+  CreateContentPayload:
+    example:
+      img: https://test.img
+      text: いいですね
+      thread_id: 1
+    properties:
+      img:
+        description: 画像
+        example: https://test.img
+        type: string
+      text:
+        description: コンテントの内容
+        example: いいですね
+        type: string
+      thread_id:
+        description: スレッドID
+        example: 1
+        format: int64
+        type: integer
+    required:
+    - text
+    - thread_id
+    title: CreateContentPayload
     type: object
   CreateLikesPayload:
     example:
@@ -232,7 +401,7 @@ definitions:
         - 1
         - 2
         items:
-          example: 3805505408139266690
+          example: 5286635116884430024
           format: int64
           type: integer
         type: array
@@ -247,7 +416,6 @@ definitions:
       img: https://test.img
       room_id: 1
       text: テストスレ
-      user_id: 2
     properties:
       img:
         description: 画像
@@ -262,15 +430,9 @@ definitions:
         description: スレッドの内容
         example: テストスレ
         type: string
-      user_id:
-        description: ユーザーID
-        example: 2
-        format: int64
-        type: integer
     required:
     - text
     - room_id
-    - user_id
     title: CreateThreadsPayload
     type: object
   DeleteLikesPayload:
@@ -317,21 +479,21 @@ definitions:
   Index_room:
     description: ルームの表示 (default view)
     example:
-      count_user: 5117110471024515774
+      count_user: 6674793147261772734
       is_open: true
-      last_text: Ipsa autem voluptatem et voluptatum.
+      last_text: Nemo quasi iste.
       room:
         created_at: "2019-01-31T00:00:00+09:00"
-        id: 8344770141791658714
-        img: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
+        id: 7421852682474456458
+        img: Ut aliquam nihil facere ea est.
         is_group: false
-        name: Minima earum repellendus consequuntur nemo quasi.
+        name: Reiciendis et et fuga.
         updated_at: "2019-01-31T00:00:00+09:00"
-      show_img: Perspiciatis enim.
+      show_img: Dolorem sunt aut nobis dolor voluptatum.
     properties:
       count_user:
         description: ルームに入っているユーザー数
-        example: 5117110471024515774
+        example: 6674793147261772734
         format: int64
         type: integer
       is_open:
@@ -340,13 +502,13 @@ definitions:
         type: boolean
       last_text:
         description: 最後の内容
-        example: Ipsa autem voluptatem et voluptatum.
+        example: Nemo quasi iste.
         type: string
       room:
         $ref: '#/definitions/Room'
       show_img:
         description: DMの際に相手のプロフィール画像のパス
-        example: Perspiciatis enim.
+        example: Dolorem sunt aut nobis dolor voluptatum.
         type: string
     required:
     - room
@@ -358,31 +520,88 @@ definitions:
     description: Index_roomCollection is the media type for an array of Index_room
       (default view)
     example:
-    - count_user: 5117110471024515774
+    - count_user: 6674793147261772734
       is_open: true
-      last_text: Ipsa autem voluptatem et voluptatum.
+      last_text: Nemo quasi iste.
       room:
         created_at: "2019-01-31T00:00:00+09:00"
-        id: 8344770141791658714
-        img: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
+        id: 7421852682474456458
+        img: Ut aliquam nihil facere ea est.
         is_group: false
-        name: Minima earum repellendus consequuntur nemo quasi.
+        name: Reiciendis et et fuga.
         updated_at: "2019-01-31T00:00:00+09:00"
-      show_img: Perspiciatis enim.
-    - count_user: 5117110471024515774
-      is_open: true
-      last_text: Ipsa autem voluptatem et voluptatum.
-      room:
-        created_at: "2019-01-31T00:00:00+09:00"
-        id: 8344770141791658714
-        img: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
-        is_group: false
-        name: Minima earum repellendus consequuntur nemo quasi.
-        updated_at: "2019-01-31T00:00:00+09:00"
-      show_img: Perspiciatis enim.
+      show_img: Dolorem sunt aut nobis dolor voluptatum.
     items:
       $ref: '#/definitions/Index_room'
     title: 'Mediatype identifier: application/vnd.index_room; type=collection; view=default'
+    type: array
+  Index_thread:
+    description: スレッドの一覧 (default view)
+    example:
+      count_content: 5117110471024515774
+      thread_user:
+        thread:
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 8317064204162844080
+          img: Ipsa autem voluptatem et voluptatum.
+          room_id: 8344770141791658714
+          text: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
+          updated_at: "2019-01-31T00:00:00+09:00"
+          user_id: 8626963791446443131
+        user:
+          avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 1
+          name: 佐藤　太郎
+    properties:
+      count_content:
+        description: スレッドの返信数
+        example: 5117110471024515774
+        format: int64
+        type: integer
+      thread_user:
+        $ref: '#/definitions/Thread_user'
+    required:
+    - thread_user
+    title: 'Mediatype identifier: application/vnd.index_thread; view=default'
+    type: object
+  Index_threadCollection:
+    description: Index_threadCollection is the media type for an array of Index_thread
+      (default view)
+    example:
+    - count_content: 5117110471024515774
+      thread_user:
+        thread:
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 8317064204162844080
+          img: Ipsa autem voluptatem et voluptatum.
+          room_id: 8344770141791658714
+          text: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
+          updated_at: "2019-01-31T00:00:00+09:00"
+          user_id: 8626963791446443131
+        user:
+          avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 1
+          name: 佐藤　太郎
+    - count_content: 5117110471024515774
+      thread_user:
+        thread:
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 8317064204162844080
+          img: Ipsa autem voluptatem et voluptatum.
+          room_id: 8344770141791658714
+          text: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
+          updated_at: "2019-01-31T00:00:00+09:00"
+          user_id: 8626963791446443131
+        user:
+          avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 1
+          name: 佐藤　太郎
+    items:
+      $ref: '#/definitions/Index_thread'
+    title: 'Mediatype identifier: application/vnd.index_thread; type=collection; view=default'
     type: array
   InviteRoomUserRoomsPayload:
     example:
@@ -407,23 +626,23 @@ definitions:
   Like_json:
     description: いいね (default view)
     example:
-      id: 3959527295946753814
-      post_id: 7843066020211255388
-      user_id: 7371276589150779105
+      id: 3606625407585647997
+      post_id: 4655528678132783474
+      user_id: 7022700316101226929
     properties:
       id:
         description: ID
-        example: 3959527295946753814
+        example: 3606625407585647997
         format: int64
         type: integer
       post_id:
         description: 投稿ID
-        example: 7843066020211255388
+        example: 4655528678132783474
         format: int64
         type: integer
       user_id:
         description: ユーザーID
-        example: 7371276589150779105
+        example: 7022700316101226929
         format: int64
         type: integer
     required:
@@ -436,9 +655,15 @@ definitions:
     description: Like_jsonCollection is the media type for an array of Like_json (default
       view)
     example:
-    - id: 3959527295946753814
-      post_id: 7843066020211255388
-      user_id: 7371276589150779105
+    - id: 3606625407585647997
+      post_id: 4655528678132783474
+      user_id: 7022700316101226929
+    - id: 3606625407585647997
+      post_id: 4655528678132783474
+      user_id: 7022700316101226929
+    - id: 3606625407585647997
+      post_id: 4655528678132783474
+      user_id: 7022700316101226929
     items:
       $ref: '#/definitions/Like_json'
     title: 'Mediatype identifier: application/vnd.like_json; type=collection; view=default'
@@ -464,8 +689,19 @@ definitions:
   Post_all_limit:
     description: 投稿とnext_idに情報 (default view)
     example:
-      next_id: 6084612651337873181
+      next_id: 9177915494799174636
       show_posts:
+      - avatar: data:image/jpg
+        count_comment: 10
+        count_like: 10
+        post:
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 1
+          img: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/
+          title: やっほー
+          updated_at: "2019-01-31T00:00:00+09:00"
+          user_id: 1
+        user_name: 佐藤　太郎
       - avatar: data:image/jpg
         count_comment: 10
         count_like: 10
@@ -491,7 +727,7 @@ definitions:
     properties:
       next_id:
         description: 次取得するPostID
-        example: 6084612651337873181
+        example: 9177915494799174636
         format: int64
         type: integer
       show_posts:
@@ -633,10 +869,10 @@ definitions:
     description: ルーム (default view)
     example:
       created_at: "2019-01-31T00:00:00+09:00"
-      id: 8344770141791658714
-      img: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
+      id: 7421852682474456458
+      img: Ut aliquam nihil facere ea est.
       is_group: false
-      name: Minima earum repellendus consequuntur nemo quasi.
+      name: Reiciendis et et fuga.
       updated_at: "2019-01-31T00:00:00+09:00"
     properties:
       created_at:
@@ -646,12 +882,12 @@ definitions:
         type: string
       id:
         description: room id
-        example: 8344770141791658714
+        example: 7421852682474456458
         format: int64
         type: integer
       img:
         description: 画像
-        example: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
+        example: Ut aliquam nihil facere ea est.
         type: string
       is_group:
         description: グループかDMの判定
@@ -659,7 +895,7 @@ definitions:
         type: boolean
       name:
         description: room name
-        example: Minima earum repellendus consequuntur nemo quasi.
+        example: Reiciendis et et fuga.
         type: string
       updated_at:
         description: 更新日
@@ -678,16 +914,12 @@ definitions:
     description: ルーム (default view)
     example:
       created_at: "2019-01-31T00:00:00+09:00"
-      id: 5791727217760924305
-      img: Et aspernatur eos culpa.
-      is_group: true
-      name: Voluptas minus consectetur.
+      id: 8522821365014584735
+      img: Voluptatem sequi amet eligendi accusantium.
+      is_group: false
+      name: Veniam numquam aliquid illum quasi voluptate eos.
       updated_at: "2019-01-31T00:00:00+09:00"
       users:
-      - avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
-        created_at: "2019-01-31T00:00:00+09:00"
-        id: 1
-        name: 佐藤　太郎
       - avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
         created_at: "2019-01-31T00:00:00+09:00"
         id: 1
@@ -700,20 +932,20 @@ definitions:
         type: string
       id:
         description: room id
-        example: 5791727217760924305
+        example: 8522821365014584735
         format: int64
         type: integer
       img:
         description: 画像
-        example: Et aspernatur eos culpa.
+        example: Voluptatem sequi amet eligendi accusantium.
         type: string
       is_group:
         description: グループかDMの判定
-        example: true
+        example: false
         type: boolean
       name:
         description: room name
-        example: Voluptas minus consectetur.
+        example: Veniam numquam aliquid illum quasi voluptate eos.
         type: string
       updated_at:
         description: 更新日
@@ -735,7 +967,7 @@ definitions:
     description: my error (default view)
     example:
       code: 404
-      details: false
+      details: 0.30726521767466425
       message: record not found
       status: unauthenticated
     properties:
@@ -746,7 +978,7 @@ definitions:
         type: integer
       details:
         description: Details
-        example: false
+        example: 0.30726521767466425
       message:
         description: エラーメッセージ
         example: record not found
@@ -795,13 +1027,25 @@ definitions:
           id: 1
           name: 佐藤　太郎
           password: pas
+      - comment:
+          created_at: "2019-01-31T00:00:00+09:00"
+          id: 1
+          img: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/
+          post_id: 1
+          text: やっほー
+          updated_at: "2019-01-31T00:00:00+09:00"
+          user_id: 1
+        user:
+          avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
+          created_at: "2019-01-31T00:00:00+09:00"
+          email: test@exmaple.com
+          id: 1
+          name: 佐藤　太郎
+          password: pas
       likes:
-      - id: 3959527295946753814
-        post_id: 7843066020211255388
-        user_id: 7371276589150779105
-      - id: 3959527295946753814
-        post_id: 7843066020211255388
-        user_id: 7371276589150779105
+      - id: 3606625407585647997
+        post_id: 4655528678132783474
+        user_id: 7022700316101226929
       post:
         created_at: "2019-01-31T00:00:00+09:00"
         id: 1
@@ -872,10 +1116,6 @@ definitions:
       created_at: "2019-01-31T00:00:00+09:00"
       id: 1
       name: 佐藤　太郎
-    - avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
-      created_at: "2019-01-31T00:00:00+09:00"
-      id: 1
-      name: 佐藤　太郎
     items:
       $ref: '#/definitions/Show_user'
     title: 'Mediatype identifier: application/vnd.show_user+json; type=collection;
@@ -914,12 +1154,12 @@ definitions:
     description: スレッド (default view)
     example:
       created_at: "2019-01-31T00:00:00+09:00"
-      id: 5191660775987240188
-      img: Ut et alias.
-      room_id: 6941762343701512169
-      text: Explicabo necessitatibus doloremque id.
+      id: 8317064204162844080
+      img: Ipsa autem voluptatem et voluptatum.
+      room_id: 8344770141791658714
+      text: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
       updated_at: "2019-01-31T00:00:00+09:00"
-      user_id: 6379389967162900592
+      user_id: 8626963791446443131
     properties:
       created_at:
         description: 作成日
@@ -928,21 +1168,21 @@ definitions:
         type: string
       id:
         description: room id
-        example: 5191660775987240188
+        example: 8317064204162844080
         format: int64
         type: integer
       img:
         description: 画像
-        example: Ut et alias.
+        example: Ipsa autem voluptatem et voluptatum.
         type: string
       room_id:
         description: room id
-        example: 6941762343701512169
+        example: 8344770141791658714
         format: int64
         type: integer
       text:
         description: スレッド内容
-        example: Explicabo necessitatibus doloremque id.
+        example: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
         type: string
       updated_at:
         description: 更新日
@@ -951,7 +1191,7 @@ definitions:
         type: string
       user_id:
         description: user id
-        example: 6379389967162900592
+        example: 8626963791446443131
         format: int64
         type: integer
     required:
@@ -968,12 +1208,12 @@ definitions:
     example:
       thread:
         created_at: "2019-01-31T00:00:00+09:00"
-        id: 5191660775987240188
-        img: Ut et alias.
-        room_id: 6941762343701512169
-        text: Explicabo necessitatibus doloremque id.
+        id: 8317064204162844080
+        img: Ipsa autem voluptatem et voluptatum.
+        room_id: 8344770141791658714
+        text: Voluptas exercitationem hic quos distinctio architecto reprehenderit.
         updated_at: "2019-01-31T00:00:00+09:00"
-        user_id: 6379389967162900592
+        user_id: 8626963791446443131
       user:
         avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
         created_at: "2019-01-31T00:00:00+09:00"
@@ -1137,12 +1377,6 @@ definitions:
   UserCollection:
     description: UserCollection is the media type for an array of User (default view)
     example:
-    - avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
-      created_at: "2019-01-31T00:00:00+09:00"
-      email: test@exmaple.com
-      id: 1
-      name: 佐藤　太郎
-      password: pas
     - avatar: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNjoxOCAwMzo1NDo0MwAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTIyAJKRAAIAAAAEOTIyAJKSAAIAAAAEOTIyAKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAACWKADAAQAAAABAAACWKQGAAMAAAABAAAAAAAAAAAyMDIyOjA2OjE4IDAzOjU0OjQzADIwMjI6MDY6MTggMDM6NTQ6NDMAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AeFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAA/HAFaAAMbJUccAgAAAgACHAI/AAYwMzU0NDMcAj4ACDIwMjIwNjE4HAI3AAgyMDIyMDYxOBwCPAAGMDM1NDQzADhCSU0EJQAAAAAAEKnEz4ubluvj5vP007FySPv/wAARCAJYAlgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9sAQwACAgICAgIDAgIDBQMDAwUGBQUFBQYIBgYGBgYICggICAgI
       created_at: "2019-01-31T00:00:00+09:00"
       email: test@exmaple.com
@@ -1318,6 +1552,39 @@ paths:
       summary: update_comment comments
       tags:
       - comments
+  /content:
+    post:
+      description: |-
+        スレッドの返信の作成
+
+        Required security scopes:
+          * `api:access`
+      operationId: content#create
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/CreateContentPayload'
+      produces:
+      - application/vnd.content_user
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Content_user'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: create content
+      tags:
+      - content
   /content/{id}:
     delete:
       description: |-
@@ -1349,6 +1616,39 @@ paths:
       - jwt:
         - api:access
       summary: delete content
+      tags:
+      - content
+  /content/thread/{id}:
+    get:
+      description: |-
+        スレッドの返信一覧を返す
+
+        Required security scopes:
+          * `api:access`
+      operationId: content#get_by_thread
+      parameters:
+      - description: Thread ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/vnd.content_user; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Content_userCollection'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: get_by_thread content
       tags:
       - content
   /current_user:
@@ -2072,6 +2372,44 @@ paths:
       - jwt:
         - api:access
       summary: delete threads
+      tags:
+      - threads
+  /threads/room/{id}:
+    get:
+      description: |-
+        ルーム内のスレッドを返す
+
+        Required security scopes:
+          * `api:access`
+      operationId: threads#get_threads_by_room
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 次のID
+        in: query
+        name: next_id
+        required: false
+        type: integer
+      produces:
+      - application/vnd.all_index_threads
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/All_index_threads'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      security:
+      - jwt:
+        - api:access
+      summary: get_threads_by_room threads
       tags:
       - threads
   /user_room:

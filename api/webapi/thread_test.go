@@ -1,4 +1,4 @@
-package main
+package webapi
 
 import (
 	"context"
@@ -23,8 +23,9 @@ func Test_CreateThread(t *testing.T) {
 	wantText := "テストスレ"
 	wantThreadID := model.ThreadID(1)
 	wantRoomID := model.RoomID(2)
-	wantUserID := model.UserID(3)
 	wantImg := pointer.Ptr("test img")
+	wantUserID := model.UserID(3)
+	ctx = context.WithValue(ctx, userIDCodeKey, int(wantUserID))
 
 	t.Run("[OK]スレッド作成", func(t *testing.T) {
 		threadUser := &model.ThreadUser{
@@ -44,14 +45,14 @@ func Test_CreateThread(t *testing.T) {
 				Avatar:    pointer.Ptr("test_avatar"),
 			},
 		}
-		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantImg, img); diff != "" {
@@ -85,7 +86,6 @@ func Test_CreateThread(t *testing.T) {
 		_, got := test.CreateThreadsCreated(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
 
@@ -112,14 +112,14 @@ func Test_CreateThread(t *testing.T) {
 				Avatar:    nil,
 			},
 		}
-		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if img != nil {
@@ -153,7 +153,6 @@ func Test_CreateThread(t *testing.T) {
 		_, got := test.CreateThreadsCreated(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    nil,
 		})
 
@@ -163,14 +162,14 @@ func Test_CreateThread(t *testing.T) {
 	})
 
 	t.Run("[NG]スレッド作成 - 不明な文字列の時", func(t *testing.T) {
-		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantImg, img); diff != "" {
@@ -186,20 +185,19 @@ func Test_CreateThread(t *testing.T) {
 		test.CreateThreadsBadRequest(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
 	})
 
 	t.Run("[NG]スレッド作成 - 不明な数字の時", func(t *testing.T) {
-		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantImg, img); diff != "" {
@@ -215,7 +213,6 @@ func Test_CreateThread(t *testing.T) {
 		test.CreateThreadsBadRequest(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
 	})
@@ -244,20 +241,19 @@ func Test_CreateThread(t *testing.T) {
 		test.CreateThreadsBadRequest(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
 	})
 
 	t.Run("[NG]スレッド作成 - 想定外エラー", func(t *testing.T) {
-		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+		tu.CreateFunc = func(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 			if diff := cmp.Diff(wantText, text); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
+			if diff := cmp.Diff(wantUserID, myID); diff != "" {
 				t.Errorf("mismatch (-want +got)\n%s", diff)
 			}
 			if diff := cmp.Diff(wantImg, img); diff != "" {
@@ -273,7 +269,6 @@ func Test_CreateThread(t *testing.T) {
 		test.CreateThreadsInternalServerError(t, ctx, srv, tc, &app.CreateThreadsPayload{
 			Text:   wantText,
 			RoomID: int(wantRoomID),
-			UserID: int(wantUserID),
 			Img:    wantImg,
 		})
 	})
@@ -341,5 +336,255 @@ func Test_DeleteThread(t *testing.T) {
 		}
 
 		test.DeleteThreadsInternalServerError(t, ctx, srv, tc, int(wantThreadID))
+	})
+}
+
+func Test_GetThreadsByRoom(t *testing.T) {
+	srv := testApp.srv
+	tu := &interactor.MockThreadUsecase{}
+	tc := NewThreadController(srv, tu)
+	wantRoomID := model.RoomID(1)
+	wantNextID := model.ThreadID(20)
+
+	t.Run("[OK]ルーム内のスレッドを取得", func(t *testing.T) {
+		indexThreads := []*model.IndexThread{
+			{
+				ThreadUser: model.ThreadUser{
+					Thread: model.Thread{
+						ID:        1,
+						UserID:    1,
+						RoomID:    wantRoomID,
+						Text:      "thread1",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Img:       pointer.Ptr("img1"),
+					},
+					User: model.ShowUser{
+						ID:        1,
+						Name:      "user1",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Avatar:    pointer.Ptr("avatar1"),
+					},
+				},
+				CountContent: pointer.Ptr(100),
+			},
+			{
+				ThreadUser: model.ThreadUser{
+					Thread: model.Thread{
+						ID:        2,
+						UserID:    3,
+						RoomID:    wantRoomID,
+						Text:      "thread2",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Img:       nil,
+					},
+					User: model.ShowUser{
+						ID:        3,
+						Name:      "user3",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Avatar:    nil,
+					},
+				},
+				CountContent: nil,
+			},
+		}
+		tu.GetThreadsByRoomFunc = func(ctx context.Context, roomID model.RoomID, nextID model.ThreadID) ([]*model.IndexThread, *int, error) {
+			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantNextID, nextID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+
+			return indexThreads, pointer.Ptr(40), nil
+		}
+
+		want := &app.AllIndexThreads{
+			IndexThreads: []*app.IndexThread{
+				{
+					ThreadUser: &app.ThreadUser{
+						Thread: &app.Thread{
+							ID:        1,
+							UserID:    1,
+							RoomID:    int(wantRoomID),
+							Text:      "thread1",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Img:       pointer.Ptr("img1"),
+						},
+						User: &app.ShowUser{
+							ID:        1,
+							Name:      "user1",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Avatar:    pointer.Ptr("avatar1"),
+						},
+					},
+					CountContent: pointer.Ptr(100),
+				},
+				{
+					ThreadUser: &app.ThreadUser{
+						Thread: &app.Thread{
+							ID:        2,
+							UserID:    3,
+							RoomID:    int(wantRoomID),
+							Text:      "thread2",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Img:       nil,
+						},
+						User: &app.ShowUser{
+							ID:        3,
+							Name:      "user3",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Avatar:    nil,
+						},
+					},
+					CountContent: nil,
+				},
+			},
+			NextID: pointer.Ptr(40),
+		}
+
+		_, got := test.GetThreadsByRoomThreadsOK(t, ctx, srv, tc, int(wantRoomID), pointer.Ptr(int(wantNextID)))
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[OK]ルーム内のスレッドを取得 - NextIDを指定しないとき", func(t *testing.T) {
+		indexThreads := []*model.IndexThread{
+			{
+				ThreadUser: model.ThreadUser{
+					Thread: model.Thread{
+						ID:        1,
+						UserID:    1,
+						RoomID:    wantRoomID,
+						Text:      "thread1",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Img:       pointer.Ptr("img1"),
+					},
+					User: model.ShowUser{
+						ID:        1,
+						Name:      "user1",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Avatar:    pointer.Ptr("avatar1"),
+					},
+				},
+				CountContent: pointer.Ptr(100),
+			},
+			{
+				ThreadUser: model.ThreadUser{
+					Thread: model.Thread{
+						ID:        2,
+						UserID:    3,
+						RoomID:    wantRoomID,
+						Text:      "thread2",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Img:       nil,
+					},
+					User: model.ShowUser{
+						ID:        3,
+						Name:      "user3",
+						CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+						Avatar:    nil,
+					},
+				},
+				CountContent: nil,
+			},
+		}
+		tu.GetThreadsByRoomFunc = func(ctx context.Context, roomID model.RoomID, nextID model.ThreadID) ([]*model.IndexThread, *int, error) {
+			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(model.ThreadID(0), nextID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+
+			return indexThreads, nil, nil
+		}
+
+		want := &app.AllIndexThreads{
+			IndexThreads: []*app.IndexThread{
+				{
+					ThreadUser: &app.ThreadUser{
+						Thread: &app.Thread{
+							ID:        1,
+							UserID:    1,
+							RoomID:    int(wantRoomID),
+							Text:      "thread1",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Img:       pointer.Ptr("img1"),
+						},
+						User: &app.ShowUser{
+							ID:        1,
+							Name:      "user1",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Avatar:    pointer.Ptr("avatar1"),
+						},
+					},
+					CountContent: pointer.Ptr(100),
+				},
+				{
+					ThreadUser: &app.ThreadUser{
+						Thread: &app.Thread{
+							ID:        2,
+							UserID:    3,
+							RoomID:    int(wantRoomID),
+							Text:      "thread2",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Img:       nil,
+						},
+						User: &app.ShowUser{
+							ID:        3,
+							Name:      "user3",
+							CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+							Avatar:    nil,
+						},
+					},
+					CountContent: nil,
+				},
+			},
+			NextID: nil,
+		}
+
+		_, got := test.GetThreadsByRoomThreadsOK(t, ctx, srv, tc, int(wantRoomID), nil)
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]ルーム内のスレッドを取得 - 存在しないルームIDを指定したとき", func(t *testing.T) {
+		tu.GetThreadsByRoomFunc = func(ctx context.Context, roomID model.RoomID, nextID model.ThreadID) ([]*model.IndexThread, *int, error) {
+			if diff := cmp.Diff(model.RoomID(1000), roomID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(model.ThreadID(0), nextID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+
+			return nil, nil, sql.ErrNoRows
+		}
+
+		test.GetThreadsByRoomThreadsNotFound(t, ctx, srv, tc, 1000, nil)
+	})
+
+	t.Run("[NG]ルーム内のスレッドを取得 - 想定外エラー発生", func(t *testing.T) {
+		tu.GetThreadsByRoomFunc = func(ctx context.Context, roomID model.RoomID, nextID model.ThreadID) ([]*model.IndexThread, *int, error) {
+			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantNextID, nextID); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+
+			return nil, nil, errors.New("test error")
+		}
+
+		test.GetThreadsByRoomThreadsInternalServerError(t, ctx, srv, tc, int(wantRoomID), pointer.Ptr(int(wantNextID)))
 	})
 }

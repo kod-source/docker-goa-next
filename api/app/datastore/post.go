@@ -40,6 +40,8 @@ func (p *postDatastore) CreatePost(ctx context.Context, userID int, title string
 	if err != nil {
 		return nil, err
 	}
+	defer ins.Close()
+
 	res, err := ins.Exec(userID, title, img, p.tr.Now(), p.tr.Now())
 	if err != nil {
 		return nil, err

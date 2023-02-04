@@ -1,7 +1,8 @@
-package main
+package webapi
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
@@ -35,4 +36,65 @@ func (c *ContentController) Delete(ctx *app.DeleteContentContext) error {
 	}
 
 	return ctx.OK(nil)
+}
+
+// Create スレッドの返信を作成する
+func (c *ContentController) Create(ctx *app.CreateContentContext) error {
+	payload := ctx.Payload
+	cu, err := c.cu.Create(ctx, payload.Text, model.ThreadID(payload.ThreadID), model.UserID(getUserIDCode(ctx)), payload.Img)
+	if err != nil {
+		if code := myerrors.GetMySQLErrorNumber(err); code == myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
+			return ctx.BadRequest()
+		}
+		switch err {
+		case myerrors.ErrBadRequestSting, myerrors.ErrBadRequestInt:
+			return ctx.BadRequest()
+		default:
+			return ctx.InternalServerError()
+		}
+	}
+
+	return ctx.Created(toAppContentUser(cu))
+}
+
+// GetByThread スレッドの返信の一覧を返す
+func (c *ContentController) GetByThread(ctx *app.GetByThreadContentContext) error {
+	cus, err := c.cu.GetByThread(ctx, model.ThreadID(ctx.ID))
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ctx.NotFound()
+		}
+		return ctx.InternalServerError()
+	}
+
+	return ctx.OK(toAppContentUserCollection(cus))
+}
+
+func toAppContentUser(cu *model.ContentUser) *app.ContentUser {
+	return &app.ContentUser{
+		Content: &app.Content{
+			ID:        int(cu.Content.ID),
+			Text:      cu.Content.Text,
+			UserID:    int(cu.Content.UserID),
+			ThreadID:  int(cu.Content.ThreadID),
+			UpdatedAt: cu.Content.UpdatedAt,
+			CreatedAt: cu.Content.CreatedAt,
+			Img:       cu.Content.Img,
+		},
+		User: &app.ShowUser{
+			ID:        int(cu.User.ID),
+			Name:      cu.User.Name,
+			CreatedAt: cu.User.CreatedAt,
+			Avatar:    cu.User.Avatar,
+		},
+	}
+}
+
+func toAppContentUserCollection(contentUsers []*model.ContentUser) app.ContentUserCollection {
+	var cus app.ContentUserCollection
+	for _, cu := range contentUsers {
+		cus = append(cus, toAppContentUser(cu))
+	}
+
+	return cus
 }

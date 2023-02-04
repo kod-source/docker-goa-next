@@ -25,15 +25,15 @@ func NewThreadUsecase(tr repository.ThreadRepository) *threadInteractor {
 	return &threadInteractor{tr: tr}
 }
 
-func (ti *threadInteractor) Create(ctx context.Context, text string, roomID model.RoomID, userID model.UserID, img *string) (*model.ThreadUser, error) {
+func (ti *threadInteractor) Create(ctx context.Context, text string, roomID model.RoomID, myID model.UserID, img *string) (*model.ThreadUser, error) {
 	if text == "" {
 		return nil, myerrors.ErrBadRequestSting
 	}
-	if roomID == 0 || userID == 0 {
+	if roomID == 0 || myID == 0 {
 		return nil, myerrors.ErrBadRequestInt
 	}
 
-	return ti.tr.Create(ctx, text, roomID, userID, img)
+	return ti.tr.Create(ctx, text, roomID, myID, img)
 }
 
 func (ti *threadInteractor) Delete(ctx context.Context, myID model.UserID, threadID model.ThreadID) error {
@@ -41,4 +41,13 @@ func (ti *threadInteractor) Delete(ctx context.Context, myID model.UserID, threa
 		return err
 	}
 	return nil
+}
+
+func (ti *threadInteractor) GetThreadsByRoom(ctx context.Context, roomID model.RoomID, nextID model.ThreadID) ([]*model.IndexThread, *int, error) {
+	its, nID, err := ti.tr.GetThreadsByRoom(ctx, roomID, nextID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return its, nID, nil
 }

@@ -494,6 +494,98 @@ func (ctx *UpdateCommentCommentsContext) InternalServerError() error {
 	return nil
 }
 
+// CreateContentContext provides the content create action context.
+type CreateContentContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *CreateContentPayload
+}
+
+// NewCreateContentContext parses the incoming request URL and body, performs validations and creates the
+// context used by the content controller create action.
+func NewCreateContentContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateContentContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreateContentContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// createContentPayload is the content create action payload.
+type createContentPayload struct {
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コンテントの内容
+	Text *string `form:"text,omitempty" json:"text,omitempty" yaml:"text,omitempty" xml:"text,omitempty"`
+	// スレッドID
+	ThreadID *int `form:"thread_id,omitempty" json:"thread_id,omitempty" yaml:"thread_id,omitempty" xml:"thread_id,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *createContentPayload) Validate() (err error) {
+	if payload.Text == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "text"))
+	}
+	if payload.ThreadID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "thread_id"))
+	}
+	return
+}
+
+// Publicize creates CreateContentPayload from createContentPayload
+func (payload *createContentPayload) Publicize() *CreateContentPayload {
+	var pub CreateContentPayload
+	if payload.Img != nil {
+		pub.Img = payload.Img
+	}
+	if payload.Text != nil {
+		pub.Text = *payload.Text
+	}
+	if payload.ThreadID != nil {
+		pub.ThreadID = *payload.ThreadID
+	}
+	return &pub
+}
+
+// CreateContentPayload is the content create action payload.
+type CreateContentPayload struct {
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コンテントの内容
+	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
+	// スレッドID
+	ThreadID int `form:"thread_id" json:"thread_id" yaml:"thread_id" xml:"thread_id"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *CreateContentPayload) Validate() (err error) {
+
+	return
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *CreateContentContext) Created(r *ContentUser) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.content_user")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreateContentContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *CreateContentContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // DeleteContentContext provides the content delete action context.
 type DeleteContentContext struct {
 	context.Context
@@ -547,6 +639,58 @@ func (ctx *DeleteContentContext) NotFound() error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *DeleteContentContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
+// GetByThreadContentContext provides the content get_by_thread action context.
+type GetByThreadContentContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID int
+}
+
+// NewGetByThreadContentContext parses the incoming request URL and body, performs validations and creates the
+// context used by the content controller get_by_thread action.
+func NewGetByThreadContentContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetByThreadContentContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetByThreadContentContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetByThreadContentContext) OK(r ContentUserCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.content_user; type=collection")
+	}
+	if r == nil {
+		r = ContentUserCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *GetByThreadContentContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetByThreadContentContext) InternalServerError() error {
 	ctx.ResponseData.WriteHeader(500)
 	return nil
 }
@@ -968,9 +1112,9 @@ func NewIndexPostsContext(ctx context.Context, r *http.Request, service *goa.Ser
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp10 := nextID
-			tmp9 := &tmp10
-			rctx.NextID = tmp9
+			tmp11 := nextID
+			tmp10 := &tmp11
+			rctx.NextID = tmp10
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1068,9 +1212,9 @@ func NewShowMyLikePostsContext(ctx context.Context, r *http.Request, service *go
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp13 := nextID
-			tmp12 := &tmp13
-			rctx.NextID = tmp12
+			tmp14 := nextID
+			tmp13 := &tmp14
+			rctx.NextID = tmp13
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1129,9 +1273,9 @@ func NewShowPostLikePostsContext(ctx context.Context, r *http.Request, service *
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp16 := nextID
-			tmp15 := &tmp16
-			rctx.NextID = tmp15
+			tmp17 := nextID
+			tmp16 := &tmp17
+			rctx.NextID = tmp16
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1190,9 +1334,9 @@ func NewShowPostMediaPostsContext(ctx context.Context, r *http.Request, service 
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp19 := nextID
-			tmp18 := &tmp19
-			rctx.NextID = tmp18
+			tmp20 := nextID
+			tmp19 := &tmp20
+			rctx.NextID = tmp19
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1251,9 +1395,9 @@ func NewShowPostMyPostsContext(ctx context.Context, r *http.Request, service *go
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp22 := nextID
-			tmp21 := &tmp22
-			rctx.NextID = tmp21
+			tmp23 := nextID
+			tmp22 := &tmp23
+			rctx.NextID = tmp22
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1546,9 +1690,9 @@ func NewIndexRoomsContext(ctx context.Context, r *http.Request, service *goa.Ser
 	if len(paramNextID) > 0 {
 		rawNextID := paramNextID[0]
 		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
-			tmp26 := nextID
-			tmp25 := &tmp26
-			rctx.NextID = tmp25
+			tmp27 := nextID
+			tmp26 := &tmp27
+			rctx.NextID = tmp26
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
 		}
@@ -1659,8 +1803,6 @@ type createThreadsPayload struct {
 	RoomID *int `form:"room_id,omitempty" json:"room_id,omitempty" yaml:"room_id,omitempty" xml:"room_id,omitempty"`
 	// スレッドの内容
 	Text *string `form:"text,omitempty" json:"text,omitempty" yaml:"text,omitempty" xml:"text,omitempty"`
-	// ユーザーID
-	UserID *int `form:"user_id,omitempty" json:"user_id,omitempty" yaml:"user_id,omitempty" xml:"user_id,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -1670,9 +1812,6 @@ func (payload *createThreadsPayload) Validate() (err error) {
 	}
 	if payload.RoomID == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "room_id"))
-	}
-	if payload.UserID == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "user_id"))
 	}
 	return
 }
@@ -1689,9 +1828,6 @@ func (payload *createThreadsPayload) Publicize() *CreateThreadsPayload {
 	if payload.Text != nil {
 		pub.Text = *payload.Text
 	}
-	if payload.UserID != nil {
-		pub.UserID = *payload.UserID
-	}
 	return &pub
 }
 
@@ -1703,8 +1839,6 @@ type CreateThreadsPayload struct {
 	RoomID int `form:"room_id" json:"room_id" yaml:"room_id" xml:"room_id"`
 	// スレッドの内容
 	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
-	// ユーザーID
-	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -1786,6 +1920,67 @@ func (ctx *DeleteThreadsContext) NotFound() error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *DeleteThreadsContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
+// GetThreadsByRoomThreadsContext provides the threads get_threads_by_room action context.
+type GetThreadsByRoomThreadsContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID     int
+	NextID *int
+}
+
+// NewGetThreadsByRoomThreadsContext parses the incoming request URL and body, performs validations and creates the
+// context used by the threads controller get_threads_by_room action.
+func NewGetThreadsByRoomThreadsContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetThreadsByRoomThreadsContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetThreadsByRoomThreadsContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		if id, err2 := strconv.Atoi(rawID); err2 == nil {
+			rctx.ID = id
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("id", rawID, "integer"))
+		}
+	}
+	paramNextID := req.Params["next_id"]
+	if len(paramNextID) > 0 {
+		rawNextID := paramNextID[0]
+		if nextID, err2 := strconv.Atoi(rawNextID); err2 == nil {
+			tmp32 := nextID
+			tmp31 := &tmp32
+			rctx.NextID = tmp31
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("next_id", rawNextID, "integer"))
+		}
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetThreadsByRoomThreadsContext) OK(r *AllIndexThreads) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.all_index_threads")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *GetThreadsByRoomThreadsContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetThreadsByRoomThreadsContext) InternalServerError() error {
 	ctx.ResponseData.WriteHeader(500)
 	return nil
 }

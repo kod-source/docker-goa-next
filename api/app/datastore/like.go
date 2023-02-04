@@ -38,6 +38,8 @@ func (l *likeDatastore) Create(ctx context.Context, userID, postID int) (*model.
 	if err != nil {
 		return nil, err
 	}
+	defer ins.Close()
+
 	res, err := ins.Exec(userID, postID)
 	if err != nil {
 		return nil, err

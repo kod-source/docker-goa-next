@@ -12,6 +12,27 @@ import (
 	"time"
 )
 
+// スレッド一覧とNextID (default view)
+//
+// Identifier: application/vnd.all_index_threads; view=default
+type AllIndexThreads struct {
+	// index_threads
+	IndexThreads IndexThreadCollection `form:"index_threads" json:"index_threads" yaml:"index_threads" xml:"index_threads"`
+	// 次取得するThreadID
+	NextID *int `form:"next_id,omitempty" json:"next_id,omitempty" yaml:"next_id,omitempty" xml:"next_id,omitempty"`
+}
+
+// Validate validates the AllIndexThreads media type instance.
+func (mt *AllIndexThreads) Validate() (err error) {
+	if mt.IndexThreads == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "index_threads"))
+	}
+	if err2 := mt.IndexThreads.Validate(); err2 != nil {
+		err = goa.MergeErrors(err, err2)
+	}
+	return
+}
+
 // 全てのルーム (default view)
 //
 // Identifier: application/vnd.all_room_user; view=default
@@ -107,6 +128,78 @@ func (mt CommentWithUserJSONCollection) Validate() (err error) {
 	return
 }
 
+// コンテント (default view)
+//
+// Identifier: application/vnd.content; view=default
+type Content struct {
+	// 作成日
+	CreatedAt time.Time `form:"created_at" json:"created_at" yaml:"created_at" xml:"created_at"`
+	// content id
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
+	// 画像
+	Img *string `form:"img,omitempty" json:"img,omitempty" yaml:"img,omitempty" xml:"img,omitempty"`
+	// コンテント内容
+	Text string `form:"text" json:"text" yaml:"text" xml:"text"`
+	// thread id
+	ThreadID int `form:"thread_id" json:"thread_id" yaml:"thread_id" xml:"thread_id"`
+	// 更新日
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at" yaml:"updated_at" xml:"updated_at"`
+	// user id
+	UserID int `form:"user_id" json:"user_id" yaml:"user_id" xml:"user_id"`
+}
+
+// Validate validates the Content media type instance.
+func (mt *Content) Validate() (err error) {
+
+	return
+}
+
+// コンテントとユーザー (default view)
+//
+// Identifier: application/vnd.content_user; view=default
+type ContentUser struct {
+	Content *Content  `form:"content" json:"content" yaml:"content" xml:"content"`
+	User    *ShowUser `form:"user" json:"user" yaml:"user" xml:"user"`
+}
+
+// Validate validates the ContentUser media type instance.
+func (mt *ContentUser) Validate() (err error) {
+	if mt.Content == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "content"))
+	}
+	if mt.User == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "user"))
+	}
+	if mt.Content != nil {
+		if err2 := mt.Content.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if mt.User != nil {
+		if err2 := mt.User.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// Content_userCollection is the media type for an array of Content_user (default view)
+//
+// Identifier: application/vnd.content_user; type=collection; view=default
+type ContentUserCollection []*ContentUser
+
+// Validate validates the ContentUserCollection media type instance.
+func (mt ContentUserCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
 // 投稿 (default view)
 //
 // Identifier: application/vnd.index_post_json; view=default
@@ -170,6 +263,46 @@ type IndexRoomCollection []*IndexRoom
 
 // Validate validates the IndexRoomCollection media type instance.
 func (mt IndexRoomCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// スレッドの一覧 (default view)
+//
+// Identifier: application/vnd.index_thread; view=default
+type IndexThread struct {
+	// スレッドの返信数
+	CountContent *int `form:"count_content,omitempty" json:"count_content,omitempty" yaml:"count_content,omitempty" xml:"count_content,omitempty"`
+	// スレッドとユーザー
+	ThreadUser *ThreadUser `form:"thread_user" json:"thread_user" yaml:"thread_user" xml:"thread_user"`
+}
+
+// Validate validates the IndexThread media type instance.
+func (mt *IndexThread) Validate() (err error) {
+	if mt.ThreadUser == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "thread_user"))
+	}
+	if mt.ThreadUser != nil {
+		if err2 := mt.ThreadUser.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// Index_threadCollection is the media type for an array of Index_thread (default view)
+//
+// Identifier: application/vnd.index_thread; type=collection; view=default
+type IndexThreadCollection []*IndexThread
+
+// Validate validates the IndexThreadCollection media type instance.
+func (mt IndexThreadCollection) Validate() (err error) {
 	for _, e := range mt {
 		if e != nil {
 			if err2 := e.Validate(); err2 != nil {
