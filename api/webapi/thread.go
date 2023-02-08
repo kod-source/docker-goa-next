@@ -3,6 +3,7 @@ package webapi
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
@@ -10,17 +11,19 @@ import (
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	goa "github.com/shogo82148/goa-v1"
 	"github.com/shogo82148/pointer"
+	"golang.org/x/net/websocket"
 )
 
 // ThreadController ...
 type ThreadController struct {
 	*goa.Controller
-	tu usecase.ThreadUsecase
+	tu          usecase.ThreadUsecase
+	connections *WsConnections
 }
 
 // NewThreadController ...
-func NewThreadController(service *goa.Service, tu usecase.ThreadUsecase) *ThreadController {
-	return &ThreadController{Controller: service.NewController("ThreadController"), tu: tu}
+func NewThreadController(service *goa.Service, tu usecase.ThreadUsecase, wsc *WsConnections) *ThreadController {
+	return &ThreadController{Controller: service.NewController("ThreadController"), tu: tu, connections: wsc}
 }
 
 // Create スレッド作成
@@ -39,6 +42,7 @@ func (t *ThreadController) Create(ctx *app.CreateThreadsContext) error {
 			return ctx.InternalServerError()
 		}
 	}
+	t.connections.updateRoom(tu.Thread.RoomID)
 
 	return ctx.Created(toAppThreadUser(tu))
 }
@@ -69,6 +73,27 @@ func (t *ThreadController) GetThreadsByRoom(ctx *app.GetThreadsByRoomThreadsCont
 	}
 
 	return ctx.OK(toAllIndexThreads(its, nextID))
+}
+
+// Watch スレッドの更新を監視する
+func (t *ThreadController) Watch(ctx *app.WatchThreadsContext) error {
+	watcher(model.RoomID(ctx.RoomID), t).ServeHTTP(ctx.ResponseWriter, ctx.Request)
+	return nil
+}
+
+func watcher(roomID model.RoomID, c *ThreadController) websocket.Handler {
+	return func(ws *websocket.Conn) {
+		ch := make(chan struct{})
+		c.connections.appendRoomConn(roomID, ch)
+		for {
+			<-ch
+			_, err := ws.Write([]byte(fmt.Sprintf("Room: %d", roomID)))
+			if err != nil {
+				break
+			}
+		}
+		c.connections.removeRoomConn(roomID, ch)
+	}
 }
 
 func toAppThreadUser(tu *model.ThreadUser) *app.ThreadUser {

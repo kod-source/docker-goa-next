@@ -19,7 +19,8 @@ import (
 func Test_CreateThread(t *testing.T) {
 	srv := testApp.srv
 	tu := &interactor.MockThreadUsecase{}
-	tc := NewThreadController(srv, tu)
+	wsc := newConnections(ctx)
+	tc := NewThreadController(srv, tu, wsc)
 	wantText := "テストスレ"
 	wantThreadID := model.ThreadID(1)
 	wantRoomID := model.RoomID(2)
@@ -277,7 +278,7 @@ func Test_CreateThread(t *testing.T) {
 func Test_DeleteThread(t *testing.T) {
 	srv := testApp.srv
 	tu := &interactor.MockThreadUsecase{}
-	tc := NewThreadController(srv, tu)
+	tc := NewThreadController(srv, tu, nil)
 	wantMyID := model.UserID(1)
 	wantThreadID := model.ThreadID(2)
 	ctx = context.WithValue(ctx, userIDCodeKey, int(wantMyID))
@@ -342,7 +343,7 @@ func Test_DeleteThread(t *testing.T) {
 func Test_GetThreadsByRoom(t *testing.T) {
 	srv := testApp.srv
 	tu := &interactor.MockThreadUsecase{}
-	tc := NewThreadController(srv, tu)
+	tc := NewThreadController(srv, tu, nil)
 	wantRoomID := model.RoomID(1)
 	wantNextID := model.ThreadID(20)
 

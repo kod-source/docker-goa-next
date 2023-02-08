@@ -54,6 +54,19 @@ var _ = Resource("threads", func() {
 		Response(NotFound)
 		Response(InternalServerError)
 	})
+
+	Action("watch", func() {
+		Routing(
+			GET("threads/:roomID/watch"),
+		)
+		Scheme("ws")
+		Description("Retrieve room with given id")
+		Params(func() {
+			Param("roomID", Integer)
+		})
+		Response(SwitchingProtocols)
+		Response(BadRequest, ErrorMedia)
+	})
 })
 
 var thread = MediaType("application/vnd.thread", func() {
