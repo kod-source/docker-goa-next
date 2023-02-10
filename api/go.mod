@@ -8,7 +8,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	github.com/google/go-cmp v0.5.9
 	github.com/google/wire v0.5.0
-	github.com/joho/godotenv v1.4.0
+	github.com/joho/godotenv v1.5.1
 	github.com/shogo82148/goa-v1 v1.5.13
 	github.com/shogo82148/myddlmaker v0.0.6
 	github.com/shogo82148/pointer v1.2.0
