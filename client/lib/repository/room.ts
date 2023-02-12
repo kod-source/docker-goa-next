@@ -81,4 +81,32 @@ export const RoomRepository = {
         );
         return room;
     },
+
+    show: async (roomID: number): Promise<ShowRoom> => {
+        const apiClient = await asyncApiClient.create();
+        const res = await apiClient.get(`rooms/${roomID}`);
+
+        const users: Omit<User, "email" | "password" | "createdAt">[] = res.data.users.map(
+            (u: any) => {
+                return {
+                    id: u.id,
+                    name: u.name,
+                    avatar: u.avatar,
+                };
+            },
+        );
+        const showRoom: ShowRoom = {
+            room: new Room(
+                res.data.id,
+                res.data.name,
+                res.data.is_group,
+                new Date(res.data.created_at),
+                new Date(res.data.updated_at),
+                res.data.img ? res.data.img : null,
+            ),
+            users: users,
+        };
+
+        return showRoom;
+    },
 };
