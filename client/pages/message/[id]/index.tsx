@@ -62,15 +62,11 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
     return (
         <>
             <div>
-              hello
-              {/* ルーム情報 */}
+                hello
+                {/* ルーム情報 */}
             </div>
-            <div>
-              {/* メッセージの表示 */}
-            </div>
-            <div>
-              {/* メッセージの投稿 */}
-            </div>
+            <div>{/* メッセージの表示 */}</div>
+            <div>{/* メッセージの投稿 */}</div>
         </>
     );
 };
