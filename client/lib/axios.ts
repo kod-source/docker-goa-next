@@ -3,26 +3,26 @@ import axios, { AxiosError } from "axios";
 import { getEndPoint, getToken } from "./token";
 
 export interface MyAxiosError {
-  code: string;
-  details: any;
-  message: string;
-  status: string;
+    code: string;
+    details: any;
+    message: string;
+    status: string;
 }
 
 export const isAxiosError = (error: any): error is AxiosError => {
-  return !!error.isAxiosError;
+    return !!error.isAxiosError;
 };
 
 export const asyncApiClient = {
-  create: async () => {
-    return axios.create({
-      baseURL: `${getEndPoint()}/api/v1`,
-      responseType: "json",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-    });
-  },
+    create: async () => {
+        return axios.create({
+            baseURL: `${getEndPoint()}/api/v1`,
+            responseType: "json",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${getToken()}`,
+            },
+        });
+    },
 };
