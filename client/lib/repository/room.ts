@@ -43,7 +43,7 @@ export const RoomRepository = {
     index: async (nextID: number): Promise<AllRoom> => {
         const apiClient = await asyncApiClient.create();
         const res = await apiClient.get(`rooms?next_id=${nextID}`);
-        const indexRooms: IndexRoom[] = res.data.index_room.map((d: any) => {
+        const indexRooms: IndexRoom[] = res.data.index_room.map((d: any): IndexRoom => {
             const room = new Room(
                 d.room.id,
                 d.room.name,

@@ -32,7 +32,7 @@ export const CommentRepository = {
     show: async (postID: number): Promise<CommentWithUser[]> => {
         const apiClient = await asyncApiClient.create();
         const res = await apiClient.get(`comments/${postID}`);
-        const commentsWithUserr = res.data.map((d: any) => {
+        const commentsWithUser = res.data.map((d: any):CommentWithUser  => {
             const comment = new Comment(
                 d.comment.id,
                 d.comment.post_id,
@@ -48,7 +48,7 @@ export const CommentRepository = {
             };
         });
 
-        return commentsWithUserr;
+        return commentsWithUser;
     },
 
     update: async (id: number, text: string, img?: string): Promise<Comment> => {

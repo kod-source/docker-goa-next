@@ -87,24 +87,26 @@ export const PostRepository = {
         const likes: Like[] = data.likes.map((l: any) => {
             return { id: l.id, userId: l.user_id, postId: l.post_id };
         });
-        const commentsWithUsers: CommentWithUser[] = data.comments_with_users.map((cu: any) => {
-            return {
-                comment: new Comment(
-                    cu.comment.id,
-                    cu.comment.post_id,
-                    cu.comment.user_id,
-                    cu.comment.text,
-                    new Date(cu.comment.created_at),
-                    new Date(cu.comment.updated_at),
-                    cu.comment.img,
-                ),
-                user: {
-                    id: cu.user.id,
-                    name: cu.user.name,
-                    avatar: cu.user.avatar,
-                },
-            };
-        });
+        const commentsWithUsers: CommentWithUser[] = data.comments_with_users.map(
+            (cu: any): CommentWithUser => {
+                return {
+                    comment: new Comment(
+                        cu.comment.id,
+                        cu.comment.post_id,
+                        cu.comment.user_id,
+                        cu.comment.text,
+                        new Date(cu.comment.created_at),
+                        new Date(cu.comment.updated_at),
+                        cu.comment.img,
+                    ),
+                    user: {
+                        id: cu.user.id,
+                        name: cu.user.name,
+                        avatar: cu.user.avatar,
+                    },
+                };
+            },
+        );
 
         return {
             post: new Post(
@@ -129,7 +131,7 @@ export const PostRepository = {
     showMyLike: async (nextID: number): Promise<PostAllLimit> => {
         const apiClient = await asyncApiClient.create();
         const res = await apiClient.get(`posts/my_like?next_id=${nextID}`);
-        const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any) => {
+        const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any): PostWithUser => {
             const post = new Post(
                 d.post.id,
                 d.post.user_id,
@@ -156,7 +158,7 @@ export const PostRepository = {
     showPostLike: async (nextID: number, userID: number): Promise<PostAllLimit> => {
         const apiClient = await asyncApiClient.create();
         const res = await apiClient.get(`posts/likes/${userID}?next_id=${nextID}`);
-        const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any) => {
+        const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any): PostWithUser => {
             const post = new Post(
                 d.post.id,
                 d.post.user_id,
@@ -183,7 +185,7 @@ export const PostRepository = {
     showPostMy: async (nextID: number, userID: number): Promise<PostAllLimit> => {
         const apiClient = await asyncApiClient.create();
         const res = await apiClient.get(`posts/my_post/${userID}?next_id=${nextID}`);
-        const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any) => {
+        const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any): PostWithUser => {
             const post = new Post(
                 d.post.id,
                 d.post.user_id,
@@ -210,7 +212,7 @@ export const PostRepository = {
     showPostMedia: async (nextID: number, userID: number): Promise<PostAllLimit> => {
         const apiClient = await asyncApiClient.create();
         const res = await apiClient.get(`posts/my_media/${userID}?next_id=${nextID}`);
-        const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any) => {
+        const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any): PostWithUser => {
             const post = new Post(
                 d.post.id,
                 d.post.user_id,
