@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -13,6 +15,7 @@ import (
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	"github.com/kod-source/docker-goa-next/webapi/app/test"
+	goa "github.com/shogo82148/goa-v1"
 	"github.com/shogo82148/pointer"
 )
 
@@ -360,5 +363,86 @@ func Test_SignUp(t *testing.T) {
 			Name:     wantUserName,
 			Password: wantPassword,
 		})
+	})
+}
+
+func Test_newAuthMiddleware(t *testing.T) {
+	testHelper := func(middleware goa.Middleware, req *http.Request, h goa.Handler) (*httptest.ResponseRecorder, error) {
+		t.Helper()
+		service := goa.New("kd")
+		service.Encoder = goa.NewHTTPEncoder()
+		service.Encoder.Register(goa.NewJSONEncoder, "*/*")
+
+		rw := httptest.NewRecorder()
+		if err := middleware(h)(ctx, rw, req); err != nil {
+			return nil, err
+		}
+		rw.Flush()
+		return rw, nil
+	}
+
+	t.Run("[NG]認証ヘッダーなしの場合HTTPステータスが400を返すこと", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, "https://example.com", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		handler := func(ctx context.Context, _ http.ResponseWriter, _ *http.Request) error {
+			t.Fatal("must not reach here")
+			panic("認証エラーなので、エラーハンドラーは呼ばれない")
+		}
+
+		_, err = testHelper(newAuthMiddleware(), req, handler)
+		var goaErr goa.ServiceError
+		if !errors.As(err, &goaErr) {
+			t.Errorf("want goa.ServiceError, got %t", err)
+		}
+		if goaErr.ResponseStatus() != http.StatusBadRequest {
+			t.Errorf("unexpected status code: want %d, got %d", http.StatusBadRequest, goaErr.ResponseStatus())
+		}
+	})
+
+	t.Run("[NG]不正なトークンの場合HTTPステータスが400を返すこと", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, "https://example.com", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		handler := func(ctx context.Context, _ http.ResponseWriter, _ *http.Request) error {
+			t.Fatal("must not reach here")
+			panic("認証エラーなので、エラーハンドラーは呼ばれない")
+		}
+
+		// JWTではないトークン
+		req.Header.Set("Authorization", "Bearer VERY-VERY-SECRET")
+
+		_, err = testHelper(newAuthMiddleware(), req, handler)
+		var goaErr goa.ServiceError
+		if !errors.As(err, &goaErr) {
+			t.Errorf("want goa.ServiceError, got %t", err)
+		}
+		if goaErr.ResponseStatus() != http.StatusBadRequest {
+			t.Errorf("unexpected status code: want %d, got %d", http.StatusBadRequest, goaErr.ResponseStatus())
+		}
+	})
+
+	t.Run("[OK]正常なトークンの場合エラーが発生しないこと", func(t *testing.T) {
+		req, err := http.NewRequest(http.MethodGet, "https://example.com", nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		wantUserID := 1
+		handler := func(ctx context.Context, _ http.ResponseWriter, _ *http.Request) error {
+			if diff := cmp.Diff(wantUserID, getUserIDCode(ctx)); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return nil
+		}
+
+		// 正常なトークン
+		req.Header.Set("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NzYzNzk1ODMsInNjb3BlIjoiYXBpOmFjY2VzcyIsInN1YiI6ImF1dGggand0IiwidXNlcl9pZCI6MSwidXNlcl9uYW1lIjoi44Gp44KTIn0.Eu6fa77kpzZ-M19dUYY08efzxkxBDVv6Z6R9hJsyL9c")
+
+		if _, err = testHelper(newAuthMiddleware(), req, handler); err != nil {
+			t.Fatal(err)
+		}
 	})
 }
