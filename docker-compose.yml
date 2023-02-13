@@ -33,6 +33,8 @@ services:
     stdin_open: true
     ports:
       - 3000:3000
+    volumes:
+      - ./api:/go/src/app
     depends_on:
       - db
   client:
@@ -44,6 +46,8 @@ services:
     tty: true
     ports:
       - '8080:3000'
+    volumes:
+      - ./client:/usr/src/app
     depends_on:
       - api
 
