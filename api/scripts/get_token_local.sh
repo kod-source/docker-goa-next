@@ -11,7 +11,7 @@ EMAIL=$1
 PASSWORD=$2
 
 # JWTのトークン取得
-TOKEN=$(curl -X POST -H "Content-Type: application/json" -d '{"email":"'$EMAIL'", "password":"'$PASSWORD'"}' http://localhost:3000/login | jq -r '.token')
+TOKEN=$(curl -X POST -H "Content-Type: application/json" -d '{"email":"'$EMAIL'", "password":"'$PASSWORD'"}' http://localhost:3000/api/v1/login | jq -r '.token')
 
 if [ -z "$TOKEN" ] || [ "$TOKEN" == null ]; then
     echo "emailかpasswordが間違っております。" 1>&2
