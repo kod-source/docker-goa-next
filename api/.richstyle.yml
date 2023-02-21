@@ -1,0 +1,18 @@
+labelType: long
+buildStyle:
+  bold: true
+  foreground: yellow
+startStyle:
+  foreground: lightBlack
+passStyle:
+  foreground: green
+failStyle:
+  bold: true
+  foreground: red
+skipStyle:
+  foreground: lightBlack
+fileStyle:
+  bold: true
+  foreground: cyan
+lineStyle:
+  foreground: magenta
