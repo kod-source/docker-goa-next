@@ -24,7 +24,7 @@ updates:
     target-branch: develop
     ignore:
       - dependency-name: "*"
-        update-types: ["version-update-:semver-major"]
+        update-types: ["version-update:semver-major"]
     open-pull-requests-limit: 10
     reviewers:
       - kod-source
