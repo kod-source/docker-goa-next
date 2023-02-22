@@ -1,6 +1,6 @@
 module github.com/kod-source/docker-goa-next
 
-go 1.19
+go 1.20
 
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
