@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { AppContext } from "pages/_app";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { MessageInput } from "lib/components/MessageInput";
 
 interface Props {
     roomID: number;
@@ -22,7 +23,6 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
     const [nextID, setNextID] = useState<number | null>(0);
     const [isLoading, setIsLoading] = useState(false);
     const [againFetch, setAgainFetch] = useState(false);
-    const [message, setMessage] = useState("");
 
     const fetchData = async () => {
         await RoomRepository.show(roomID).then((value) => setShowRoom(value));
@@ -63,16 +63,9 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
         setAgainFetch(false);
     }, []);
 
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setMessage("");
-        alert("送信");
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === "Enter" && e.metaKey) {
-            onSubmit(e as any);
-        }
+    const onMessageSubmit = (message: string, imgData: string): void => {
+        console.log("message", message);
+        console.log("img", imgData);
     };
 
     if (!showRoom || !user) return <Loading />;
@@ -90,26 +83,11 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
                 {/* ルーム情報 */}
             </div>
             <div>{/* メッセージの表示 */}</div>
-            <div className='flex flex-col bg-gray-200 rounded-lg p-2'>
-                <form onSubmit={onSubmit}>
-                    <textarea
-                        className='resize-none w-full h-auto p-2 border rounded-md'
-                        style={{
-                            height: `${Math.max(60, message.split("\n").length * 20)}px`,
-                            maxHeight: "500px",
-                        }}
-                        placeholder={`${getRoomName(showRoom, user)}へのメッセージ`}
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                    />
-                    <button
-                        className='bg-blue-500 text-white rounded-lg py-2 mt-2 hover:bg-blue-700'
-                        type='submit'
-                    >
-                        Send
-                    </button>
-                </form>
+            <div className='flex flex-col rounded-lg my-2'>
+                <MessageInput
+                    onMessageSubmit={onMessageSubmit}
+                    placeholderMessage={`${getRoomName(showRoom, user)}へのメッセージ`}
+                />
             </div>
         </div>
     );
