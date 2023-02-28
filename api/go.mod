@@ -14,8 +14,8 @@ require (
 	github.com/shogo82148/pointer v1.2.0
 	github.com/spf13/cobra v1.6.1
 	github.com/tanimutomo/sqlfile v1.0.0
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
-	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
+	golang.org/x/crypto v0.6.0
+	golang.org/x/net v0.6.0
 )
 
 require (
