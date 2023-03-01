@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/kod-source/docker-goa-next/app/interactor/mock"
+	interactor "github.com/kod-source/docker-goa-next/app/interactor/mock"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/webapi/app"
@@ -21,8 +21,8 @@ import (
 
 func Test_Login(t *testing.T) {
 	srv := testApp.srv
-	uu := &mock.MockUserUsecase{}
-	ac := NewAuthController(srv, uu)
+	uu := &interactor.MockUserUsecase{}
+	ac := NewAuthController(srv, uu, nil)
 	wantUserID := model.UserID(1)
 	wantUserName := "test_user"
 	wantEmail := "test@gmail.com"
@@ -192,8 +192,8 @@ func Test_Login(t *testing.T) {
 
 func Test_SignUp(t *testing.T) {
 	srv := testApp.srv
-	uu := &mock.MockUserUsecase{}
-	ac := NewAuthController(srv, uu)
+	uu := &interactor.MockUserUsecase{}
+	ac := NewAuthController(srv, uu, nil)
 	wantUserName := "test_user"
 	wantEmail := "test@gmail.com"
 	wantPassword := "passowrd"
@@ -446,4 +446,28 @@ func Test_newAuthMiddleware(t *testing.T) {
 	// 		t.Fatal(err)
 	// 	}
 	// })
+}
+
+func Test_GoogleLogin(t *testing.T) {
+	srv := testApp.srv
+	uu := &interactor.MockGoogleUsecase{}
+	ac := NewAuthController(srv, nil, uu)
+	wantRedirectURL := "https://accounts.google.com/o/oauth2/auth?client_id=mock_client_id&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fcallback%2Fgoogle&response_type=code&scope=openid&state=test-state"
+
+	t.Run("[OK]GoogleアカウントログインリダイレクトURL取得", func(t *testing.T) {
+		uu.GetLoginURLFunc = func(state string) string {
+			return wantRedirectURL
+		}
+		defer func() {
+			uu.GetLoginURLFunc = nil
+		}()
+
+		want := &app.RedirectURI{
+			URL: wantRedirectURL,
+		}
+		_, got := test.GoogleLoginAuthOK(t, ctx, srv, ac)
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want, +got)\n%s", diff)
+		}
+	})
 }

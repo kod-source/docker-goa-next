@@ -9,7 +9,7 @@ import (
 )
 
 func Test_GetLoginURL(t *testing.T) {
-	oauthStateString := "pseudo-random"
+	oauthStateString := "test-state"
 	config := &oauth2.Config{
 		ClientID:     "mock_client_id",
 		ClientSecret: "mock_client_secret",
@@ -20,7 +20,7 @@ func Test_GetLoginURL(t *testing.T) {
 	gs := NewGoogleService(config)
 
 	t.Run("[OK]リダイレクトURL生成", func(t *testing.T) {
-		wantURL := "https://accounts.google.com/o/oauth2/auth?client_id=mock_client_id&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fcallback%2Fgoogle&response_type=code&scope=openid&state=pseudo-random"
+		wantURL := "https://accounts.google.com/o/oauth2/auth?client_id=mock_client_id&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fcallback%2Fgoogle&response_type=code&scope=openid&state=test-state"
 		gotURL := gs.GetLoginURL(oauthStateString)
 
 		if diff := cmp.Diff(wantURL, gotURL); diff != "" {

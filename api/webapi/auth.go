@@ -15,15 +15,20 @@ import (
 	goa "github.com/shogo82148/goa-v1"
 )
 
+const (
+	state = "pseudo-random"
+)
+
 // AuthController implements the auth resource.
 type AuthController struct {
 	*goa.Controller
 	uu usecase.UserUseCase
+	gu usecase.GoogleUsecase
 }
 
 // NewAuthController creates a auth controller.
-func NewAuthController(service *goa.Service, uu usecase.UserUseCase) *AuthController {
-	return &AuthController{Controller: service.NewController("AuthController"), uu: uu}
+func NewAuthController(service *goa.Service, uu usecase.UserUseCase, gu usecase.GoogleUsecase) *AuthController {
+	return &AuthController{Controller: service.NewController("AuthController"), uu: uu, gu: gu}
 }
 
 // Login runs the login action.
@@ -98,8 +103,9 @@ func (c *AuthController) SignUp(ctx *app.SignUpAuthContext) error {
 
 // GoogleLogin GoogleアカウントのログインのリダイレクトURL
 func (c *AuthController) GoogleLogin(ctx *app.GoogleLoginAuthContext) error {
+	url := c.gu.GetLoginURL(state)
 	return ctx.OK(&app.RedirectURI{
-		URL: "",
+		URL: url,
 	})
 }
 
