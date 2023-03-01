@@ -22,19 +22,13 @@ services:
       context: .
       dockerfile: ./docker/go/Dockerfile
       # target: dev
-    environment:
-      - END_POINT
-      - MYSQL_DATABASE
-      - MYSQL_USER
-      - MYSQL_PASSWORD
-      - MYSQL_PORT
-      - MYSQL_HOST
     tty: true
     stdin_open: true
     ports:
       - 3000:3000
     volumes:
       - ./api:/go/src/app
+    env_file: .env
     depends_on:
       - db
   client:
