@@ -33,6 +33,7 @@ func initService(service *goa.Service) {
 // AuthController is the controller interface for the Auth actions.
 type AuthController interface {
 	goa.Muxer
+	GoogleLogin(*GoogleLoginAuthContext) error
 	Login(*LoginAuthContext) error
 	SignUp(*SignUpAuthContext) error
 }
@@ -41,8 +42,25 @@ type AuthController interface {
 func MountAuthController(service *goa.Service, ctrl AuthController) {
 	initService(service)
 	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/api/v1/google/login", ctrl.MuxHandler("preflight", handleAuthOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/api/v1/login", ctrl.MuxHandler("preflight", handleAuthOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/api/v1/sign_up", ctrl.MuxHandler("preflight", handleAuthOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGoogleLoginAuthContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GoogleLogin(rctx)
+	}
+	h = handleAuthOrigin(h)
+	service.Mux.Handle("GET", "/api/v1/google/login", ctrl.MuxHandler("google_login", h, nil))
+	service.LogInfo("mount", "ctrl", "Auth", "action", "GoogleLogin", "route", "GET /api/v1/google/login")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

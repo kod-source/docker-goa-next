@@ -96,6 +96,13 @@ func (c *AuthController) SignUp(ctx *app.SignUpAuthContext) error {
 	})
 }
 
+// GoogleLogin GoogleアカウントのログインのリダイレクトURL
+func (c *AuthController) GoogleLogin(ctx *app.GoogleLoginAuthContext) error {
+	return ctx.OK(&app.RedirectURI{
+		URL: "",
+	})
+}
+
 // newAuthMiddleware JWT 発行す（APIGatewayにおいて検証済）からユーザ情報を取り出して Context に紐付ける
 func newAuthMiddleware() goa.Middleware {
 	return func(nextHandler goa.Handler) goa.Handler {

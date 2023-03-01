@@ -14,6 +14,39 @@ import (
 	"strconv"
 )
 
+// GoogleLoginAuthContext provides the auth google_login action context.
+type GoogleLoginAuthContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewGoogleLoginAuthContext parses the incoming request URL and body, performs validations and creates the
+// context used by the auth controller google_login action.
+func NewGoogleLoginAuthContext(ctx context.Context, r *http.Request, service *goa.Service) (*GoogleLoginAuthContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GoogleLoginAuthContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GoogleLoginAuthContext) OK(r *RedirectURI) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.redirect_uri+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GoogleLoginAuthContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // LoginAuthContext provides the auth login action context.
 type LoginAuthContext struct {
 	context.Context
