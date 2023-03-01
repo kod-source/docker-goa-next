@@ -32,9 +32,9 @@ type appConfig struct {
 }
 
 type GoogleConfig struct {
-	ClientEndPoint string `env:"CLIENT_END_POINT"`
-	ClientID       string `env:"GOOGLE_CLIENT_ID"`
-	ClientSecret   string `env:"GOOGLE_CLIENT_SECRET"`
+	Endpoint     string `env:"END_POINT"`
+	ClientID     string `env:"GOOGLE_CLIENT_ID"`
+	ClientSecret string `env:"GOOGLE_CLIENT_SECRET"`
 }
 
 func (a *App) LaunchServer() error {
@@ -65,7 +65,7 @@ func newGoogleConfig() (*oauth2.Config, error) {
 		ClientSecret: gcfg.ClientSecret,
 		Endpoint:     googleOAuth.Endpoint,
 		Scopes:       []string{"openid"},
-		RedirectURL:  fmt.Sprintf("%s/auth/callback/google", gcfg.ClientEndPoint),
+		RedirectURL:  fmt.Sprintf("%s/api/v1/auth/callback/google", gcfg.Endpoint),
 	}, nil
 }
 
