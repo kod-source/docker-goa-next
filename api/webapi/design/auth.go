@@ -57,6 +57,23 @@ var _ = Resource("auth", func() {
 		Response(OK, redirectURI)
 		Response(InternalServerError)
 	})
+	Action("google_callback", func() {
+		Routing(POST("google/callback"))
+		Description("コールバックURLからアカウント登録とトークンの返却")
+		Payload(func() {
+			Attribute("state", String, "ステート", func() {
+				Example("test-state")
+			})
+			Attribute("code", String, "認証コード", func() {
+				Example("40AWtgzh6GTNr-woVapzAGHlkG_NnEusbutSonN-pP_i2VG_xVRkYFuxh5a6E-vESk")
+			})
+			Required("state", "code")
+		})
+		Response(OK, token)
+		Response(Created, token)
+		Response(BadRequest)
+		Response(InternalServerError)
+	})
 })
 
 var token = MediaType("application/vnd.token+json", func() {

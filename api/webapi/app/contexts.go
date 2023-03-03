@@ -14,6 +14,99 @@ import (
 	"strconv"
 )
 
+// GoogleCallbackAuthContext provides the auth google_callback action context.
+type GoogleCallbackAuthContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *GoogleCallbackAuthPayload
+}
+
+// NewGoogleCallbackAuthContext parses the incoming request URL and body, performs validations and creates the
+// context used by the auth controller google_callback action.
+func NewGoogleCallbackAuthContext(ctx context.Context, r *http.Request, service *goa.Service) (*GoogleCallbackAuthContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GoogleCallbackAuthContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// googleCallbackAuthPayload is the auth google_callback action payload.
+type googleCallbackAuthPayload struct {
+	// 認証コード
+	Code *string `form:"code,omitempty" json:"code,omitempty" yaml:"code,omitempty" xml:"code,omitempty"`
+	// ステート
+	State *string `form:"state,omitempty" json:"state,omitempty" yaml:"state,omitempty" xml:"state,omitempty"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *googleCallbackAuthPayload) Validate() (err error) {
+	if payload.State == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "state"))
+	}
+	if payload.Code == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`raw`, "code"))
+	}
+	return
+}
+
+// Publicize creates GoogleCallbackAuthPayload from googleCallbackAuthPayload
+func (payload *googleCallbackAuthPayload) Publicize() *GoogleCallbackAuthPayload {
+	var pub GoogleCallbackAuthPayload
+	if payload.Code != nil {
+		pub.Code = *payload.Code
+	}
+	if payload.State != nil {
+		pub.State = *payload.State
+	}
+	return &pub
+}
+
+// GoogleCallbackAuthPayload is the auth google_callback action payload.
+type GoogleCallbackAuthPayload struct {
+	// 認証コード
+	Code string `form:"code" json:"code" yaml:"code" xml:"code"`
+	// ステート
+	State string `form:"state" json:"state" yaml:"state" xml:"state"`
+}
+
+// Validate runs the validation rules defined in the design.
+func (payload *GoogleCallbackAuthPayload) Validate() (err error) {
+
+	return
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GoogleCallbackAuthContext) OK(r *Token) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.token+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *GoogleCallbackAuthContext) Created(r *Token) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.token+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 201, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *GoogleCallbackAuthContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GoogleCallbackAuthContext) InternalServerError() error {
+	ctx.ResponseData.WriteHeader(500)
+	return nil
+}
+
 // GoogleLoginAuthContext provides the auth google_login action context.
 type GoogleLoginAuthContext struct {
 	context.Context
