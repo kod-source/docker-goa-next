@@ -11,8 +11,6 @@ import (
 func Test_GetLoginURL(t *testing.T) {
 	oauthStateString := "test-state"
 	config := &oauth2.Config{
-		// ClientID:     "696955483661-23oasvl67hlovraqrjbebofuv1oq87m3.apps.googleusercontent.com",
-		// ClientSecret: "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",
 		ClientID:     "mock_client_id",
 		ClientSecret: "mock_client_secret",
 		Endpoint:     googleOAuth.Endpoint,
@@ -36,10 +34,8 @@ func Test_GetLoginURL(t *testing.T) {
 
 // func Test_GetUserInfo(t *testing.T) {
 // 	config := &oauth2.Config{
-// 		ClientID:     "696955483661-23oasvl67hlovraqrjbebofuv1oq87m3.apps.googleusercontent.com",
-// 		ClientSecret: "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",
-// 		// ClientID:     "mock_client_id",
-// 		// ClientSecret: "mock_client_secret",
+// 		ClientID:     "mock_client_id",
+// 		ClientSecret: "mock_client_secret",
 // 		Endpoint: googleOAuth.Endpoint,
 // 		Scopes:   []string{"openid", "email", "profile"},
 // 		// Scopes:      []string{"openid"},
