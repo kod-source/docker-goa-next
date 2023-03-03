@@ -9,6 +9,7 @@ import (
 	"github.com/kod-source/docker-goa-next/app/service"
 	"golang.org/x/oauth2"
 	v2 "google.golang.org/api/oauth2/v2"
+	"google.golang.org/api/option"
 )
 
 var _ service.GoogleService = (*googleExternal)(nil)
@@ -46,8 +47,8 @@ func (g *googleExternal) GetUserInfo(ctx context.Context, code string) (*model.U
 	}
 
 	client := g.Config.Client(ctx, token)
-	service, err := v2.New(client)
-	// service, err := v2.NewService(ctx, option.WithClientCertSource(client))
+	// service, err := v2.New(client)
+	service, err := v2.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		fmt.Println("エラー2")
 		fmt.Println(err)
