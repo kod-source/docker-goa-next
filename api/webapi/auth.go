@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
@@ -112,14 +111,27 @@ func (c *AuthController) GoogleLogin(ctx *app.GoogleLoginAuthContext) error {
 
 // GoogleCallback コールバックURLからアカウント登録とトークンの返却
 func (c *AuthController) GoogleCallback(ctx *app.GoogleCallbackAuthContext) error {
-	return ctx.OK(&app.Token{
-		Token: "",
+	if state != ctx.Payload.State {
+		return ctx.BadRequest()
+	}
+
+	user, err := c.gu.GetOrCreateUserInfo(ctx, ctx.Payload.Code)
+	if err != nil {
+		return ctx.BadRequest()
+	}
+	token, err := c.uu.CreateJWTToken(ctx, user.ID, user.Name)
+	if err != nil {
+		return ctx.InternalServerError()
+	}
+
+	return ctx.Created(&app.Token{
+		Token: *token,
 		User: &app.User{
-			Avatar:    nil,
-			CreatedAt: &time.Time{},
-			Email:     nil,
-			ID:        0,
-			Name:      nil,
+			ID:        int(user.ID),
+			Email:     &user.Email,
+			Name:      &user.Name,
+			CreatedAt: &user.CreatedAt,
+			Avatar:    user.Avatar,
 		},
 	})
 }
