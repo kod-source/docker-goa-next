@@ -3,6 +3,7 @@ package external
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
@@ -62,5 +63,11 @@ func (g *googleExternal) GetUserInfo(ctx context.Context, code string) (*model.U
 	}
 	fmt.Println(userInfo)
 
-	return nil, nil
+	return &model.User{
+		ID:        1000,
+		Name:      "MockUser",
+		Email:     "mock@example.com",
+		CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, nil),
+		Avatar:    nil,
+	}, nil
 }
