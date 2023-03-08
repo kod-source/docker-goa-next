@@ -25,9 +25,9 @@ const GoogleCallback: NextPage<Props> = (props) => {
             router.push("/");
         } catch (e) {
             if (e instanceof Error) {
-                alert(e.message)
+                alert(e.message);
             }
-            router.push("/login")
+            router.push("/login");
         }
     };
 
