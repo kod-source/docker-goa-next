@@ -51,7 +51,7 @@ const Login: NextPage = () => {
     const googleLogin = async (): Promise<void> => {
         try {
             const redirect = await AuthRepository.googleLogin();
-            router.push(redirect.url)
+            router.push(redirect.url);
         } catch (e) {
             if (e instanceof Error) {
                 alert(e.message);
