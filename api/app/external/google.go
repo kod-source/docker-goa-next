@@ -2,15 +2,14 @@ package external
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"time"
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/service"
+	"github.com/shogo82148/pointer"
 	"golang.org/x/oauth2"
-	v2 "google.golang.org/api/oauth2/v2"
-	"google.golang.org/api/option"
 )
 
 var _ service.GoogleService = (*googleExternal)(nil)
@@ -38,36 +37,36 @@ func (g *googleExternal) GetLoginURL(state string) string {
 
 // GetUserInfo codeからユーザー情報を返す
 func (g *googleExternal) GetUserInfo(ctx context.Context, code string) (*model.User, error) {
-	fmt.Println("実行")
-	fmt.Println(code)
 	token, err := g.Config.Exchange(ctx, code)
 	if err != nil {
-		fmt.Println("エラー1")
-		fmt.Println(err)
 		return nil, err
 	}
 
-	client := g.Config.Client(ctx, token)
-	// service, err := v2.New(client)
-	service, err := v2.NewService(ctx, option.WithHTTPClient(client))
+	gu, err := g.getUserInfo(ctx, token)
 	if err != nil {
-		fmt.Println("エラー2")
-		fmt.Println(err)
 		return nil, err
 	}
-	userInfo, err := service.Tokeninfo().AccessToken(token.AccessToken).Context(ctx).Do()
-	if err != nil {
-		fmt.Println("エラー3")
-		fmt.Println(err)
-		return nil, err
-	}
-	fmt.Println(userInfo)
 
 	return &model.User{
-		ID:        1000,
-		Name:      "MockUser",
-		Email:     "mock@example.com",
+		Name:      gu.Name,
+		Email:     gu.Email,
 		CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, nil),
-		Avatar:    nil,
+		Avatar:    pointer.PtrOrNil(gu.Picture),
 	}, nil
+}
+
+func (g *googleExternal) getUserInfo(ctx context.Context, token *oauth2.Token) (*model.GoogleUser, error) {
+	client := g.Config.Client(ctx, token)
+	resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	var gu model.GoogleUser
+	if err := json.NewDecoder(resp.Body).Decode(&gu); err != nil {
+		return nil, err
+	}
+
+	return &gu, nil
 }
