@@ -64,7 +64,7 @@ func newGoogleConfig() (*oauth2.Config, error) {
 		ClientID:     gcfg.ClientID,
 		ClientSecret: gcfg.ClientSecret,
 		Endpoint:     googleOAuth.Endpoint,
-		Scopes:       []string{"openid"},
+		Scopes:       []string{"profile", "email", "openid"},
 		RedirectURL:  fmt.Sprintf("%s/auth/callback/google", gcfg.ClientEndpoint),
 	}, nil
 }
