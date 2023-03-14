@@ -2,10 +2,12 @@ package interactor
 
 import (
 	"context"
-	"time"
+	"database/sql"
+	"errors"
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
+	"github.com/kod-source/docker-goa-next/app/repository"
 	"github.com/kod-source/docker-goa-next/app/service"
 	"github.com/kod-source/docker-goa-next/app/usecase"
 )
@@ -19,10 +21,11 @@ var GoogleUsecaseSet = wire.NewSet(
 
 type googleInteractor struct {
 	gs service.GoogleService
+	ur repository.UserRepository
 }
 
-func NewGoogleUseCase(gs service.GoogleService) *googleInteractor {
-	return &googleInteractor{gs: gs}
+func NewGoogleUseCase(gs service.GoogleService, ur repository.UserRepository) *googleInteractor {
+	return &googleInteractor{gs: gs, ur: ur}
 }
 
 func (gi *googleInteractor) GetLoginURL(state string) string {
@@ -30,21 +33,20 @@ func (gi *googleInteractor) GetLoginURL(state string) string {
 }
 
 func (gi *googleInteractor) GetOrCreateUserInfo(ctx context.Context, code string) (*model.User, error) {
-	_, err := gi.gs.GetUserInfo(ctx, code)
+	gu, err := gi.gs.GetUserInfo(ctx, code)
 	if err != nil {
 		return nil, err
 	}
-	// ***
-	// ToDo for me
-	// - codeから検証したUserが存在する確認する
-	// - 存在しない場合はユーザーを作成する
-	// ***
-	mockUser := &model.User{
-		ID:        1000,
-		Name:      "mock_user",
-		Email:     "mock@example.com",
-		Avatar:    nil,
-		CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, nil),
+	user, err := gi.ur.GetUserByEmail(ctx, gu.Email)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			cu, err := gi.ur.CreateUser(ctx, gu.Name, gu.Email, "", &gu.Picture)
+			if err != nil {
+				return nil, err
+			}
+			return cu, nil
+		}
+		return nil, err
 	}
-	return mockUser, nil
+	return user, nil
 }
