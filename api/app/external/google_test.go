@@ -14,7 +14,7 @@ func Test_GetLoginURL(t *testing.T) {
 		ClientID:     "mock_client_id",
 		ClientSecret: "mock_client_secret",
 		Endpoint:     googleOAuth.Endpoint,
-		Scopes:       []string{"openid"},
+		Scopes:       []string{"profile", "email", "openid"},
 		RedirectURL:  "http://localhost:8080/auth/callback/google",
 	}
 	gs := NewGoogleService(config)
@@ -22,9 +22,6 @@ func Test_GetLoginURL(t *testing.T) {
 	t.Run("[OK]リダイレクトURL生成", func(t *testing.T) {
 		wantURL := "https://accounts.google.com/o/oauth2/auth?client_id=mock_client_id&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fcallback%2Fgoogle&response_type=code&scope=openid&state=test-state"
 		gotURL := gs.GetLoginURL(oauthStateString)
-		// fmt.Println("実行")
-		// fmt.Println(gotURL)
-		// panic("エラーです")
 
 		if diff := cmp.Diff(wantURL, gotURL); diff != "" {
 			t.Errorf("mismatch (-want, +got)\n%s", diff)
@@ -36,9 +33,8 @@ func Test_GetLoginURL(t *testing.T) {
 // 	config := &oauth2.Config{
 // 		ClientID:     "mock_client_id",
 // 		ClientSecret: "mock_client_secret",
-// 		Endpoint: googleOAuth.Endpoint,
-// 		Scopes:   []string{"openid", "email", "profile"},
-// 		// Scopes:      []string{"openid"},
+// 		Endpoint:     googleOAuth.Endpoint,
+// 		Scopes:       []string{"profile", "email", "openid"},
 // 		RedirectURL: "http://localhost:8080/auth/callback/google",
 // 	}
 // 	gs := NewGoogleService(config)

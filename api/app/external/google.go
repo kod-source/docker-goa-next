@@ -3,12 +3,10 @@ package external
 import (
 	"context"
 	"encoding/json"
-	"time"
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
 	"github.com/kod-source/docker-goa-next/app/service"
-	"github.com/shogo82148/pointer"
 	"golang.org/x/oauth2"
 )
 
@@ -36,7 +34,7 @@ func (g *googleExternal) GetLoginURL(state string) string {
 }
 
 // GetUserInfo codeからユーザー情報を返す
-func (g *googleExternal) GetUserInfo(ctx context.Context, code string) (*model.User, error) {
+func (g *googleExternal) GetUserInfo(ctx context.Context, code string) (*model.GoogleUser, error) {
 	token, err := g.Config.Exchange(ctx, code)
 	if err != nil {
 		return nil, err
@@ -46,13 +44,7 @@ func (g *googleExternal) GetUserInfo(ctx context.Context, code string) (*model.U
 	if err != nil {
 		return nil, err
 	}
-
-	return &model.User{
-		Name:      gu.Name,
-		Email:     gu.Email,
-		CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, nil),
-		Avatar:    pointer.PtrOrNil(gu.Picture),
-	}, nil
+	return gu, nil
 }
 
 func (g *googleExternal) getUserInfo(ctx context.Context, token *oauth2.Token) (*model.GoogleUser, error) {
