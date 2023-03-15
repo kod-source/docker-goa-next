@@ -18,6 +18,9 @@ const GoogleCallback: NextPage<Props> = (props) => {
     const { setUser } = useContext(AppContext);
 
     const googleCallBackLogin = async () => {
+        if (props.code === "") {
+            return;
+        }
         try {
             const auth = await AuthRepository.googleCallBack(props.code, props.state);
             localStorage.setItem("token", auth.token);
