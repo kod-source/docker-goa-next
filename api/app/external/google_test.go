@@ -28,22 +28,3 @@ func Test_GetLoginURL(t *testing.T) {
 		}
 	})
 }
-
-// func Test_GetUserInfo(t *testing.T) {
-// 	config := &oauth2.Config{
-// 		ClientID:     "mock_client_id",
-// 		ClientSecret: "mock_client_secret",
-// 		Endpoint:     googleOAuth.Endpoint,
-// 		Scopes:       []string{"profile", "email", "openid"},
-// 		RedirectURL: "http://localhost:8080/auth/callback/google",
-// 	}
-// 	gs := NewGoogleService(config)
-// 	wantCode := "4%2F0AWtgzh6GTNr-woVapzAGHlkG_NnEusbutSonN-pP_i2VG_xVRkYFuxh5a6E-vESkj5vWSA"
-
-// 	t.Run("[OK]Googleアカウントでログインするユーザー情報の取得", func(t *testing.T) {
-// 		_, err := gs.GetUserInfo(ctx, wantCode)
-// 		if err != nil {
-// 			t.Fatal(err)
-// 		}
-// 	})
-// }
