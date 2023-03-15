@@ -448,6 +448,24 @@ definitions:
     - post_id
     title: DeleteLikesPayload
     type: object
+  GoogleCallbackAuthPayload:
+    example:
+      code: 40AWtgzh6GTNr-woVapzAGHlkG_NnEusbutSonN-pP_i2VG_xVRkYFuxh5a6E-vESk
+      state: test-state
+    properties:
+      code:
+        description: 認証コード
+        example: 40AWtgzh6GTNr-woVapzAGHlkG_NnEusbutSonN-pP_i2VG_xVRkYFuxh5a6E-vESk
+        type: string
+      state:
+        description: ステート
+        example: test-state
+        type: string
+    required:
+    - state
+    - code
+    title: GoogleCallbackAuthPayload
+    type: object
   Index_post_json:
     description: 投稿 (default view)
     example:
@@ -864,6 +882,19 @@ definitions:
     - user_id
     - title
     title: 'Mediatype identifier: application/vnd.post_json; view=default'
+    type: object
+  Redirect_uri:
+    description: リダイレクト先のURL (default view)
+    example:
+      url: https://accounts.google.com/o/oauth2/auth?client_id=mock_client_id&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fcallback%2Fgoogle&response_type=code&scope=openid&state=pseudo-random
+    properties:
+      url:
+        description: URL
+        example: https://accounts.google.com/o/oauth2/auth?client_id=mock_client_id&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fcallback%2Fgoogle&response_type=code&scope=openid&state=pseudo-random
+        type: string
+    required:
+    - url
+    title: 'Mediatype identifier: application/vnd.redirect_uri+json; view=default'
     type: object
   Room:
     description: ルーム (default view)
@@ -1716,6 +1747,54 @@ paths:
       summary: get_current_user users
       tags:
       - users
+  /google/callback:
+    post:
+      description: コールバックURLからアカウント登録とトークンの返却
+      operationId: auth#google_callback
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/GoogleCallbackAuthPayload'
+      produces:
+      - application/vnd.token+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Token'
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Token'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      summary: google_callback auth
+      tags:
+      - auth
+  /google/login:
+    get:
+      description: Googleアカウントでログインの際のリダイレクトURL取得
+      operationId: auth#google_login
+      produces:
+      - application/vnd.redirect_uri+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Redirect_uri'
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      summary: google_login auth
+      tags:
+      - auth
   /likes:
     delete:
       description: |-
