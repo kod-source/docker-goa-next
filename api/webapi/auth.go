@@ -15,15 +15,20 @@ import (
 	goa "github.com/shogo82148/goa-v1"
 )
 
+const (
+	state = "pseudo-random"
+)
+
 // AuthController implements the auth resource.
 type AuthController struct {
 	*goa.Controller
 	uu usecase.UserUseCase
+	gu usecase.GoogleUsecase
 }
 
 // NewAuthController creates a auth controller.
-func NewAuthController(service *goa.Service, uu usecase.UserUseCase) *AuthController {
-	return &AuthController{Controller: service.NewController("AuthController"), uu: uu}
+func NewAuthController(service *goa.Service, uu usecase.UserUseCase, gu usecase.GoogleUsecase) *AuthController {
+	return &AuthController{Controller: service.NewController("AuthController"), uu: uu, gu: gu}
 }
 
 // Login runs the login action.
@@ -91,6 +96,41 @@ func (c *AuthController) SignUp(ctx *app.SignUpAuthContext) error {
 			ID:        int(user.ID),
 			Name:      &user.Name,
 			Password:  &user.Password,
+			Avatar:    user.Avatar,
+		},
+	})
+}
+
+// GoogleLogin GoogleアカウントのログインのリダイレクトURL
+func (c *AuthController) GoogleLogin(ctx *app.GoogleLoginAuthContext) error {
+	url := c.gu.GetLoginURL(state)
+	return ctx.OK(&app.RedirectURI{
+		URL: url,
+	})
+}
+
+// GoogleCallback コールバックURLからアカウント登録とトークンの返却
+func (c *AuthController) GoogleCallback(ctx *app.GoogleCallbackAuthContext) error {
+	if state != ctx.Payload.State {
+		return ctx.BadRequest()
+	}
+
+	user, err := c.gu.GetOrCreateUserInfo(ctx, ctx.Payload.Code)
+	if err != nil {
+		return ctx.BadRequest()
+	}
+	token, err := c.uu.CreateJWTToken(ctx, user.ID, user.Name)
+	if err != nil {
+		return ctx.InternalServerError()
+	}
+
+	return ctx.Created(&app.Token{
+		Token: *token,
+		User: &app.User{
+			ID:        int(user.ID),
+			Email:     &user.Email,
+			Name:      &user.Name,
+			CreatedAt: &user.CreatedAt,
 			Avatar:    user.Avatar,
 		},
 	})

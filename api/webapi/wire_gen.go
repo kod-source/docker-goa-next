@@ -45,7 +45,13 @@ func NewApp(ctx context.Context) (*App, error) {
 	commentDatastore := datastore.NewCommentDatastore(db, timeRepository)
 	commentInteractor := interactor.NewCommentInteractor(commentDatastore)
 	commentsController := NewCommentsController(service, commentInteractor)
-	authController := NewAuthController(service, userInteractor)
+	oauth2Config, err := newGoogleConfig()
+	if err != nil {
+		return nil, err
+	}
+	googleExternal := external.NewGoogleService(oauth2Config)
+	googleInteractor := interactor.NewGoogleUseCase(googleExternal, userDatastore)
+	authController := NewAuthController(service, userInteractor, googleInteractor)
 	roomDatastore := datastore.NewRoomDatastore(db, timeRepository)
 	roomInteractor := interactor.NewRoomInterractor(roomDatastore)
 	roomController := NewRoomController(service, roomInteractor)

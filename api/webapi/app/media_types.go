@@ -440,6 +440,20 @@ func (mt *PostJSON) Validate() (err error) {
 	return
 }
 
+// リダイレクト先のURL (default view)
+//
+// Identifier: application/vnd.redirect_uri+json; view=default
+type RedirectURI struct {
+	// URL
+	URL string `form:"url" json:"url" yaml:"url" xml:"url"`
+}
+
+// Validate validates the RedirectURI media type instance.
+func (mt *RedirectURI) Validate() (err error) {
+
+	return
+}
+
 // ルーム (default view)
 //
 // Identifier: application/vnd.room; view=default

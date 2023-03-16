@@ -4,6 +4,7 @@ package webapi
 
 import (
 	"context"
+	"fmt"
 	"net"
 
 	"github.com/caarlos0/env"
@@ -12,6 +13,8 @@ import (
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	"github.com/shogo82148/goa-v1"
 	"github.com/shogo82148/goa-v1/middleware"
+	"golang.org/x/oauth2"
+	googleOAuth "golang.org/x/oauth2/google"
 )
 
 type App struct {
@@ -20,11 +23,18 @@ type App struct {
 
 type appConfig struct {
 	APIEndPoint      string `env:"END_POINT"`
+	ClientEndPoint   string `env:"CLIENT_END_POINT"`
 	DatabaseName     string `env:"MYSQL_DATABASE,required"`
 	DatabaseUser     string `env:"MYSQL_USER,required"`
 	DatabasePassword string `env:"MYSQL_PASSWORD,required"`
 	DatabasePort     string `env:"MYSQL_PORT" envDefault:"3306"`
 	DatabaseHost     string `env:"MYSQL_HOST,required"`
+}
+
+type GoogleConfig struct {
+	ClientEndpoint     string `env:"CLIENT_END_POINT"`
+	ClientID     string `env:"GOOGLE_CLIENT_ID"`
+	ClientSecret string `env:"GOOGLE_CLIENT_SECRET"`
 }
 
 func (a *App) LaunchServer() error {
@@ -42,6 +52,21 @@ func getAppConfig() (*appConfig, error) {
 	}
 
 	return &cfg, nil
+}
+
+func newGoogleConfig() (*oauth2.Config, error) {
+	gcfg := GoogleConfig{}
+	if err := env.Parse(&gcfg); err != nil {
+		return nil, err
+	}
+
+	return &oauth2.Config{
+		ClientID:     gcfg.ClientID,
+		ClientSecret: gcfg.ClientSecret,
+		Endpoint:     googleOAuth.Endpoint,
+		Scopes:       []string{"profile", "email", "openid"},
+		RedirectURL:  fmt.Sprintf("%s/auth/callback/google", gcfg.ClientEndpoint),
+	}, nil
 }
 
 func newService() *goa.Service {

@@ -22,6 +22,455 @@ import (
 	"testing"
 )
 
+// GoogleCallbackAuthBadRequest runs the method GoogleCallback of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GoogleCallbackAuthBadRequest(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.AuthController, payload *app.GoogleCallbackAuthPayload) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/google/callback"),
+	}
+	req := httptest.NewRequest("POST", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "AuthTest"), rw, req, prms)
+	googleCallbackCtx, _err := app.NewGoogleCallbackAuthContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil
+	}
+	googleCallbackCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.GoogleCallback(googleCallbackCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 400 {
+		t.Errorf("invalid response status code: got %+v, expected 400", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// GoogleCallbackAuthCreated runs the method GoogleCallback of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GoogleCallbackAuthCreated(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.AuthController, payload *app.GoogleCallbackAuthPayload) (http.ResponseWriter, *app.Token) {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil, nil
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/google/callback"),
+	}
+	req := httptest.NewRequest("POST", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "AuthTest"), rw, req, prms)
+	googleCallbackCtx, _err := app.NewGoogleCallbackAuthContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil, nil
+	}
+	googleCallbackCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.GoogleCallback(googleCallbackCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 201 {
+		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
+	}
+	var mt *app.Token
+	if resp != nil {
+		var __ok bool
+		mt, __ok = resp.(*app.Token)
+		if !__ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Token", resp, resp)
+		}
+		_err = mt.Validate()
+		if _err != nil {
+			t.Errorf("invalid response media type: %s", _err)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// GoogleCallbackAuthInternalServerError runs the method GoogleCallback of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GoogleCallbackAuthInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.AuthController, payload *app.GoogleCallbackAuthPayload) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/google/callback"),
+	}
+	req := httptest.NewRequest("POST", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "AuthTest"), rw, req, prms)
+	googleCallbackCtx, _err := app.NewGoogleCallbackAuthContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil
+	}
+	googleCallbackCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.GoogleCallback(googleCallbackCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 500 {
+		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// GoogleCallbackAuthOK runs the method GoogleCallback of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GoogleCallbackAuthOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.AuthController, payload *app.GoogleCallbackAuthPayload) (http.ResponseWriter, *app.Token) {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil, nil
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/google/callback"),
+	}
+	req := httptest.NewRequest("POST", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "AuthTest"), rw, req, prms)
+	googleCallbackCtx, _err := app.NewGoogleCallbackAuthContext(goaCtx, req, service)
+	if _err != nil {
+		_e, _ok := _err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil, nil
+	}
+	googleCallbackCtx.Payload = payload
+
+	// Perform action
+	_err = ctrl.GoogleCallback(googleCallbackCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
+	}
+	var mt *app.Token
+	if resp != nil {
+		var __ok bool
+		mt, __ok = resp.(*app.Token)
+		if !__ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.Token", resp, resp)
+		}
+		_err = mt.Validate()
+		if _err != nil {
+			t.Errorf("invalid response media type: %s", _err)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// GoogleLoginAuthInternalServerError runs the method GoogleLogin of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GoogleLoginAuthInternalServerError(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.AuthController) http.ResponseWriter {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/google/login"),
+	}
+	req := httptest.NewRequest("GET", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "AuthTest"), rw, req, prms)
+	googleLoginCtx, err := app.NewGoogleLoginAuthContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+
+	// Perform action
+	err = ctrl.GoogleLogin(googleLoginCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 500 {
+		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
+// GoogleLoginAuthOK runs the method GoogleLogin of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GoogleLoginAuthOK(t testing.TB, ctx context.Context, service *goa.Service, ctrl app.AuthController) (http.ResponseWriter, *app.RedirectURI) {
+	t.Helper()
+
+	// Setup service
+	var (
+		logBuf strings.Builder
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/google/login"),
+	}
+	req := httptest.NewRequest("GET", u.String(), nil)
+	req = req.WithContext(ctx)
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "AuthTest"), rw, req, prms)
+	googleLoginCtx, err := app.NewGoogleLoginAuthContext(goaCtx, req, service)
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil, nil
+	}
+
+	// Perform action
+	err = ctrl.GoogleLogin(googleLoginCtx)
+
+	// Validate response
+	if err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", err, logBuf.String())
+	}
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
+	}
+	var mt *app.RedirectURI
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(*app.RedirectURI)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.RedirectURI", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
 // LoginAuthBadRequest runs the method Login of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.

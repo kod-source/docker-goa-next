@@ -33,6 +33,8 @@ func initService(service *goa.Service) {
 // AuthController is the controller interface for the Auth actions.
 type AuthController interface {
 	goa.Muxer
+	GoogleCallback(*GoogleCallbackAuthContext) error
+	GoogleLogin(*GoogleLoginAuthContext) error
 	Login(*LoginAuthContext) error
 	SignUp(*SignUpAuthContext) error
 }
@@ -41,8 +43,48 @@ type AuthController interface {
 func MountAuthController(service *goa.Service, ctrl AuthController) {
 	initService(service)
 	var h goa.Handler
+	service.Mux.Handle("OPTIONS", "/api/v1/google/callback", ctrl.MuxHandler("preflight", handleAuthOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/api/v1/google/login", ctrl.MuxHandler("preflight", handleAuthOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/api/v1/login", ctrl.MuxHandler("preflight", handleAuthOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/api/v1/sign_up", ctrl.MuxHandler("preflight", handleAuthOrigin(cors.HandlePreflight()), nil))
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGoogleCallbackAuthContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*GoogleCallbackAuthPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.GoogleCallback(rctx)
+	}
+	h = handleAuthOrigin(h)
+	service.Mux.Handle("POST", "/api/v1/google/callback", ctrl.MuxHandler("google_callback", h, unmarshalGoogleCallbackAuthPayload))
+	service.LogInfo("mount", "ctrl", "Auth", "action", "GoogleCallback", "route", "POST /api/v1/google/callback")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGoogleLoginAuthContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GoogleLogin(rctx)
+	}
+	h = handleAuthOrigin(h)
+	service.Mux.Handle("GET", "/api/v1/google/login", ctrl.MuxHandler("google_login", h, nil))
+	service.LogInfo("mount", "ctrl", "Auth", "action", "GoogleLogin", "route", "GET /api/v1/google/login")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -113,6 +155,21 @@ func handleAuthOrigin(h goa.Handler) goa.Handler {
 
 		return h(ctx, rw, req)
 	}
+}
+
+// unmarshalGoogleCallbackAuthPayload unmarshals the request body into the context request data Payload field.
+func unmarshalGoogleCallbackAuthPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &googleCallbackAuthPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
 }
 
 // unmarshalLoginAuthPayload unmarshals the request body into the context request data Payload field.

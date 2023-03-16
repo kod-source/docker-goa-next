@@ -8,6 +8,7 @@ import { useContext, useState } from "react";
 import { isAxiosError, MyAxiosError } from "../lib/axios";
 import { AuthRepository } from "../lib/repository/auth";
 import { AppContext } from "./_app";
+import GoogleIcon from "@mui/icons-material/Google";
 
 function Copyright(props: any) {
     return (
@@ -46,6 +47,18 @@ const Login: NextPage = () => {
             }
         }
     };
+
+    const googleLogin = async (): Promise<void> => {
+        try {
+            const redirect = await AuthRepository.googleLogin();
+            router.push(redirect.url);
+        } catch (e) {
+            if (e instanceof Error) {
+                alert(e.message);
+            }
+        }
+    };
+
     return (
         <div>
             <Head>
@@ -120,6 +133,18 @@ const Login: NextPage = () => {
                                     sx={{ mt: 3, mb: 2 }}
                                 >
                                     Sign In
+                                </Button>
+                                <Button
+                                    fullWidth
+                                    variant='contained'
+                                    className='bg-blue-white text-blue-700 font-bold'
+                                    sx={{ mt: 3, mb: 2 }}
+                                    onClick={() => googleLogin()}
+                                >
+                                    <span className='mr-1'>
+                                        <GoogleIcon />
+                                    </span>
+                                    Google アカウントでログイン
                                 </Button>
                                 <Button onClick={() => router.push("/sign_up")}>
                                     新規アカウント作成はこちら
