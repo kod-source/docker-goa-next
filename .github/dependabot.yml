@@ -22,9 +22,9 @@ updates:
     schedule:
       interval: "weekly"
     target-branch: develop
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+    allow:
+      - dependency-type: "direct"
+        update-types: ["minor", "patch"]
     open-pull-requests-limit: 10
     reviewers:
       - kod-source
