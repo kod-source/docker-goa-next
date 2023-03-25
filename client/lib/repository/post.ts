@@ -10,7 +10,7 @@ export const PostRepository = {
     index: async (nextID: number): Promise<PostAllLimit> => {
         const apiClient = await asyncApiClient.create();
         const res = await apiClient.get(`posts?next_id=${nextID}`);
-        const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any) => {
+        const postsWithUser: PostWithUser[] = res.data.show_posts.map((d: any): PostWithUser => {
             const post = new Post(
                 d.post.id,
                 d.post.user_id,
