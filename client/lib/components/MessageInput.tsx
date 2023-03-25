@@ -5,7 +5,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { Button } from "@mui/material";
 
 interface Props {
-    onMessageSubmit: (message: string, imgData: string) => void;
+    onMessageSubmit: (message: string, imgData: string) => Promise<void>;
     placeholderMessage: string;
 }
 
@@ -18,7 +18,7 @@ export const MessageInput: FC<Props> = (props) => {
         if (!message && !imgData) {
             return;
         }
-        props.onMessageSubmit(message, imgData);
+        await props.onMessageSubmit(message, imgData);
         setMessage("");
         setImgData("");
     };

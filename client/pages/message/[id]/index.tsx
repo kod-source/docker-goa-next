@@ -63,9 +63,9 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
         setAgainFetch(false);
     }, []);
 
-    const onMessageSubmit = (message: string, imgData: string): void => {
-        console.log("message", message);
-        console.log("img", imgData);
+    const onMessageSubmit = async (message: string, imgData: string): Promise<void> => {
+        const threadUser = await ThreadRepository.create(roomID, message, imgData);
+        setIndexThread((old) => [...old, { threadUser: threadUser, countContent: 0 }]);
     };
 
     if (!showRoom || !user) return <Loading />;
