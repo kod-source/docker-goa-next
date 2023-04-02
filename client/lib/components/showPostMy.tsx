@@ -53,21 +53,26 @@ export const ShowPostMy: FC<Props> = ({
 
     const fetchData = async () => {
         if (nextID == null) return;
-        setIsLoading(true);
-        const allPostLimit =
-            value === UserPostSelection.My
-                ? await PostRepository.showPostMy(nextID, showUser.id)
-                : value === UserPostSelection.Media
-                ? await PostRepository.showPostMedia(nextID, showUser.id)
-                : await PostRepository.showPostLike(nextID, showUser.id);
-        setNextID(allPostLimit.nextId);
-        setPostsWithUser((old) => {
-            if (nextID === 0) {
-                return allPostLimit.postsWithUsers;
+        try {
+            setIsLoading(true);
+            const allPostLimit =
+                value === UserPostSelection.My
+                    ? await PostRepository.showPostMy(nextID, showUser.id)
+                    : value === UserPostSelection.Media
+                    ? await PostRepository.showPostMedia(nextID, showUser.id)
+                    : await PostRepository.showPostLike(nextID, showUser.id);
+            setPostsWithUser((old) => {
+                if (nextID === 0) {
+                    return allPostLimit.postsWithUsers;
+                }
+                return [...old, ...allPostLimit.postsWithUsers];
+            });
+            setIsLoading(false);
+        } catch (e) {
+            if (e instanceof Error) {
+                alert(e.message);
             }
-            return [...old, ...allPostLimit.postsWithUsers];
-        });
-        setIsLoading(false);
+        }
     };
 
     useEffect(() => {
