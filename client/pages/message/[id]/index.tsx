@@ -83,19 +83,19 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
     if (!showRoom || !user) return <Loading />;
     return (
         <div className='mx-auto w-3/5'>
-            <div className='my-5 flex'>
+            <div className='mt-10 pb-5 flex border border-neutral-700 p-2'>
                 <ArrowBackIcon
                     className='mr-5 cursor-pointer hover:opacity-60'
                     onClick={() => router.push("/message")}
                 />
                 <h2>メッセージ一覧</h2>
             </div>
-            <div>
+            <div className='px-5 border border-neutral-700 border-t-0'>
                 {showRoom.room.isGroup ? (
                     <div className='flex items-center'>
                         <Avatar src={showRoom.room.img} />
                         <p className='mx-5'>{showRoom.room.name}</p>
-                        <div className='flex items-center ml-auto border border-neutral-700 rounded-md p-2'>
+                        <div className='flex items-center ml-auto border border-neutral-700 rounded-md p-1 my-3'>
                             {showRoom.users
                                 .filter((u) => u.id !== user.id)
                                 .map((u) => (
@@ -130,8 +130,10 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
                     </div>
                 )}
             </div>
-            <div>{/* メッセージの表示 */}</div>
-            <div className='flex flex-col rounded-lg my-2 w-3/5 absolute bottom-10'>
+            <div className='border border-neutral-700 border-t-0 border-b-0 h-[100px]'>
+                {/* メッセージの表示 */}
+            </div>
+            <div className='fixed bottom-0 w-3/5 mx-auto left-0 right-0 px-5 py-3'>
                 <MessageInput
                     onMessageSubmit={onMessageSubmit}
                     placeholderMessage={`${getRoomName(showRoom, user)}へのメッセージ`}
