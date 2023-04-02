@@ -22,7 +22,7 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
     const [indexThreads, setIndexThread] = useState<IndexThread[]>([]);
     const [nextID, setNextID] = useState<number | null>(0);
     const [isLoading, setIsLoading] = useState(false);
-    const [againFetch, setAgainFetch] = useState(false);
+    const [againFetch, setAgainFetch] = useState(true);
 
     const fetchData = async () => {
         await RoomRepository.show(roomID).then((value) => setShowRoom(value));
@@ -83,11 +83,11 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
                 {/* ルーム情報 */}
             </div>
             <div>{/* メッセージの表示 */}</div>
-            <div className='flex flex-col rounded-lg my-2'>
-                <MessageInput
-                    onMessageSubmit={onMessageSubmit}
-                    placeholderMessage={`${getRoomName(showRoom, user)}へのメッセージ`}
-                />
+            <div className='flex flex-col rounded-lg my-2 w-3/5 absolute bottom-10'>
+                    <MessageInput
+                        onMessageSubmit={onMessageSubmit}
+                        placeholderMessage={`${getRoomName(showRoom, user)}へのメッセージ`}
+                    />
             </div>
         </div>
     );

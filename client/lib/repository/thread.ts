@@ -7,7 +7,7 @@ export const ThreadRepository = {
     getByRoom: async (roomID: number, nextID: number): Promise<AllThread> => {
         const apiClient = await asyncApiClient.create();
         const res = await apiClient.get(`threads/room/${roomID}?next_id=${nextID}`);
-        const indexThreads: IndexThread[] = res.data.map((d: any): IndexThread => {
+        const indexThreads: IndexThread[] = res.data.index_threads.map((d: any): IndexThread => {
             const thread = d.thread_user.thread;
             const user = d.thread_user.user;
             return {
@@ -41,7 +41,7 @@ export const ThreadRepository = {
         const apiClient = await asyncApiClient.create();
         const res = await apiClient.post(`threads`, {
             text: text,
-            room_id: roomID,
+            room_id: Number(roomID),
             img: img,
         });
         const thread = res.data.thread;
