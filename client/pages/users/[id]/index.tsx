@@ -61,7 +61,7 @@ const ShowUser: NextPage<Props> = ({ id }) => {
                             false,
                             [myUserId, id],
                         );
-                        router.push(`message/${showRoom.room.id}`);
+                        router.push(`/message/${showRoom.room.id}`);
                     } catch (e) {
                         if (e instanceof Error) {
                             return alert(e.message);
