@@ -84,10 +84,10 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
             </div>
             <div>{/* メッセージの表示 */}</div>
             <div className='flex flex-col rounded-lg my-2 w-3/5 absolute bottom-10'>
-                    <MessageInput
-                        onMessageSubmit={onMessageSubmit}
-                        placeholderMessage={`${getRoomName(showRoom, user)}へのメッセージ`}
-                    />
+                <MessageInput
+                    onMessageSubmit={onMessageSubmit}
+                    placeholderMessage={`${getRoomName(showRoom, user)}へのメッセージ`}
+                />
             </div>
         </div>
     );
