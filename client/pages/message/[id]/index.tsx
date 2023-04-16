@@ -12,6 +12,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { MessageInput } from "lib/components/MessageInput";
 import { Avatar } from "@mui/material";
 import { isAxiosError } from "lib/axios";
+import { DateTime } from "luxon";
+import { toStringlinefeed } from "lib/components/text";
 
 interface Props {
     roomID: number;
@@ -131,7 +133,27 @@ const ShowMessage: NextPage<Props> = ({ roomID }) => {
                 )}
             </div>
             <div className='border border-neutral-700 border-t-0 border-b-0 h-[100px]'>
-                {/* メッセージの表示 */}
+                {indexThreads.map((ih) => (
+                    <div key={ih.threadUser.thread.id} className='flex m-5'>
+                        <Avatar src={ih.threadUser.user.avatar} />
+                        <div className='ml-5'>
+                            <p>
+                                {ih.threadUser.user.name}
+                                <span className='ml-2'>
+                                    {DateTime.fromJSDate(ih.threadUser.thread.createdAt).toFormat(
+                                        "yyyy年MM月dd日 hh:mm",
+                                    )}
+                                </span>
+                            </p>
+                            <p>{toStringlinefeed(ih.threadUser.thread.text)}</p>
+                            {ih.countContent && (
+                                <div>
+                                    <p>{ih.countContent}件の返信</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ))}
             </div>
             <div className='fixed bottom-0 w-3/5 mx-auto left-0 right-0 px-5 py-3'>
                 <MessageInput
