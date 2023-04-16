@@ -2,6 +2,8 @@ package interactor
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/google/wire"
 	"github.com/kod-source/docker-goa-next/app/model"
@@ -74,6 +76,9 @@ func (p *postInteractor) Show(ctx context.Context, id int) (*model.ShowPost, err
 func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	ips, nID, err := p.pr.ShowMyLike(ctx, userID, nextID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil, nil
+		}
 		return nil, nil, err
 	}
 
@@ -84,6 +89,9 @@ func (p *postInteractor) ShowMyLike(ctx context.Context, userID, nextID int) ([]
 func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	ips, nID, err := p.pr.ShowPostMy(ctx, userID, nextID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil, nil
+		}
 		return nil, nil, err
 	}
 
@@ -93,6 +101,9 @@ func (p *postInteractor) ShowPostMy(ctx context.Context, userID, nextID int) ([]
 func (p *postInteractor) ShowPostMedia(ctx context.Context, userID, nextID int) ([]*model.IndexPostWithCountLike, *int, error) {
 	ips, nID, err := p.pr.ShowPostMedia(ctx, userID, nextID)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil, nil
+		}
 		return nil, nil, err
 	}
 	return ips, nID, nil
