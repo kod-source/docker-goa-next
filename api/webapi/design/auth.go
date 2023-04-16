@@ -51,6 +51,29 @@ var _ = Resource("auth", func() {
 		Response(BadRequest, MyError)
 		Response(InternalServerError)
 	})
+	Action("google_login", func() {
+		Routing(GET("google/login"))
+		Description("Googleアカウントでログインの際のリダイレクトURL取得")
+		Response(OK, redirectURI)
+		Response(InternalServerError)
+	})
+	Action("google_callback", func() {
+		Routing(POST("google/callback"))
+		Description("コールバックURLからアカウント登録とトークンの返却")
+		Payload(func() {
+			Attribute("state", String, "ステート", func() {
+				Example("test-state")
+			})
+			Attribute("code", String, "認証コード", func() {
+				Example("40AWtgzh6GTNr-woVapzAGHlkG_NnEusbutSonN-pP_i2VG_xVRkYFuxh5a6E-vESk")
+			})
+			Required("state", "code")
+		})
+		Response(OK, token)
+		Response(Created, token)
+		Response(BadRequest)
+		Response(InternalServerError)
+	})
 })
 
 var token = MediaType("application/vnd.token+json", func() {
@@ -65,4 +88,15 @@ var token = MediaType("application/vnd.token+json", func() {
 	})
 	Required("token")
 	Required("user")
+})
+
+var redirectURI = MediaType("application/vnd.redirect_uri+json", func() {
+	Description("リダイレクト先のURL")
+	Attribute("url", String, "URL", func() {
+		Example("https://accounts.google.com/o/oauth2/auth?client_id=mock_client_id&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fcallback%2Fgoogle&response_type=code&scope=openid&state=pseudo-random")
+	})
+	View("default", func() {
+		Attribute("url")
+	})
+	Required("url")
 })

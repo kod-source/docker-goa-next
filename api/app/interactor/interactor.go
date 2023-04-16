@@ -11,4 +11,5 @@ var Set = wire.NewSet(
 	UserRoomInteractorSet,
 	ThreadUsecaseSet,
 	ContentUsecaseSet,
+	GoogleUsecaseSet,
 )

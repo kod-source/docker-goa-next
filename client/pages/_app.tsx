@@ -22,7 +22,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     let isFirst = true;
 
     const fetchData = async () => {
-        if (path === "/login" || path === "/sign_up") {
+        if (path === "/login" || path === "/sign_up" || path === "/auth/callback/google") {
             return;
         }
         const token = localStorage.getItem("token");

@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/kod-source/docker-goa-next/app/interactor/mock"
+	interactor "github.com/kod-source/docker-goa-next/app/interactor/mock"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
 	"github.com/kod-source/docker-goa-next/webapi/app"
@@ -21,8 +21,8 @@ import (
 
 func Test_Login(t *testing.T) {
 	srv := testApp.srv
-	uu := &mock.MockUserUsecase{}
-	ac := NewAuthController(srv, uu)
+	uu := &interactor.MockUserUsecase{}
+	ac := NewAuthController(srv, uu, nil)
 	wantUserID := model.UserID(1)
 	wantUserName := "test_user"
 	wantEmail := "test@gmail.com"
@@ -192,8 +192,8 @@ func Test_Login(t *testing.T) {
 
 func Test_SignUp(t *testing.T) {
 	srv := testApp.srv
-	uu := &mock.MockUserUsecase{}
-	ac := NewAuthController(srv, uu)
+	uu := &interactor.MockUserUsecase{}
+	ac := NewAuthController(srv, uu, nil)
 	wantUserName := "test_user"
 	wantEmail := "test@gmail.com"
 	wantPassword := "passowrd"
@@ -446,4 +446,154 @@ func Test_newAuthMiddleware(t *testing.T) {
 	// 		t.Fatal(err)
 	// 	}
 	// })
+}
+
+func Test_GoogleLogin(t *testing.T) {
+	srv := testApp.srv
+	gu := &interactor.MockGoogleUsecase{}
+	ac := NewAuthController(srv, nil, gu)
+	wantRedirectURL := "https://accounts.google.com/o/oauth2/auth?client_id=mock_client_id&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fauth%2Fcallback%2Fgoogle&response_type=code&scope=openid&state=test-state"
+
+	t.Run("[OK]GoogleアカウントログインリダイレクトURL取得", func(t *testing.T) {
+		gu.GetLoginURLFunc = func(state string) string {
+			return wantRedirectURL
+		}
+		defer func() {
+			gu.GetLoginURLFunc = nil
+		}()
+
+		want := &app.RedirectURI{
+			URL: wantRedirectURL,
+		}
+		_, got := test.GoogleLoginAuthOK(t, ctx, srv, ac)
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want, +got)\n%s", diff)
+		}
+	})
+}
+
+func Test_GoogleCallback(t *testing.T) {
+	srv := testApp.srv
+	uu := &interactor.MockUserUsecase{}
+	gu := &interactor.MockGoogleUsecase{}
+	ac := NewAuthController(srv, uu, gu)
+	wantState := "pseudo-random"
+	wantCode := "wantCode"
+	wantToken := "wantToken"
+
+	t.Run("[OK]コールバックURLからアカウント登録", func(t *testing.T) {
+		wantUser := &model.User{
+			ID:        1,
+			Name:      "test_user",
+			Email:     "test@gmail.com",
+			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			Avatar:    pointer.Ptr("test_avatar"),
+		}
+		gu.GetOrCreateUserInfoFunc = func(ctx context.Context, code string) (*model.User, error) {
+			if diff := cmp.Diff(wantCode, code); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return wantUser, nil
+		}
+
+		uu.CreateJWTTokenFunc = func(ctx context.Context, id model.UserID, name string) (*string, error) {
+			if diff := cmp.Diff(wantUser.ID, id); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantUser.Name, name); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+
+			return &wantToken, nil
+		}
+
+		defer func() {
+			gu.GetOrCreateUserInfoFunc = nil
+			uu.CreateJWTTokenFunc = nil
+		}()
+
+		want := &app.Token{
+			Token: wantToken,
+			User: &app.User{
+				ID:        1,
+				Name:      pointer.Ptr("test_user"),
+				Email:     pointer.Ptr("test@gmail.com"),
+				Avatar:    pointer.Ptr("test_avatar"),
+				CreatedAt: pointer.Ptr(time.Date(2022, 1, 1, 0, 0, 0, 0, jst)),
+			},
+		}
+		_, got := test.GoogleCallbackAuthCreated(t, ctx, srv, ac, &app.GoogleCallbackAuthPayload{
+			Code:  wantCode,
+			State: wantState,
+		})
+
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("mismatch (-want +got)\n%s", diff)
+		}
+	})
+
+	t.Run("[NG]コールバックURLからアカウント登録 - ユーザー作成エラー", func(t *testing.T) {
+		wantErr := errors.New("test error")
+		gu.GetOrCreateUserInfoFunc = func(ctx context.Context, code string) (*model.User, error) {
+			if diff := cmp.Diff(wantCode, code); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return nil, wantErr
+		}
+
+		defer func() {
+			gu.GetOrCreateUserInfoFunc = nil
+		}()
+
+		test.GoogleCallbackAuthBadRequest(t, ctx, srv, ac, &app.GoogleCallbackAuthPayload{
+			Code:  wantCode,
+			State: wantState,
+		})
+	})
+
+	t.Run("[NG]コールバックURLからアカウント登録 - トークン作成エラー", func(t *testing.T) {
+		wantUser := &model.User{
+			ID:        1,
+			Name:      "test_user",
+			Email:     "test@gmail.com",
+			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			Avatar:    pointer.Ptr("test_avatar"),
+		}
+		gu.GetOrCreateUserInfoFunc = func(ctx context.Context, code string) (*model.User, error) {
+			if diff := cmp.Diff(wantCode, code); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			return wantUser, nil
+		}
+
+		wantErr := errors.New("create token error")
+		uu.CreateJWTTokenFunc = func(ctx context.Context, id model.UserID, name string) (*string, error) {
+			if diff := cmp.Diff(wantUser.ID, id); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+			if diff := cmp.Diff(wantUser.Name, name); diff != "" {
+				t.Errorf("mismatch (-want +got)\n%s", diff)
+			}
+
+			return nil, wantErr
+		}
+
+		defer func() {
+			gu.GetOrCreateUserInfoFunc = nil
+			uu.CreateJWTTokenFunc = nil
+		}()
+
+		test.GoogleCallbackAuthInternalServerError(t, ctx, srv, ac, &app.GoogleCallbackAuthPayload{
+			Code:  wantCode,
+			State: wantState,
+		})
+	})
+
+	t.Run("[NG]コールバックURLからアカウント登録 - stateの値が違う時", func(t *testing.T) {
+		dummyState := "dummy-state"
+		test.GoogleCallbackAuthBadRequest(t, ctx, srv, ac, &app.GoogleCallbackAuthPayload{
+			Code:  wantCode,
+			State: dummyState,
+		})
+	})
 }
