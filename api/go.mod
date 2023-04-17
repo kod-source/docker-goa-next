@@ -16,7 +16,7 @@ require (
 	github.com/tanimutomo/sqlfile v1.0.0
 	golang.org/x/crypto v0.8.0
 	golang.org/x/net v0.9.0
-	golang.org/x/oauth2 v0.5.0
+	golang.org/x/oauth2 v0.7.0
 )
 
 require (
