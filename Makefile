@@ -5,9 +5,9 @@ help: ## この文章を表示します。
 local: ## apiサーバーとクライアントを同時に起動する
 	docker compose up -d db api client
 
-.PHONY: desing
-design: ## designファイルの実行 go generate ./...
-	cd api && go get github.com/google/wire/cmd/wire@latest && go get github.com/shogo82148/goa-v1/...@v1 && go generate ./... && go mod tidy
+.PHONY: generate
+generate: ## go generateの実行
+	cd api && go generate ./... && go mod tidy
 
 .PHONY: seed
 seed: ## 初期値の登録
