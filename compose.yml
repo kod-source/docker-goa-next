@@ -3,6 +3,7 @@ services:
     build:
       context: ./docker/mysql
       dockerfile: Dockerfile
+      target: dev
     platform: linux/x86_64
     ports:
       - '13306:3306'
@@ -19,8 +20,8 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./docker/go/Dockerfile
-      # target: dev
+      dockerfile: ./docker/webapi/go/Dockerfile
+      target: dev
     tty: true
     stdin_open: true
     ports:
