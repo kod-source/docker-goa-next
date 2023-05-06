@@ -1,4 +1,4 @@
-FROM node:14.18.0 as dev
+FROM node:16.8.0 as dev
 ENV ROOT=/usr/src/app
 
 WORKDIR ${ROOT}

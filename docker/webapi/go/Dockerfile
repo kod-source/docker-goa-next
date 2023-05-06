@@ -1,4 +1,4 @@
-FROM golang:1.20 as build
+FROM golang:1.20 as dev
 ENV GO111MODULE on
 ENV ROOT=/go/src/app
 
