@@ -14,7 +14,7 @@ var _ = API("docker_goa_next", func() {
 	Version("v1")
 	BasePath("/api/v1")
 
-	Origin("/.*localhost.*/", func() {
+	Origin("*", func() {
 		Headers("Authorization, Content-Type")
 		Methods("GET", "POST", "PUT", "DELETE")
 	})

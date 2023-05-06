@@ -19,8 +19,8 @@ services:
   api:
     build:
       context: .
-      dockerfile: ./docker/go/Dockerfile
-      # target: dev
+      dockerfile: ./docker/webapi/go/Dockerfile
+      target: dev
     tty: true
     stdin_open: true
     ports:
@@ -34,6 +34,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/client/Dockerfile
+      target: dev
     environment:
       - NEXT_PUBLIC_END_POINT
     tty: true
@@ -64,3 +65,26 @@ services:
       - '8083:80'
     volumes:
       - ./api/schemaspy:/usr/share/nginx/html:ro
+
+  webapi_proxy:
+    build:
+      context: ./docker/webapi/nginx
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+
+  webapi_pro:
+    build:
+      context: .
+      dockerfile: ./docker/webapi/go/Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - webapi_proxy
+    volumes:
+      - ./api:/go/src/app
+    env_file: .env
+
+networks:
+  default:
+    name: proxy-network
