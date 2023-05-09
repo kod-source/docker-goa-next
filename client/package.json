@@ -17,7 +17,7 @@
         "@emotion/styled": "^11.10.6",
         "@mui/icons-material": "^5.11.11",
         "@mui/lab": "^5.0.0-alpha.128",
-        "@mui/material": "^5.12.2",
+        "@mui/material": "^5.12.3",
         "@mui/styled-engine-sc": "^5.11.11",
         "@types/luxon": "^3.3.0",
         "axios": "^1.4.0",
