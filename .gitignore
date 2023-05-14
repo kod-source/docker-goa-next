@@ -1,4 +1,5 @@
 .env
+.envrc
 db-goa-next/
 .vscode/
 .DS_Store
