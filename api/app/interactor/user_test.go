@@ -163,7 +163,8 @@ func Test_SignUp(t *testing.T) {
 	wantPassword := "password"
 	wantAvatar := pointer.Ptr("test_avatar")
 
-	t.Run("[OK]アカウント登録", func(t *testing.T) {
+	t.Run("[OK]アカウント登録 - パスワードがhash化されているかも確認", func(t *testing.T) {
+		wantHashPassword := "$2a$10"
 		wantUser := &model.User{
 			ID:        1,
 			Name:      "test_user",
@@ -172,7 +173,12 @@ func Test_SignUp(t *testing.T) {
 			CreatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 			Avatar:    pointer.Ptr("test_avatar"),
 		}
-		ur.EXPECT().CreateUser(gomock.Any(), wantName, wantEmail, gomock.Any(), wantAvatar).Return(wantUser, nil)
+		ur.EXPECT().CreateUser(gomock.Any(), wantName, wantEmail, gomock.Any(), wantAvatar).DoAndReturn(func(ctx context.Context, name, email, password string, avatar *string) (*model.User, error) {
+			if password[:len(wantHashPassword)] != wantHashPassword {
+				t.Errorf("want password is %s, but got is %s", wantHashPassword, password)
+			}
+			return wantUser, nil
+		})
 
 		got, err := ui.SignUp(ctx, wantName, wantEmail, wantPassword, wantAvatar)
 		if err != nil {
@@ -180,19 +186,6 @@ func Test_SignUp(t *testing.T) {
 		}
 		if diff := cmp.Diff(wantUser, got); diff != "" {
 			t.Errorf("mismatch (-want +got)\n%s", diff)
-		}
-	})
-
-	t.Run("[OK]アカウント登録 - パスワードがHash化されているか確認", func(t *testing.T) {
-		wantHashPassword := "$2a$10"
-		ur.EXPECT().CreateUser(ctx, wantName, wantEmail, gomock.Any(), wantAvatar).Do(func(ctx context.Context, name, email, password string, avatar *string) {
-			if password[:len(wantHashPassword)] != wantHashPassword {
-				t.Errorf("want password is %s, but got is %s", wantHashPassword, password)
-			}
-		})
-
-		if _, err := ui.SignUp(ctx, wantName, wantEmail, wantPassword, wantAvatar); err != nil {
-			t.Fatal(err)
 		}
 	})
 
