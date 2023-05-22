@@ -137,8 +137,8 @@ github.com/rogpeppe/go-internal v1.0.1-alpha.1/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/q
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/shogo82148/goa-v1 v1.5.14 h1:SNZGnLJ9f0L/iefuNaByhebfpN2tX0YZYSdiDYl5QPI=
 github.com/shogo82148/goa-v1 v1.5.14/go.mod h1:QZwx9d/VDMzhn/GkBA5b8cL92olBvQOhVxH2OmSQ+iE=
-github.com/shogo82148/myddlmaker v0.0.6 h1:IKtaGx/HnECUIicrNFDpIZzksII6NEd67BlEg7crgck=
-github.com/shogo82148/myddlmaker v0.0.6/go.mod h1:AyJfmk86lLlEe0xAREdylvTLlJApBv+NC1/1234e9C0=
+github.com/shogo82148/myddlmaker v0.0.7 h1:1f8RJvDyrRvNoeyi98bGTIcp6vxTliKFXyHYNaibOKE=
+github.com/shogo82148/myddlmaker v0.0.7/go.mod h1:T2xpbT7X5GWCNuy3nxxzUrioyNL14KNdPo4It9QE3G4=
 github.com/shogo82148/pointer v1.2.0 h1:MEPjAx9hK17sdEVhaqHROphdy+RxTH70vaBypZzZ/d8=
 github.com/shogo82148/pointer v1.2.0/go.mod h1:agZ5JFpavFPXznbWonIvbG78NDfvDTFppe+7o53up5w=
 github.com/shurcooL/go v0.0.0-20180423040247-9e1955d9fb6e/go.mod h1:TDJrrUr11Vxrven61rcy3hJMUqaf/CLWYhHNPmT14Lk=
