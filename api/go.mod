@@ -10,7 +10,7 @@ require (
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.5.1
 	github.com/shogo82148/goa-v1 v1.5.14
-	github.com/shogo82148/myddlmaker v0.0.7
+	github.com/shogo82148/myddlmaker v0.0.8
 	github.com/shogo82148/pointer v1.2.0
 	github.com/spf13/cobra v1.7.0
 	github.com/tanimutomo/sqlfile v1.0.0
