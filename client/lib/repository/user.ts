@@ -31,7 +31,7 @@ export const UserRepostiory = {
     index: async (): Promise<User[]> => {
         const apiClient = await asyncApiClient.create();
         const res = await apiClient.get("users");
-        const users: User[] = res.data.map((d: any) => {
+        const users: User[] = res.data.map((d: any): User => {
             return new User(d.id, d.name, d.email, d.created_at, d.avatar ? d.avatar : null);
         });
         return users;

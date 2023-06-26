@@ -1,47 +1,38 @@
 package webapi
 
 import (
-	"context"
 	"errors"
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
-	"github.com/kod-source/docker-goa-next/app/interactor/mock"
 	"github.com/kod-source/docker-goa-next/app/model"
 	myerrors "github.com/kod-source/docker-goa-next/app/my_errors"
+	mock_usecase "github.com/kod-source/docker-goa-next/app/usecase/mock"
 	"github.com/kod-source/docker-goa-next/webapi/app"
 	"github.com/kod-source/docker-goa-next/webapi/app/test"
 	"github.com/shogo82148/pointer"
 )
 
 func Test_InviteRoom(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	uru := mock_usecase.NewMockUserRoomUseCase(ctrl)
 	srv := testApp.srv
-	uru := &mock.MockUserRoomUsecase{}
 	ur := NewUserRoomController(srv, uru)
 	wantRoomID := model.RoomID(1)
 	wantUserID := model.UserID(2)
 
 	t.Run("[OK]ルームに招待", func(t *testing.T) {
-		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
-			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
-				t.Errorf("mismatch (-want +got)\n%s", diff)
-			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
-				t.Errorf("mismatch (-want +got)\n%s", diff)
-			}
-			return &model.UserRoom{
-				ID:         1,
-				UserID:     wantUserID,
-				RoomID:     wantRoomID,
-				LastReadAt: pointer.Ptr(time.Date(2022, 1, 1, 0, 0, 0, 0, jst)),
-				CreatedAt:  time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-				UpdatedAt:  time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-			}, nil
+		wantMock := &model.UserRoom{
+			ID:         1,
+			UserID:     wantUserID,
+			RoomID:     wantRoomID,
+			LastReadAt: pointer.Ptr(time.Date(2022, 1, 1, 0, 0, 0, 0, jst)),
+			CreatedAt:  time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			UpdatedAt:  time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
 		}
-		defer func() {
-			uru.InviteRoomFunc = nil
-		}()
+		uru.EXPECT().InviteRoom(gomock.Any(), model.RoomID(1), model.UserID(2)).Return(wantMock, nil)
 
 		want := &app.UserRoom{
 			ID:         1,
@@ -61,25 +52,14 @@ func Test_InviteRoom(t *testing.T) {
 	})
 
 	t.Run("[OK]ルームに招待 - last_read_atがnilの時", func(t *testing.T) {
-		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
-			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
-				t.Errorf("mismatch (-want +got)\n%s", diff)
-			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
-				t.Errorf("mismatch (-want +got)\n%s", diff)
-			}
-			return &model.UserRoom{
-				ID:         1,
-				UserID:     wantUserID,
-				RoomID:     wantRoomID,
-				LastReadAt: nil,
-				CreatedAt:  time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-				UpdatedAt:  time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
-			}, nil
-		}
-		defer func() {
-			uru.InviteRoomFunc = nil
-		}()
+		uru.EXPECT().InviteRoom(gomock.Any(), wantRoomID, wantUserID).Return(&model.UserRoom{
+			ID:         1,
+			UserID:     wantUserID,
+			RoomID:     wantRoomID,
+			LastReadAt: nil,
+			CreatedAt:  time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+			UpdatedAt:  time.Date(2022, 1, 1, 0, 0, 0, 0, jst),
+		}, nil)
 
 		want := &app.UserRoom{
 			ID:         1,
@@ -99,18 +79,7 @@ func Test_InviteRoom(t *testing.T) {
 	})
 
 	t.Run("[NG]ルームに招待 - 不明なIDを指定した時", func(t *testing.T) {
-		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
-			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
-				t.Errorf("mismatch (-want +got)\n%s", diff)
-			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
-				t.Errorf("mismatch (-want +got)\n%s", diff)
-			}
-			return nil, myerrors.MySQLErrorAddOrUpdateForeignKey
-		}
-		defer func() {
-			uru.InviteRoomFunc = nil
-		}()
+		uru.EXPECT().InviteRoom(gomock.Any(), wantRoomID, wantUserID).Return(nil, myerrors.MySQLErrorAddOrUpdateForeignKey)
 
 		test.InviteRoomUserRoomsBadRequest(t, ctx, srv, ur, &app.InviteRoomUserRoomsPayload{
 			RoomID: int(wantRoomID),
@@ -119,12 +88,7 @@ func Test_InviteRoom(t *testing.T) {
 	})
 
 	t.Run("[NG]ルームに招待 - 数字が0の時", func(t *testing.T) {
-		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
-			return nil, myerrors.ErrBadRequestInt
-		}
-		defer func() {
-			uru.InviteRoomFunc = nil
-		}()
+		uru.EXPECT().InviteRoom(gomock.Any(), model.RoomID(0), model.UserID(0)).Return(nil, myerrors.ErrBadRequestInt)
 
 		test.InviteRoomUserRoomsBadRequest(t, ctx, srv, ur, &app.InviteRoomUserRoomsPayload{
 			RoomID: 0,
@@ -133,18 +97,7 @@ func Test_InviteRoom(t *testing.T) {
 	})
 
 	t.Run("[NG]ルームに招待 - 権限がないとき", func(t *testing.T) {
-		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
-			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
-				t.Errorf("mismatch (-want +got)\n%s", diff)
-			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
-				t.Errorf("mismatch (-want +got)\n%s", diff)
-			}
-			return nil, myerrors.ErrBadRequestNoPermission
-		}
-		defer func() {
-			uru.InviteRoomFunc = nil
-		}()
+		uru.EXPECT().InviteRoom(gomock.Any(), wantRoomID, wantUserID).Return(nil, myerrors.ErrBadRequestNoPermission)
 
 		test.InviteRoomUserRoomsBadRequest(t, ctx, srv, ur, &app.InviteRoomUserRoomsPayload{
 			RoomID: int(wantRoomID),
@@ -153,18 +106,7 @@ func Test_InviteRoom(t *testing.T) {
 	})
 
 	t.Run("[NG]ルームに招待 - エラー発生", func(t *testing.T) {
-		uru.InviteRoomFunc = func(ctx context.Context, roomID model.RoomID, userID model.UserID) (*model.UserRoom, error) {
-			if diff := cmp.Diff(wantRoomID, roomID); diff != "" {
-				t.Errorf("mismatch (-want +got)\n%s", diff)
-			}
-			if diff := cmp.Diff(wantUserID, userID); diff != "" {
-				t.Errorf("mismatch (-want +got)\n%s", diff)
-			}
-			return nil, errors.New("test error")
-		}
-		defer func() {
-			uru.InviteRoomFunc = nil
-		}()
+		uru.EXPECT().InviteRoom(gomock.Any(), wantRoomID, wantUserID).Return(nil, errors.New("test error"))
 
 		test.InviteRoomUserRoomsInternalServerError(t, ctx, srv, ur, &app.InviteRoomUserRoomsPayload{
 			RoomID: int(wantRoomID),
@@ -175,34 +117,19 @@ func Test_InviteRoom(t *testing.T) {
 
 func Test_DeleteUserRoom(t *testing.T) {
 	srv := testApp.srv
-	uru := &mock.MockUserRoomUsecase{}
+	ctl := gomock.NewController(t)
+	uru := mock_usecase.NewMockUserRoomUseCase(ctl)
 	ur := NewUserRoomController(srv, uru)
 	wantUserRoomID := model.UserRoomID(1)
 
 	t.Run("[OK]UserRoomの削除", func(t *testing.T) {
-		uru.DeleteFunc = func(ctx context.Context, id model.UserRoomID) error {
-			if diff := cmp.Diff(wantUserRoomID, id); diff != "" {
-				t.Errorf("mismatch (-want, +got)\n%s", diff)
-			}
-			return nil
-		}
-		defer func() {
-			uru.DeleteFunc = nil
-		}()
+		uru.EXPECT().Delete(gomock.Any(), wantUserRoomID).Return(nil)
 
 		test.DeleteUserRoomsOK(t, ctx, srv, ur, int(wantUserRoomID))
 	})
 
 	t.Run("[NG]UserRoomの削除 - 想定外エラー発生", func(t *testing.T) {
-		uru.DeleteFunc = func(ctx context.Context, id model.UserRoomID) error {
-			if diff := cmp.Diff(wantUserRoomID, id); diff != "" {
-				t.Errorf("mismatch (-want, +got)\n%s", diff)
-			}
-			return errors.New("test error")
-		}
-		defer func() {
-			uru.DeleteFunc = nil
-		}()
+		uru.EXPECT().Delete(gomock.Any(), wantUserRoomID).Return(errors.New("test error"))
 
 		test.DeleteUserRoomsInternalServerError(t, ctx, srv, ur, int(wantUserRoomID))
 	})
