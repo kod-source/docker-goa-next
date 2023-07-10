@@ -12,10 +12,15 @@ import (
 )
 
 func Test_CreateLike(t *testing.T) {
-	ld := NewLikeDatastore(testDB)
+	tx, err := testDB.BeginTx(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback()
+	ld := NewLikeDatastore()
 
 	t.Run("[OK]いいね登録", func(t *testing.T) {
-		got, err := ld.Create(ctx, 2, 2)
+		got, err := ld.Create(ctx, tx, 2, 2)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -33,27 +38,27 @@ func Test_CreateLike(t *testing.T) {
 		if diff := cmp.Diff(want, got); diff != "" {
 			t.Errorf("mismatch (-want +got)\n%s", diff)
 		}
-		if err := ld.Delete(ctx, got.UserID, got.PostID); err != nil {
+		if err := ld.Delete(ctx, tx, got.UserID, got.PostID); err != nil {
 			t.Fatal(err)
 		}
 	})
 
 	t.Run("[NG]いいね登録 - ユニークエラー", func(t *testing.T) {
-		_, err := ld.Create(ctx, 1, 1)
+		_, err := ld.Create(ctx, tx, 1, 1)
 		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorDuplicate.Number {
 			t.Errorf("want error code %v, but got error code is %v", myerrors.MySQLErrorDuplicate.Number, code)
 		}
 	})
 
 	t.Run("[NG]いいね登録 - 存在しない投稿をいいね", func(t *testing.T) {
-		_, err := ld.Create(ctx, 1, 1000)
+		_, err := ld.Create(ctx, tx, 1, 1000)
 		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
 			t.Errorf("want error code %v, but got error code is %v", myerrors.MySQLErrorAddOrUpdateForeignKey.Number, code)
 		}
 	})
 
 	t.Run("[NG]いいね登録 - 存在しないユーザーでいいね", func(t *testing.T) {
-		_, err := ld.Create(ctx, 1000, 1)
+		_, err := ld.Create(ctx, tx, 1000, 1)
 		if code := myerrors.GetMySQLErrorNumber(err); code != myerrors.MySQLErrorAddOrUpdateForeignKey.Number {
 			t.Errorf("want error code %v, but got error code is %v", myerrors.MySQLErrorAddOrUpdateForeignKey.Number, code)
 		}
@@ -61,7 +66,12 @@ func Test_CreateLike(t *testing.T) {
 }
 
 func Test_DeleteLike(t *testing.T) {
-	ld := NewLikeDatastore(testDB)
+	tx, err := testDB.BeginTx(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback()
+	ld := NewLikeDatastore()
 
 	t.Run("[OK]いいね削除", func(t *testing.T) {
 		likeID := 4
@@ -74,24 +84,29 @@ func Test_DeleteLike(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := ld.Delete(ctx, int(like.UserID), int(like.PostID)); err != nil {
+		if err := ld.Delete(ctx, tx, int(like.UserID), int(like.PostID)); err != nil {
 			t.Fatal(err)
 		}
 	})
 
 	t.Run("[NG]いいね削除 - 存在しないものを選択", func(t *testing.T) {
-		if err := ld.Delete(ctx, 1000, 1000); !errors.Is(err, sql.ErrNoRows) {
+		if err := ld.Delete(ctx, tx, 1000, 1000); !errors.Is(err, sql.ErrNoRows) {
 			t.Errorf("want err %v, but got error is %v", sql.ErrNoRows, err)
 		}
 	})
 }
 
 func Test_GetPostIDs(t *testing.T) {
-	ld := NewLikeDatastore(testDB)
+	tx, err := testDB.BeginTx(ctx, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback()
+	ld := NewLikeDatastore()
 
 	t.Run("[OK]いいねした投稿IDを取得", func(t *testing.T) {
 		want := []int{1, 2, 3}
-		got, err := ld.GetPostIDs(ctx, 1)
+		got, err := ld.GetPostIDs(ctx, tx, 1)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -102,7 +117,7 @@ func Test_GetPostIDs(t *testing.T) {
 	})
 
 	t.Run("[NG]いいねした投稿IDを取得 - いいねした投稿が存在しない時", func(t *testing.T) {
-		got, err := ld.GetPostIDs(ctx, 1000)
+		got, err := ld.GetPostIDs(ctx, tx, 1000)
 		if err != nil {
 			t.Fatal(err)
 		}

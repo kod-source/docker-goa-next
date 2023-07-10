@@ -18,20 +18,13 @@ var LikeDatastoreSet = wire.NewSet(
 )
 
 type likeDatastore struct {
-	db *sql.DB
 }
 
-func NewLikeDatastore(db *sql.DB) *likeDatastore {
-	return &likeDatastore{db: db}
+func NewLikeDatastore() *likeDatastore {
+	return &likeDatastore{}
 }
 
-func (l *likeDatastore) Create(ctx context.Context, userID, postID int) (*model.Like, error) {
-	tx, err := l.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-	defer tx.Rollback()
-
+func (l *likeDatastore) Create(ctx context.Context, tx *sql.Tx, userID, postID int) (*model.Like, error) {
 	ins, err := tx.Prepare(
 		"INSERT INTO `like`(`user_id`, `post_id`) VALUES(?, ?)",
 	)
@@ -64,11 +57,11 @@ func (l *likeDatastore) Create(ctx context.Context, userID, postID int) (*model.
 		ID:     int(like.ID),
 		UserID: int(like.UserID),
 		PostID: int(like.PostID),
-	}, tx.Commit()
+	}, nil
 }
 
-func (l *likeDatastore) Delete(ctx context.Context, userID, postID int) error {
-	stmt, err := l.db.Prepare("DELETE FROM `like` WHERE `user_id` = ? AND `post_id` = ?")
+func (l *likeDatastore) Delete(ctx context.Context, tx *sql.Tx, userID, postID int) error {
+	stmt, err := tx.Prepare("DELETE FROM `like` WHERE `user_id` = ? AND `post_id` = ?")
 	if err != nil {
 		return err
 	}
@@ -87,8 +80,8 @@ func (l *likeDatastore) Delete(ctx context.Context, userID, postID int) error {
 	return nil
 }
 
-func (l *likeDatastore) GetPostIDs(ctx context.Context, userID int) ([]int, error) {
-	rows, err := l.db.Query("SELECT `post_id` FROM `like` WHERE `user_id` = ?", userID)
+func (l *likeDatastore) GetPostIDs(ctx context.Context, tx *sql.Tx, userID int) ([]int, error) {
+	rows, err := tx.Query("SELECT `post_id` FROM `like` WHERE `user_id` = ?", userID)
 	if err != nil {
 		return nil, err
 	}
