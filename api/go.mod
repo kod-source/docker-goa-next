@@ -6,7 +6,6 @@ require (
 	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-jwt/jwt/v4 v4.5.0
-	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.5.9
 	github.com/google/wire v0.5.0
 	github.com/joho/godotenv v1.5.1
@@ -15,6 +14,7 @@ require (
 	github.com/shogo82148/pointer v1.2.0
 	github.com/spf13/cobra v1.7.0
 	github.com/tanimutomo/sqlfile v1.0.0
+	go.uber.org/mock v0.2.0
 	golang.org/x/crypto v0.11.0
 	golang.org/x/net v0.12.0
 	golang.org/x/oauth2 v0.9.0

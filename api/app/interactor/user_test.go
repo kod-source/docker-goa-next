@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang/mock/gomock"
 	"github.com/google/go-cmp/cmp"
 	serviceMock "github.com/kod-source/docker-goa-next/app/external/mock"
 	"github.com/kod-source/docker-goa-next/app/model"
