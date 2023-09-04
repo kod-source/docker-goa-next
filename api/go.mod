@@ -12,7 +12,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/shogo82148/goa-v1 v1.5.14
 	github.com/shogo82148/myddlmaker v0.0.8
-	github.com/shogo82148/pointer v1.2.0
+	github.com/shogo82148/pointer v1.3.0
 	github.com/spf13/cobra v1.7.0
 	github.com/tanimutomo/sqlfile v1.0.0
 	golang.org/x/crypto v0.12.0

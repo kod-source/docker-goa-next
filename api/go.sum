@@ -142,8 +142,8 @@ github.com/shogo82148/goa-v1 v1.5.14 h1:SNZGnLJ9f0L/iefuNaByhebfpN2tX0YZYSdiDYl5
 github.com/shogo82148/goa-v1 v1.5.14/go.mod h1:QZwx9d/VDMzhn/GkBA5b8cL92olBvQOhVxH2OmSQ+iE=
 github.com/shogo82148/myddlmaker v0.0.8 h1:MGy2csFXd3REhjIfh9cE8COnpTpfLwzTm/r3xncX0UA=
 github.com/shogo82148/myddlmaker v0.0.8/go.mod h1:T2xpbT7X5GWCNuy3nxxzUrioyNL14KNdPo4It9QE3G4=
-github.com/shogo82148/pointer v1.2.0 h1:MEPjAx9hK17sdEVhaqHROphdy+RxTH70vaBypZzZ/d8=
-github.com/shogo82148/pointer v1.2.0/go.mod h1:agZ5JFpavFPXznbWonIvbG78NDfvDTFppe+7o53up5w=
+github.com/shogo82148/pointer v1.3.0 h1:LW5V2jUAjFNjS8e7k/PgFoh3EavOSB/vvN85aGue5+I=
+github.com/shogo82148/pointer v1.3.0/go.mod h1:agZ5JFpavFPXznbWonIvbG78NDfvDTFppe+7o53up5w=
 github.com/shurcooL/go v0.0.0-20180423040247-9e1955d9fb6e/go.mod h1:TDJrrUr11Vxrven61rcy3hJMUqaf/CLWYhHNPmT14Lk=
 github.com/shurcooL/httpfs v0.0.0-20181222201310-74dc9339e414/go.mod h1:ZY1cvUeJuFPAdZ/B6v7RHavJWZn2YPVFQ1OSXhCGOkg=
 github.com/shurcooL/vfsgen v0.0.0-20180915214035-33ae1944be3f/go.mod h1:TrYk7fJVaAttu97ZZKrO9UbRa8izdowaMIZcxYMbVaw=
