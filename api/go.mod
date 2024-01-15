@@ -16,8 +16,8 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/tanimutomo/sqlfile v1.0.0
 	golang.org/x/crypto v0.18.0
-	golang.org/x/net v0.17.0
-	golang.org/x/oauth2 v0.12.0
+	golang.org/x/net v0.20.0
+	golang.org/x/oauth2 v0.16.0
 )
 
 require (
