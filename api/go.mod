@@ -8,7 +8,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.6.0
-	github.com/google/wire v0.5.0
+	github.com/google/wire v0.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/shogo82148/goa-v1 v1.5.14
 	github.com/shogo82148/myddlmaker v0.0.8
@@ -16,7 +16,7 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/tanimutomo/sqlfile v1.0.0
 	golang.org/x/crypto v0.18.0
-	golang.org/x/net v0.17.0
+	golang.org/x/net v0.20.0
 	golang.org/x/oauth2 v0.12.0
 )
 
@@ -28,7 +28,7 @@ require (
 	github.com/dimfeld/httptreemux v5.0.1+incompatible // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/subcommands v1.0.1 // indirect
+	github.com/google/subcommands v1.2.0 // indirect
 	github.com/gopherjs/gopherjs v1.12.80 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
@@ -40,9 +40,8 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/zach-klippenstein/goregen v0.0.0-20160303162051-795b5e3961ea // indirect
-	golang.org/x/mod v0.10.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
-	golang.org/x/tools v0.9.1 // indirect
+	golang.org/x/mod v0.14.0 // indirect
+	golang.org/x/tools v0.17.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
