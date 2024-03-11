@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/caarlos0/env v3.5.0+incompatible
-	github.com/go-sql-driver/mysql v1.7.1
+	github.com/go-sql-driver/mysql v1.8.0
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/golang/mock v1.6.0
 	github.com/google/go-cmp v0.6.0
@@ -23,6 +23,7 @@ require (
 require (
 	cloud.google.com/go/compute v1.20.1 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
+	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/dimfeld/httppath v0.0.0-20170720192232-ee938bf73598 // indirect
 	github.com/dimfeld/httptreemux v5.0.1+incompatible // indirect
